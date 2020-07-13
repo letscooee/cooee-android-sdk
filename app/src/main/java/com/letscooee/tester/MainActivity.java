@@ -9,9 +9,11 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.TextView;
 
+import com.letscooee.android.models.FirstOpen;
 import com.letscooee.android.retrofit.RetrofitClient;
 import com.letscooee.android.retrofit.ServerAPIService;
 
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Response;
 
@@ -30,27 +32,38 @@ public class MainActivity extends AppCompatActivity {
         mSharedPreferences = getSharedPreferences(IS_APP_FIRST_TIME_LAUNCH, Context.MODE_PRIVATE);
         mSharedPreferencesEditor= mSharedPreferences.edit();
 
-        if(isAppFirstTimeLaunch()){
+//        if(isAppFirstTimeLaunch()){
             ((TextView)findViewById(R.id.textView)).setBackgroundColor(Color.RED);
             ((TextView)findViewById(R.id.textView)).setText("APP is launch for first time.");
             ServerAPIService apiService = RetrofitClient.getServerAPIService();
-            apiService.firstOpen().enqueue(new retrofit2.Callback<String>() {
+            apiService.firstOpen().enqueue(new retrofit2.Callback<FirstOpen>() {
                 @Override
-                public void onResponse(Call<String> call, Response<String> response) {
-//                    mSharedPreferences = getSharedPreferences(SDK_TOKEN, Context.MODE_PRIVATE);
-//                    mSharedPreferencesEditor= mSharedPreferences.edit();
-                    Log.i("body",response.body());
+                public void onResponse(Call<FirstOpen> call, Response<FirstOpen> response) {
+                    if(response.isSuccessful()){
+                        Log.i("bodyAllow", String.valueOf(response));
+                        mSharedPreferences = getSharedPreferences(SDK_TOKEN, Context.MODE_PRIVATE);
+                        mSharedPreferencesEditor= mSharedPreferences.edit();
+                        assert response.body() != null;
+                        String sdkToken=response.body().getSdkToken();
+                        mSharedPreferencesEditor.putString(SDK_TOKEN,sdkToken);
+//                        mSharedPreferencesEditor.commit();
+                        mSharedPreferencesEditor.apply();
+                    }
+                    else{
+                        Log.i("bodyError", String.valueOf(response.errorBody()));
+                    }
                 }
 
                 @Override
-                public void onFailure(Call<String> call, Throwable t) {
-                    Log.i("bodyabc",t.toString());
+                public void onFailure(Call<FirstOpen> call, Throwable t) {
+                    Log.i("bodyError",t.toString());
                 }
             });
-        }else {
-            ((TextView)findViewById(R.id.textView)).setBackgroundColor(Color.GREEN);
-            ((TextView)findViewById(R.id.textView)).setText("App previously opened.");
-        }
+//        }
+//        else {
+//            findViewById(R.id.textView).setBackgroundColor(Color.GREEN);
+//            ((TextView)findViewById(R.id.textView)).setText("App previously opened.");
+//        }
 
     }
 
