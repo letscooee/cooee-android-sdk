@@ -32,15 +32,15 @@ public class MainActivity extends AppCompatActivity {
         mSharedPreferences = getSharedPreferences(IS_APP_FIRST_TIME_LAUNCH, Context.MODE_PRIVATE);
         mSharedPreferencesEditor= mSharedPreferences.edit();
 
-//        if(isAppFirstTimeLaunch()){
-            ((TextView)findViewById(R.id.textView)).setBackgroundColor(Color.RED);
+        if(isAppFirstTimeLaunch()){
+            findViewById(R.id.textView).setBackgroundColor(Color.RED);
             ((TextView)findViewById(R.id.textView)).setText("APP is launch for first time.");
             ServerAPIService apiService = RetrofitClient.getServerAPIService();
             apiService.firstOpen().enqueue(new retrofit2.Callback<FirstOpen>() {
                 @Override
                 public void onResponse(Call<FirstOpen> call, Response<FirstOpen> response) {
                     if(response.isSuccessful()){
-                        Log.i("bodyAllow", String.valueOf(response));
+                        Log.i("bodyAllow", String.valueOf(response.body().getSdkToken()));
                         mSharedPreferences = getSharedPreferences(SDK_TOKEN, Context.MODE_PRIVATE);
                         mSharedPreferencesEditor= mSharedPreferences.edit();
                         assert response.body() != null;
@@ -57,13 +57,17 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onFailure(Call<FirstOpen> call, Throwable t) {
                     Log.i("bodyError",t.toString());
+
+
                 }
             });
-//        }
-//        else {
-//            findViewById(R.id.textView).setBackgroundColor(Color.GREEN);
-//            ((TextView)findViewById(R.id.textView)).setText("App previously opened.");
-//        }
+        }
+        else {
+            findViewById(R.id.textView).setBackgroundColor(Color.GREEN);
+            mSharedPreferences = getSharedPreferences(SDK_TOKEN, Context.MODE_PRIVATE);
+            String sdk = mSharedPreferences.getString(SDK_TOKEN,"");
+            ((TextView)findViewById(R.id.textView)).setText("App previously opened."+sdk);
+        }
 
     }
 
