@@ -7,6 +7,7 @@ import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -14,19 +15,28 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -38,7 +48,11 @@ import com.letscooee.android.models.Campaign;
 import com.letscooee.android.models.FirstOpen;
 import com.letscooee.android.retrofit.RetrofitClient;
 import com.letscooee.android.retrofit.ServerAPIService;
+import com.squareup.picasso.Picasso;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -124,6 +138,31 @@ public class MainActivity extends AppCompatActivity {
                     public void onResponse(Call<Campaign> call, Response<Campaign> response) {
                         Campaign campaign = response.body();
                         Log.i("subtitle",campaign.getSubtitle());
+                        Log.i("MediaURL",campaign.getMediaURL());
+
+//                        Dialog settingsDialog = new Dialog(getApplicationContext());
+//                        settingsDialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
+//                        settingsDialog.setContentView(getLayoutInflater().inflate(R.layout.image_campaign, null));
+//                        settingsDialog.show();
+
+                        LayoutInflater layoutInflater = (LayoutInflater)getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE);
+                        View popupView = layoutInflater.inflate(R.layout.image_campaign, null);
+                        final PopupWindow popupWindow = new PopupWindow(
+                                popupView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+
+
+                        ImageView iv=(ImageView)popupView.findViewById(R.id.imageView);
+                        Picasso.with(getApplicationContext()).load(campaign.getMediaURL()).into(iv);
+
+//                        TextView tv = (TextView)popupView.findViewById(R.id.txtClose);
+                        iv.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                popupWindow.dismiss();
+                            }
+                        });
+
+                        popupWindow.showAtLocation(btnImage, Gravity.CENTER,0,0);
                     }
 
                     @Override
