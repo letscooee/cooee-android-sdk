@@ -1,4 +1,4 @@
-package com.wizpanda.tester;
+package com.wizpanda.cooeetester;
 
 import android.content.Context;
 import androidx.test.platform.app.InstrumentationRegistry;

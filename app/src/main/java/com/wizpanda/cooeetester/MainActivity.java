@@ -1,4 +1,4 @@
-package com.wizpanda.tester;
+package com.wizpanda.cooeetester;
 
 
 import androidx.appcompat.app.AppCompatActivity;
