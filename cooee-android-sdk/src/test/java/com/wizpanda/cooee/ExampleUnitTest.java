@@ -1,4 +1,4 @@
-package com.letscooee.tester;
+package com.wizpanda.cooee;
 
 import org.junit.Test;
 

@@ -1,7 +1,7 @@
-package com.letscooee.android.retrofit;
+package com.wizpanda.cooee.retrofit;
 
-import com.letscooee.android.models.Campaign;
-import com.letscooee.android.models.FirstOpen;
+import com.wizpanda.cooee.models.Campaign;
+import com.wizpanda.cooee.models.SDKAuthentication;
 
 import java.util.Map;
 
@@ -17,7 +17,7 @@ import retrofit2.http.QueryMap;
 
 public interface ServerAPIService {
     @GET("first_open/")
-    Call<FirstOpen> firstOpen();
+    Call<SDKAuthentication> firstOpen();
 
     @GET("image_open/")
     Call<Campaign> imageOpen(@Header("sdkToken") String sdkToken, @Query("name") String name, @QueryMap Map<String, String> objectMap);

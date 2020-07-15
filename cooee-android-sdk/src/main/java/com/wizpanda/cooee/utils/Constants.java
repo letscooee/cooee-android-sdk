@@ -1,4 +1,4 @@
-package com.letscooee.android.utils;
+package com.wizpanda.cooee.utils;
 
 /**
  * The Constants class contains all the constants required by SDK

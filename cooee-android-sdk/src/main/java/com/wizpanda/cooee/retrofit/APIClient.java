@@ -1,8 +1,8 @@
-package com.letscooee.android.retrofit;
+package com.wizpanda.cooee.retrofit;
 
 import android.util.Log;
 
-import com.letscooee.android.BuildConfig;
+import com.wizpanda.cooee.BuildConfig;
 
 import java.io.IOException;
 

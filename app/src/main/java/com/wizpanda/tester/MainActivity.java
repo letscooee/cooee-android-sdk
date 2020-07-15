@@ -1,4 +1,4 @@
-package com.letscooee.tester;
+package com.wizpanda.tester;
 
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -15,9 +15,9 @@ import android.widget.ImageView;
 import android.widget.PopupWindow;
 
 
-import com.letscooee.android.cooeesdk.MySdk;
-import com.letscooee.android.models.Campaign;
-import com.letscooee.android.utils.Constants;
+import com.wizpanda.cooee.cooeesdk.MySdk;
+import com.wizpanda.cooee.models.Campaign;
+import com.wizpanda.cooee.utils.Constants;
 import com.squareup.picasso.Picasso;
 
 

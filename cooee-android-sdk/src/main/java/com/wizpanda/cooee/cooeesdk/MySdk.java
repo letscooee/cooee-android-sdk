@@ -1,4 +1,4 @@
-package com.letscooee.android.cooeesdk;
+package com.wizpanda.cooee.cooeesdk;
 
 import android.Manifest;
 import android.app.Activity;
@@ -20,11 +20,11 @@ import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
-import com.letscooee.android.models.Campaign;
-import com.letscooee.android.models.FirstOpen;
-import com.letscooee.android.retrofit.APIClient;
-import com.letscooee.android.retrofit.ServerAPIService;
-import com.letscooee.android.utils.Constants;
+import com.wizpanda.cooee.models.Campaign;
+import com.wizpanda.cooee.models.SDKAuthentication;
+import com.wizpanda.cooee.retrofit.APIClient;
+import com.wizpanda.cooee.retrofit.ServerAPIService;
+import com.wizpanda.cooee.utils.Constants;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -56,9 +56,9 @@ public class MySdk {
 
         if (isAppFirstTimeLaunch()) {
             ServerAPIService apiService = APIClient.getServerAPIService();
-            apiService.firstOpen().enqueue(new retrofit2.Callback<FirstOpen>() {
+            apiService.firstOpen().enqueue(new retrofit2.Callback<SDKAuthentication>() {
                 @Override
-                public void onResponse(Call<FirstOpen> call, Response<FirstOpen> response) {
+                public void onResponse(Call<SDKAuthentication> call, Response<SDKAuthentication> response) {
                     if (response.isSuccessful()) {
                         Log.i("bodyAllow", String.valueOf(response.body().getSdkToken()));
                         mSharedPreferences = context.getSharedPreferences(Constants.SDK_TOKEN, Context.MODE_PRIVATE);
@@ -73,7 +73,7 @@ public class MySdk {
                 }
 
                 @Override
-                public void onFailure(Call<FirstOpen> call, Throwable t) {
+                public void onFailure(Call<SDKAuthentication> call, Throwable t) {
                     Log.i("bodyError", t.toString());
                 }
             });

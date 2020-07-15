@@ -1,4 +1,4 @@
-package com.letscooee.android;
+package com.wizpanda.tester;
 
 import org.junit.Test;
 

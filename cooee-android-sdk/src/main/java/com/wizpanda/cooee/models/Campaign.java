@@ -1,4 +1,4 @@
-package com.letscooee.android.models;
+package com.wizpanda.cooee.models;
 
 /**
  * The Campaign class will store the data about the campaigns received from the server
