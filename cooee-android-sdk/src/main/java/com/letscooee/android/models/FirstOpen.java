@@ -1,6 +1,12 @@
 package com.letscooee.android.models;
 
+/**
+ * The FirstOpen class will help in storing sdkToken received from the server when app is opened first time.
+ */
+
 public class FirstOpen {
+    private String sdkToken;
+
     public String getSdkToken() {
         return sdkToken;
     }
@@ -9,5 +15,5 @@ public class FirstOpen {
         this.sdkToken = sdkToken;
     }
 
-    private String sdkToken;
+
 }

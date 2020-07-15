@@ -1,7 +1,24 @@
 package com.letscooee.android.models;
 
+/**
+ * The Campaign class will store the data about the campaigns received from the server
+ */
+
+
 public class Campaign {
-    private String subtitle,title,description,mediaURL,mediaData,mediaType;
+    private String subtitle;
+    private String title;
+    private String description;
+
+    /* mediaURL will have the s3 presigned url for the media*/
+    private String mediaURL;
+    private String mediaData;
+
+    /* mediaType id the type of media available in mediaURL such as jpeg, png, mp4, etc. */
+    private String mediaType;
+
+    /* engagementMode stores the type of engagement like image, splash, video, push notification and poll*/
+    private String engagementMode;
 
     public String getSubtitle() {
         return subtitle;
@@ -49,5 +66,13 @@ public class Campaign {
 
     public void setMediaType(String mediaType) {
         this.mediaType = mediaType;
+    }
+
+    public String getEngagementMode() {
+        return engagementMode;
+    }
+
+    public void setEngagementMode(String engagementMode) {
+        this.engagementMode = engagementMode;
     }
 }
