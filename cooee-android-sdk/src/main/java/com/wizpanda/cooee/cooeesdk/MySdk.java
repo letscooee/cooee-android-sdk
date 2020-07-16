@@ -9,6 +9,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Looper;
 import android.telephony.TelephonyManager;
@@ -26,8 +27,10 @@ import com.wizpanda.cooee.retrofit.APIClient;
 import com.wizpanda.cooee.retrofit.ServerAPIService;
 import com.wizpanda.cooee.utils.Constants;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -43,12 +46,19 @@ public class MySdk {
 
     private String latitude, longitude;
 
+    private Campaign campaign;
 
-    public MySdk(Context context) {
+
+    private MySdk(Context context) {
         this.context = context;
         mSharedPreferences = context.getSharedPreferences(Constants.IS_APP_FIRST_TIME_LAUNCH, Context.MODE_PRIVATE);
         mSharedPreferencesEditor = mSharedPreferences.edit();
         appLaunch();
+    }
+
+    public static MySdk getDefaultInstance(Context context){
+        return new MySdk(context);
+
     }
 
     //Runs every time app is launched
@@ -186,7 +196,7 @@ public class MySdk {
     //Sends event to the server and returns with the campaign details
     public Campaign sendEvent(String imageCampaign) {
         String newtorkData[] = getNetworkData();
-        final Campaign[] campaign = new Campaign[1];
+//        final Campaign[] campaign = new Campaign[1];
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("name", "ImageButtonClick");
         Map<String, String> subParameters = new HashMap<>();
@@ -200,26 +210,37 @@ public class MySdk {
         subParameters.put("Connected To Wifi", isConnectedToWifi());
         subParameters.put("Bluetooth Enabled", isBluetoothOn());
         parameters.put("userEventProperties", subParameters);
-        ServerAPIService apiService = APIClient.getServerAPIService();
-        apiService.imageOpen(context.getSharedPreferences(Constants.SDK_TOKEN, Context.MODE_PRIVATE).getString(Constants.SDK_TOKEN, ""), "ImageButtonClick", subParameters).enqueue(new Callback<Campaign>() {
-            @Override
-            public void onResponse(Call<Campaign> call, Response<Campaign> response) {
-                campaign[0] = response.body();
-                Log.i("subtitle", campaign[0].getSubtitle());
-                Log.i("MediaURL", campaign[0].getMediaURL());
-            }
-
-            @Override
-            public void onFailure(Call<Campaign> call, Throwable t) {
-
-            }
-        });
+        Campaign campaign = null;
         try {
-            Thread.sleep(500);
+            campaign = new MyAsyncClass().execute(subParameters).get();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        return campaign[0];
+        return campaign;
+    }
+
+    private class MyAsyncClass extends AsyncTask<Map<String, String>, Void, Campaign> {
+
+        @Override
+        protected Campaign doInBackground(Map<String, String>... strings) {
+            ServerAPIService apiService = APIClient.getServerAPIService();
+            Response<Campaign> response = null;
+            try {
+                response = apiService.imageOpen(context.getSharedPreferences(Constants.SDK_TOKEN, Context.MODE_PRIVATE).getString(Constants.SDK_TOKEN, ""), "ImageButtonClick", strings[0]).execute();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return response.body();
+        }
+
+        @Override
+        protected void onPostExecute(Campaign s) {
+            super.onPostExecute(s);
+            campaign = s;
+            Log.i("campaign", s.getMediaURL());
+        }
     }
 
     //get app version

@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
+import android.widget.TextView;
 
 
 import com.wizpanda.cooee.cooeesdk.MySdk;
@@ -32,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mySdk = new MySdk(this);
+        mySdk = MySdk.getDefaultInstance(this);
         location = mySdk.getLocation(MainActivity.this);
 
         buttonImage = findViewById(R.id.btnImage);
@@ -41,37 +42,24 @@ public class MainActivity extends AppCompatActivity {
         buttonImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                new MyAsyncClass().execute(Constants.IMAGE_CAMPAIGN);
+                // sending event to the server
+                Campaign campaign = mySdk.sendEvent(Constants.IMAGE_CAMPAIGN);
+                LayoutInflater layoutInflater = (LayoutInflater) getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE);
+                View popupView = layoutInflater.inflate(R.layout.image_campaign, null);
+                final PopupWindow popupWindow = new PopupWindow(
+                        popupView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                ImageView imageView = popupView.findViewById(R.id.imageView);
+                Picasso.with(getApplicationContext()).load(campaign.getMediaURL()).into(imageView);
+
+                TextView textView = popupView.findViewById(R.id.textView);
+                textView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        popupWindow.dismiss();
+                    }
+                });
+                popupWindow.showAtLocation(buttonImage, Gravity.CENTER, 0, 0);
             }
         });
-    }
-
-    private class MyAsyncClass extends AsyncTask<String, Void, Campaign> {
-
-        @Override
-        protected Campaign doInBackground(String... strings) {
-            return mySdk.sendEvent(Constants.IMAGE_CAMPAIGN);
-        }
-
-        @Override
-        protected void onPostExecute(Campaign s) {
-            super.onPostExecute(s);
-            LayoutInflater layoutInflater = (LayoutInflater) getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE);
-            View popupView = layoutInflater.inflate(R.layout.image_campaign, null);
-            final PopupWindow popupWindow = new PopupWindow(
-                    popupView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-
-
-            ImageView imageView = popupView.findViewById(R.id.imageView);
-            Picasso.with(getApplicationContext()).load(s.getMediaURL()).into(imageView);
-
-            imageView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    popupWindow.dismiss();
-                }
-            });
-            popupWindow.showAtLocation(buttonImage, Gravity.CENTER, 0, 0);
-        }
     }
 }
