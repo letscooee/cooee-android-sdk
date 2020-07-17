@@ -14,6 +14,13 @@ import android.os.Build;
 import android.os.Looper;
 import android.telephony.TelephonyManager;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.PopupWindow;
+import android.widget.TextView;
 
 import androidx.core.app.ActivityCompat;
 
@@ -21,6 +28,8 @@ import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
+import com.squareup.picasso.Picasso;
+import com.wizpanda.cooee.R;
 import com.wizpanda.cooee.models.Campaign;
 import com.wizpanda.cooee.models.SDKAuthentication;
 import com.wizpanda.cooee.retrofit.APIClient;
@@ -33,7 +42,6 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import retrofit2.Call;
-import retrofit2.Callback;
 import retrofit2.Response;
 
 /**
@@ -46,19 +54,36 @@ public class MySdk {
 
     private String latitude, longitude;
 
-    private Campaign campaign;
-
 
     private MySdk(Context context) {
         this.context = context;
         mSharedPreferences = context.getSharedPreferences(Constants.IS_APP_FIRST_TIME_LAUNCH, Context.MODE_PRIVATE);
-        mSharedPreferencesEditor = mSharedPreferences.edit();
         appLaunch();
     }
 
-    public static MySdk getDefaultInstance(Context context){
+    public static MySdk getDefaultInstance(Context context) {
         return new MySdk(context);
 
+    }
+
+    //create image campaign layout and display it on screen
+    private void createLayout(final Campaign campaign) {
+        Activity activity = (Activity) context;
+        ViewGroup viewGroup = (ViewGroup) ((ViewGroup) (activity.findViewById(android.R.id.content))).getChildAt(0);
+        View popupView = LayoutInflater.from(context.getApplicationContext()).inflate(R.layout.image_campaign, null);
+        final PopupWindow popupWindow = new PopupWindow(
+                popupView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        ImageView imageView = popupView.findViewById(R.id.imageView);
+        Picasso.with(context.getApplicationContext()).load(campaign.getMediaURL()).into(imageView);
+        Log.i("campaign", campaign.getMediaURL());
+        TextView textView = popupView.findViewById(R.id.textView);
+        textView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                popupWindow.dismiss();
+            }
+        });
+        popupWindow.showAtLocation(viewGroup, Gravity.CENTER, 0, 0);
     }
 
     //Runs every time app is launched
@@ -70,6 +95,7 @@ public class MySdk {
                 @Override
                 public void onResponse(Call<SDKAuthentication> call, Response<SDKAuthentication> response) {
                     if (response.isSuccessful()) {
+                        assert response.body() != null;
                         Log.i("bodyAllow", String.valueOf(response.body().getSdkToken()));
                         mSharedPreferences = context.getSharedPreferences(Constants.SDK_TOKEN, Context.MODE_PRIVATE);
                         mSharedPreferencesEditor = mSharedPreferences.edit();
@@ -99,6 +125,7 @@ public class MySdk {
         if (mSharedPreferences.getBoolean(Constants.IS_APP_FIRST_TIME_LAUNCH, true)) {
             // App is open/launch for first time
             // Update the preference
+            mSharedPreferencesEditor = mSharedPreferences.edit();
             mSharedPreferencesEditor.putBoolean(Constants.IS_APP_FIRST_TIME_LAUNCH, false);
             mSharedPreferencesEditor.commit();
             mSharedPreferencesEditor.apply();
@@ -111,8 +138,9 @@ public class MySdk {
     }
 
     //get GPS coordinates of the device
-    public String[] getLocation(final Activity activity) {
-        final String location[] = new String[2];
+    public String[] getLocation() {
+        final Activity activity = ((Activity) this.context);
+        final String[] location = new String[2];
         LocationRequest locationRequest = new LocationRequest();
         locationRequest.setInterval(10000);
         locationRequest.setFastestInterval(3000);
@@ -146,8 +174,9 @@ public class MySdk {
 
     //get Network Details like Carrier Name and Network type
     public String[] getNetworkData() {
-        String networkData[] = new String[2];
+        String[] networkData = new String[2];
         TelephonyManager manager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+        assert manager != null;
         int networkType = manager.getNetworkType();
         networkData[0] = manager.getNetworkOperatorName();
         networkData[1] = getNetworkName(networkType);
@@ -194,9 +223,8 @@ public class MySdk {
     }
 
     //Sends event to the server and returns with the campaign details
-    public Campaign sendEvent(String imageCampaign) {
-        String newtorkData[] = getNetworkData();
-//        final Campaign[] campaign = new Campaign[1];
+    public void sendEvent(String imageCampaign) {
+        String[] networkData = getNetworkData();
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("name", "ImageButtonClick");
         Map<String, String> subParameters = new HashMap<>();
@@ -205,20 +233,20 @@ public class MySdk {
         subParameters.put("App Version", getAppVersion());
         subParameters.put("OS Version", Build.VERSION.RELEASE);
         subParameters.put("SDK Version", Build.VERSION.SDK_INT + "");
-        subParameters.put("Carrier", newtorkData[0]);
-        subParameters.put("Network Type", newtorkData[1]);
+        subParameters.put("Carrier", networkData[0]);
+        subParameters.put("Network Type", networkData[1]);
         subParameters.put("Connected To Wifi", isConnectedToWifi());
         subParameters.put("Bluetooth Enabled", isBluetoothOn());
         parameters.put("userEventProperties", subParameters);
         Campaign campaign = null;
         try {
             campaign = new MyAsyncClass().execute(subParameters).get();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
-        return campaign;
+
+        createLayout(campaign);
+//        return campaign;
     }
 
     private class MyAsyncClass extends AsyncTask<Map<String, String>, Void, Campaign> {
@@ -236,10 +264,8 @@ public class MySdk {
         }
 
         @Override
-        protected void onPostExecute(Campaign s) {
-            super.onPostExecute(s);
-            campaign = s;
-            Log.i("campaign", s.getMediaURL());
+        protected void onPostExecute(Campaign campaign) {
+            super.onPostExecute(campaign);
         }
     }
 
