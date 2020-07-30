@@ -35,6 +35,31 @@ public class ImageCampaignLayout {
         View popupView = LayoutInflater.from(context.getApplicationContext()).inflate(R.layout.image_campaign, null);
         final PopupWindow popupWindow = new PopupWindow(
                 popupView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        int transitionId=-2;
+        Log.d("Tranisition side",campaign.getTransitionSide());
+        switch (campaign.getTransitionSide()){
+            case "right":{
+                transitionId=R.style.slide_right;
+                break;
+            }
+            case "left":{
+                transitionId=R.style.slide_left;
+                break;
+            }
+            case "up":{
+                transitionId=R.style.slide_up;
+                break;
+            }
+            case "down":{
+                transitionId=R.style.slide_down;
+                break;
+            }
+            default:{
+                Log.i("default","true");
+                transitionId=R.style.slide_up;
+            }
+        }
+        popupWindow.setAnimationStyle(transitionId);
         ImageView imageView = popupView.findViewById(R.id.imageView);
         Glide.with(context.getApplicationContext()).load(campaign.getMediaURL()).into(imageView);
         Log.i(LOG_PREFIX + " campaign", campaign.getMediaURL());

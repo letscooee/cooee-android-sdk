@@ -13,7 +13,6 @@ import com.letscooee.models.Campaign;
 import com.letscooee.models.UserProfile;
 import com.letscooee.retrofit.APIClient;
 import com.letscooee.retrofit.ServerAPIService;
-import com.letscooee.services.PushNotificationService;
 import com.letscooee.utils.CooeeSDKConstants;
 
 import java.io.IOException;

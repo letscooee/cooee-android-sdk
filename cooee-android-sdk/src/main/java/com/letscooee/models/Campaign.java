@@ -20,6 +20,9 @@ public class Campaign {
     /* engagementMode stores the type of engagement like image, splash, video, push notification and poll*/
     private String engagementMode;
 
+    /* transitionSide define the side from which pop will come in*/
+    private String transitionSide;
+
     public String getSubtitle() {
         return subtitle;
     }
@@ -74,5 +77,13 @@ public class Campaign {
 
     public void setEngagementMode(String engagementMode) {
         this.engagementMode = engagementMode;
+    }
+
+    public String getTransitionSide() {
+        return transitionSide;
+    }
+
+    public void setTransitionSide(String transitionSide) {
+        this.transitionSide = transitionSide;
     }
 }

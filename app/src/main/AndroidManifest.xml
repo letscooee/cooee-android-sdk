@@ -19,7 +19,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <service android:name="com.letscooee.services.PushNotificationService"/>
         <service
             android:name="com.letscooee.cooeetester.MyFirebaseMessagingService"
             android:exported="false">
