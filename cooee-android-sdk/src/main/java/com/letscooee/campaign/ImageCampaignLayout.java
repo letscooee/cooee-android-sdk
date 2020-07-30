@@ -2,6 +2,7 @@ package com.letscooee.campaign;
 
 import android.app.Activity;
 import android.content.Context;
+import android.os.Handler;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -14,6 +15,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.letscooee.R;
 import com.letscooee.models.Campaign;
+
 
 import static com.letscooee.utils.CooeeSDKConstants.LOG_PREFIX;
 
@@ -35,34 +37,10 @@ public class ImageCampaignLayout {
         View popupView = LayoutInflater.from(context.getApplicationContext()).inflate(R.layout.image_campaign, null);
         final PopupWindow popupWindow = new PopupWindow(
                 popupView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        int transitionId=-2;
-        Log.d("Tranisition side",campaign.getTransitionSide());
-        switch (campaign.getTransitionSide()){
-            case "right":{
-                transitionId=R.style.slide_right;
-                break;
-            }
-            case "left":{
-                transitionId=R.style.slide_left;
-                break;
-            }
-            case "up":{
-                transitionId=R.style.slide_up;
-                break;
-            }
-            case "down":{
-                transitionId=R.style.slide_down;
-                break;
-            }
-            default:{
-                Log.i("default","true");
-                transitionId=R.style.slide_up;
-            }
-        }
-        popupWindow.setAnimationStyle(transitionId);
         ImageView imageView = popupView.findViewById(R.id.imageView);
         Glide.with(context.getApplicationContext()).load(campaign.getMediaURL()).into(imageView);
         Log.i(LOG_PREFIX + " campaign", campaign.getMediaURL());
+
         TextView textView = popupView.findViewById(R.id.textView);
         textView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -70,6 +48,20 @@ public class ImageCampaignLayout {
                 popupWindow.dismiss();
             }
         });
+        Runnable runnable =new Runnable() {
+            @Override
+            public void run() {
+                popupWindow.dismiss();
+            }
+        };
+        if (campaign.getAutoClose()==null){
+            textView.setVisibility(View.VISIBLE);
+        }
+        else{
+            Integer autoClose =Integer.valueOf(campaign.getAutoClose());
+            textView.setVisibility(View.INVISIBLE);
+            new Handler().postDelayed(runnable,autoClose*1000);
+        }
         popupWindow.showAtLocation(viewGroup, Gravity.CENTER, 0, 0);
     }
 }

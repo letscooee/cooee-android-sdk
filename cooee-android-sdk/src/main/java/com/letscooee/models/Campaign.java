@@ -23,6 +23,9 @@ public class Campaign {
     /* transitionSide define the side from which pop will come in*/
     private String transitionSide;
 
+    private String autoClose;
+
+
     public String getSubtitle() {
         return subtitle;
     }
@@ -85,5 +88,13 @@ public class Campaign {
 
     public void setTransitionSide(String transitionSide) {
         this.transitionSide = transitionSide;
+    }
+
+    public String getAutoClose() {
+        return autoClose;
+    }
+
+    public void setAutoClose(String autoClose) {
+        this.autoClose = autoClose;
     }
 }
