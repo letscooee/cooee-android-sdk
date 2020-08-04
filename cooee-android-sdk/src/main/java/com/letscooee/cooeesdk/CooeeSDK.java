@@ -6,7 +6,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.util.Log;
 
-import com.letscooee.campaign.ImageCampaignLayout;
+import com.letscooee.campaign.ImagePopUpActivity;
 import com.letscooee.init.DefaultUserPropertiesCollector;
 import com.letscooee.init.PostLaunchActivity;
 import com.letscooee.models.Campaign;
@@ -79,14 +79,20 @@ public class CooeeSDK {
 
         switch (campaignType) {
             case CooeeSDKConstants.IMAGE_CAMPAIGN: {
-                new ImageCampaignLayout(context).createLayout(campaign);
-                return;
+                Intent intent = new Intent(context, ImagePopUpActivity.class);
+                intent.putExtra("title", campaign.getEventName());
+                intent.putExtra("mediaURL",campaign.getContent().getMediaUrl());
+                intent.putExtra("transitionSide",campaign.getContent().getLayout().getDirection());
+                intent.putExtra("autoClose",campaign.getContent().getLayout().getCloseBehaviour().getAutoCloseTime());
+                Log.d("getAutoClose() in SDK",campaign.getContent().getLayout().getCloseBehaviour().getAutoCloseTime()+"");
+                context.startActivity(intent);
+                break;
             }
             case CooeeSDKConstants.VIDEO_CAMPAIGN:
             case CooeeSDKConstants.SPLASH_CAMPAIGN: {
 //                TODO create Video Campaign Layout class
 //                TODO: create Splash Campaign Layout class
-                return;
+                break;
             }
             default: {
                 Log.d(CooeeSDKConstants.LOG_PREFIX + " error", "No familiar campaign");

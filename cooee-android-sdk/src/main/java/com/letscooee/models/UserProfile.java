@@ -5,7 +5,6 @@ package com.letscooee.models;
  * UserProfile class will store user data from server
  */
 public class UserProfile {
-
     String userName;
     String email;
     String fullName;
