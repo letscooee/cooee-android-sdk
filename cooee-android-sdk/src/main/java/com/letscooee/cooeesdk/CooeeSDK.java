@@ -7,6 +7,7 @@ import android.os.Build;
 import android.util.Log;
 
 import com.letscooee.campaign.ImagePopUpActivity;
+import com.letscooee.campaign.VideoPopUpActivity;
 import com.letscooee.init.DefaultUserPropertiesCollector;
 import com.letscooee.init.PostLaunchActivity;
 import com.letscooee.models.Campaign;
@@ -89,8 +90,15 @@ public class CooeeSDK {
                 break;
             }
             case CooeeSDKConstants.VIDEO_CAMPAIGN:
+                Intent intent = new Intent(context, VideoPopUpActivity.class);
+                intent.putExtra("title", campaign.getEventName());
+                intent.putExtra("mediaURL",campaign.getContent().getMediaUrl());
+                intent.putExtra("transitionSide",campaign.getContent().getLayout().getDirection());
+                intent.putExtra("autoClose",campaign.getContent().getLayout().getCloseBehaviour().getAutoCloseTime());
+                Log.d("getAutoClose() in SDK",campaign.getContent().getLayout().getCloseBehaviour().getAutoCloseTime()+"");
+                context.startActivity(intent);
+                break;
             case CooeeSDKConstants.SPLASH_CAMPAIGN: {
-//                TODO create Video Campaign Layout class
 //                TODO: create Splash Campaign Layout class
                 break;
             }

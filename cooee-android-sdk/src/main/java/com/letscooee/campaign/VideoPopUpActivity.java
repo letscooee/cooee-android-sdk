@@ -1,6 +1,5 @@
 package com.letscooee.campaign;
 
-
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
@@ -9,29 +8,24 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.ImageView;
+import android.widget.MediaController;
 import android.widget.TextView;
+import android.widget.VideoView;
 
-
-import com.bumptech.glide.Glide;
 import com.letscooee.R;
 
 import java.util.Objects;
 
-/**
- * @author Abhishek Taparia
- * ImagePopUpActivity create layout for image campaign
- */
-public class ImagePopUpActivity extends Activity {
+public class VideoPopUpActivity extends Activity {
 
-    private ImageView imageView;
+    private VideoView videoView;
     private TextView textViewTitle;
     private Button buttonClose;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_image_pop_up);
+        setContentView(R.layout.activity_video_pop_up);
 
         DisplayMetrics dm = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(dm);
@@ -50,7 +44,7 @@ public class ImagePopUpActivity extends Activity {
         Log.d("AutoClose in activity",autoClose+"");
         switch (Objects.requireNonNull(getIntent().getStringExtra("transitionSide"))){
             case "right":{
-                transitionId=R.anim.slide_right;
+                transitionId= R.anim.slide_right;
                 break;
             }
             case "left":{
@@ -74,12 +68,13 @@ public class ImagePopUpActivity extends Activity {
         overridePendingTransition(transitionId,R.anim.no_change);
 
         textViewTitle = findViewById(R.id.textViewTitle);
-        imageView = findViewById(R.id.imageViewMedia);
+        videoView = findViewById(R.id.videoViewMedia);
         buttonClose = findViewById(R.id.buttonClose);
         buttonClose.setOnClickListener(view -> finish());
 
         textViewTitle.setText(title);
-        Glide.with(getApplicationContext()).load(mediaURL).into(imageView);
+        videoView.setVideoPath(mediaURL);
+        videoView.start();
 
         Runnable runnable = this::finish;
         if (autoClose==null){

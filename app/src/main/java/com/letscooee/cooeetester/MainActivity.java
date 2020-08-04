@@ -51,6 +51,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        buttonVideo.setOnClickListener(view -> {mySdk.sendEvent(CooeeSDKConstants.VIDEO_CAMPAIGN);});
+
         FirebaseInstanceId.getInstance().getInstanceId()
                 .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
                     @Override

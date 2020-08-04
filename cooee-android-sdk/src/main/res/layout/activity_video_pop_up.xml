@@ -5,7 +5,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".campaign.ImagePopUpActivity"
+    tools:context=".campaign.VideoPopUpActivity"
     android:orientation="vertical"
     android:background="#00ff00"
     android:gravity="center">
@@ -17,11 +17,10 @@
         android:text="Hello title"
         android:textSize="30sp"/>
 
-    <ImageView
-        android:id="@+id/imageViewMedia"
+    <VideoView
+        android:id="@+id/videoViewMedia"
         android:layout_width="150dp"
-        android:layout_height="150dp"
-        android:src="@drawable/ic_launcher_foreground"/>
+        android:layout_height="150dp" />
 
     <TextView
         android:id="@+id/textViewContent"
@@ -38,4 +37,4 @@
         android:textSize="30sp"
         android:background="@android:color/transparent"/>
 
-  </LinearLayout>
+</LinearLayout>
