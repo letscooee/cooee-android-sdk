@@ -136,7 +136,8 @@ public class CooeeSDK {
             ServerAPIService apiService = APIClient.getServerAPIService();
             Response<Campaign> response = null;
             try {
-                response = apiService.sendEvent(context.getSharedPreferences(CooeeSDKConstants.SDK_TOKEN, Context.MODE_PRIVATE).getString(CooeeSDKConstants.SDK_TOKEN, ""), strings[0]).execute();
+                String header = context.getSharedPreferences(CooeeSDKConstants.SDK_TOKEN, Context.MODE_PRIVATE).getString(CooeeSDKConstants.SDK_TOKEN, "");
+                response = apiService.sendEvent(header, strings[0]).execute();
             } catch (IOException e) {
                 e.printStackTrace();
             }
