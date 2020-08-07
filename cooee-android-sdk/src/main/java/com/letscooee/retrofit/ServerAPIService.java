@@ -6,12 +6,15 @@ import com.letscooee.models.UserProfile;
 
 import java.util.Map;
 
+import okhttp3.ResponseBody;
 import retrofit2.Call;
+import retrofit2.http.Field;
 import retrofit2.http.FieldMap;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
 import retrofit2.http.POST;
+import retrofit2.http.PUT;
 import retrofit2.http.QueryMap;
 
 /**
@@ -26,8 +29,8 @@ public interface ServerAPIService {
     @GET("image_open/")
     Call<Campaign> sendEvent(@Header("sdkToken") String sdkToken, @QueryMap Map<String, Object> objectMap);
 
-    @POST("update_profile/")
+    @PUT("v1/user/update/")
     @FormUrlEncoded
-    Call<UserProfile> updateProfile(@Header("sdkToken") String sdkToken,@FieldMap Map<String,Object> objectMap);
+    Call<ResponseBody> updateProfile(@Header("x-sdk-token") String sdkToken, @Field("userData") Map<String, String> userData, @Field("userProperties") Map<String, String> userProperties);
 
 }

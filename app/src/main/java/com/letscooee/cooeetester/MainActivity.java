@@ -4,6 +4,7 @@ package com.letscooee.cooeetester;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import android.util.Log;
@@ -51,7 +52,14 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        buttonVideo.setOnClickListener(view -> {mySdk.sendEvent(CooeeSDKConstants.VIDEO_CAMPAIGN);});
+        buttonVideo.setOnClickListener(view -> {
+            mySdk.sendEvent(CooeeSDKConstants.VIDEO_CAMPAIGN);
+        });
+
+        findViewById(R.id.textView).setOnClickListener(view -> {
+            Intent intent = new Intent(MainActivity.this, SignUpActivity.class);
+            startActivity(intent);
+        });
 
         FirebaseInstanceId.getInstance().getInstanceId()
                 .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {

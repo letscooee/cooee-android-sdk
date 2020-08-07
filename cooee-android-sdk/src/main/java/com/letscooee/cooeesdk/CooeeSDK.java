@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -35,7 +36,7 @@ public class CooeeSDK {
     private Context context;
     private String[] location;
     private DefaultUserPropertiesCollector defaultUserPropertiesCollector;
-    private static CooeeSDK cooeeSDK=null;
+    private static CooeeSDK cooeeSDK = null;
 
     private CooeeSDK(Context context) {
         this.context = context;
@@ -46,7 +47,7 @@ public class CooeeSDK {
 
     // create instance for CooeeSDK (Singleton Class)
     public static CooeeSDK getDefaultInstance(Context context) {
-        if (cooeeSDK==null){
+        if (cooeeSDK == null) {
             cooeeSDK = new CooeeSDK(context);
         }
         return cooeeSDK;
@@ -82,20 +83,20 @@ public class CooeeSDK {
             case CooeeSDKConstants.IMAGE_CAMPAIGN: {
                 Intent intent = new Intent(context, ImagePopUpActivity.class);
                 intent.putExtra("title", campaign.getEventName());
-                intent.putExtra("mediaURL",campaign.getContent().getMediaUrl());
-                intent.putExtra("transitionSide",campaign.getContent().getLayout().getDirection());
-                intent.putExtra("autoClose",campaign.getContent().getLayout().getCloseBehaviour().getAutoCloseTime());
-                Log.d("getAutoClose() in SDK",campaign.getContent().getLayout().getCloseBehaviour().getAutoCloseTime()+"");
+                intent.putExtra("mediaURL", campaign.getContent().getMediaUrl());
+                intent.putExtra("transitionSide", campaign.getContent().getLayout().getDirection());
+                intent.putExtra("autoClose", campaign.getContent().getLayout().getCloseBehaviour().getAutoCloseTime());
+                Log.d("getAutoClose() in SDK", campaign.getContent().getLayout().getCloseBehaviour().getAutoCloseTime() + "");
                 context.startActivity(intent);
                 break;
             }
             case CooeeSDKConstants.VIDEO_CAMPAIGN:
                 Intent intent = new Intent(context, VideoPopUpActivity.class);
                 intent.putExtra("title", campaign.getEventName());
-                intent.putExtra("mediaURL",campaign.getContent().getMediaUrl());
-                intent.putExtra("transitionSide",campaign.getContent().getLayout().getDirection());
-                intent.putExtra("autoClose",campaign.getContent().getLayout().getCloseBehaviour().getAutoCloseTime());
-                Log.d("getAutoClose() in SDK",campaign.getContent().getLayout().getCloseBehaviour().getAutoCloseTime()+"");
+                intent.putExtra("mediaURL", campaign.getContent().getMediaUrl());
+                intent.putExtra("transitionSide", campaign.getContent().getLayout().getDirection());
+                intent.putExtra("autoClose", campaign.getContent().getLayout().getCloseBehaviour().getAutoCloseTime());
+                Log.d("getAutoClose() in SDK", campaign.getContent().getLayout().getCloseBehaviour().getAutoCloseTime() + "");
                 context.startActivity(intent);
                 break;
             case CooeeSDKConstants.SPLASH_CAMPAIGN: {
@@ -108,24 +109,25 @@ public class CooeeSDK {
         }
     }
 
-    public void updateProfile(Map<String, Object> profile) {
+    public void updateProfile(Map<String, String> userData, Map<String, String> userProperties) {
         ServerAPIService apiService = APIClient.getServerAPIService();
-        Call<UserProfile> call = apiService.updateProfile(context.getSharedPreferences(CooeeSDKConstants.SDK_TOKEN, Context.MODE_PRIVATE).getString(CooeeSDKConstants.SDK_TOKEN, ""), profile);
-        final UserProfile userProfile = null;
-        call.enqueue(new Callback<UserProfile>() {
+        String header = context.getSharedPreferences(CooeeSDKConstants.SDK_TOKEN, Context.MODE_PRIVATE).getString(CooeeSDKConstants.SDK_TOKEN, "");
+        Call<ResponseBody> call = apiService.updateProfile(header, userData, userProperties);
+        call.enqueue(new Callback<ResponseBody>() {
             @Override
-            public void onResponse(Call<UserProfile> call, Response<UserProfile> response) {
-                if (response.body() == null) {
-                    Log.i(CooeeSDKConstants.LOG_PREFIX + " body is ", "null");
-                }
-                Log.i(CooeeSDKConstants.LOG_PREFIX + " User data", response.toString());
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                Log.i("status", response.code() + "");
             }
 
             @Override
-            public void onFailure(Call<UserProfile> call, Throwable t) {
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
 
             }
         });
+    }
+
+    public void updateProfile(Map<String, String> userData) {
+        updateProfile(userData, null);
     }
 
     private class MyAsyncClass extends AsyncTask<Map<String, Object>, Void, Campaign> {

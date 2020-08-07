@@ -18,7 +18,7 @@ android {
     buildTypes {
         debug {
 //            TODO : Change server URL to production URL once the servers are deployed
-            buildConfigField "String", "SERVER_URL", '"http://10.0.2.2:8000"'
+            buildConfigField "String", "SERVER_URL", '"http://10.0.2.2:3003"'
         }
         release {
             minifyEnabled false
