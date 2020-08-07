@@ -55,11 +55,11 @@ public class CooeeSDK {
 
 
     //Sends event to the server and returns with the campaign details
-    public void sendEvent(String campaignType) {
+    public void sendEvent(String eventName, Map<String, String> eventProperties) {
         String[] networkData = defaultUserPropertiesCollector.getNetworkData();
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("name", "ImageButtonClick");
-        Map<String, String> subParameters = new HashMap<>();
+        Map<String, String> subParameters = eventProperties;
         subParameters.put("Latitude", location[0]);
         subParameters.put("Longitude", location[1]);
         subParameters.put("App Version", defaultUserPropertiesCollector.getAppVersion());
@@ -69,43 +69,43 @@ public class CooeeSDK {
         subParameters.put("Network Type", networkData[1]);
         subParameters.put("Connected To Wifi", defaultUserPropertiesCollector.isConnectedToWifi());
         subParameters.put("Bluetooth Enabled", defaultUserPropertiesCollector.isBluetoothOn());
-        parameters.put("userEventProperties", subParameters);
+
 //        TODO : Check for null values
         Campaign campaign = null;
         try {
-            campaign = new MyAsyncClass().execute(parameters).get();
+            campaign = new MyAsyncClass().execute(eventName, subParameters).get();
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
 
-        switch (campaignType) {
-            case CooeeSDKConstants.IMAGE_CAMPAIGN: {
-                Intent intent = new Intent(context, ImagePopUpActivity.class);
-                intent.putExtra("title", campaign.getEventName());
-                intent.putExtra("mediaURL",campaign.getContent().getMediaUrl());
-                intent.putExtra("transitionSide",campaign.getContent().getLayout().getDirection());
-                intent.putExtra("autoClose",campaign.getContent().getLayout().getCloseBehaviour().getAutoCloseTime());
-                Log.d("getAutoClose() in SDK",campaign.getContent().getLayout().getCloseBehaviour().getAutoCloseTime()+"");
-                context.startActivity(intent);
-                break;
-            }
-            case CooeeSDKConstants.VIDEO_CAMPAIGN:
-                Intent intent = new Intent(context, VideoPopUpActivity.class);
-                intent.putExtra("title", campaign.getEventName());
-                intent.putExtra("mediaURL",campaign.getContent().getMediaUrl());
-                intent.putExtra("transitionSide",campaign.getContent().getLayout().getDirection());
-                intent.putExtra("autoClose",campaign.getContent().getLayout().getCloseBehaviour().getAutoCloseTime());
-                Log.d("getAutoClose() in SDK",campaign.getContent().getLayout().getCloseBehaviour().getAutoCloseTime()+"");
-                context.startActivity(intent);
-                break;
-            case CooeeSDKConstants.SPLASH_CAMPAIGN: {
-//                TODO: create Splash Campaign Layout class
-                break;
-            }
-            default: {
-                Log.d(CooeeSDKConstants.LOG_PREFIX + " error", "No familiar campaign");
-            }
-        }
+//        switch (campaign.getEventName()) {
+//            case CooeeSDKConstants.IMAGE_CAMPAIGN: {
+//                Intent intent = new Intent(context, ImagePopUpActivity.class);
+//                intent.putExtra("title", campaign.getEventName());
+//                intent.putExtra("mediaURL",campaign.getContent().getMediaUrl());
+//                intent.putExtra("transitionSide",campaign.getContent().getLayout().getDirection());
+//                intent.putExtra("autoClose",campaign.getContent().getLayout().getCloseBehaviour().getAutoCloseTime());
+//                Log.d("getAutoClose() in SDK",campaign.getContent().getLayout().getCloseBehaviour().getAutoCloseTime()+"");
+//                context.startActivity(intent);
+//                break;
+//            }
+//            case CooeeSDKConstants.VIDEO_CAMPAIGN:
+//                Intent intent = new Intent(context, VideoPopUpActivity.class);
+//                intent.putExtra("title", campaign.getEventName());
+//                intent.putExtra("mediaURL",campaign.getContent().getMediaUrl());
+//                intent.putExtra("transitionSide",campaign.getContent().getLayout().getDirection());
+//                intent.putExtra("autoClose",campaign.getContent().getLayout().getCloseBehaviour().getAutoCloseTime());
+//                Log.d("getAutoClose() in SDK",campaign.getContent().getLayout().getCloseBehaviour().getAutoCloseTime()+"");
+//                context.startActivity(intent);
+//                break;
+//            case CooeeSDKConstants.SPLASH_CAMPAIGN: {
+////                TODO: create Splash Campaign Layout class
+//                break;
+//            }
+//            default: {
+//                Log.d(CooeeSDKConstants.LOG_PREFIX + " error", "No familiar campaign");
+//            }
+//        }
     }
 
     public void updateProfile(Map<String, Object> profile) {
@@ -128,15 +128,18 @@ public class CooeeSDK {
         });
     }
 
-    private class MyAsyncClass extends AsyncTask<Map<String, Object>, Void, Campaign> {
+    private class MyAsyncClass extends AsyncTask<Object, Void, Campaign> {
 
         @SafeVarargs
         @Override
-        protected final Campaign doInBackground(Map<String, Object>... strings) {
+        protected final Campaign doInBackground(Object... objects) {
             ServerAPIService apiService = APIClient.getServerAPIService();
             Response<Campaign> response = null;
+            String eventName = (String) objects[0];
+            HashMap eventProperties = (HashMap) objects[1];
             try {
-                response = apiService.sendEvent(context.getSharedPreferences(CooeeSDKConstants.SDK_TOKEN, Context.MODE_PRIVATE).getString(CooeeSDKConstants.SDK_TOKEN, ""), strings[0]).execute();
+                String header = context.getSharedPreferences(CooeeSDKConstants.SDK_TOKEN, Context.MODE_PRIVATE).getString(CooeeSDKConstants.SDK_TOKEN, "");
+                response = apiService.sendEvent(header, eventName, eventProperties).execute();
             } catch (IOException e) {
                 e.printStackTrace();
             }

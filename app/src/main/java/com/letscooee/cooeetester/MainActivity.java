@@ -47,11 +47,13 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 // sending event to the server
-                mySdk.sendEvent(CooeeSDKConstants.IMAGE_CAMPAIGN);
+                mySdk.sendEvent(CooeeSDKConstants.IMAGE_CAMPAIGN, new HashMap<>());
             }
         });
 
-        buttonVideo.setOnClickListener(view -> {mySdk.sendEvent(CooeeSDKConstants.VIDEO_CAMPAIGN);});
+        buttonVideo.setOnClickListener(view -> {
+            mySdk.sendEvent(CooeeSDKConstants.VIDEO_CAMPAIGN, new HashMap<>());
+        });
 
         FirebaseInstanceId.getInstance().getInstanceId()
                 .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {

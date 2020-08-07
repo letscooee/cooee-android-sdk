@@ -7,11 +7,13 @@ import com.letscooee.models.UserProfile;
 import java.util.Map;
 
 import retrofit2.Call;
+import retrofit2.http.Field;
 import retrofit2.http.FieldMap;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
 import retrofit2.http.POST;
+import retrofit2.http.Query;
 import retrofit2.http.QueryMap;
 
 /**
@@ -23,11 +25,12 @@ public interface ServerAPIService {
     @GET("first_open/")
     Call<SDKAuthentication> firstOpen();
 
-    @GET("image_open/")
-    Call<Campaign> sendEvent(@Header("sdkToken") String sdkToken, @QueryMap Map<String, Object> objectMap);
+    @POST("v1/event/save/")
+    @FormUrlEncoded
+    Call<Campaign> sendEvent(@Header("sdkToken") String sdkToken, @Field("name") String eventName, @Field("userEventProperties") Map<String, String> objectMap);
 
     @POST("update_profile/")
     @FormUrlEncoded
-    Call<UserProfile> updateProfile(@Header("sdkToken") String sdkToken,@FieldMap Map<String,Object> objectMap);
+    Call<UserProfile> updateProfile(@Header("sdkToken") String sdkToken, @FieldMap Map<String, Object> objectMap);
 
 }
