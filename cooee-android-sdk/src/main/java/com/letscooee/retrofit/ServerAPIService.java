@@ -1,12 +1,14 @@
 package com.letscooee.retrofit;
 
 import com.letscooee.models.Campaign;
+import com.letscooee.models.Event;
 import com.letscooee.models.SDKAuthentication;
 import com.letscooee.models.UserProfile;
 
 import java.util.Map;
 
 import retrofit2.Call;
+import retrofit2.http.Body;
 import retrofit2.http.Field;
 import retrofit2.http.FieldMap;
 import retrofit2.http.FormUrlEncoded;
@@ -26,8 +28,7 @@ public interface ServerAPIService {
     Call<SDKAuthentication> firstOpen();
 
     @POST("v1/event/save/")
-    @FormUrlEncoded
-    Call<Campaign> sendEvent(@Header("sdkToken") String sdkToken, @Field("name") String eventName, @Field("userEventProperties") Map<String, String> objectMap);
+    Call<Campaign> sendEvent(@Header("sdkToken") String sdkToken, @Body Event event);
 
     @POST("update_profile/")
     @FormUrlEncoded

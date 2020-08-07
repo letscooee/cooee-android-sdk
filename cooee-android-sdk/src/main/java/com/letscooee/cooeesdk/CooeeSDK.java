@@ -11,6 +11,7 @@ import com.letscooee.campaign.VideoPopUpActivity;
 import com.letscooee.init.DefaultUserPropertiesCollector;
 import com.letscooee.init.PostLaunchActivity;
 import com.letscooee.models.Campaign;
+import com.letscooee.models.Event;
 import com.letscooee.models.UserProfile;
 import com.letscooee.retrofit.APIClient;
 import com.letscooee.retrofit.ServerAPIService;
@@ -70,10 +71,12 @@ public class CooeeSDK {
         subParameters.put("Connected To Wifi", defaultUserPropertiesCollector.isConnectedToWifi());
         subParameters.put("Bluetooth Enabled", defaultUserPropertiesCollector.isBluetoothOn());
 
+        Event event = new Event(eventName, subParameters);
+
 //        TODO : Check for null values
         Campaign campaign = null;
         try {
-            campaign = new MyAsyncClass().execute(eventName, subParameters).get();
+            campaign = new MyAsyncClass().execute(event).get();
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
@@ -128,18 +131,18 @@ public class CooeeSDK {
         });
     }
 
-    private class MyAsyncClass extends AsyncTask<Object, Void, Campaign> {
+    private class MyAsyncClass extends AsyncTask<Event, Void, Campaign> {
 
         @SafeVarargs
         @Override
-        protected final Campaign doInBackground(Object... objects) {
+        protected final Campaign doInBackground(Event... events) {
             ServerAPIService apiService = APIClient.getServerAPIService();
             Response<Campaign> response = null;
-            String eventName = (String) objects[0];
-            HashMap eventProperties = (HashMap) objects[1];
+            Log.d("check", "out");
             try {
                 String header = context.getSharedPreferences(CooeeSDKConstants.SDK_TOKEN, Context.MODE_PRIVATE).getString(CooeeSDKConstants.SDK_TOKEN, "");
-                response = apiService.sendEvent(header, eventName, eventProperties).execute();
+                response = apiService.sendEvent(header, events[0]).execute();
+                Log.d("ResponseCode", response.code() + "");
             } catch (IOException e) {
                 e.printStackTrace();
             }
