@@ -6,6 +6,7 @@ import java.util.Map;
 
 /**
  * @author Abhishek Taparia
+ * Event class is sent as body to server when user creates/sends a custom event.
  */
 public class Event {
     @SerializedName("name")

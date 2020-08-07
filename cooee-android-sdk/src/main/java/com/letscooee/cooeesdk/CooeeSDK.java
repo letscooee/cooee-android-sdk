@@ -81,34 +81,34 @@ public class CooeeSDK {
             e.printStackTrace();
         }
 
-//        switch (campaign.getEventName()) {
-//            case CooeeSDKConstants.IMAGE_CAMPAIGN: {
-//                Intent intent = new Intent(context, ImagePopUpActivity.class);
-//                intent.putExtra("title", campaign.getEventName());
-//                intent.putExtra("mediaURL",campaign.getContent().getMediaUrl());
-//                intent.putExtra("transitionSide",campaign.getContent().getLayout().getDirection());
-//                intent.putExtra("autoClose",campaign.getContent().getLayout().getCloseBehaviour().getAutoCloseTime());
-//                Log.d("getAutoClose() in SDK",campaign.getContent().getLayout().getCloseBehaviour().getAutoCloseTime()+"");
-//                context.startActivity(intent);
-//                break;
-//            }
-//            case CooeeSDKConstants.VIDEO_CAMPAIGN:
-//                Intent intent = new Intent(context, VideoPopUpActivity.class);
-//                intent.putExtra("title", campaign.getEventName());
-//                intent.putExtra("mediaURL",campaign.getContent().getMediaUrl());
-//                intent.putExtra("transitionSide",campaign.getContent().getLayout().getDirection());
-//                intent.putExtra("autoClose",campaign.getContent().getLayout().getCloseBehaviour().getAutoCloseTime());
-//                Log.d("getAutoClose() in SDK",campaign.getContent().getLayout().getCloseBehaviour().getAutoCloseTime()+"");
-//                context.startActivity(intent);
-//                break;
-//            case CooeeSDKConstants.SPLASH_CAMPAIGN: {
-////                TODO: create Splash Campaign Layout class
-//                break;
-//            }
-//            default: {
-//                Log.d(CooeeSDKConstants.LOG_PREFIX + " error", "No familiar campaign");
-//            }
-//        }
+        switch (campaign.getEventName()) {
+            case CooeeSDKConstants.IMAGE_CAMPAIGN: {
+                Intent intent = new Intent(context, ImagePopUpActivity.class);
+                intent.putExtra("title", campaign.getEventName());
+                intent.putExtra("mediaURL", campaign.getContent().getMediaUrl());
+                intent.putExtra("transitionSide", campaign.getContent().getLayout().getDirection());
+                intent.putExtra("autoClose", campaign.getContent().getLayout().getCloseBehaviour().getAutoCloseTime());
+                Log.d("getAutoClose() in SDK", campaign.getContent().getLayout().getCloseBehaviour().getAutoCloseTime() + "");
+                context.startActivity(intent);
+                break;
+            }
+            case CooeeSDKConstants.VIDEO_CAMPAIGN:
+                Intent intent = new Intent(context, VideoPopUpActivity.class);
+                intent.putExtra("title", campaign.getEventName());
+                intent.putExtra("mediaURL", campaign.getContent().getMediaUrl());
+                intent.putExtra("transitionSide", campaign.getContent().getLayout().getDirection());
+                intent.putExtra("autoClose", campaign.getContent().getLayout().getCloseBehaviour().getAutoCloseTime());
+                Log.d("getAutoClose() in SDK", campaign.getContent().getLayout().getCloseBehaviour().getAutoCloseTime() + "");
+                context.startActivity(intent);
+                break;
+            case CooeeSDKConstants.SPLASH_CAMPAIGN: {
+//                TODO: create Splash Campaign Layout class
+                break;
+            }
+            default: {
+                Log.d(CooeeSDKConstants.LOG_PREFIX + " error", "No familiar campaign");
+            }
+        }
     }
 
     public void updateProfile(Map<String, Object> profile) {
