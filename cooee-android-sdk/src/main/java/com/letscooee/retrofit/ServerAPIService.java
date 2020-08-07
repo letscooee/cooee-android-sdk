@@ -28,7 +28,7 @@ public interface ServerAPIService {
     Call<SDKAuthentication> firstOpen();
 
     @POST("v1/event/save/")
-    Call<Campaign> sendEvent(@Header("sdkToken") String sdkToken, @Body Event event);
+    Call<Campaign> sendEvent(@Header("x-sdk-token") String sdkToken, @Body Event event);
 
     @POST("update_profile/")
     @FormUrlEncoded
