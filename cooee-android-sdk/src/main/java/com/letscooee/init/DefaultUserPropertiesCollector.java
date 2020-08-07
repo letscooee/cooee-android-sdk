@@ -4,8 +4,10 @@ import android.Manifest;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.content.res.Configuration;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -26,6 +28,8 @@ import com.google.android.gms.location.LocationServices;
 import com.letscooee.utils.CooeeSDKConstants;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Abhishek Taparia
@@ -204,5 +208,17 @@ public class DefaultUserPropertiesCollector {
         int w = displayMetrics.widthPixels;
         int densityPixel = displayMetrics.densityDpi;
         return w + "X" + h + " " + densityPixel + "dpi";
+    }
+
+    public List<String> getInstalledApps() {
+        List<String> installedApps = new ArrayList<>();
+        PackageManager pm = context.getPackageManager();
+        List<PackageInfo> packs = context.getPackageManager().getInstalledPackages(0);
+        for (PackageInfo packageInfo : packs) {
+            String app = packageInfo.applicationInfo.loadLabel(context.getPackageManager()).toString();
+            Log.d("installed app", app);
+            installedApps.add(app);
+        }
+        return installedApps;
     }
 }
