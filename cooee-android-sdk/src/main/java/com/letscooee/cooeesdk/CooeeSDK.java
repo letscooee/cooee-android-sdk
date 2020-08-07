@@ -35,18 +35,21 @@ public class CooeeSDK {
     private Context context;
     private String[] location;
     private DefaultUserPropertiesCollector defaultUserPropertiesCollector;
-    private static CooeeSDK cooeeSDK=null;
+    private static CooeeSDK cooeeSDK = null;
 
     private CooeeSDK(Context context) {
         this.context = context;
         new PostLaunchActivity(context).appLaunch();
         defaultUserPropertiesCollector = new DefaultUserPropertiesCollector(context);
         location = defaultUserPropertiesCollector.getLocation();
+        Log.d("Memory size", DefaultUserPropertiesCollector.getAvailableInternalMemorySize());
+        Log.d("Battery Level", defaultUserPropertiesCollector.getBatteryLevel());
+        Log.d("Screen Resolution", defaultUserPropertiesCollector.getScreenResolution());
     }
 
     // create instance for CooeeSDK (Singleton Class)
     public static CooeeSDK getDefaultInstance(Context context) {
-        if (cooeeSDK==null){
+        if (cooeeSDK == null) {
             cooeeSDK = new CooeeSDK(context);
         }
         return cooeeSDK;
@@ -82,20 +85,20 @@ public class CooeeSDK {
             case CooeeSDKConstants.IMAGE_CAMPAIGN: {
                 Intent intent = new Intent(context, ImagePopUpActivity.class);
                 intent.putExtra("title", campaign.getEventName());
-                intent.putExtra("mediaURL",campaign.getContent().getMediaUrl());
-                intent.putExtra("transitionSide",campaign.getContent().getLayout().getDirection());
-                intent.putExtra("autoClose",campaign.getContent().getLayout().getCloseBehaviour().getAutoCloseTime());
-                Log.d("getAutoClose() in SDK",campaign.getContent().getLayout().getCloseBehaviour().getAutoCloseTime()+"");
+                intent.putExtra("mediaURL", campaign.getContent().getMediaUrl());
+                intent.putExtra("transitionSide", campaign.getContent().getLayout().getDirection());
+                intent.putExtra("autoClose", campaign.getContent().getLayout().getCloseBehaviour().getAutoCloseTime());
+                Log.d("getAutoClose() in SDK", campaign.getContent().getLayout().getCloseBehaviour().getAutoCloseTime() + "");
                 context.startActivity(intent);
                 break;
             }
             case CooeeSDKConstants.VIDEO_CAMPAIGN:
                 Intent intent = new Intent(context, VideoPopUpActivity.class);
                 intent.putExtra("title", campaign.getEventName());
-                intent.putExtra("mediaURL",campaign.getContent().getMediaUrl());
-                intent.putExtra("transitionSide",campaign.getContent().getLayout().getDirection());
-                intent.putExtra("autoClose",campaign.getContent().getLayout().getCloseBehaviour().getAutoCloseTime());
-                Log.d("getAutoClose() in SDK",campaign.getContent().getLayout().getCloseBehaviour().getAutoCloseTime()+"");
+                intent.putExtra("mediaURL", campaign.getContent().getMediaUrl());
+                intent.putExtra("transitionSide", campaign.getContent().getLayout().getDirection());
+                intent.putExtra("autoClose", campaign.getContent().getLayout().getCloseBehaviour().getAutoCloseTime());
+                Log.d("getAutoClose() in SDK", campaign.getContent().getLayout().getCloseBehaviour().getAutoCloseTime() + "");
                 context.startActivity(intent);
                 break;
             case CooeeSDKConstants.SPLASH_CAMPAIGN: {
