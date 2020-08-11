@@ -6,6 +6,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.util.Log;
 
+import com.letscooee.BuildConfig;
 import com.letscooee.campaign.ImagePopUpActivity;
 import com.letscooee.campaign.VideoPopUpActivity;
 import com.letscooee.init.DefaultUserPropertiesCollector;
@@ -56,6 +57,7 @@ public class CooeeSDK {
 
     //Sends event to the server and returns with the campaign details
     public void sendEvent(String campaignType) {
+//        TODO: discuss which default properties must be sent with each event.
         String[] networkData = defaultUserPropertiesCollector.getNetworkData();
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("name", "ImageButtonClick");
@@ -64,7 +66,7 @@ public class CooeeSDK {
         subParameters.put("Longitude", location[1]);
         subParameters.put("App Version", defaultUserPropertiesCollector.getAppVersion());
         subParameters.put("OS Version", Build.VERSION.RELEASE);
-        subParameters.put("SDK Version", Build.VERSION.SDK_INT + "");
+        subParameters.put("SDK Version", BuildConfig.VERSION_NAME);
         subParameters.put("Carrier", networkData[0]);
         subParameters.put("Network Type", networkData[1]);
         subParameters.put("Connected To Wifi", defaultUserPropertiesCollector.isConnectedToWifi());
@@ -73,7 +75,7 @@ public class CooeeSDK {
 //        TODO : Check for null values
         Campaign campaign = null;
         try {
-            campaign = new MyAsyncClass().execute(parameters).get();
+            campaign = new SendEventNetworkAsyncClass().execute(parameters).get();
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
@@ -128,7 +130,7 @@ public class CooeeSDK {
         });
     }
 
-    private class MyAsyncClass extends AsyncTask<Map<String, Object>, Void, Campaign> {
+    private class SendEventNetworkAsyncClass extends AsyncTask<Map<String, Object>, Void, Campaign> {
 
         @SafeVarargs
         @Override

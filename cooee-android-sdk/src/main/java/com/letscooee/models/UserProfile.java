@@ -1,35 +1,26 @@
 package com.letscooee.models;
 
+import com.google.gson.annotations.SerializedName;
+
 /**
  * @author Abhishek Taparia
  * UserProfile class will store user data from server
  */
 public class UserProfile {
-    String userName;
-    String email;
+    @SerializedName("name")
     String fullName;
+    String customerId;
+    String email;
     String mobileNumber;
-    String address;
-    String pinCode;
 
     public UserProfile() {
     }
 
-    public UserProfile(String userName, String email, String fullName, String mobileNumber, String address, String pinCode) {
-        this.userName = userName;
+    public UserProfile(String fullName, String customerId, String email, String mobileNumber) {
         this.email = email;
         this.fullName = fullName;
         this.mobileNumber = mobileNumber;
-        this.address = address;
-        this.pinCode = pinCode;
-    }
-
-    public String getUserName() {
-        return userName;
-    }
-
-    public void setUserName(String userName) {
-        this.userName = userName;
+        this.customerId = customerId;
     }
 
     public String getEmail() {
@@ -56,31 +47,21 @@ public class UserProfile {
         this.mobileNumber = mobileNumber;
     }
 
-    public String getAddress() {
-        return address;
+    public String getCustomerId() {
+        return customerId;
     }
 
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    public String getPinCode() {
-        return pinCode;
-    }
-
-    public void setPinCode(String pinCode) {
-        this.pinCode = pinCode;
+    public void setCustomerId(String customerId) {
+        this.customerId = customerId;
     }
 
     @Override
     public String toString() {
         return "UserProfile{" +
-                "userName='" + userName + '\'' +
+                "fullName='" + fullName + '\'' +
+                ", customerId='" + customerId + '\'' +
                 ", email='" + email + '\'' +
-                ", fullName='" + fullName + '\'' +
                 ", mobileNumber='" + mobileNumber + '\'' +
-                ", address='" + address + '\'' +
-                ", pinCode='" + pinCode + '\'' +
                 '}';
     }
 }

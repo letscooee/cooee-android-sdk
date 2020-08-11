@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.util.Log;
 
+import com.letscooee.BuildConfig;
 import com.letscooee.models.AuthenticationRequestBody;
 import com.letscooee.models.DeviceData;
 import com.letscooee.models.SDKAuthentication;
@@ -36,10 +37,11 @@ public class PostLaunchActivity {
         if (new FirstTimeLaunchManager(context).isAppFirstTimeLaunch()) {
             ServerAPIService apiService = APIClient.getServerAPIService();
             DefaultUserPropertiesCollector defaultUserPropertiesCollector = new DefaultUserPropertiesCollector(context);
+//            TODO pickup appID and appSecret from properties file
             AuthenticationRequestBody authenticationRequestBody = new AuthenticationRequestBody("5f2a8b217124fea524ebd6e1",
                     "A57DQgq9vGQJmjw6Ra8r",
                     new DeviceData("ANDROID",
-                            Build.VERSION.SDK_INT + "",
+                            BuildConfig.VERSION_NAME + "",
                             defaultUserPropertiesCollector.getAppVersion(),
                             Build.VERSION.RELEASE));
             apiService.firstOpen(authenticationRequestBody).enqueue(new retrofit2.Callback<SDKAuthentication>() {
@@ -50,7 +52,6 @@ public class PostLaunchActivity {
                         Log.i(CooeeSDKConstants.LOG_PREFIX + " bodyResponse", String.valueOf(response.body().getSdkToken()));
                         mSharedPreferences = context.getSharedPreferences(CooeeSDKConstants.SDK_TOKEN, Context.MODE_PRIVATE);
                         mSharedPreferencesEditor = mSharedPreferences.edit();
-                        assert response.body() != null;
                         String sdkToken = response.body().getSdkToken();
                         mSharedPreferencesEditor.putString(CooeeSDKConstants.SDK_TOKEN, sdkToken);
                         mSharedPreferencesEditor.apply();
