@@ -109,10 +109,21 @@ public class CooeeSDK {
         }
     }
 
+    public void updateUserData(Map<String, String> userData) {
+        updateProfile(userData, null);
+    }
+
+    public void updateUserProperties(Map<String, String> userProperties) {
+        updateProfile(null, userProperties);
+    }
+
     public void updateProfile(Map<String, String> userData, Map<String, String> userProperties) {
         ServerAPIService apiService = APIClient.getServerAPIService();
         String header = context.getSharedPreferences(CooeeSDKConstants.SDK_TOKEN, Context.MODE_PRIVATE).getString(CooeeSDKConstants.SDK_TOKEN, "");
-        Call<ResponseBody> call = apiService.updateProfile(header, userData, userProperties);
+        Map<String, Object> userMap = new HashMap<>();
+        if (userData != null) userMap.put("userData", userData);
+        if (userProperties != null) userMap.put("userProperties", userProperties);
+        Call<ResponseBody> call = apiService.updateProfile(header, userMap);
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
@@ -126,9 +137,9 @@ public class CooeeSDK {
         });
     }
 
-    public void updateProfile(Map<String, String> userData) {
-        updateProfile(userData, null);
-    }
+//    public void updateProfile(Map<String, String> userData) {
+//        updateProfile(userData, null);
+//    }
 
     private class MyAsyncClass extends AsyncTask<Map<String, Object>, Void, Campaign> {
 

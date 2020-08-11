@@ -31,6 +31,6 @@ public interface ServerAPIService {
 
     @PUT("v1/user/update/")
     @FormUrlEncoded
-    Call<ResponseBody> updateProfile(@Header("x-sdk-token") String sdkToken, @Field("userData") Map<String, String> userData, @Field("userProperties") Map<String, String> userProperties);
+    Call<ResponseBody> updateProfile(@Header("x-sdk-token") String sdkToken, @FieldMap Map<String, Object> userProperties);
 
 }
