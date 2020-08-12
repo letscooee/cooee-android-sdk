@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.os.Bundle;
 import android.util.Log;
 
 import com.letscooee.campaign.ImagePopUpActivity;
@@ -18,7 +19,6 @@ import com.letscooee.retrofit.ServerAPIService;
 import com.letscooee.utils.CooeeSDKConstants;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
@@ -36,7 +36,7 @@ public class CooeeSDK {
     private Context context;
     private String[] location;
     private DefaultUserPropertiesCollector defaultUserPropertiesCollector;
-    private static CooeeSDK cooeeSDK=null;
+    private static CooeeSDK cooeeSDK = null;
 
     private CooeeSDK(Context context) {
         this.context = context;
@@ -47,66 +47,53 @@ public class CooeeSDK {
 
     // create instance for CooeeSDK (Singleton Class)
     public static CooeeSDK getDefaultInstance(Context context) {
-        if (cooeeSDK==null){
+        if (cooeeSDK == null) {
             cooeeSDK = new CooeeSDK(context);
         }
         return cooeeSDK;
-
     }
 
 
     //Sends event to the server and returns with the campaign details
     public void sendEvent(String eventName, Map<String, String> eventProperties) {
-        String[] networkData = defaultUserPropertiesCollector.getNetworkData();
-        Map<String, Object> parameters = new HashMap<>();
-        parameters.put("name", "ImageButtonClick");
+//        TODO: discussion for default events properties in SDk
         Map<String, String> subParameters = eventProperties;
-        subParameters.put("Latitude", location[0]);
-        subParameters.put("Longitude", location[1]);
-        subParameters.put("App Version", defaultUserPropertiesCollector.getAppVersion());
-        subParameters.put("OS Version", Build.VERSION.RELEASE);
-        subParameters.put("SDK Version", Build.VERSION.SDK_INT + "");
-        subParameters.put("Carrier", networkData[0]);
-        subParameters.put("Network Type", networkData[1]);
-        subParameters.put("Connected To Wifi", defaultUserPropertiesCollector.isConnectedToWifi());
-        subParameters.put("Bluetooth Enabled", defaultUserPropertiesCollector.isBluetoothOn());
-
         Event event = new Event(eventName, subParameters);
-
 //        TODO : Check for null values
         Campaign campaign = null;
         try {
-            campaign = new MyAsyncClass().execute(event).get();
+            campaign = new SendEventNetworkAsyncClass().execute(event).get();
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
 
-        switch (campaign.getEventName()) {
-            case CooeeSDKConstants.IMAGE_CAMPAIGN: {
-                Intent intent = new Intent(context, ImagePopUpActivity.class);
-                intent.putExtra("title", campaign.getEventName());
-                intent.putExtra("mediaURL", campaign.getContent().getMediaUrl());
-                intent.putExtra("transitionSide", campaign.getContent().getLayout().getDirection());
-                intent.putExtra("autoClose", campaign.getContent().getLayout().getCloseBehaviour().getAutoCloseTime());
-                Log.d("getAutoClose() in SDK", campaign.getContent().getLayout().getCloseBehaviour().getAutoCloseTime() + "");
-                context.startActivity(intent);
-                break;
-            }
-            case CooeeSDKConstants.VIDEO_CAMPAIGN:
-                Intent intent = new Intent(context, VideoPopUpActivity.class);
-                intent.putExtra("title", campaign.getEventName());
-                intent.putExtra("mediaURL", campaign.getContent().getMediaUrl());
-                intent.putExtra("transitionSide", campaign.getContent().getLayout().getDirection());
-                intent.putExtra("autoClose", campaign.getContent().getLayout().getCloseBehaviour().getAutoCloseTime());
-                Log.d("getAutoClose() in SDK", campaign.getContent().getLayout().getCloseBehaviour().getAutoCloseTime() + "");
-                context.startActivity(intent);
-                break;
-            case CooeeSDKConstants.SPLASH_CAMPAIGN: {
+        assert campaign != null;
+        if (campaign.getEventName() != null) {
+            Bundle bundle = new Bundle();
+            bundle.putString("title", campaign.getEventName());
+            bundle.putString("mediaURL", campaign.getContent().getMediaUrl());
+            bundle.putString("transitionSide", campaign.getContent().getLayout().getDirection());
+            bundle.putString("autoClose", campaign.getContent().getLayout().getCloseBehaviour().getAutoCloseTime() + "");
+
+            switch (campaign.getEventName()) {
+                case CooeeSDKConstants.IMAGE_CAMPAIGN: {
+                    Intent intent = new Intent(context, ImagePopUpActivity.class);
+                    intent.putExtras(bundle);
+                    context.startActivity(intent);
+                    break;
+                }
+                case CooeeSDKConstants.VIDEO_CAMPAIGN:
+                    Intent intent = new Intent(context, VideoPopUpActivity.class);
+                    intent.putExtras(bundle);
+                    context.startActivity(intent);
+                    break;
+                case CooeeSDKConstants.SPLASH_CAMPAIGN: {
 //                TODO: create Splash Campaign Layout class
-                break;
-            }
-            default: {
-                Log.d(CooeeSDKConstants.LOG_PREFIX + " error", "No familiar campaign");
+                    break;
+                }
+                default: {
+                    Log.d(CooeeSDKConstants.LOG_PREFIX + " error", "No familiar campaign");
+                }
             }
         }
     }
@@ -126,12 +113,12 @@ public class CooeeSDK {
 
             @Override
             public void onFailure(Call<UserProfile> call, Throwable t) {
-
+                Log.d("Error", t.toString());
             }
         });
     }
 
-    private class MyAsyncClass extends AsyncTask<Event, Void, Campaign> {
+    private class SendEventNetworkAsyncClass extends AsyncTask<Event, Void, Campaign> {
 
         @SafeVarargs
         @Override

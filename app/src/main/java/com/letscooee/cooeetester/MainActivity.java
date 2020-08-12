@@ -47,7 +47,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 // sending event to the server
-                mySdk.sendEvent(CooeeSDKConstants.IMAGE_CAMPAIGN, new HashMap<>());
+                Map<String, String> eventParameters = new HashMap<>();
+                eventParameters.put("Image Name", "pikachu");
+                mySdk.sendEvent(CooeeSDKConstants.IMAGE_CAMPAIGN, eventParameters);
             }
         });
 

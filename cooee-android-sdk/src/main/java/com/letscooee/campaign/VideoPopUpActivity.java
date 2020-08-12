@@ -26,33 +26,34 @@ public class VideoPopUpActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_video_pop_up);
+        int transitionId;
 
         DisplayMetrics dm = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(dm);
-        getWindow().setLayout((int)(dm.widthPixels*0.7),(int)(dm.heightPixels*0.45));
+        getWindow().setLayout((int) (dm.widthPixels * 0.7), (int) (dm.heightPixels * 0.45));
 
         WindowManager.LayoutParams params = getWindow().getAttributes();
         params.gravity = Gravity.CENTER;
-        params.x=0;
-        params.y=-20;
-
+        params.x = 0;
+        params.y = -20;
         getWindow().setAttributes(params);
-        String title = getIntent().getStringExtra("title");
-        String mediaURL = getIntent().getStringExtra("mediaURL");
-        int transitionId;
-        String autoClose = getIntent().getStringExtra("autoClose");
-        Log.d("AutoClose in activity",autoClose+"");
-        switch (Objects.requireNonNull(getIntent().getStringExtra("transitionSide"))){
-            case "right":{
-                transitionId= R.anim.slide_right;
+
+        Bundle bundle = getIntent().getExtras();
+        String title = bundle.get("title").toString();
+        String mediaURL = bundle.get("mediaURL").toString();
+        String autoClose = bundle.get("autoClose").toString();
+        Log.d("AutoClose in activity", autoClose + "");
+        switch (Objects.requireNonNull(bundle.get("transitionSide")).toString()) {
+            case "right": {
+                transitionId = R.anim.slide_right;
                 break;
             }
-            case "left":{
-                transitionId=android.R.anim.slide_in_left;
+            case "left": {
+                transitionId = android.R.anim.slide_in_left;
                 break;
             }
-            case "up":{
-                transitionId=R.anim.slide_up;
+            case "up": {
+                transitionId = R.anim.slide_up;
                 break;
             }
             case "down":{
@@ -64,7 +65,6 @@ public class VideoPopUpActivity extends Activity {
                 transitionId=R.anim.slide_up;
             }
         }
-
         overridePendingTransition(transitionId,R.anim.no_change);
 
         textViewTitle = findViewById(R.id.textViewTitle);
@@ -76,13 +76,6 @@ public class VideoPopUpActivity extends Activity {
         videoView.setVideoPath(mediaURL);
         videoView.start();
 
-        Runnable runnable = this::finish;
-        if (autoClose==null){
-            Log.d("inside","autoClose");
-        }
-        else{
-            Log.d("not inside","autoClose");
-            new Handler().postDelayed(runnable,Integer.parseInt(autoClose)*1000);
-        }
+        new Handler().postDelayed(this::finish, Integer.parseInt(autoClose) * 1000);
     }
 }
