@@ -6,13 +6,11 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.util.Log;
 
-import com.letscooee.BuildConfig;
 import com.letscooee.campaign.ImagePopUpActivity;
 import com.letscooee.campaign.VideoPopUpActivity;
 import com.letscooee.init.DefaultUserPropertiesCollector;
 import com.letscooee.init.PostLaunchActivity;
 import com.letscooee.models.Campaign;
-import com.letscooee.models.UserProfile;
 import com.letscooee.retrofit.APIClient;
 import com.letscooee.retrofit.ServerAPIService;
 import com.letscooee.utils.CooeeSDKConstants;
@@ -22,6 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -51,12 +50,12 @@ public class CooeeSDK {
             cooeeSDK = new CooeeSDK(context);
         }
         return cooeeSDK;
+
     }
 
 
     //Sends event to the server and returns with the campaign details
     public void sendEvent(String campaignType) {
-//        TODO: discuss which default properties must be sent with each event.
         String[] networkData = defaultUserPropertiesCollector.getNetworkData();
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("name", "ImageButtonClick");
@@ -65,7 +64,7 @@ public class CooeeSDK {
         subParameters.put("Longitude", location[1]);
         subParameters.put("App Version", defaultUserPropertiesCollector.getAppVersion());
         subParameters.put("OS Version", Build.VERSION.RELEASE);
-        subParameters.put("SDK Version", BuildConfig.VERSION_NAME);
+        subParameters.put("SDK Version", Build.VERSION.SDK_INT + "");
         subParameters.put("Carrier", networkData[0]);
         subParameters.put("Network Type", networkData[1]);
         subParameters.put("Connected To Wifi", defaultUserPropertiesCollector.isConnectedToWifi());
@@ -74,7 +73,7 @@ public class CooeeSDK {
 //        TODO : Check for null values
         Campaign campaign = null;
         try {
-            campaign = new SendEventNetworkAsyncClass().execute(parameters).get();
+            campaign = new MyAsyncClass().execute(parameters).get();
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
@@ -109,27 +108,35 @@ public class CooeeSDK {
         }
     }
 
-    public void updateProfile(Map<String, Object> profile) {
+    public void updateUserData(Map<String, String> userData) {
+        updateUserProfile(userData, null);
+    }
+
+    public void updateUserProperties(Map<String, String> userProperties) {
+        updateUserProfile(null, userProperties);
+    }
+
+    public void updateUserProfile(Map<String, String> userData, Map<String, String> userProperties) {
         ServerAPIService apiService = APIClient.getServerAPIService();
-        Call<UserProfile> call = apiService.updateProfile(context.getSharedPreferences(CooeeSDKConstants.SDK_TOKEN, Context.MODE_PRIVATE).getString(CooeeSDKConstants.SDK_TOKEN, ""), profile);
-        final UserProfile userProfile = null;
-        call.enqueue(new Callback<UserProfile>() {
+        String header = context.getSharedPreferences(CooeeSDKConstants.SDK_TOKEN, Context.MODE_PRIVATE).getString(CooeeSDKConstants.SDK_TOKEN, "");
+        Map<String, Object> userMap = new HashMap<>();
+        if (userData != null) userMap.put("userData", userData);
+        if (userProperties != null) userMap.put("userProperties", userProperties);
+        Call<ResponseBody> call = apiService.updateProfile(header, userMap);
+        call.enqueue(new Callback<ResponseBody>() {
             @Override
-            public void onResponse(Call<UserProfile> call, Response<UserProfile> response) {
-                if (response.body() == null) {
-                    Log.i(CooeeSDKConstants.LOG_PREFIX + " body is ", "null");
-                }
-                Log.i(CooeeSDKConstants.LOG_PREFIX + " User data", response.toString());
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                Log.i("status", response.code() + "");
             }
 
             @Override
-            public void onFailure(Call<UserProfile> call, Throwable t) {
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
 
             }
         });
     }
 
-    private class SendEventNetworkAsyncClass extends AsyncTask<Map<String, Object>, Void, Campaign> {
+    private class MyAsyncClass extends AsyncTask<Map<String, Object>, Void, Campaign> {
 
         @SafeVarargs
         @Override
@@ -137,8 +144,7 @@ public class CooeeSDK {
             ServerAPIService apiService = APIClient.getServerAPIService();
             Response<Campaign> response = null;
             try {
-                String header = context.getSharedPreferences(CooeeSDKConstants.SDK_TOKEN, Context.MODE_PRIVATE).getString(CooeeSDKConstants.SDK_TOKEN, "");
-                response = apiService.sendEvent(header, strings[0]).execute();
+                response = apiService.sendEvent(context.getSharedPreferences(CooeeSDKConstants.SDK_TOKEN, Context.MODE_PRIVATE).getString(CooeeSDKConstants.SDK_TOKEN, ""), strings[0]).execute();
             } catch (IOException e) {
                 e.printStackTrace();
             }
