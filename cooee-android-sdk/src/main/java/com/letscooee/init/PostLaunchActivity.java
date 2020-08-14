@@ -38,7 +38,8 @@ public class PostLaunchActivity {
             ServerAPIService apiService = APIClient.getServerAPIService();
             DefaultUserPropertiesCollector defaultUserPropertiesCollector = new DefaultUserPropertiesCollector(context);
 //            TODO pickup appID and appSecret from properties file
-            AuthenticationRequestBody authenticationRequestBody = new AuthenticationRequestBody("5f2a8b217124fea524ebd6e1",
+            AuthenticationRequestBody authenticationRequestBody = new AuthenticationRequestBody(
+                    "5f2a8b217124fea524ebd6e1",
                     "A57DQgq9vGQJmjw6Ra8r",
                     new DeviceData("ANDROID",
                             BuildConfig.VERSION_NAME + "",

@@ -40,46 +40,33 @@ public class MainActivity extends AppCompatActivity {
         buttonImage = findViewById(R.id.btnImage);
         buttonVideo = findViewById(R.id.btnVideo);
 
-        Map<String,Object> userData = new HashMap<>();
-        userData.put("fullName","Abhishek Taparia");
-        userData.put("address","Main Market");
-        userData.put("mobileNumber","9879156641");
+        Map<String, Object> userData = new HashMap<>();
+        userData.put("fullName", "Abhishek Taparia");
+        userData.put("address", "Main Market");
+        userData.put("mobileNumber", "9879156641");
 
-        buttonImage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // sending event to the server
-                mySdk.sendEvent(CooeeSDKConstants.IMAGE_CAMPAIGN);
-            }
+        buttonImage.setOnClickListener(view -> {
+            // sending event to the server
+            mySdk.sendEvent(CooeeSDKConstants.IMAGE_CAMPAIGN);
         });
 
         buttonVideo.setOnClickListener(view -> {
             mySdk.sendEvent(CooeeSDKConstants.VIDEO_CAMPAIGN);
         });
 
-//        SharedPreferences sharedPreferences = getSharedPreferences("com.letscooee.tester",MODE_PRIVATE);
-//        String sdkToken= sharedPreferences.getString("com.letscooee.tester","");
-//        Log.i("sdktoken",sdkToken);
-//        TextView textView = findViewById(R.id.textViewToken);
-//        textView.setText(sdkToken);
-
         FirebaseInstanceId.getInstance().getInstanceId()
-                .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<InstanceIdResult> task) {
-                        if (!task.isSuccessful()) {
-                            Log.w("TAG", "getInstanceId failed", task.getException());
-                            return;
-                        }
-
-                        // Get new Instance ID token
-                        String token = task.getResult().getToken();
-
-                        // Log and toast
-
-                        Log.d("TAG", token);
-                        Toast.makeText(MainActivity.this, token, Toast.LENGTH_SHORT).show();
+                .addOnCompleteListener(task -> {
+                    if (!task.isSuccessful()) {
+                        Log.w("TAG", "getInstanceId failed", task.getException());
+                        return;
                     }
+
+                    // Get new Instance ID token
+                    String token = task.getResult().getToken();
+
+                    // Log and toast
+                    Log.d("TAG", token);
+                    Toast.makeText(MainActivity.this, token, Toast.LENGTH_SHORT).show();
                 });
     }
 }

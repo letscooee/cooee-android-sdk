@@ -45,7 +45,6 @@ public class DefaultUserPropertiesCollector {
             ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, CooeeSDKConstants.REQUEST_LOCATION);
         }
 
-
         LocationServices.getFusedLocationProviderClient(activity)
                 .requestLocationUpdates(locationRequest, new LocationCallback() {
                     @Override
@@ -57,7 +56,7 @@ public class DefaultUserPropertiesCollector {
                             int lastLocationIndex = locationResult.getLocations().size() - 1;
                             double lati = locationResult.getLocations().get(lastLocationIndex).getLatitude();
                             double longi = locationResult.getLocations().get(lastLocationIndex).getLongitude();
-                            Log.i(CooeeSDKConstants.LOG_PREFIX+" lat/long", lati + "  " + longi);
+                            Log.i(CooeeSDKConstants.LOG_PREFIX + " lat/long", lati + "  " + longi);
                         }
                     }
                 }, Looper.getMainLooper());
