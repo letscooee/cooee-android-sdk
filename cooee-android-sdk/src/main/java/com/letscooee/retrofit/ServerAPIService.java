@@ -2,7 +2,9 @@ package com.letscooee.retrofit;
 
 import com.letscooee.models.AuthenticationRequestBody;
 import com.letscooee.models.Campaign;
+import com.letscooee.models.Event;
 import com.letscooee.models.SDKAuthentication;
+import com.letscooee.models.UserProfile;
 
 import java.util.Map;
 
@@ -26,11 +28,11 @@ public interface ServerAPIService {
     @POST("v1/user/save/")
     Call<SDKAuthentication> firstOpen(@Body AuthenticationRequestBody authenticationRequestBody);
 
-    @GET("image_open/")
-    Call<Campaign> sendEvent(@Header("sdkToken") String sdkToken, @QueryMap Map<String, Object> objectMap);
+    @POST("v1/event/save/")
+    Call<Campaign> sendEvent(@Header("x-sdk-token") String sdkToken, @Body Event event);
 
     @PUT("v1/user/update/")
     @FormUrlEncoded
-    Call<ResponseBody> updateProfile(@Header("x-sdk-token") String sdkToken, @FieldMap Map<String, Object> userProperties);
+    Call<ResponseBody> updateProfile(@Header("x-sdk-token") String sdkToken, @FieldMap Map<String, Object> objectMap);
 
 }

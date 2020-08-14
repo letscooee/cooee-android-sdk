@@ -44,40 +44,18 @@ public class MainActivity extends AppCompatActivity {
         userData.put("address", "Main Market");
         userData.put("mobileNumber", "9879156641");
 
-        buttonImage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // sending event to the server
-                mySdk.sendEvent(CooeeSDKConstants.IMAGE_CAMPAIGN);
-            }
+        buttonImage.setOnClickListener(view -> {
+            // sending event to the server
+            mySdk.sendEvent(CooeeSDKConstants.IMAGE_CAMPAIGN, new HashMap<>());
         });
 
         buttonVideo.setOnClickListener(view -> {
-            mySdk.sendEvent(CooeeSDKConstants.VIDEO_CAMPAIGN);
+            mySdk.sendEvent(CooeeSDKConstants.VIDEO_CAMPAIGN, new HashMap<>());
         });
 
         findViewById(R.id.textViewToken).setOnClickListener(view -> {
             Intent intent = new Intent(MainActivity.this, SignUpActivity.class);
             startActivity(intent);
         });
-
-        FirebaseInstanceId.getInstance().getInstanceId()
-                .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<InstanceIdResult> task) {
-                        if (!task.isSuccessful()) {
-                            Log.w("TAG", "getInstanceId failed", task.getException());
-                            return;
-                        }
-
-                        // Get new Instance ID token
-                        String token = task.getResult().getToken();
-
-                        // Log and toast
-
-                        Log.d("TAG", token);
-                        Toast.makeText(MainActivity.this, token, Toast.LENGTH_SHORT).show();
-                    }
-                });
     }
 }

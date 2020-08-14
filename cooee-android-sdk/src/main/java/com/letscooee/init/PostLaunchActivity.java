@@ -55,7 +55,7 @@ public class PostLaunchActivity {
                         mSharedPreferencesEditor = mSharedPreferences.edit();
                         String sdkToken = response.body().getSdkToken();
                         mSharedPreferencesEditor.putString(CooeeSDKConstants.SDK_TOKEN, sdkToken);
-                        mSharedPreferencesEditor.commit();
+                        mSharedPreferencesEditor.apply();
                     } else {
                         Log.i(CooeeSDKConstants.LOG_PREFIX + " bodyError", String.valueOf(response.errorBody()));
                     }

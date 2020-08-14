@@ -3,7 +3,7 @@ package com.letscooee.cooeesdk;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
-import android.os.Build;
+import android.os.Bundle;
 import android.util.Log;
 
 import com.letscooee.campaign.ImagePopUpActivity;
@@ -11,6 +11,7 @@ import com.letscooee.campaign.VideoPopUpActivity;
 import com.letscooee.init.DefaultUserPropertiesCollector;
 import com.letscooee.init.PostLaunchActivity;
 import com.letscooee.models.Campaign;
+import com.letscooee.models.Event;
 import com.letscooee.retrofit.APIClient;
 import com.letscooee.retrofit.ServerAPIService;
 import com.letscooee.utils.CooeeSDKConstants;
@@ -55,55 +56,42 @@ public class CooeeSDK {
 
 
     //Sends event to the server and returns with the campaign details
-    public void sendEvent(String campaignType) {
-        String[] networkData = defaultUserPropertiesCollector.getNetworkData();
-        Map<String, Object> parameters = new HashMap<>();
-        parameters.put("name", "ImageButtonClick");
-        Map<String, String> subParameters = new HashMap<>();
-        subParameters.put("Latitude", location[0]);
-        subParameters.put("Longitude", location[1]);
-        subParameters.put("App Version", defaultUserPropertiesCollector.getAppVersion());
-        subParameters.put("OS Version", Build.VERSION.RELEASE);
-        subParameters.put("SDK Version", Build.VERSION.SDK_INT + "");
-        subParameters.put("Carrier", networkData[0]);
-        subParameters.put("Network Type", networkData[1]);
-        subParameters.put("Connected To Wifi", defaultUserPropertiesCollector.isConnectedToWifi());
-        subParameters.put("Bluetooth Enabled", defaultUserPropertiesCollector.isBluetoothOn());
-        parameters.put("userEventProperties", subParameters);
-//        TODO : Check for null values
+    public void sendEvent(String eventName, Map<String, String> eventProperties) {
+        Event event = new Event(eventName, eventProperties);
         Campaign campaign = null;
         try {
-            campaign = new MyAsyncClass().execute(parameters).get();
+            campaign = new SendEventNetworkAsyncClass().execute(event).get();
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
 
-        switch (campaignType) {
-            case CooeeSDKConstants.IMAGE_CAMPAIGN: {
-                Intent intent = new Intent(context, ImagePopUpActivity.class);
-                intent.putExtra("title", campaign.getEventName());
-                intent.putExtra("mediaURL", campaign.getContent().getMediaUrl());
-                intent.putExtra("transitionSide", campaign.getContent().getLayout().getDirection());
-                intent.putExtra("autoClose", campaign.getContent().getLayout().getCloseBehaviour().getAutoCloseTime());
-                Log.d("getAutoClose() in SDK", campaign.getContent().getLayout().getCloseBehaviour().getAutoCloseTime() + "");
-                context.startActivity(intent);
-                break;
-            }
-            case CooeeSDKConstants.VIDEO_CAMPAIGN:
-                Intent intent = new Intent(context, VideoPopUpActivity.class);
-                intent.putExtra("title", campaign.getEventName());
-                intent.putExtra("mediaURL", campaign.getContent().getMediaUrl());
-                intent.putExtra("transitionSide", campaign.getContent().getLayout().getDirection());
-                intent.putExtra("autoClose", campaign.getContent().getLayout().getCloseBehaviour().getAutoCloseTime());
-                Log.d("getAutoClose() in SDK", campaign.getContent().getLayout().getCloseBehaviour().getAutoCloseTime() + "");
-                context.startActivity(intent);
-                break;
-            case CooeeSDKConstants.SPLASH_CAMPAIGN: {
+        assert campaign != null;
+        if (campaign.getEventName() != null) {
+            Bundle bundle = new Bundle();
+            bundle.putString("title", campaign.getEventName());
+            bundle.putString("mediaURL", campaign.getContent().getMediaUrl());
+            bundle.putString("transitionSide", campaign.getContent().getLayout().getDirection());
+            bundle.putString("autoClose", campaign.getContent().getLayout().getCloseBehaviour().getAutoCloseTime() + "");
+
+            switch (campaign.getEventName()) {
+                case CooeeSDKConstants.IMAGE_CAMPAIGN: {
+                    Intent intent = new Intent(context, ImagePopUpActivity.class);
+                    intent.putExtras(bundle);
+                    context.startActivity(intent);
+                    break;
+                }
+                case CooeeSDKConstants.VIDEO_CAMPAIGN:
+                    Intent intent = new Intent(context, VideoPopUpActivity.class);
+                    intent.putExtras(bundle);
+                    context.startActivity(intent);
+                    break;
+                case CooeeSDKConstants.SPLASH_CAMPAIGN: {
 //                TODO: create Splash Campaign Layout class
-                break;
-            }
-            default: {
-                Log.d(CooeeSDKConstants.LOG_PREFIX + " error", "No familiar campaign");
+                    break;
+                }
+                default: {
+                    Log.d(CooeeSDKConstants.LOG_PREFIX + " error", "No familiar campaign");
+                }
             }
         }
     }
@@ -129,22 +117,23 @@ public class CooeeSDK {
                 Log.i("status", response.code() + "");
             }
 
-            @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
-
+                Log.d("Error", t.toString());
             }
         });
     }
 
-    private class MyAsyncClass extends AsyncTask<Map<String, Object>, Void, Campaign> {
+    private class SendEventNetworkAsyncClass extends AsyncTask<Event, Void, Campaign> {
 
-        @SafeVarargs
         @Override
-        protected final Campaign doInBackground(Map<String, Object>... strings) {
+        protected final Campaign doInBackground(Event... events) {
             ServerAPIService apiService = APIClient.getServerAPIService();
             Response<Campaign> response = null;
+            Log.d("check", "out");
             try {
-                response = apiService.sendEvent(context.getSharedPreferences(CooeeSDKConstants.SDK_TOKEN, Context.MODE_PRIVATE).getString(CooeeSDKConstants.SDK_TOKEN, ""), strings[0]).execute();
+                String header = context.getSharedPreferences(CooeeSDKConstants.SDK_TOKEN, Context.MODE_PRIVATE).getString(CooeeSDKConstants.SDK_TOKEN, "");
+                response = apiService.sendEvent(header, events[0]).execute();
+                Log.d("ResponseCode", response.code() + "");
             } catch (IOException e) {
                 e.printStackTrace();
             }

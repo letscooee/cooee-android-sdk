@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.MediaController;
 import android.widget.TextView;
 import android.widget.VideoView;
 
@@ -25,6 +26,7 @@ public class VideoPopUpActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_video_pop_up);
+        int transitionId;
 
         DisplayMetrics dm = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(dm);
@@ -34,14 +36,14 @@ public class VideoPopUpActivity extends Activity {
         params.gravity = Gravity.CENTER;
         params.x = 0;
         params.y = -20;
-
         getWindow().setAttributes(params);
-        String title = getIntent().getStringExtra("title");
-        String mediaURL = getIntent().getStringExtra("mediaURL");
-        int transitionId;
-        String autoClose = getIntent().getStringExtra("autoClose");
+
+        Bundle bundle = getIntent().getExtras();
+        String title = bundle.get("title").toString();
+        String mediaURL = bundle.get("mediaURL").toString();
+        String autoClose = bundle.get("autoClose").toString();
         Log.d("AutoClose in activity", autoClose + "");
-        switch (Objects.requireNonNull(getIntent().getStringExtra("transitionSide"))) {
+        switch (Objects.requireNonNull(bundle.get("transitionSide")).toString()) {
             case "right": {
                 transitionId = R.anim.slide_right;
                 break;
@@ -75,7 +77,6 @@ public class VideoPopUpActivity extends Activity {
         videoView.setVideoPath(mediaURL);
         videoView.start();
 
-        assert autoClose != null;
         new Handler().postDelayed(this::finish, Integer.parseInt(autoClose) * 1000);
     }
 }
