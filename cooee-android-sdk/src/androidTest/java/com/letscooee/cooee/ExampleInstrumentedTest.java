@@ -1,4 +1,4 @@
-package com.letscooee.android;
+package com.letscooee.cooee;
 
 import android.content.Context;
 import androidx.test.platform.app.InstrumentationRegistry;
