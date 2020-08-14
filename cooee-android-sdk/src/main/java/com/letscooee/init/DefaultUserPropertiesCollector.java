@@ -2,16 +2,17 @@ package com.letscooee.init;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.bluetooth.BluetoothAdapter;
+import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.content.res.Configuration;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.BatteryManager;
+import android.os.Build;
 import android.os.Environment;
 import android.os.Looper;
 import android.os.StatFs;
@@ -19,6 +20,7 @@ import android.telephony.TelephonyManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
 
+import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 
 import com.google.android.gms.location.LocationCallback;
@@ -28,8 +30,11 @@ import com.google.android.gms.location.LocationServices;
 import com.letscooee.utils.CooeeSDKConstants;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+
+import static android.content.Context.ACTIVITY_SERVICE;
 
 /**
  * @author Abhishek Taparia
@@ -40,14 +45,6 @@ public class DefaultUserPropertiesCollector {
 
     public DefaultUserPropertiesCollector(Context context) {
         this.context = context;
-    }
-
-    public static String getAvailableInternalMemorySize() {
-        File path = Environment.getDataDirectory();
-        StatFs stat = new StatFs(path.getPath());
-        long blockSize = stat.getBlockSizeLong();
-        long availableBlocks = stat.getAvailableBlocksLong();
-        return formatSize(availableBlocks * blockSize);
     }
 
     //get Network Details like Carrier Name and Network type
@@ -125,29 +122,41 @@ public class DefaultUserPropertiesCollector {
         return "N";
     }
 
-    //format size into MB/KB
-    public static String formatSize(long size) {
-        String suffix = null;
+    public static String getAvailableInternalMemorySize() {
+        File path = Environment.getDataDirectory();
+        StatFs stat = new StatFs(path.getPath());
+        long blockSize = stat.getBlockSizeLong();
+        long availableBlocks = stat.getAvailableBlocksLong();
+        return String.valueOf((availableBlocks * blockSize) / 0x100000L);
+    }
 
-        if (size >= 1024) {
-            suffix = "KB";
-            size /= 1024;
-            if (size >= 1024) {
-                suffix = "MB";
-                size /= 1024;
+    public String getAvailableRAMMemorySize() {
+        ActivityManager.MemoryInfo mi = new ActivityManager.MemoryInfo();
+        ActivityManager activityManager = (ActivityManager) context.getSystemService(ACTIVITY_SERVICE);
+        assert activityManager != null;
+        activityManager.getMemoryInfo(mi);
+        double availableMegs = (double) mi.availMem / 0x100000L;
+        return String.valueOf(availableMegs);
+    }
+
+    public void getCPUInfo() {
+        try {
+            String[] DATA = {"/system/bin/cat", "/proc/cpuinfo"};
+            ProcessBuilder processBuilder = new ProcessBuilder(DATA);
+            Process process = processBuilder.start();
+            InputStream inputStream = process.getInputStream();
+            byte[] byteArry = new byte[1024];
+            String output = "";
+            while (inputStream.read(byteArry) != -1) {
+                output = output + new String(byteArry);
             }
+            inputStream.close();
+
+            Log.d("CPU_INFO", output);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
-
-        StringBuilder resultBuffer = new StringBuilder(Long.toString(size));
-
-        int commaOffset = resultBuffer.length() - 3;
-        while (commaOffset > 0) {
-            resultBuffer.insert(commaOffset, ',');
-            commaOffset -= 3;
-        }
-
-        if (suffix != null) resultBuffer.append(suffix);
-        return resultBuffer.toString();
     }
 
     //get GPS coordinates of the device
@@ -221,4 +230,19 @@ public class DefaultUserPropertiesCollector {
         }
         return installedApps;
     }
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    public String getCurrentScreenName() {
+        ActivityManager am = (ActivityManager) context.getSystemService(ACTIVITY_SERVICE);
+        List<ActivityManager.RunningTaskInfo> taskInfo = am.getRunningTasks(1);
+        return taskInfo.get(0).topActivity.getClassName();
+    }
+
+    public String getPackageName() {
+        ActivityManager am = (ActivityManager) context.getSystemService(ACTIVITY_SERVICE);
+        List<ActivityManager.RunningTaskInfo> taskInfo = am.getRunningTasks(1);
+        ComponentName componentInfo = taskInfo.get(0).topActivity;
+        return componentInfo.getPackageName();
+    }
+
 }

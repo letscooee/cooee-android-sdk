@@ -45,7 +45,9 @@ public class CooeeSDK {
         Log.d("Memory size", DefaultUserPropertiesCollector.getAvailableInternalMemorySize());
         Log.d("Battery Level", defaultUserPropertiesCollector.getBatteryLevel());
         Log.d("Screen Resolution", defaultUserPropertiesCollector.getScreenResolution());
+        defaultUserPropertiesCollector.getAvailableRAMMemorySize();
         defaultUserPropertiesCollector.getInstalledApps();
+        defaultUserPropertiesCollector.getCPUInfo();
     }
 
     // create instance for CooeeSDK (Singleton Class)
@@ -54,7 +56,6 @@ public class CooeeSDK {
             cooeeSDK = new CooeeSDK(context);
         }
         return cooeeSDK;
-
     }
 
 
