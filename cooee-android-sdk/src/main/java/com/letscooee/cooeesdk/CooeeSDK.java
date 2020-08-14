@@ -6,6 +6,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.letscooee.async.SendEventAsyncNetworkClass;
 import com.letscooee.campaign.ImagePopUpActivity;
 import com.letscooee.campaign.VideoPopUpActivity;
 import com.letscooee.init.DefaultUserPropertiesCollector;
@@ -34,15 +35,11 @@ import retrofit2.Response;
 public class CooeeSDK {
 
     private Context context;
-    private String[] location;
-    private DefaultUserPropertiesCollector defaultUserPropertiesCollector;
     private static CooeeSDK cooeeSDK = null;
 
     private CooeeSDK(Context context) {
         this.context = context;
         new PostLaunchActivity(context).appLaunch();
-        defaultUserPropertiesCollector = new DefaultUserPropertiesCollector(context);
-        location = defaultUserPropertiesCollector.getLocation();
     }
 
     // create instance for CooeeSDK (Singleton Class)
@@ -51,7 +48,6 @@ public class CooeeSDK {
             cooeeSDK = new CooeeSDK(context);
         }
         return cooeeSDK;
-
     }
 
 
@@ -60,7 +56,7 @@ public class CooeeSDK {
         Event event = new Event(eventName, eventProperties);
         Campaign campaign = null;
         try {
-            campaign = new SendEventNetworkAsyncClass().execute(event).get();
+            campaign = new SendEventAsyncNetworkClass(this.context).execute(event).get();
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
@@ -121,23 +117,5 @@ public class CooeeSDK {
                 Log.d("Error", t.toString());
             }
         });
-    }
-
-    private class SendEventNetworkAsyncClass extends AsyncTask<Event, Void, Campaign> {
-
-        @Override
-        protected final Campaign doInBackground(Event... events) {
-            ServerAPIService apiService = APIClient.getServerAPIService();
-            Response<Campaign> response = null;
-            Log.d("check", "out");
-            try {
-                String header = context.getSharedPreferences(CooeeSDKConstants.SDK_TOKEN, Context.MODE_PRIVATE).getString(CooeeSDKConstants.SDK_TOKEN, "");
-                response = apiService.sendEvent(header, events[0]).execute();
-                Log.d("ResponseCode", response.code() + "");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return response.body();
-        }
     }
 }
