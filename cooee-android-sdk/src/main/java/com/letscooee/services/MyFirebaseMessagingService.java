@@ -2,6 +2,8 @@ package com.letscooee.services;
 
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
 import com.google.firebase.messaging.FirebaseMessagingService;
 
 /**
@@ -11,7 +13,7 @@ import com.google.firebase.messaging.FirebaseMessagingService;
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     @Override
-    public void onNewToken(String token) {
+    public void onNewToken(@NonNull String token) {
         Log.d("TAG", "Refreshed token: " + token);
     }
 }

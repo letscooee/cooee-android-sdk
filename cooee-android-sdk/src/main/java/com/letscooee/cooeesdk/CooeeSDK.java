@@ -2,14 +2,12 @@ package com.letscooee.cooeesdk;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 
 import com.letscooee.async.SendEventAsyncNetworkClass;
 import com.letscooee.campaign.ImagePopUpActivity;
 import com.letscooee.campaign.VideoPopUpActivity;
-import com.letscooee.init.DefaultUserPropertiesCollector;
 import com.letscooee.init.PostLaunchActivity;
 import com.letscooee.models.Campaign;
 import com.letscooee.models.Event;
@@ -17,7 +15,6 @@ import com.letscooee.retrofit.APIClient;
 import com.letscooee.retrofit.ServerAPIService;
 import com.letscooee.utils.CooeeSDKConstants;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -35,7 +32,7 @@ import retrofit2.Response;
 public class CooeeSDK {
 
     private Context context;
-    private static CooeeSDK cooeeSDK = null;
+    public static CooeeSDK cooeeSDK = null;
 
     private CooeeSDK(Context context) {
         this.context = context;
@@ -61,8 +58,7 @@ public class CooeeSDK {
             e.printStackTrace();
         }
 
-        assert campaign != null;
-        if (campaign.getEventName() != null) {
+        if (campaign != null && campaign.getEventName() != null) {
             Bundle bundle = new Bundle();
             bundle.putString("title", campaign.getEventName());
             bundle.putString("mediaURL", campaign.getContent().getMediaUrl());
@@ -71,15 +67,15 @@ public class CooeeSDK {
 
             switch (campaign.getEventName()) {
                 case CooeeSDKConstants.IMAGE_CAMPAIGN: {
-                    Intent intent = new Intent(context, ImagePopUpActivity.class);
+                    Intent intent = new Intent(this.context, ImagePopUpActivity.class);
                     intent.putExtras(bundle);
-                    context.startActivity(intent);
+                    this.context.startActivity(intent);
                     break;
                 }
                 case CooeeSDKConstants.VIDEO_CAMPAIGN:
-                    Intent intent = new Intent(context, VideoPopUpActivity.class);
+                    Intent intent = new Intent(this.context, VideoPopUpActivity.class);
                     intent.putExtras(bundle);
-                    context.startActivity(intent);
+                    this.context.startActivity(intent);
                     break;
                 case CooeeSDKConstants.SPLASH_CAMPAIGN: {
 //                TODO: create Splash Campaign Layout class
@@ -92,17 +88,20 @@ public class CooeeSDK {
         }
     }
 
+    //send user data to the server
     public void updateUserData(Map<String, String> userData) {
         updateUserProfile(userData, null);
     }
 
+    //send user properties to the server
     public void updateUserProperties(Map<String, String> userProperties) {
         updateUserProfile(null, userProperties);
     }
 
+    //send user dat and properties to the server
     public void updateUserProfile(Map<String, String> userData, Map<String, String> userProperties) {
         ServerAPIService apiService = APIClient.getServerAPIService();
-        String header = context.getSharedPreferences(CooeeSDKConstants.SDK_TOKEN, Context.MODE_PRIVATE).getString(CooeeSDKConstants.SDK_TOKEN, "");
+        String header = this.context.getSharedPreferences(CooeeSDKConstants.SDK_TOKEN, Context.MODE_PRIVATE).getString(CooeeSDKConstants.SDK_TOKEN, "");
         Map<String, Object> userMap = new HashMap<>();
         if (userData != null) userMap.put("userData", userData);
         if (userProperties != null) userMap.put("userProperties", userProperties);

@@ -12,6 +12,5 @@ public class CooeeSDKConstants {
     public static final String IMAGE_CAMPAIGN = "image_campaign";
     public static final String VIDEO_CAMPAIGN = "video_campaign";
     public static final String SPLASH_CAMPAIGN = "splash_campaign";
-    public static final String APP_LAUNCH_EVENT = "app_launch_event";
     public static final String LOG_PREFIX = "CooeeSDK";
 }

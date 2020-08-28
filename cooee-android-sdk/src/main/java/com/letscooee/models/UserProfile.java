@@ -2,66 +2,44 @@ package com.letscooee.models;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.util.Map;
+
 /**
  * @author Abhishek Taparia
  * UserProfile class will store user data from server
  */
 public class UserProfile {
-    @SerializedName("name")
-    String fullName;
-    String customerId;
-    String email;
-    String mobileNumber;
+    Map<String, String> deviceData;
+    Map<String, String> userData;
+    Map<String, String> userProperties;
 
-    public UserProfile() {
+    public UserProfile(Map<String, String> deviceData, Map<String, String> userData, Map<String, String> userProperties) {
+        this.deviceData = deviceData;
+        this.userData = userData;
+        this.userProperties = userProperties;
     }
 
-    public UserProfile(String fullName, String customerId, String email, String mobileNumber) {
-        this.email = email;
-        this.fullName = fullName;
-        this.mobileNumber = mobileNumber;
-        this.customerId = customerId;
+    public Map<String, String> getDeviceData() {
+        return deviceData;
     }
 
-    public String getEmail() {
-        return email;
+    public void setDeviceData(Map<String, String> deviceData) {
+        this.deviceData = deviceData;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public Map<String, String> getUserData() {
+        return userData;
     }
 
-    public String getFullName() {
-        return fullName;
+    public void setUserData(Map<String, String> userData) {
+        this.userData = userData;
     }
 
-    public void setFullName(String fullName) {
-        this.fullName = fullName;
+    public Map<String, String> getUserProperties() {
+        return userProperties;
     }
 
-    public String getMobileNumber() {
-        return mobileNumber;
-    }
-
-    public void setMobileNumber(String mobileNumber) {
-        this.mobileNumber = mobileNumber;
-    }
-
-    public String getCustomerId() {
-        return customerId;
-    }
-
-    public void setCustomerId(String customerId) {
-        this.customerId = customerId;
-    }
-
-    @Override
-    public String toString() {
-        return "UserProfile{" +
-                "fullName='" + fullName + '\'' +
-                ", customerId='" + customerId + '\'' +
-                ", email='" + email + '\'' +
-                ", mobileNumber='" + mobileNumber + '\'' +
-                '}';
+    public void setUserProperties(Map<String, String> userProperties) {
+        this.userProperties = userProperties;
     }
 }

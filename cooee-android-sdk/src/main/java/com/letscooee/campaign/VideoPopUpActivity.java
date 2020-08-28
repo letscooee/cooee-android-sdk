@@ -1,14 +1,9 @@
 package com.letscooee.campaign;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.DisplayMetrics;
-import android.util.Log;
-import android.view.Gravity;
-import android.view.WindowManager;
+import android.view.View;
 import android.widget.Button;
-import android.widget.MediaController;
 import android.widget.TextView;
 import android.widget.VideoView;
 
@@ -16,7 +11,11 @@ import com.letscooee.R;
 
 import java.util.Objects;
 
-public class VideoPopUpActivity extends Activity {
+/**
+ * @author Abhishek Taparia
+ * VideoPopUpActivity create layout for video campaign
+ */
+public class VideoPopUpActivity extends BasePopUpActivity {
 
     private VideoView videoView;
     private TextView textViewTitle;
@@ -25,58 +24,23 @@ public class VideoPopUpActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        super.onCreated(Objects.requireNonNull(getIntent().getExtras()));
         setContentView(R.layout.activity_video_pop_up);
-        int transitionId;
-
-        DisplayMetrics dm = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(dm);
-        getWindow().setLayout((int) (dm.widthPixels * 0.7), (int) (dm.heightPixels * 0.45));
-
-        WindowManager.LayoutParams params = getWindow().getAttributes();
-        params.gravity = Gravity.CENTER;
-        params.x = 0;
-        params.y = -20;
-        getWindow().setAttributes(params);
-
-        Bundle bundle = getIntent().getExtras();
-        String title = bundle.get("title").toString();
-        String mediaURL = bundle.get("mediaURL").toString();
-        String autoClose = bundle.get("autoClose").toString();
-        Log.d("AutoClose in activity", autoClose + "");
-        switch (Objects.requireNonNull(bundle.get("transitionSide")).toString()) {
-            case "right": {
-                transitionId = R.anim.slide_right;
-                break;
-            }
-            case "left": {
-                transitionId = android.R.anim.slide_in_left;
-                break;
-            }
-            case "up": {
-                transitionId = R.anim.slide_up;
-                break;
-            }
-            case "down": {
-                transitionId = R.anim.slide_down;
-                break;
-            }
-            default: {
-                Log.i("default", "true");
-                transitionId = R.anim.slide_up;
-            }
-        }
-
-        overridePendingTransition(transitionId, R.anim.no_change);
 
         textViewTitle = findViewById(R.id.textViewTitle);
-        videoView = findViewById(R.id.videoViewMedia);
+        textViewTitle.setText(title);
+
         buttonClose = findViewById(R.id.buttonClose);
         buttonClose.setOnClickListener(view -> finish());
+        if (autoClose == null || autoClose.equals("")) {
+            buttonClose.setVisibility(View.VISIBLE);
+        } else {
+            buttonClose.setVisibility(View.INVISIBLE);
+            new Handler().postDelayed(this::finish, Integer.parseInt(autoClose) * 1000);
+        }
 
-        textViewTitle.setText(title);
+        videoView = findViewById(R.id.videoViewMedia);
         videoView.setVideoPath(mediaURL);
         videoView.start();
-
-        new Handler().postDelayed(this::finish, Integer.parseInt(autoClose) * 1000);
     }
 }
