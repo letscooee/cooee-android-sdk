@@ -1,4 +1,4 @@
-package com.letscooee.tester;
+package com.letscooee.cooeetester;
 
 import android.content.Context;
 import androidx.test.platform.app.InstrumentationRegistry;

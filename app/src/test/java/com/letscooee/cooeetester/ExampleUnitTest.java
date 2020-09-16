@@ -1,4 +1,4 @@
-package com.letscooee.android;
+package com.letscooee.cooeetester;
 
 import org.junit.Test;
 
