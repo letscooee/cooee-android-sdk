@@ -1,87 +1,45 @@
 package com.letscooee.models;
 
+import com.google.gson.annotations.SerializedName;
+
+import java.util.Map;
+
 /**
  * @author Abhishek Taparia
  * UserProfile class will store user data from server
  */
 public class UserProfile {
+    Map<String, String> deviceData;
+    Map<String, String> userData;
+    Map<String, String> userProperties;
 
-    String userName;
-    String email;
-    String fullName;
-    String mobileNumber;
-    String address;
-    String pinCode;
-
-    public UserProfile() {
+    public UserProfile(Map<String, String> deviceData, Map<String, String> userData, Map<String, String> userProperties) {
+        this.deviceData = deviceData;
+        this.userData = userData;
+        this.userProperties = userProperties;
     }
 
-    public UserProfile(String userName, String email, String fullName, String mobileNumber, String address, String pinCode) {
-        this.userName = userName;
-        this.email = email;
-        this.fullName = fullName;
-        this.mobileNumber = mobileNumber;
-        this.address = address;
-        this.pinCode = pinCode;
+    public Map<String, String> getDeviceData() {
+        return deviceData;
     }
 
-    public String getUserName() {
-        return userName;
+    public void setDeviceData(Map<String, String> deviceData) {
+        this.deviceData = deviceData;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public Map<String, String> getUserData() {
+        return userData;
     }
 
-    public String getEmail() {
-        return email;
+    public void setUserData(Map<String, String> userData) {
+        this.userData = userData;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public Map<String, String> getUserProperties() {
+        return userProperties;
     }
 
-    public String getFullName() {
-        return fullName;
-    }
-
-    public void setFullName(String fullName) {
-        this.fullName = fullName;
-    }
-
-    public String getMobileNumber() {
-        return mobileNumber;
-    }
-
-    public void setMobileNumber(String mobileNumber) {
-        this.mobileNumber = mobileNumber;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    public String getPinCode() {
-        return pinCode;
-    }
-
-    public void setPinCode(String pinCode) {
-        this.pinCode = pinCode;
-    }
-
-    @Override
-    public String toString() {
-        return "UserProfile{" +
-                "userName='" + userName + '\'' +
-                ", email='" + email + '\'' +
-                ", fullName='" + fullName + '\'' +
-                ", mobileNumber='" + mobileNumber + '\'' +
-                ", address='" + address + '\'' +
-                ", pinCode='" + pinCode + '\'' +
-                '}';
+    public void setUserProperties(Map<String, String> userProperties) {
+        this.userProperties = userProperties;
     }
 }

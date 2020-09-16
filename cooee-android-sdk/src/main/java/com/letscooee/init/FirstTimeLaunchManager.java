@@ -14,7 +14,7 @@ public class FirstTimeLaunchManager {
     private SharedPreferences mSharedPreferences;
 
     public FirstTimeLaunchManager(Context context) {
-        mSharedPreferences = context.getSharedPreferences(CooeeSDKConstants.IS_APP_FIRST_TIME_LAUNCH,Context.MODE_PRIVATE);
+        mSharedPreferences = context.getSharedPreferences(CooeeSDKConstants.IS_APP_FIRST_TIME_LAUNCH, Context.MODE_PRIVATE);
     }
 
     public boolean isAppFirstTimeLaunch() {

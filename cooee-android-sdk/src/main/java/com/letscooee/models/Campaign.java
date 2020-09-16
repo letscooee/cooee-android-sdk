@@ -1,78 +1,94 @@
 package com.letscooee.models;
 
+import com.google.gson.annotations.SerializedName;
+
 /**
  * @author Abhishek Taparia
  * The Campaign class will store the data about the campaigns received from the server
  */
 public class Campaign {
+    private String type;
+    private String name;
+    private String startData;
+    private String endDate;
+    private String eventName;
+    private int delay;
+    private TriggerData triggerData;
+    private Content content;
 
-    private String subtitle;
-    private String title;
-    private String description;
+    @SerializedName("notify_by_push")
+    private String notifyByPush;
 
-    /* mediaURL will have the s3 presigned url for the media*/
-    private String mediaURL;
-    private String mediaData;
-
-    /* mediaType id the type of media available in mediaURL such as jpeg, png, mp4, etc. */
-    private String mediaType;
-
-    /* engagementMode stores the type of engagement like image, splash, video, push notification and poll*/
-    private String engagementMode;
-
-    public String getSubtitle() {
-        return subtitle;
+    public String getType() {
+        return type;
     }
 
-    public void setSubtitle(String subtitle) {
-        this.subtitle = subtitle;
+    public void setType(String type) {
+        this.type = type;
     }
 
-    public String getTitle() {
-        return title;
+    public String getName() {
+        return name;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public String getDescription() {
-        return description;
+    public String getStartData() {
+        return startData;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setStartData(String startData) {
+        this.startData = startData;
     }
 
-    public String getMediaURL() {
-        return mediaURL;
+    public String getEndDate() {
+        return endDate;
     }
 
-    public void setMediaURL(String mediaURL) {
-        this.mediaURL = mediaURL;
+    public void setEndDate(String endDate) {
+        this.endDate = endDate;
     }
 
-    public String getMediaData() {
-        return mediaData;
+    public String getEventName() {
+        return eventName;
     }
 
-    public void setMediaData(String mediaData) {
-        this.mediaData = mediaData;
+    public void setEventName(String eventName) {
+        this.eventName = eventName;
     }
 
-    public String getMediaType() {
-        return mediaType;
+    public int getDelay() {
+        return delay;
     }
 
-    public void setMediaType(String mediaType) {
-        this.mediaType = mediaType;
+    public void setDelay(int delay) {
+        this.delay = delay;
     }
 
-    public String getEngagementMode() {
-        return engagementMode;
+    public TriggerData getTriggerData() {
+        return triggerData;
     }
 
-    public void setEngagementMode(String engagementMode) {
-        this.engagementMode = engagementMode;
+    public void setTriggerData(TriggerData triggerData) {
+        this.triggerData = triggerData;
+    }
+
+    public Content getContent() {
+        return content;
+    }
+
+    public void setContent(Content content) {
+        this.content = content;
+    }
+
+    public String getNotifyByPush() {
+        return notifyByPush;
+    }
+
+    public void setNotifyByPush(String notifyByPush) {
+        this.notifyByPush = notifyByPush;
     }
 }
+

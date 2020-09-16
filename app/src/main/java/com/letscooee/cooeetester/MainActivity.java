@@ -3,7 +3,12 @@ package com.letscooee.cooeetester;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
+import android.Manifest;
+import android.app.Activity;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 
 import android.util.Log;
@@ -33,41 +38,39 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mySdk = CooeeSDK.getDefaultInstance(this);
+        setPermission();
+        mySdk = CooeeSDK.getDefaultInstance(getApplicationContext());
 
         buttonImage = findViewById(R.id.btnImage);
         buttonVideo = findViewById(R.id.btnVideo);
 
-        Map<String,Object> userData = new HashMap<>();
-        userData.put("fullName","Abhishek Taparia");
-        userData.put("address","Main Market");
-        userData.put("mobileNumber","9879156641");
+        Map<String, Object> userData = new HashMap<>();
+        userData.put("fullName", "Abhishek Taparia");
+        userData.put("address", "Main Market");
+        userData.put("mobileNumber", "9879156641");
 
-        buttonImage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // sending event to the server
-                mySdk.sendEvent(CooeeSDKConstants.IMAGE_CAMPAIGN);
-            }
+        buttonImage.setOnClickListener(view -> {
+            // sending event to the server
+            mySdk.sendEvent(CooeeSDKConstants.IMAGE_CAMPAIGN, new HashMap<>());
         });
 
-        FirebaseInstanceId.getInstance().getInstanceId()
-                .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<InstanceIdResult> task) {
-                        if (!task.isSuccessful()) {
-                            Log.w("TAG", "getInstanceId failed", task.getException());
-                            return;
-                        }
+        buttonVideo.setOnClickListener(view -> {
+            mySdk.sendEvent(CooeeSDKConstants.VIDEO_CAMPAIGN, new HashMap<>());
+        });
 
-                        // Get new Instance ID token
-                        String token = task.getResult().getToken();
+        findViewById(R.id.textViewToken).setOnClickListener(view -> {
+            Intent intent = new Intent(MainActivity.this, SignUpActivity.class);
+            startActivity(intent);
+        });
+    }
 
-                        // Log and toast
-
-                        Log.d("TAG", token);
-                        Toast.makeText(MainActivity.this, token, Toast.LENGTH_SHORT).show();
-                    }
-                });
+    private void setPermission() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, CooeeSDKConstants.REQUEST_LOCATION);
+        }
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.INTERNET}, CooeeSDKConstants.REQUEST_LOCATION);
+        }
     }
 }
