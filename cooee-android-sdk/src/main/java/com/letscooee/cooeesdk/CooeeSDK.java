@@ -3,7 +3,10 @@ package com.letscooee.cooeesdk;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.letscooee.async.SendEventAsyncNetworkClass;
 import com.letscooee.campaign.ImagePopUpActivity;
@@ -109,11 +112,12 @@ public class CooeeSDK {
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                Log.i("status", response.code() + "");
+                Log.i(CooeeSDKConstants.LOG_PREFIX + " status", response.code() + "");
             }
 
             public void onFailure(Call<ResponseBody> call, Throwable t) {
-                Log.d("Error", t.toString());
+                Log.d(CooeeSDKConstants.LOG_PREFIX + " Error", t.toString());
+                new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(context,"Not connected to server, check your internet",Toast.LENGTH_SHORT).show());
             }
         });
     }

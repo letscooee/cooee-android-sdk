@@ -105,8 +105,6 @@ public class PostLaunchActivity {
             userProperties.put("batteryLevel", defaultUserPropertiesCollector.getBatteryLevel());
             userProperties.put("screenResolution", defaultUserPropertiesCollector.getScreenResolution());
             userProperties.put("packageName", defaultUserPropertiesCollector.getPackageName());
-            Log.d("CPUUsage", defaultUserPropertiesCollector.getCPUInfo());
-            Log.d("CPUUsage", "Information");
             String header = context.getSharedPreferences(CooeeSDKConstants.SDK_TOKEN, Context.MODE_PRIVATE).getString(CooeeSDKConstants.SDK_TOKEN, "");
             Map<String, Object> userMap = new HashMap<>();
             userMap.put("userProperties", userProperties);
@@ -118,7 +116,7 @@ public class PostLaunchActivity {
 
                 @Override
                 public void onFailure(Call<ResponseBody> call, Throwable t) {
-                    Log.i(LOG_PREFIX + " bodyError2", t.toString());
+                    Log.i(LOG_PREFIX + " bodyError", t.toString());
                 }
             });
         }

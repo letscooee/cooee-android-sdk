@@ -5,6 +5,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
+import com.letscooee.utils.CooeeSDKConstants;
 
 /**
  * @author Abhishek Taparia
@@ -14,6 +15,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     @Override
     public void onNewToken(@NonNull String token) {
-        Log.d("TAG", "Refreshed token: " + token);
+        Log.d(CooeeSDKConstants.LOG_PREFIX, "Refreshed token: " + token);
     }
 }
