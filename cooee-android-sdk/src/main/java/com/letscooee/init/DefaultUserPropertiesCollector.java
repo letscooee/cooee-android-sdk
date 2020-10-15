@@ -16,7 +16,6 @@ import android.os.Environment;
 import android.os.StatFs;
 import android.telephony.TelephonyManager;
 import android.util.DisplayMetrics;
-import android.util.Log;
 
 import androidx.core.app.ActivityCompat;
 
@@ -182,7 +181,6 @@ class DefaultUserPropertiesCollector {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        Log.d("CPUsage", output.toString());
         return output.toString();
     }
 
@@ -221,7 +219,6 @@ class DefaultUserPropertiesCollector {
         List<PackageInfo> packs = context.getPackageManager().getInstalledPackages(0);
         for (PackageInfo packageInfo : packs) {
             String app = packageInfo.applicationInfo.loadLabel(context.getPackageManager()).toString();
-            Log.d("installed app", app);
             installedApps.add(app);
         }
         return installedApps;

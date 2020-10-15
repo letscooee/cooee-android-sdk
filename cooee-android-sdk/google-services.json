@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "366517133916",
+    "firebase_url": "https://cooee-sdk-759a1.firebaseio.com",
+    "project_id": "cooee-sdk-759a1",
+    "storage_bucket": "cooee-sdk-759a1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:366517133916:android:b4cd57af89a3b129f37c99",
+        "android_client_info": {
+          "package_name": "com.letscooee"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "366517133916-ldtem43mutd2d7u289ltkobonl50d9qt.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyARHmBSOQ5CDVE3FIUyL3_DGmciBi0EaEo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "366517133916-ldtem43mutd2d7u289ltkobonl50d9qt.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

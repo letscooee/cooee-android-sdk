@@ -88,7 +88,7 @@ public class AppController extends Application implements LifecycleObserver, App
 
     @Override
     public void onActivityStarted(@NonNull Activity activity) {
-        Log.d("ActivityStarted", activity.getLocalClassName());
+        Log.d(LOG_PREFIX + " ActivityStarts", activity.getLocalClassName());
         lastScreen = activity.getLocalClassName();
     }
 
@@ -104,7 +104,7 @@ public class AppController extends Application implements LifecycleObserver, App
 
     @Override
     public void onActivityStopped(@NonNull Activity activity) {
-        Log.d("ActivityStopped", activity.getLocalClassName());
+        Log.d(LOG_PREFIX + " ActivityStops", activity.getLocalClassName());
 
     }
 
@@ -115,6 +115,6 @@ public class AppController extends Application implements LifecycleObserver, App
 
     @Override
     public void onActivityDestroyed(@NonNull Activity activity) {
-        Log.d("ActivityDestroyed", activity.getLocalClassName());
+        Log.d(LOG_PREFIX + " ActiDestroy", activity.getLocalClassName());
     }
 }
