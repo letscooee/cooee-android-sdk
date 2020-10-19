@@ -49,7 +49,6 @@ public class PostLaunchActivity {
         DefaultUserPropertiesCollector defaultUserPropertiesCollector = new DefaultUserPropertiesCollector(context);
 
         if (new FirstTimeLaunchManager(context).isAppFirstTimeLaunch()) {
-//            TODO pickup appID and appSecret from manifest file
             ApplicationInfo app = null;
             try {
                 app = this.context.getPackageManager().getApplicationInfo(this.context.getPackageName(), PackageManager.GET_META_DATA);
@@ -58,7 +57,7 @@ public class PostLaunchActivity {
             }
             Bundle bundle = app.metaData;
             String appId = bundle.getString("COOEE_APP_ID");
-            String appSecret = bundle.getString("COOEE APP_SECRET");
+            String appSecret = bundle.getString("COOEE_APP_SECRET");
             AuthenticationRequestBody authenticationRequestBody = new AuthenticationRequestBody(
                     appId,
                     appSecret,
