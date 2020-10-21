@@ -14,11 +14,14 @@ public class FirstTimeLaunchManager {
     private SharedPreferences mSharedPreferences;
 
     public FirstTimeLaunchManager(Context context) {
-        mSharedPreferences = context.getSharedPreferences(CooeeSDKConstants.IS_APP_FIRST_TIME_LAUNCH, Context.MODE_PRIVATE);
+        if (context != null) {
+            mSharedPreferences = context.getSharedPreferences(CooeeSDKConstants.IS_APP_FIRST_TIME_LAUNCH, Context.MODE_PRIVATE);
+        }
     }
 
     public boolean isAppFirstTimeLaunch() {
-        if (mSharedPreferences.getBoolean(CooeeSDKConstants.IS_APP_FIRST_TIME_LAUNCH, true)) {
+
+        if (mSharedPreferences != null && mSharedPreferences.getBoolean(CooeeSDKConstants.IS_APP_FIRST_TIME_LAUNCH, true)) {
             // App is open/launch for first time
             // Update the preference
             SharedPreferences.Editor mSharedPreferencesEditor = mSharedPreferences.edit();

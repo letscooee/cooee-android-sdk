@@ -41,37 +41,41 @@ public class AppController extends Application implements LifecycleObserver, App
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
     public void onEnterForeground() {
         Log.d(LOG_PREFIX + "AppController", "Foreground");
-        Date date = Calendar.getInstance().getTime();
-        Map<String, String> eventProperties = new HashMap<>();
-        eventProperties.put("time", date.toString());
-        CooeeSDK.getDefaultInstance(null).sendEvent("isForeground", eventProperties);
+        if (getApplicationContext() != null) {
+            Date date = Calendar.getInstance().getTime();
+            Map<String, String> eventProperties = new HashMap<>();
+            eventProperties.put("time", date.toString());
+            CooeeSDK.getDefaultInstance(getApplicationContext()).sendEvent("isForeground", eventProperties);
+        }
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
     public void onEnterBackground() {
         Log.d(LOG_PREFIX + "AppController", "Background");
-        Date date = Calendar.getInstance().getTime();
-        Map<String, String> eventProperties = new HashMap<>();
-        Map<String, String> userProperties = new HashMap<>();
-        eventProperties.put("time", date.toString());
-        CooeeSDK.getDefaultInstance(null).sendEvent("isBackground", eventProperties);
+        if (getApplicationContext() != null) {
+            Date date = Calendar.getInstance().getTime();
+            Map<String, String> eventProperties = new HashMap<>();
+            Map<String, String> userProperties = new HashMap<>();
+            eventProperties.put("time", date.toString());
+            CooeeSDK.getDefaultInstance(getApplicationContext()).sendEvent("isBackground", eventProperties);
 
-        userProperties.put("lastScreen", lastScreen);
-        String header = getApplicationContext().getSharedPreferences(CooeeSDKConstants.SDK_TOKEN, Context.MODE_PRIVATE).getString(CooeeSDKConstants.SDK_TOKEN, "");
-        Map<String, Object> userMap = new HashMap<>();
-        userMap.put("userProperties", userProperties);
-        ServerAPIService apiService = APIClient.getServerAPIService();
-        apiService.updateProfile(header, userMap).enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                Log.d(LOG_PREFIX + " userProperties", response.code() + "");
-            }
+            userProperties.put("lastScreen", lastScreen);
+            String header = getApplicationContext().getSharedPreferences(CooeeSDKConstants.SDK_TOKEN, Context.MODE_PRIVATE).getString(CooeeSDKConstants.SDK_TOKEN, "");
+            Map<String, Object> userMap = new HashMap<>();
+            userMap.put("userProperties", userProperties);
+            ServerAPIService apiService = APIClient.getServerAPIService();
+            apiService.updateProfile(header, userMap).enqueue(new Callback<ResponseBody>() {
+                @Override
+                public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
+                    Log.d(LOG_PREFIX + " userProperties", response.code() + "");
+                }
 
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-                Log.i(LOG_PREFIX + " bodyError2", t.toString());
-            }
-        });
+                @Override
+                public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
+                    Log.i(LOG_PREFIX + " bodyError2", t.toString());
+                }
+            });
+        }
     }
 
     @Override
@@ -88,8 +92,8 @@ public class AppController extends Application implements LifecycleObserver, App
 
     @Override
     public void onActivityStarted(@NonNull Activity activity) {
-        Log.d(LOG_PREFIX + " ActivityStarts", activity.getLocalClassName());
         lastScreen = activity.getLocalClassName();
+        Log.d(LOG_PREFIX + " ActivityStarts", lastScreen);
     }
 
     @Override
@@ -115,6 +119,6 @@ public class AppController extends Application implements LifecycleObserver, App
 
     @Override
     public void onActivityDestroyed(@NonNull Activity activity) {
-        Log.d(LOG_PREFIX + " ActiDestroy", activity.getLocalClassName());
+        Log.d(LOG_PREFIX + " ActivDestroy", activity.getLocalClassName());
     }
 }

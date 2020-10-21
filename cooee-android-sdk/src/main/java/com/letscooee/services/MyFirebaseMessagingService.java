@@ -15,6 +15,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     @Override
     public void onNewToken(@NonNull String token) {
-        Log.d(CooeeSDKConstants.LOG_PREFIX, "Refreshed token: " + token);
+        Log.d(CooeeSDKConstants.LOG_PREFIX, "Firebase Refreshed token: " + token);
     }
 }

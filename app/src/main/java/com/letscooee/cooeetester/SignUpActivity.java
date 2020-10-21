@@ -40,7 +40,7 @@ public class SignUpActivity extends AppCompatActivity {
             userData.put("mobile", editTextMobile.getText().toString());
             userData.put("email", editTextEmail.getText().toString());
 
-            CooeeSDK cooeeSDK = CooeeSDK.getDefaultInstance(this);
+            CooeeSDK cooeeSDK = CooeeSDK.getDefaultInstance(getApplicationContext());
             cooeeSDK.updateUserData(userData);
         });
 
