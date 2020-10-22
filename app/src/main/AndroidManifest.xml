@@ -12,6 +12,12 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:targetApi="n">
+        <meta-data
+            android:name="COOEE_APP_ID"
+            android:value="5f8714ccb5edff112377d7fd"/>
+        <meta-data
+            android:name="COOEE_APP_SECRET"
+            android:value="ykwGjXK4PJK2lgn0Rq8V"/>
         <activity android:name="com.letscooee.cooeetester.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

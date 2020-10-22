@@ -2,7 +2,10 @@ package com.letscooee.init;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.os.Build;
+import android.os.Bundle;
 import android.util.Log;
 
 
@@ -46,10 +49,18 @@ public class PostLaunchActivity {
         DefaultUserPropertiesCollector defaultUserPropertiesCollector = new DefaultUserPropertiesCollector(context);
 
         if (new FirstTimeLaunchManager(context).isAppFirstTimeLaunch()) {
-//            TODO pickup appID and appSecret from properties file
+            ApplicationInfo app = null;
+            try {
+                app = this.context.getPackageManager().getApplicationInfo(this.context.getPackageName(), PackageManager.GET_META_DATA);
+            } catch (PackageManager.NameNotFoundException e) {
+                e.printStackTrace();
+            }
+            Bundle bundle = app.metaData;
+            String appId = bundle.getString("COOEE_APP_ID");
+            String appSecret = bundle.getString("COOEE_APP_SECRET");
             AuthenticationRequestBody authenticationRequestBody = new AuthenticationRequestBody(
-                    "5f8714ccb5edff112377d7fd",
-                    "ykwGjXK4PJK2lgn0Rq8V",
+                    appId,
+                    appSecret,
                     new DeviceData("ANDROID",
                             BuildConfig.VERSION_NAME + "",
                             defaultUserPropertiesCollector.getAppVersion(),
