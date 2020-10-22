@@ -43,11 +43,11 @@ public class MainActivity extends AppCompatActivity {
         userData.put("mobileNumber", "9876543210");
         userData.put("cemobileNumber", "9876543210");
 
-        try {
-            mySdk.updateUserProperties(userData);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+//        try {
+//            mySdk.updateUserProperties(userData);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
 
         buttonImage.setOnClickListener(view -> {
             // sending event to the server

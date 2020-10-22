@@ -22,6 +22,7 @@ import android.util.DisplayMetrics;
 import androidx.core.app.ActivityCompat;
 
 import com.google.android.gms.location.LocationRequest;
+import com.letscooee.BuildConfig;
 
 import java.io.File;
 import java.io.InputStream;
@@ -268,14 +269,14 @@ class DefaultUserPropertiesCollector {
         } else {
             locale = context.getResources().getConfiguration().locale;
         }
-        return locale.getLanguage();
+        return locale.getLanguage()+"-"+locale.getCountry();
     }
 
     public String getInstalledTime(){
         PackageManager pm = context.getPackageManager();
         ApplicationInfo appInfo = null;
         try {
-            appInfo = pm.getApplicationInfo(AppController.packageName, 0);
+            appInfo = pm.getApplicationInfo(BuildConfig.LIBRARY_PACKAGE_NAME, 0);
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }

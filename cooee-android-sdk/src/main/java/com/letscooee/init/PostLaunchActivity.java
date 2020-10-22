@@ -95,12 +95,23 @@ public class PostLaunchActivity {
                             mSharedPreferencesEditor.putString(CooeeSDKConstants.SDK_TOKEN, sdkToken);
                             mSharedPreferencesEditor.commit();
                             Map<String, String> userProperties = new HashMap<>();
-                            userProperties.put("CE First Launch Time",new Date().toString());
-                            sendUserProperties(sdkToken,userProperties);
+                            userProperties.put("CE First Launch Time", new Date().toString());
+                            sendUserProperties(sdkToken, userProperties);
                             Map<String, String> eventProperties = new HashMap<>();
                             eventProperties.put("CE Source", "SYSTEM");
                             eventProperties.put("CE App Version", defaultUserPropertiesCollector.getAppVersion());
-                            CooeeSDK.getDefaultInstance(context).sendEvent("CE App Installed", eventProperties);
+                            Event event = new Event("CE App Installed", eventProperties);
+                            apiService.sendEvent(sdkToken, event).enqueue(new Callback<Campaign>() {
+                                @Override
+                                public void onResponse(@NonNull Call<Campaign> call, @NonNull Response<Campaign> response) {
+                                    Log.i(LOG_PREFIX + " Event Sent", response.code() + "");
+                                }
+
+                                @Override
+                                public void onFailure(@NonNull Call<Campaign> call, @NonNull Throwable t) {
+                                    Log.e(LOG_PREFIX + " bodyError", t.toString());
+                                }
+                            });
 
                         } else {
                             Log.e(LOG_PREFIX + " bodyError", String.valueOf(response.errorBody()));
@@ -110,15 +121,13 @@ public class PostLaunchActivity {
                     @Override
                     public void onFailure(@NonNull Call<SDKAuthentication> call, @NonNull Throwable t) {
                         Log.e(LOG_PREFIX + " bodyError", t.toString());
-                        new Handler(Looper.getMainLooper())
-                                .post(() -> Toast.makeText(context, "Not connected to server, check your internet", Toast.LENGTH_SHORT).show());
                     }
                 });
             } else {
                 mSharedPreferences = this.context.getSharedPreferences(CooeeSDKConstants.SDK_TOKEN, Context.MODE_PRIVATE);
                 String sdk = mSharedPreferences.getString(CooeeSDKConstants.SDK_TOKEN, "");
                 Log.i(LOG_PREFIX + " SDK return", sdk);
-                sendUserProperties(sdk,null);
+                sendUserProperties(sdk, null);
                 String[] networkData = defaultUserPropertiesCollector.getNetworkData();
                 Map<String, String> eventProperties = new HashMap<>();
                 eventProperties.put("CE Source", "SYSTEM");
@@ -130,7 +139,18 @@ public class PostLaunchActivity {
                 eventProperties.put("CE Bluetooth On", defaultUserPropertiesCollector.isBluetoothOn());
                 eventProperties.put("CE Wifi Connected", defaultUserPropertiesCollector.isConnectedToWifi());
                 eventProperties.put("CE Device Battery", defaultUserPropertiesCollector.getBatteryLevel());
-                CooeeSDK.getDefaultInstance(context).sendEvent("CE App Installed", eventProperties);
+                Event event = new Event("CE App Installed", eventProperties);
+                apiService.sendEvent(sdk, event).enqueue(new Callback<Campaign>() {
+                    @Override
+                    public void onResponse(@NonNull Call<Campaign> call, @NonNull Response<Campaign> response) {
+                        Log.i(LOG_PREFIX + " Event Sent", response.code() + "");
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull Call<Campaign> call, @NonNull Throwable t) {
+                        Log.e(LOG_PREFIX + " bodyError", t.toString());
+                    }
+                });
             }
         }
 
@@ -166,9 +186,7 @@ public class PostLaunchActivity {
         userProperties.put("CE Screen Resolution", defaultUserPropertiesCollector.getScreenResolution());
         userProperties.put("CE DPI", defaultUserPropertiesCollector.getDpi());
         userProperties.put("CE Device Locale", defaultUserPropertiesCollector.getLocale());
-        userProperties.put("CE Install Time", defaultUserPropertiesCollector.getInstalledTime());
         userProperties.put("CE Last Launch Time", new Date().toString());
-        //TODO Total Internal memory/ network type is going Unknown/get country data/ add device locale(language)/
         Map<String, Object> userMap = new HashMap<>();
         userMap.put("userProperties", userProperties);
         apiService.updateProfile(sdkToken, userMap).enqueue(new Callback<ResponseBody>() {
@@ -180,26 +198,21 @@ public class PostLaunchActivity {
             @Override
             public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
                 Log.e(LOG_PREFIX + " bodyError", t.toString());
-                new Handler(Looper.getMainLooper())
-                        .post(() -> Toast.makeText(context, "Not connected to server, check your internet", Toast.LENGTH_SHORT).show());
             }
         });
 
-        Date date = Calendar.getInstance().getTime();
-        Map<String, String> eventProperties = new HashMap<>();
-        eventProperties.put("time", date.toString());
-        Event event = new Event("CE App Installed", eventProperties);
-        apiService.sendEvent(sdkToken, event).enqueue(new Callback<Campaign>() {
-            @Override
-            public void onResponse(@NonNull Call<Campaign> call, @NonNull Response<Campaign> response) {
-                Log.i(LOG_PREFIX + " Event Sent", response.code() + "");
-            }
+        /**Date date = Calendar.getInstance().getTime();
+         Map<String, String> eventProperties = new HashMap<>();
+         eventProperties.put("time", date.toString());
+         Event event = new Event("isForeground", eventProperties);
+         apiService.sendEvent(sdkToken, event).enqueue(new Callback<Campaign>() {
+        @Override public void onResponse(@NonNull Call<Campaign> call, @NonNull Response<Campaign> response) {
+        Log.i(LOG_PREFIX + " Event Sent", response.code() + "");
+        }
 
-            @Override
-            public void onFailure(@NonNull Call<Campaign> call, @NonNull Throwable t) {
-                new Handler(Looper.getMainLooper())
-                        .post(() -> Toast.makeText(context, "Not connected to server, check your internet", Toast.LENGTH_SHORT).show());
-            }
-        });
+        @Override public void onFailure(@NonNull Call<Campaign> call, @NonNull Throwable t) {
+        Log.e(LOG_PREFIX + " bodyError", t.toString());
+        }
+        });*/
     }
 }

@@ -128,10 +128,7 @@ public class CooeeSDK {
             }
 
             public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
-                //TODO:Not to make toast from sdk.
                 Log.e(CooeeSDKConstants.LOG_PREFIX + " Error", t.toString());
-                new Handler(Looper.getMainLooper())
-                        .post(() -> Toast.makeText(context, "Not connected to server, check your internet", Toast.LENGTH_SHORT).show());
             }
         });
     }
