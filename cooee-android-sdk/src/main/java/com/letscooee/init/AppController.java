@@ -37,6 +37,7 @@ import static com.letscooee.utils.CooeeSDKConstants.LOG_PREFIX;
 public class AppController extends Application implements LifecycleObserver, Application.ActivityLifecycleCallbacks {
 
     private String lastScreen;
+    public static String packageName;
 
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
     public void onEnterForeground() {
@@ -59,7 +60,8 @@ public class AppController extends Application implements LifecycleObserver, App
             eventProperties.put("time", date.toString());
             CooeeSDK.getDefaultInstance(getApplicationContext()).sendEvent("isBackground", eventProperties);
 
-            userProperties.put("lastScreen", lastScreen);
+            userProperties.put("CE Last Screen", lastScreen);
+            userProperties.put("CE Package Name", packageName);
             String header = getApplicationContext().getSharedPreferences(CooeeSDKConstants.SDK_TOKEN, Context.MODE_PRIVATE).getString(CooeeSDKConstants.SDK_TOKEN, "");
             Map<String, Object> userMap = new HashMap<>();
             userMap.put("userProperties", userProperties);
@@ -92,7 +94,8 @@ public class AppController extends Application implements LifecycleObserver, App
 
     @Override
     public void onActivityStarted(@NonNull Activity activity) {
-        lastScreen = activity.getLocalClassName();
+        this.lastScreen = activity.getLocalClassName();
+        packageName = activity.getClass().getPackage().getName();
         Log.d(LOG_PREFIX + " ActivityStarts", lastScreen);
     }
 

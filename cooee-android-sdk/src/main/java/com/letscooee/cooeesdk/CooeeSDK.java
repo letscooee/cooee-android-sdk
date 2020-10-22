@@ -22,6 +22,7 @@ import com.letscooee.utils.CooeeSDKConstants;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.SortedMap;
 import java.util.concurrent.ExecutionException;
 
 import okhttp3.ResponseBody;
@@ -98,17 +99,22 @@ public class CooeeSDK {
     }
 
     //send user data to the server
-    public void updateUserData(Map<String, String> userData) {
+    public void updateUserData(Map<String, String> userData) throws Exception {
         updateUserProfile(userData, null);
     }
 
     //send user properties to the server
-    public void updateUserProperties(Map<String, String> userProperties) {
+    public void updateUserProperties(Map<String, String> userProperties) throws Exception {
         updateUserProfile(null, userProperties);
     }
 
     //send user dat and properties to the server
-    public void updateUserProfile(Map<String, String> userData, Map<String, String> userProperties) {
+    public void updateUserProfile(Map<String, String> userData, Map<String, String> userProperties) throws Exception {
+        for(String key: userProperties.keySet()){
+            if(key.substring(0,3).equalsIgnoreCase("ce ")){
+                throw new Exception("User Property cannot start with 'CE '");
+            }
+        }
         ServerAPIService apiService = APIClient.getServerAPIService();
         String header = this.context.getSharedPreferences(CooeeSDKConstants.SDK_TOKEN, Context.MODE_PRIVATE).getString(CooeeSDKConstants.SDK_TOKEN, "");
         Map<String, Object> userMap = new HashMap<>();
@@ -122,7 +128,8 @@ public class CooeeSDK {
             }
 
             public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
-                Log.d(CooeeSDKConstants.LOG_PREFIX + " Error", t.toString());
+                //TODO:Not to make toast from sdk.
+                Log.e(CooeeSDKConstants.LOG_PREFIX + " Error", t.toString());
                 new Handler(Looper.getMainLooper())
                         .post(() -> Toast.makeText(context, "Not connected to server, check your internet", Toast.LENGTH_SHORT).show());
             }
