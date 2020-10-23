@@ -19,7 +19,8 @@ allprojects {
         google()
         jcenter()
     }
-    version "0.0.7"
+
+    version "0.0.9"
     group "com.letscooee"
 }
 
