@@ -37,10 +37,17 @@ public class MainActivity extends AppCompatActivity {
         buttonImage = findViewById(R.id.btnImage);
         buttonVideo = findViewById(R.id.btnVideo);
 
-        Map<String, Object> userData = new HashMap<>();
+        Map<String, String> userData = new HashMap<>();
         userData.put("fullName", "Abhishek Taparia");
         userData.put("address", "Main Market");
-        userData.put("mobileNumber", "9879156641");
+        userData.put("mobileNumber", "9876543210");
+        userData.put("cemobileNumber", "9876543210");
+
+//        try {
+//            mySdk.updateUserProperties(userData);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
 
         buttonImage.setOnClickListener(view -> {
             // sending event to the server

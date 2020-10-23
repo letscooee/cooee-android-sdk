@@ -37,16 +37,17 @@ import static com.letscooee.utils.CooeeSDKConstants.LOG_PREFIX;
 public class AppController extends Application implements LifecycleObserver, Application.ActivityLifecycleCallbacks {
 
     private String lastScreen;
+    private String packageName;
 
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
     public void onEnterForeground() {
         Log.d(LOG_PREFIX + "AppController", "Foreground");
-        if (getApplicationContext() != null) {
-            Date date = Calendar.getInstance().getTime();
-            Map<String, String> eventProperties = new HashMap<>();
-            eventProperties.put("time", date.toString());
-            CooeeSDK.getDefaultInstance(getApplicationContext()).sendEvent("isForeground", eventProperties);
-        }
+        /**if (getApplicationContext() != null) {
+         Date date = Calendar.getInstance().getTime();
+         Map<String, String> eventProperties = new HashMap<>();
+         eventProperties.put("time", date.toString());
+         CooeeSDK.getDefaultInstance(getApplicationContext()).sendEvent("isForeground", eventProperties);
+         }*/
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
@@ -54,12 +55,15 @@ public class AppController extends Application implements LifecycleObserver, App
         Log.d(LOG_PREFIX + "AppController", "Background");
         if (getApplicationContext() != null) {
             Date date = Calendar.getInstance().getTime();
-            Map<String, String> eventProperties = new HashMap<>();
-            Map<String, String> userProperties = new HashMap<>();
-            eventProperties.put("time", date.toString());
-            CooeeSDK.getDefaultInstance(getApplicationContext()).sendEvent("isBackground", eventProperties);
 
-            userProperties.put("lastScreen", lastScreen);
+            Map<String, String> userProperties = new HashMap<>();
+            /**Map<String, String> eventProperties = new HashMap<>();
+             eventProperties.put("time", date.toString());
+             CooeeSDK.getDefaultInstance(getApplicationContext()).sendEvent("isBackground", eventProperties);
+             */
+
+            userProperties.put("CE Last Screen", lastScreen);
+            userProperties.put("CE Package Name", packageName);
             String header = getApplicationContext().getSharedPreferences(CooeeSDKConstants.SDK_TOKEN, Context.MODE_PRIVATE).getString(CooeeSDKConstants.SDK_TOKEN, "");
             Map<String, Object> userMap = new HashMap<>();
             userMap.put("userProperties", userProperties);
@@ -72,7 +76,7 @@ public class AppController extends Application implements LifecycleObserver, App
 
                 @Override
                 public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
-                    Log.i(LOG_PREFIX + " bodyError2", t.toString());
+                    Log.e(LOG_PREFIX + " bodyError2", t.toString());
                 }
             });
         }
@@ -87,12 +91,13 @@ public class AppController extends Application implements LifecycleObserver, App
 
     @Override
     public void onActivityCreated(@NonNull Activity activity, @Nullable Bundle bundle) {
-
+        packageName = activity.getClass().getPackage().getName();
     }
 
     @Override
     public void onActivityStarted(@NonNull Activity activity) {
-        lastScreen = activity.getLocalClassName();
+        this.lastScreen = activity.getLocalClassName();
+        packageName = activity.getClass().getPackage().getName();
         Log.d(LOG_PREFIX + " ActivityStarts", lastScreen);
     }
 
