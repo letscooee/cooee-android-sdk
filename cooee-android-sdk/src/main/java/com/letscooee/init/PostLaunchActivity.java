@@ -66,11 +66,13 @@ public class PostLaunchActivity {
         if (this.context != null) {
             if (new FirstTimeLaunchManager(context).isAppFirstTimeLaunch()) {
                 ApplicationInfo app = null;
+
                 try {
                     app = this.context.getPackageManager().getApplicationInfo(this.context.getPackageName(), PackageManager.GET_META_DATA);
                 } catch (PackageManager.NameNotFoundException e) {
                     e.printStackTrace();
                 }
+
                 assert app != null;
                 Bundle bundle = app.metaData;
                 String appId = bundle.getString("COOEE_APP_ID");
@@ -94,9 +96,11 @@ public class PostLaunchActivity {
                             String sdkToken = response.body().getSdkToken();
                             mSharedPreferencesEditor.putString(CooeeSDKConstants.SDK_TOKEN, sdkToken);
                             mSharedPreferencesEditor.commit();
+
                             Map<String, String> userProperties = new HashMap<>();
                             userProperties.put("CE First Launch Time", new Date().toString());
                             sendUserProperties(sdkToken, userProperties);
+
                             Map<String, String> eventProperties = new HashMap<>();
                             eventProperties.put("CE Source", "SYSTEM");
                             eventProperties.put("CE App Version", defaultUserPropertiesCollector.getAppVersion());
@@ -186,6 +190,7 @@ public class PostLaunchActivity {
         userProperties.put("CE Screen Resolution", defaultUserPropertiesCollector.getScreenResolution());
         userProperties.put("CE DPI", defaultUserPropertiesCollector.getDpi());
         userProperties.put("CE Device Locale", defaultUserPropertiesCollector.getLocale());
+        userProperties.put("CE Installed Time", defaultUserPropertiesCollector.getInstalledTime());
         userProperties.put("CE Last Launch Time", new Date().toString());
         Map<String, Object> userMap = new HashMap<>();
         userMap.put("userProperties", userProperties);
@@ -201,7 +206,7 @@ public class PostLaunchActivity {
             }
         });
 
-        /**Date date = Calendar.getInstance().getTime();
+        /*Date date = Calendar.getInstance().getTime();
          Map<String, String> eventProperties = new HashMap<>();
          eventProperties.put("time", date.toString());
          Event event = new Event("isForeground", eventProperties);

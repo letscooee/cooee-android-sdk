@@ -22,7 +22,6 @@ import android.util.DisplayMetrics;
 import androidx.core.app.ActivityCompat;
 
 import com.google.android.gms.location.LocationRequest;
-import com.letscooee.BuildConfig;
 
 import java.io.File;
 import java.io.InputStream;
@@ -102,6 +101,7 @@ class DefaultUserPropertiesCollector {
             case TelephonyManager.NETWORK_TYPE_EVDO_B:
             case TelephonyManager.NETWORK_TYPE_EHRPD:
             case TelephonyManager.NETWORK_TYPE_HSPAP:
+            case TelephonyManager.NETWORK_TYPE_GSM:
                 return "3G";
             case TelephonyManager.NETWORK_TYPE_LTE:
             case TelephonyManager.NETWORK_TYPE_TD_SCDMA:
@@ -129,11 +129,13 @@ class DefaultUserPropertiesCollector {
     //    get app version
     public String getAppVersion() {
         PackageInfo packageInfo = null;
+
         try {
             packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
+
         assert packageInfo != null;
         return packageInfo.versionName;
     }
@@ -164,8 +166,9 @@ class DefaultUserPropertiesCollector {
     public String getTotalInternalMemorySize() {
         File path = Environment.getDataDirectory();
         StatFs stat = new StatFs(path.getPath());
-        long totalBytes = stat.getTotalBytes();
-        return String.valueOf(totalBytes / 0x1000L);
+        long blockSize = stat.getBlockSizeLong();
+        long totalBlocks = stat.getBlockCountLong();
+        return String.valueOf((totalBlocks * blockSize) / 0x100000L);
     }
 
     //    get total RAM size
@@ -191,6 +194,7 @@ class DefaultUserPropertiesCollector {
     //    get CPU information
     public String getCPUInfo() {
         StringBuilder output = new StringBuilder();
+
         try {
             String[] DATA = {"top -m 5 -d 1"};
             ProcessBuilder processBuilder = new ProcessBuilder(DATA);
@@ -206,6 +210,7 @@ class DefaultUserPropertiesCollector {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+
         return output.toString();
     }
 
@@ -262,27 +267,33 @@ class DefaultUserPropertiesCollector {
         return null;
     }
 
-    public String getLocale(){
+    // get default locale of the device
+    public String getLocale() {
         Locale locale;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             locale = context.getResources().getConfiguration().getLocales().get(0);
         } else {
             locale = context.getResources().getConfiguration().locale;
         }
-        return locale.getLanguage()+"-"+locale.getCountry();
+        return locale.getLanguage() + "-" + locale.getCountry();
     }
 
-    public String getInstalledTime(){
+    // get app installed time
+    public String getInstalledTime() {
         PackageManager pm = context.getPackageManager();
         ApplicationInfo appInfo = null;
+
         try {
-            appInfo = pm.getApplicationInfo(BuildConfig.LIBRARY_PACKAGE_NAME, 0);
+            appInfo = pm.getApplicationInfo(context.getPackageName(), 0);
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
-        assert appInfo != null;
-        String appFile = appInfo.sourceDir;
-        long installed = new File(appFile).lastModified();
-        return new Date(installed).toString();
+
+        if (appInfo != null) {
+            String appFile = appInfo.sourceDir;
+            long installed = new File(appFile).lastModified();
+            return new Date(installed).toString();
+        }
+        return "Unknown";
     }
 }

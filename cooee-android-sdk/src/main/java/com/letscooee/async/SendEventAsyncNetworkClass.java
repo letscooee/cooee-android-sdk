@@ -18,6 +18,8 @@ import java.net.ConnectException;
 
 import retrofit2.Response;
 
+import static com.letscooee.utils.CooeeSDKConstants.LOG_PREFIX;
+
 /**
  * @author Abhishek Taparia
  * SendEventAsyncNetworkClass help create a async network request to send event to server
@@ -35,15 +37,15 @@ public class SendEventAsyncNetworkClass extends AsyncTask<Event, Void, Campaign>
         if (this.context != null) {
             ServerAPIService apiService = APIClient.getServerAPIService();
             Response<Campaign> response = null;
+
             try {
-                String header = context.getSharedPreferences(CooeeSDKConstants.SDK_TOKEN, Context.MODE_PRIVATE).getString(CooeeSDKConstants.SDK_TOKEN, "");
+                String header = this.context.getSharedPreferences(CooeeSDKConstants.SDK_TOKEN, Context.MODE_PRIVATE).getString(CooeeSDKConstants.SDK_TOKEN, "");
                 response = apiService.sendEvent(header, events[0]).execute();
                 Log.d(CooeeSDKConstants.LOG_PREFIX, response.code() + "");
-            } catch (ConnectException e) {
-                new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(context, "Not connected to server, check your internet", Toast.LENGTH_SHORT).show());
             } catch (IOException e) {
-                e.printStackTrace();
+                Log.e(LOG_PREFIX + " bodyError", e.toString());
             }
+
             if (response == null) {
                 return null;
             }

@@ -6,34 +6,34 @@ apply plugin: 'maven-publish'
 
 publish {
 
-    def groupProjectID = 'com.letscooee.cooee-android-sdk'
-    def artifactProjectID = 'cooee-android-sdk'
-    def publishVersionID = '0.0.7'
+    String groupProjectID = project.group.toString()
+    String artifactProjectID = "cooee-android-sdk"
+    String publishVersionID = project.version.toString()
 
-    userOrg = 'wizpanda'
-    repoName = 'maven'
+    userOrg = "wizpanda"
+    repoName = "maven"
     groupId = groupProjectID
     artifactId = artifactProjectID
     publishVersion = publishVersionID
-    desc = 'Cooee SDK for data gathering/processing'
-    website = 'https://gitlab.com/wizpanda/cooee/android-sdk'
+    desc = "Cooee SDK for data gathering/processing:"
+    website = "https://github.com/letscooee/cooee-android-sdk"
 
 
     publishing {
         publications {
-            MyPub(MavenPublication) {
+            cooeeBintray(MavenPublication) {
                 groupId groupProjectID
                 artifactId artifactProjectID
                 version publishVersionID
                 project.afterEvaluate {
                     artifact bundleReleaseAar
                     pom.withXml {
-                        def dependencies = asNode().appendNode('dependencies')
+                        def dependencies = asNode().appendNode("dependencies")
                         configurations.getByName("releaseCompileClasspath").getResolvedConfiguration().getFirstLevelModuleDependencies().each {
-                            def dependency = dependencies.appendNode('dependency')
-                            dependency.appendNode('groupId', it.moduleGroup)
-                            dependency.appendNode('artifactId', it.moduleName)
-                            dependency.appendNode('version', it.moduleVersion)
+                            def dependency = dependencies.appendNode("dependency")
+                            dependency.appendNode("groupId", it.moduleGroup)
+                            dependency.appendNode("artifactId", it.moduleName)
+                            dependency.appendNode("version", it.moduleVersion)
                         }
                     }
                 }
@@ -43,7 +43,7 @@ publish {
         }
     }
 
-    publications = ['MyPub']
+    publications = ["cooeeBintray"]
 
 }
 
@@ -56,7 +56,7 @@ android {
         minSdkVersion 21
         targetSdkVersion 29
         versionCode 1
-        versionName "0.0.7"
+        versionName project.version.toString()
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
