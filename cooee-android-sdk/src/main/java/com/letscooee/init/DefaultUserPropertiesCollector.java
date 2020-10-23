@@ -18,9 +18,7 @@ import android.os.Environment;
 import android.os.StatFs;
 import android.telephony.TelephonyManager;
 import android.util.DisplayMetrics;
-
 import androidx.core.app.ActivityCompat;
-
 import com.google.android.gms.location.LocationRequest;
 
 import java.io.File;
@@ -33,12 +31,13 @@ import java.util.Locale;
 import static android.content.Context.ACTIVITY_SERVICE;
 
 /**
- * @author Abhishek Taparia
  * DefaultUserPropertiesCollector collects various mobile properties/parameters
+ *
+ * @author Abhishek Taparia
  */
 class DefaultUserPropertiesCollector {
 
-    private Context context;
+    private final Context context;
 
     public DefaultUserPropertiesCollector(Context context) {
         this.context = context;
@@ -114,16 +113,12 @@ class DefaultUserPropertiesCollector {
         }
     }
 
-    //     checks if bluetooth is on
+    /**
+     * @return "Y" when the bluetooth is on, otherwise "N".
+     */
     public String isBluetoothOn() {
         BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        if (mBluetoothAdapter == null) {
-            return "N";
-        } else if (!mBluetoothAdapter.isEnabled()) {
-            return "N";
-        } else {
-            return "Y";
-        }
+        return (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) ? "N" : "Y";
     }
 
     //    get app version
@@ -140,17 +135,19 @@ class DefaultUserPropertiesCollector {
         return packageInfo.versionName;
     }
 
-    //    checks if wifi if on/connected
+    /**
+     * Check if the device is connected to Wifi or not.
+     *
+     * @return "Y" if connected otherwise "N".
+     */
     public String isConnectedToWifi() {
         ConnectivityManager connManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+
         assert connManager != null;
         NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
 
         assert mWifi != null;
-        if (mWifi.isConnected()) {
-            return "Y";
-        }
-        return "N";
+        return mWifi.isConnected() ? "Y" : "N";
     }
 
     //    get available internal storage
@@ -200,10 +197,10 @@ class DefaultUserPropertiesCollector {
             ProcessBuilder processBuilder = new ProcessBuilder(DATA);
             Process process = processBuilder.start();
             InputStream inputStream = process.getInputStream();
-            byte[] byteArry = new byte[1024];
+            byte[] byteArray = new byte[1024];
 
-            while (inputStream.read(byteArry) != -1) {
-                output.append(new String(byteArry));
+            while (inputStream.read(byteArray) != -1) {
+                output.append(new String(byteArray));
             }
             inputStream.close();
 
@@ -217,16 +214,14 @@ class DefaultUserPropertiesCollector {
     //    get device orientation
     public String getDeviceOrientation() {
         int orientation = context.getResources().getConfiguration().orientation;
-        if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            return "Landscape";
-        }
-        return "Portrait";
+        return orientation == Configuration.ORIENTATION_LANDSCAPE ? "Landscape" : "Portrait";
     }
 
     //    get battery percentage
     public String getBatteryLevel() {
         BatteryManager batteryManager = (BatteryManager) context.getSystemService(Context.BATTERY_SERVICE);
-        String batteryLevel = "Can't get Battery Info";
+        String batteryLevel = "";
+
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
             assert batteryManager != null;
             batteryLevel = batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY) + "";

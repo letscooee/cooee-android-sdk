@@ -3,13 +3,8 @@ package com.letscooee.cooeesdk;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
-import android.widget.Toast;
-
 import androidx.annotation.NonNull;
-
 import com.letscooee.async.SendEventAsyncNetworkClass;
 import com.letscooee.campaign.ImagePopUpActivity;
 import com.letscooee.campaign.VideoPopUpActivity;
@@ -19,21 +14,19 @@ import com.letscooee.models.Event;
 import com.letscooee.retrofit.APIClient;
 import com.letscooee.retrofit.ServerAPIService;
 import com.letscooee.utils.CooeeSDKConstants;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.concurrent.ExecutionException;
-
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 /**
- * @author Abhishek Taparia
  * The CooeeSdk class contains all the functions required by application to achieve the campaign tasks(Singleton Class)
+ *
+ * @author Abhishek Taparia
  */
 public class CooeeSDK {
 
@@ -52,7 +45,6 @@ public class CooeeSDK {
         }
         return cooeeSDK;
     }
-
 
     //Sends event to the server and returns with the campaign details
     public void sendEvent(String eventName, Map<String, String> eventProperties) {
@@ -90,7 +82,7 @@ public class CooeeSDK {
                     this.context.startActivity(intent);
                     break;
                 case CooeeSDKConstants.SPLASH_CAMPAIGN: {
-//                TODO: create Splash Campaign Layout class
+                    // TODO create Splash Campaign Layout class
                     break;
                 }
                 default: {
@@ -110,18 +102,31 @@ public class CooeeSDK {
         updateUserProfile(null, userProperties);
     }
 
-    //send user dat and properties to the server
+    /**
+     * Send the given user data and user properties to the server.
+     * @param userData The common user data like name, email.
+     * @param userProperties The additional user properties.
+     * @throws Exception
+     */
     public void updateUserProfile(Map<String, String> userData, Map<String, String> userProperties) throws Exception {
         for (String key : userProperties.keySet()) {
             if (key.substring(0, 3).equalsIgnoreCase("ce ")) {
                 throw new Exception("User Property cannot start with 'CE '");
             }
         }
+
         ServerAPIService apiService = APIClient.getServerAPIService();
-        String header = this.context.getSharedPreferences(CooeeSDKConstants.SDK_TOKEN, Context.MODE_PRIVATE).getString(CooeeSDKConstants.SDK_TOKEN, "");
+        String header = this.context
+                .getSharedPreferences(CooeeSDKConstants.SDK_TOKEN, Context.MODE_PRIVATE)
+                .getString(CooeeSDKConstants.SDK_TOKEN, "");
+
         Map<String, Object> userMap = new HashMap<>();
-        if (userData != null) userMap.put("userData", userData);
-        if (userProperties != null) userMap.put("userProperties", userProperties);
+        if (userData != null) {
+            userMap.put("userData", userData);
+        }
+
+        userMap.put("userProperties", userProperties);
+
         Call<ResponseBody> call = apiService.updateProfile(header, userMap);
         call.enqueue(new Callback<ResponseBody>() {
             @Override

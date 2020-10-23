@@ -1,9 +1,7 @@
 package com.letscooee.retrofit;
 
 import android.util.Log;
-
 import com.letscooee.BuildConfig;
-
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import retrofit2.Retrofit;
@@ -12,8 +10,9 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import static com.letscooee.utils.CooeeSDKConstants.LOG_PREFIX;
 
 /**
- * @author Abhishek Taparia
  * The APIClient class will help in sending request to server
+ *
+ * @author Abhishek Taparia
  */
 public class APIClient {
 
@@ -32,10 +31,12 @@ public class APIClient {
                             .newBuilder()
                             .addHeader("Content-Type", "application/json")
                             .build();
-                    Log.i(LOG_PREFIX + " request", request.toString());
+
+                    Log.d(LOG_PREFIX + " request", request.toString());
                     return chain.proceed(request);
                 })
                 .build();
+
         if (retrofit == null) {
             retrofit = new Retrofit.Builder()
                     .baseUrl(baseUrl)
@@ -43,6 +44,7 @@ public class APIClient {
                     .client(okHttpClient)
                     .build();
         }
+
         return retrofit;
     }
 }

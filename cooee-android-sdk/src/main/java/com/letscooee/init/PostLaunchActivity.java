@@ -6,42 +6,28 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
-import android.widget.Toast;
-
-
 import androidx.annotation.NonNull;
-
 import com.letscooee.BuildConfig;
-import com.letscooee.cooeesdk.CooeeSDK;
-import com.letscooee.models.AuthenticationRequestBody;
-import com.letscooee.models.Campaign;
-import com.letscooee.models.DeviceData;
-import com.letscooee.models.Event;
-import com.letscooee.models.SDKAuthentication;
+import com.letscooee.models.*;
 import com.letscooee.retrofit.APIClient;
 import com.letscooee.retrofit.ServerAPIService;
 import com.letscooee.utils.CooeeSDKConstants;
-
-import java.time.LocalDate;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
 import static com.letscooee.utils.CooeeSDKConstants.LOG_PREFIX;
 
 /**
+ * PostLaunchActivity initialized when app is launched
+ *
  * @author Abhishek Taparia
- * PostLaunchActivity initilized when app is launched
  */
 public class PostLaunchActivity {
 
@@ -59,7 +45,6 @@ public class PostLaunchActivity {
             this.apiService = APIClient.getServerAPIService();
         }
     }
-
 
     //Runs every time app is launched
     public void appLaunch() {
@@ -84,6 +69,7 @@ public class PostLaunchActivity {
                                 BuildConfig.VERSION_NAME + "",
                                 defaultUserPropertiesCollector.getAppVersion(),
                                 Build.VERSION.RELEASE));
+
                 this.apiService.firstOpen(authenticationRequestBody).enqueue(new retrofit2.Callback<SDKAuthentication>() {
                     @Override
                     public void onResponse(@NonNull Call<SDKAuthentication> call, @NonNull Response<SDKAuthentication> response) {
@@ -95,7 +81,7 @@ public class PostLaunchActivity {
                             assert response.body() != null;
                             String sdkToken = response.body().getSdkToken();
                             mSharedPreferencesEditor.putString(CooeeSDKConstants.SDK_TOKEN, sdkToken);
-                            mSharedPreferencesEditor.commit();
+                            mSharedPreferencesEditor.apply();
 
                             Map<String, String> userProperties = new HashMap<>();
                             userProperties.put("CE First Launch Time", new Date().toString());
@@ -105,6 +91,7 @@ public class PostLaunchActivity {
                             eventProperties.put("CE Source", "SYSTEM");
                             eventProperties.put("CE App Version", defaultUserPropertiesCollector.getAppVersion());
                             Event event = new Event("CE App Installed", eventProperties);
+
                             apiService.sendEvent(sdkToken, event).enqueue(new Callback<Campaign>() {
                                 @Override
                                 public void onResponse(@NonNull Call<Campaign> call, @NonNull Response<Campaign> response) {
@@ -143,7 +130,8 @@ public class PostLaunchActivity {
                 eventProperties.put("CE Bluetooth On", defaultUserPropertiesCollector.isBluetoothOn());
                 eventProperties.put("CE Wifi Connected", defaultUserPropertiesCollector.isConnectedToWifi());
                 eventProperties.put("CE Device Battery", defaultUserPropertiesCollector.getBatteryLevel());
-                Event event = new Event("CE App Installed", eventProperties);
+
+                Event event = new Event("CE App Launched", eventProperties);
                 apiService.sendEvent(sdk, event).enqueue(new Callback<Campaign>() {
                     @Override
                     public void onResponse(@NonNull Call<Campaign> call, @NonNull Response<Campaign> response) {
@@ -165,10 +153,12 @@ public class PostLaunchActivity {
         defaultUserPropertiesCollector = new DefaultUserPropertiesCollector(context);
         String[] location = defaultUserPropertiesCollector.getLocation();
         String[] networkData = defaultUserPropertiesCollector.getNetworkData();
+
         Map<String, String> userProperties = new HashMap<>();
         if (userProps != null) {
             userProperties = new HashMap<>(userProps);
         }
+
         userProperties.put("CE OS", "ANDROID");
         userProperties.put("CE SDK Version", BuildConfig.VERSION_NAME);
         userProperties.put("CE App Version", defaultUserPropertiesCollector.getAppVersion());
@@ -194,6 +184,7 @@ public class PostLaunchActivity {
         userProperties.put("CE Last Launch Time", new Date().toString());
         Map<String, Object> userMap = new HashMap<>();
         userMap.put("userProperties", userProperties);
+
         apiService.updateProfile(sdkToken, userMap).enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
@@ -205,19 +196,5 @@ public class PostLaunchActivity {
                 Log.e(LOG_PREFIX + " bodyError", t.toString());
             }
         });
-
-        /*Date date = Calendar.getInstance().getTime();
-         Map<String, String> eventProperties = new HashMap<>();
-         eventProperties.put("time", date.toString());
-         Event event = new Event("isForeground", eventProperties);
-         apiService.sendEvent(sdkToken, event).enqueue(new Callback<Campaign>() {
-        @Override public void onResponse(@NonNull Call<Campaign> call, @NonNull Response<Campaign> response) {
-        Log.i(LOG_PREFIX + " Event Sent", response.code() + "");
-        }
-
-        @Override public void onFailure(@NonNull Call<Campaign> call, @NonNull Throwable t) {
-        Log.e(LOG_PREFIX + " bodyError", t.toString());
-        }
-        });*/
     }
 }
