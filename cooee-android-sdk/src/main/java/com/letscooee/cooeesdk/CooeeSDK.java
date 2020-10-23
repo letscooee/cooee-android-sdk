@@ -8,6 +8,8 @@ import android.os.Looper;
 import android.util.Log;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+
 import com.letscooee.async.SendEventAsyncNetworkClass;
 import com.letscooee.campaign.ImagePopUpActivity;
 import com.letscooee.campaign.VideoPopUpActivity;
@@ -60,7 +62,11 @@ public class CooeeSDK {
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
+        createCampaign(campaign);
+    }
 
+    // Create campaign is received from event
+    private void createCampaign(Campaign campaign) {
         if (campaign != null && campaign.getEventName() != null) {
             Bundle bundle = new Bundle();
             bundle.putString("title", campaign.getEventName());
@@ -111,13 +117,14 @@ public class CooeeSDK {
         Call<ResponseBody> call = apiService.updateProfile(header, userMap);
         call.enqueue(new Callback<ResponseBody>() {
             @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+            public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
                 Log.i(CooeeSDKConstants.LOG_PREFIX + " status", response.code() + "");
             }
 
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
+            public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
                 Log.d(CooeeSDKConstants.LOG_PREFIX + " Error", t.toString());
-                new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(context,"Not connected to server, check your internet",Toast.LENGTH_SHORT).show());
+                new Handler(Looper.getMainLooper())
+                        .post(() -> Toast.makeText(context, "Not connected to server, check your internet", Toast.LENGTH_SHORT).show());
             }
         });
     }
