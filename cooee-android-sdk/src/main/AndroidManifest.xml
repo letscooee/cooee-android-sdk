@@ -3,8 +3,7 @@
     package="com.letscooee">
 
     <application
-        android:name=".init.AppController"
-        android:networkSecurityConfig="@xml/network_config">
+        android:name=".init.AppController">
         <activity
             android:name=".campaign.VideoPopUpActivity"
             android:theme="@style/AppTheme.PopUp" />
