@@ -54,14 +54,13 @@ public class AppController extends Application implements LifecycleObserver, App
     public void onEnterBackground() {
         Log.d(LOG_PREFIX + "AppController", "Background");
         if (getApplicationContext() != null) {
-            Date date = Calendar.getInstance().getTime();
-
-            Map<String, String> userProperties = new HashMap<>();
-            /**Map<String, String> eventProperties = new HashMap<>();
+            /*Date date = Calendar.getInstance().getTime();
+             Map<String, String> eventProperties = new HashMap<>();
              eventProperties.put("time", date.toString());
              CooeeSDK.getDefaultInstance(getApplicationContext()).sendEvent("isBackground", eventProperties);
              */
 
+            Map<String, String> userProperties = new HashMap<>();
             userProperties.put("CE Last Screen", lastScreen);
             userProperties.put("CE Package Name", packageName);
             String header = getApplicationContext().getSharedPreferences(CooeeSDKConstants.SDK_TOKEN, Context.MODE_PRIVATE).getString(CooeeSDKConstants.SDK_TOKEN, "");
@@ -71,12 +70,12 @@ public class AppController extends Application implements LifecycleObserver, App
             apiService.updateProfile(header, userMap).enqueue(new Callback<ResponseBody>() {
                 @Override
                 public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
-                    Log.d(LOG_PREFIX + " userProperties", response.code() + "");
+                    Log.i(LOG_PREFIX + " userProperties", response.code() + "");
                 }
 
                 @Override
                 public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
-                    Log.e(LOG_PREFIX + " bodyError2", t.toString());
+                    Log.e(LOG_PREFIX + " bodyError", t.toString());
                 }
             });
         }

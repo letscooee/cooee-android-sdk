@@ -58,11 +58,13 @@ public class CooeeSDK {
     public void sendEvent(String eventName, Map<String, String> eventProperties) {
         Event event = new Event(eventName, eventProperties);
         Campaign campaign = null;
+
         try {
             campaign = new SendEventAsyncNetworkClass(this.context).execute(event).get();
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
+
         createCampaign(campaign);
     }
 
@@ -92,7 +94,7 @@ public class CooeeSDK {
                     break;
                 }
                 default: {
-                    Log.d(CooeeSDKConstants.LOG_PREFIX + " error", "No familiar campaign");
+                    Log.e(CooeeSDKConstants.LOG_PREFIX + " error", "No familiar campaign");
                 }
             }
         }
@@ -110,8 +112,8 @@ public class CooeeSDK {
 
     //send user dat and properties to the server
     public void updateUserProfile(Map<String, String> userData, Map<String, String> userProperties) throws Exception {
-        for(String key: userProperties.keySet()){
-            if(key.substring(0,3).equalsIgnoreCase("ce ")){
+        for (String key : userProperties.keySet()) {
+            if (key.substring(0, 3).equalsIgnoreCase("ce ")) {
                 throw new Exception("User Property cannot start with 'CE '");
             }
         }

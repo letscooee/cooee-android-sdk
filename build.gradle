@@ -19,6 +19,8 @@ allprojects {
         google()
         jcenter()
     }
+    version "0.0.7"
+    group "com.letscooee"
 }
 
 task clean(type: Delete) {

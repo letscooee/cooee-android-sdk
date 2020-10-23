@@ -14,10 +14,10 @@
         tools:targetApi="n">
         <meta-data
             android:name="COOEE_APP_ID"
-            android:value="5f8714ccb5edff112377d7fd"/>
+            android:value="<cooeeAppID>"/>
         <meta-data
             android:name="COOEE_APP_SECRET"
-            android:value="ykwGjXK4PJK2lgn0Rq8V"/>
+            android:value="<cooeeAppSecret>"/>
         <activity android:name="com.letscooee.cooeetester.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
