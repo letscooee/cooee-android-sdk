@@ -1,8 +1,8 @@
 package com.letscooee.utils;
 
 /**
- * @author Abhishek Taparia
  * The CooeeSDKConstants class contains all the constants required by SDK
+ * @author Abhishek Taparia
  */
 public class CooeeSDKConstants {
 
