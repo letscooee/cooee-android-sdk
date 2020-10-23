@@ -5,10 +5,12 @@ import com.google.gson.annotations.SerializedName;
 import java.util.Map;
 
 /**
+ * Event class is sent as body to server when a user event needs to be tracked.
+ *
  * @author Abhishek Taparia
- * Event class is sent as body to server when user creates/sends a custom event.
  */
 public class Event {
+
     @SerializedName("name")
     private String eventName;
 

@@ -42,11 +42,16 @@ public class AppController extends Application implements LifecycleObserver, App
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
     public void onEnterBackground() {
         Log.d(LOG_PREFIX + "AppController", "Background");
+
         if (getApplicationContext() != null) {
             Map<String, String> userProperties = new HashMap<>();
             userProperties.put("CE Last Screen", lastScreen);
             userProperties.put("CE Package Name", packageName);
-            String header = getApplicationContext().getSharedPreferences(CooeeSDKConstants.SDK_TOKEN, Context.MODE_PRIVATE).getString(CooeeSDKConstants.SDK_TOKEN, "");
+
+            String header = getApplicationContext()
+                    .getSharedPreferences(CooeeSDKConstants.SDK_TOKEN, Context.MODE_PRIVATE)
+                    .getString(CooeeSDKConstants.SDK_TOKEN, "");
+
             Map<String, Object> userMap = new HashMap<>();
             userMap.put("userProperties", userProperties);
 
@@ -86,17 +91,14 @@ public class AppController extends Application implements LifecycleObserver, App
 
     @Override
     public void onActivityResumed(@NonNull Activity activity) {
-
     }
 
     @Override
     public void onActivityPaused(@NonNull Activity activity) {
-
     }
 
     @Override
     public void onActivityStopped(@NonNull Activity activity) {
-        Log.d(LOG_PREFIX + " ActivityStops", activity.getLocalClassName());
 
     }
 
@@ -107,6 +109,5 @@ public class AppController extends Application implements LifecycleObserver, App
 
     @Override
     public void onActivityDestroyed(@NonNull Activity activity) {
-        Log.d(LOG_PREFIX + " ActivDestroy", activity.getLocalClassName());
     }
 }
