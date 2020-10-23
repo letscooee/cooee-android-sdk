@@ -1,10 +1,12 @@
 package com.letscooee.models;
 
 /**
+ * DeviceData class is used in AuthenticationRequestBody class as member variable.
+ *
  * @author Abhishek Taparia
- * DeviceData class is used in AuthenticationRequestBody class as menber variable
  */
 public class DeviceData {
+
     private String os;
     private String cooeeSdkVersion;
     private String appVersion;
