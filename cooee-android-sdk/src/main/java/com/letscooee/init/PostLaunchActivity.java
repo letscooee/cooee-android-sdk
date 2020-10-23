@@ -190,6 +190,7 @@ public class PostLaunchActivity {
         userProperties.put("CE Screen Resolution", defaultUserPropertiesCollector.getScreenResolution());
         userProperties.put("CE DPI", defaultUserPropertiesCollector.getDpi());
         userProperties.put("CE Device Locale", defaultUserPropertiesCollector.getLocale());
+        userProperties.put("CE Installed Time", defaultUserPropertiesCollector.getInstalledTime());
         userProperties.put("CE Last Launch Time", new Date().toString());
         Map<String, Object> userMap = new HashMap<>();
         userMap.put("userProperties", userProperties);
