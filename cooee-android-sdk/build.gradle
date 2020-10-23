@@ -3,7 +3,6 @@ apply plugin: 'com.android.library'
 apply plugin: 'com.google.gms.google-services'
 apply plugin: 'maven-publish'
 
-
 publish {
 
     String groupProjectID = project.group.toString()
@@ -15,7 +14,7 @@ publish {
     groupId = groupProjectID
     artifactId = artifactProjectID
     publishVersion = publishVersionID
-    desc = "Cooee SDK for data gathering/processing:"
+    desc = "Cooee SDK for data gathering/processing"
     website = "https://github.com/letscooee/cooee-android-sdk"
 
 
@@ -25,8 +24,10 @@ publish {
                 groupId groupProjectID
                 artifactId artifactProjectID
                 version publishVersionID
+
                 project.afterEvaluate {
                     artifact bundleReleaseAar
+
                     pom.withXml {
                         def dependencies = asNode().appendNode("dependencies")
                         configurations.getByName("releaseCompileClasspath").getResolvedConfiguration().getFirstLevelModuleDependencies().each {
@@ -44,9 +45,7 @@ publish {
     }
 
     publications = ["cooeeBintray"]
-
 }
-
 
 android {
     compileSdkVersion 29
@@ -64,7 +63,6 @@ android {
 
     buildTypes {
         debug {
-//            TODO : Change server URL to production URL once the servers are deployed
             buildConfigField "String", "SERVER_URL", '"https://api.sdk.letscooee.com/"'
         }
         release {
