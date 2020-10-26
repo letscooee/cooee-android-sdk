@@ -14,6 +14,8 @@ import com.letscooee.models.Event;
 import com.letscooee.retrofit.APIClient;
 import com.letscooee.retrofit.ServerAPIService;
 import com.letscooee.utils.CooeeSDKConstants;
+import com.letscooee.utils.PropertyNameException;
+
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -47,7 +49,12 @@ public class CooeeSDK {
     }
 
     //Sends event to the server and returns with the campaign details
-    public void sendEvent(String eventName, Map<String, String> eventProperties) {
+    public void sendEvent(String eventName, Map<String, String> eventProperties) throws PropertyNameException {
+        for (String key : eventProperties.keySet()) {
+            if (key.substring(0, 3).equalsIgnoreCase("ce ")) {
+                throw new PropertyNameException();
+            }
+        }
         Event event = new Event(eventName, eventProperties);
         Campaign campaign = null;
 
@@ -93,12 +100,12 @@ public class CooeeSDK {
     }
 
     //send user data to the server
-    public void updateUserData(Map<String, String> userData) throws Exception {
+    public void updateUserData(Map<String, String> userData) throws PropertyNameException {
         updateUserProfile(userData, null);
     }
 
     //send user properties to the server
-    public void updateUserProperties(Map<String, String> userProperties) throws Exception {
+    public void updateUserProperties(Map<String, String> userProperties) throws PropertyNameException {
         updateUserProfile(null, userProperties);
     }
 
@@ -106,12 +113,12 @@ public class CooeeSDK {
      * Send the given user data and user properties to the server.
      * @param userData The common user data like name, email.
      * @param userProperties The additional user properties.
-     * @throws Exception
+     * @throws PropertyNameException
      */
-    public void updateUserProfile(Map<String, String> userData, Map<String, String> userProperties) throws Exception {
+    public void updateUserProfile(Map<String, String> userData, Map<String, String> userProperties) throws PropertyNameException {
         for (String key : userProperties.keySet()) {
             if (key.substring(0, 3).equalsIgnoreCase("ce ")) {
-                throw new Exception("User Property cannot start with 'CE '");
+                throw new PropertyNameException();
             }
         }
 
