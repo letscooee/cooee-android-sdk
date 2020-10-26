@@ -4,7 +4,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+
 import androidx.annotation.NonNull;
+
 import com.letscooee.async.SendEventAsyncNetworkClass;
 import com.letscooee.campaign.ImagePopUpActivity;
 import com.letscooee.campaign.VideoPopUpActivity;
@@ -26,21 +28,31 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 /**
- * The CooeeSdk class contains all the functions required by application to achieve the campaign tasks(Singleton Class)
+ * The CooeeSDK class contains all the functions required by application to achieve the campaign tasks(Singleton Class)
  *
  * @author Abhishek Taparia
  */
 public class CooeeSDK {
 
     private Context context;
-    public static CooeeSDK cooeeSDK = null;
+    private static CooeeSDK cooeeSDK = null;
 
+    /**
+     * Private constructor for Singleton Class
+     *
+     * @param context application context
+     */
     private CooeeSDK(Context context) {
         this.context = context;
         new PostLaunchActivity(context).appLaunch();
     }
 
-    // create instance for CooeeSDK (Singleton Class)
+    /**
+     * Create and return default instance for CooeeSDK (Singleton Class)
+     *
+     * @param context application context
+     * @return CooeeSDK
+     */
     public static CooeeSDK getDefaultInstance(Context context) {
         if (cooeeSDK == null) {
             cooeeSDK = new CooeeSDK(context);
@@ -48,7 +60,13 @@ public class CooeeSDK {
         return cooeeSDK;
     }
 
-    //Sends event to the server and returns with the campaign details
+    /**
+     * Sends custom events to the server and returns with the campaign details(if any)
+     *
+     * @param eventName       Name the event like onDeviceReady
+     * @param eventProperties Properties associated with the event
+     * @throws PropertyNameException Custom Exception so that properties' key has no prefix as 'ce '
+     */
     public void sendEvent(String eventName, Map<String, String> eventProperties) throws PropertyNameException {
         for (String key : eventProperties.keySet()) {
             if (key.substring(0, 3).equalsIgnoreCase("ce ")) {
@@ -67,8 +85,13 @@ public class CooeeSDK {
         createCampaign(campaign);
     }
 
-    // Create campaign is received from event
+    /**
+     * Create graphical view from campaign details received from events.
+     *
+     * @param campaign Campaign details received from server
+     */
     private void createCampaign(Campaign campaign) {
+        // TODO: Create all the available type of campaign/ Enhancement of this is yet to be done
         if (campaign != null && campaign.getEventName() != null) {
             Bundle bundle = new Bundle();
             bundle.putString("title", campaign.getEventName());
@@ -99,21 +122,32 @@ public class CooeeSDK {
         }
     }
 
-    //send user data to the server
+    /**
+     * Send given user data to the server
+     *
+     * @param userData The common user data like name, email.
+     * @throws PropertyNameException Custom Exception so that properties' key has no prefix as 'ce '
+     */
     public void updateUserData(Map<String, String> userData) throws PropertyNameException {
         updateUserProfile(userData, null);
     }
 
-    //send user properties to the server
+    /**
+     * Send given user properties to the server
+     *
+     * @param userProperties The additional user properties.
+     * @throws PropertyNameException Custom Exception so that properties' key has no prefix as 'ce '
+     */
     public void updateUserProperties(Map<String, String> userProperties) throws PropertyNameException {
         updateUserProfile(null, userProperties);
     }
 
     /**
      * Send the given user data and user properties to the server.
-     * @param userData The common user data like name, email.
+     *
+     * @param userData       The common user data like name, email.
      * @param userProperties The additional user properties.
-     * @throws PropertyNameException
+     * @throws PropertyNameException Custom Exception so that properties' key has no prefix as 'ce '
      */
     public void updateUserProfile(Map<String, String> userData, Map<String, String> userProperties) throws PropertyNameException {
         for (String key : userProperties.keySet()) {
@@ -128,6 +162,7 @@ public class CooeeSDK {
                 .getString(CooeeSDKConstants.SDK_TOKEN, "");
 
         Map<String, Object> userMap = new HashMap<>();
+
         if (userData != null) {
             userMap.put("userData", userData);
         }

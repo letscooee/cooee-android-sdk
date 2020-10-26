@@ -2,6 +2,7 @@ package com.letscooee.init;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+
 import com.letscooee.utils.CooeeSDKConstants;
 
 /**
@@ -9,6 +10,7 @@ import com.letscooee.utils.CooeeSDKConstants;
  *
  * @author Abhishek Taparia
  */
+// TODO: remove this as functionality can be/is included in PostLaunchActivity class
 public class FirstTimeLaunchManager {
 
     private SharedPreferences mSharedPreferences;

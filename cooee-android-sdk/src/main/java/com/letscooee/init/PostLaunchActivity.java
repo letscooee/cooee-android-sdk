@@ -7,12 +7,15 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+
 import androidx.annotation.NonNull;
+
 import com.letscooee.BuildConfig;
 import com.letscooee.models.*;
 import com.letscooee.retrofit.APIClient;
 import com.letscooee.retrofit.ServerAPIService;
 import com.letscooee.utils.CooeeSDKConstants;
+
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -37,6 +40,12 @@ public class PostLaunchActivity {
     private DefaultUserPropertiesCollector defaultUserPropertiesCollector;
     private ServerAPIService apiService;
 
+
+    /**
+     * Public Constructor
+     *
+     * @param context application context
+     */
     public PostLaunchActivity(Context context) {
         if (context != null) {
             this.context = context;
@@ -46,10 +55,26 @@ public class PostLaunchActivity {
         }
     }
 
-    //Runs every time app is launched
+    public boolean isAppFirstTimeLaunch() {
+        if (mSharedPreferences != null && mSharedPreferences.getBoolean(CooeeSDKConstants.IS_APP_FIRST_TIME_LAUNCH, true)) {
+            // App is open/launch for first time, update the preference
+            SharedPreferences.Editor mSharedPreferencesEditor = mSharedPreferences.edit();
+            mSharedPreferencesEditor.putBoolean(CooeeSDKConstants.IS_APP_FIRST_TIME_LAUNCH, false);
+            mSharedPreferencesEditor.apply();
+            return true;
+        } else {
+            // App previously opened
+            return false;
+        }
+    }
+
+    /**
+     * Runs every time app is launched
+     */
     public void appLaunch() {
+        // TODO: reduce the number of lines in this method
         if (this.context != null) {
-            if (new FirstTimeLaunchManager(context).isAppFirstTimeLaunch()) {
+            if (isAppFirstTimeLaunch()) {
                 ApplicationInfo app = null;
 
                 try {
@@ -148,6 +173,12 @@ public class PostLaunchActivity {
 
     }
 
+    /**
+     * Sends default user properties to the server
+     *
+     * @param sdkToken  unique token received from server
+     * @param userProps additional user properties
+     */
     private void sendUserProperties(String sdkToken, Map<String, String> userProps) {
         apiService = APIClient.getServerAPIService();
         defaultUserPropertiesCollector = new DefaultUserPropertiesCollector(context);
