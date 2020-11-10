@@ -202,7 +202,12 @@ public class CooeeSDK {
         this.currentScreenName = screenName;
     }
 
-    public String getCurrentScreenName(){
+    /**
+     * Get manually updated screen name
+     *
+     * @return current screen name
+     */
+    public String getCurrentScreenName() {
         return this.currentScreenName;
     }
 }

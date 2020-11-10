@@ -33,7 +33,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         setPermission();
+
         mySdk = CooeeSDK.getDefaultInstance(getApplicationContext());
+
 
         buttonImage = findViewById(R.id.btnImage);
         buttonVideo = findViewById(R.id.btnVideo);
@@ -55,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
         } catch (PropertyNameException e) {
             e.printStackTrace();
         }
-        mySdk.updateScreenName("FirstScreen");
+
 
 
         buttonImage.setOnClickListener(view -> {

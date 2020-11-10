@@ -14,6 +14,8 @@ import androidx.lifecycle.OnLifecycleEvent;
 import androidx.lifecycle.ProcessLifecycleOwner;
 
 import com.letscooee.cooeesdk.CooeeSDK;
+import com.letscooee.models.Campaign;
+import com.letscooee.models.Event;
 import com.letscooee.retrofit.APIClient;
 import com.letscooee.retrofit.ServerAPIService;
 import com.letscooee.utils.CooeeSDKConstants;
@@ -23,9 +25,11 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.letscooee.init.PostLaunchActivity.CURRENT_SESSION_ID;
 import static com.letscooee.utils.CooeeSDKConstants.LOG_PREFIX;
 
 /**
@@ -37,6 +41,8 @@ public class AppController extends Application implements LifecycleObserver, App
 
     private String lastScreen;
     private String packageName;
+    private Date startTime;
+    private long startUp;
 
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
     public void onEnterForeground() {
@@ -71,11 +77,36 @@ public class AppController extends Application implements LifecycleObserver, App
                     Log.e(LOG_PREFIX + " bodyError", t.toString());
                 }
             });
+
+            String startTime = getApplicationContext()
+                    .getSharedPreferences(CooeeSDKConstants.SESSION_START_TIME, Context.MODE_PRIVATE)
+                    .getString(CooeeSDKConstants.SESSION_START_TIME, "");
+            String stopTime = new Date().toString();
+            String duration = (new Date(stopTime).getTime() - new Date(startTime).getTime()) / 1000 + "s";
+
+            Map<String, String> sessionProperties = new HashMap<>();
+            sessionProperties.put("CE Session ID", CURRENT_SESSION_ID);
+            sessionProperties.put("CE Session Start", startTime);
+            sessionProperties.put("CE Session Stop", stopTime);
+            sessionProperties.put("CE Session Duration", duration);
+            Event session = new Event("CE Session", sessionProperties);
+            apiService.sendEvent(header, session).enqueue(new Callback<Campaign>() {
+                @Override
+                public void onResponse(Call<Campaign> call, Response<Campaign> response) {
+                    Log.i(LOG_PREFIX + "sessionProperty", response.code() + "");
+                }
+
+                @Override
+                public void onFailure(Call<Campaign> call, Throwable t) {
+                    Log.e(LOG_PREFIX + " bodyError", t.toString());
+                }
+            });
         }
     }
 
     @Override
     public void onCreate() {
+        this.startTime = new Date();
         super.onCreate();
         registerActivityLifecycleCallbacks(this);
         ProcessLifecycleOwner.get().getLifecycle().addObserver(this);
@@ -96,6 +127,8 @@ public class AppController extends Application implements LifecycleObserver, App
 
     @Override
     public void onActivityResumed(@NonNull Activity activity) {
+        this.startUp = new Date().getTime() - this.startTime.getTime();
+        Log.d("COOEESDK StartupTime", this.startUp + "");
     }
 
     @Override
