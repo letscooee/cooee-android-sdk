@@ -5,15 +5,19 @@ import android.app.Application;
 import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.OnLifecycleEvent;
 import androidx.lifecycle.ProcessLifecycleOwner;
+
+import com.letscooee.cooeesdk.CooeeSDK;
 import com.letscooee.retrofit.APIClient;
 import com.letscooee.retrofit.ServerAPIService;
 import com.letscooee.utils.CooeeSDKConstants;
+
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -84,7 +88,8 @@ public class AppController extends Application implements LifecycleObserver, App
 
     @Override
     public void onActivityStarted(@NonNull Activity activity) {
-        this.lastScreen = activity.getLocalClassName();
+        String manualScreenName = CooeeSDK.getDefaultInstance(null).getCurrentScreenName();
+        this.lastScreen = (manualScreenName != null && !manualScreenName.isEmpty()) ? manualScreenName : activity.getLocalClassName();
         packageName = activity.getClass().getPackage().getName();
         Log.d(LOG_PREFIX + " ActivityStarts", lastScreen);
     }
