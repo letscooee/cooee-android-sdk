@@ -93,6 +93,8 @@ dependencies {
     api 'android.arch.lifecycle:extensions:2.2.0'
     api 'androidx.lifecycle:lifecycle-process:2.2.0'
     api 'com.github.bumptech.glide:compiler:4.11.0'
+    api 'io.reactivex.rxjava3:rxandroid:3.0.0'
+    api 'io.reactivex.rxjava3:rxjava:3.0.0'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.11.0'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'

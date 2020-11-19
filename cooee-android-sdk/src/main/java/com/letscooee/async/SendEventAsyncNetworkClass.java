@@ -24,6 +24,7 @@ import static com.letscooee.utils.CooeeSDKConstants.LOG_PREFIX;
  * @author Abhishek Taparia
  * SendEventAsyncNetworkClass help create a async network request to send event to server
  */
+// TODO: This class is no longer necessary Can be removed
 public class SendEventAsyncNetworkClass extends AsyncTask<Event, Void, Campaign> {
 
     private Context context;

@@ -11,21 +11,23 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import com.letscooee.BuildConfig;
+import com.letscooee.async.AuthSyncNetworkClass;
 import com.letscooee.models.*;
 import com.letscooee.retrofit.APIClient;
 import com.letscooee.retrofit.ServerAPIService;
 import com.letscooee.utils.CooeeSDKConstants;
 
+import io.reactivex.rxjava3.core.Observable;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import java.net.ConnectException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.letscooee.utils.CooeeSDKConstants.LOG_PREFIX;
 
 /**
  * PostLaunchActivity initialized when app is launched
@@ -39,6 +41,10 @@ public class PostLaunchActivity {
     private Context context;
     private DefaultUserPropertiesCollector defaultUserPropertiesCollector;
     private ServerAPIService apiService;
+    private boolean isFirstSubscriber = true;
+
+    public static Observable<String> observable;
+    public static String SESSION_START_TIME;
     public static String CURRENT_SESSION_ID = "";
 
     /**
@@ -47,12 +53,43 @@ public class PostLaunchActivity {
      * @param context application context
      */
     public PostLaunchActivity(Context context) {
-        if (context != null) {
-            this.context = context;
-            this.mSharedPreferences = context.getSharedPreferences(CooeeSDKConstants.IS_APP_FIRST_TIME_LAUNCH, Context.MODE_PRIVATE);
-            this.defaultUserPropertiesCollector = new DefaultUserPropertiesCollector(context);
-            this.apiService = APIClient.getServerAPIService();
+        if (context == null) {
+            return;
         }
+
+        this.context = context;
+        this.mSharedPreferences = context.getSharedPreferences(CooeeSDKConstants.IS_APP_FIRST_TIME_LAUNCH, Context.MODE_PRIVATE);
+        this.defaultUserPropertiesCollector = new DefaultUserPropertiesCollector(context);
+        this.apiService = APIClient.getServerAPIService();
+
+        observable = Observable.create(subscriber -> {
+            if (isAppFirstTimeLaunch() && isFirstSubscriber) {
+                isFirstSubscriber = false;
+                AuthenticationRequestBody authenticationRequestBody = getAuthenticationRequestBody();
+
+                Response<SDKAuthentication> response = new AuthSyncNetworkClass().execute(authenticationRequestBody).get();
+                if (response == null) {
+                    subscriber.onError(new ConnectException());
+                }
+                if (response != null && response.isSuccessful()) {
+                    assert response.body() != null;
+                    String sdkToken = response.body().getSdkToken();
+                    Log.i(CooeeSDKConstants.LOG_PREFIX + " bodyResponse", sdkToken);
+                    mSharedPreferences = context.getSharedPreferences(CooeeSDKConstants.SDK_TOKEN, Context.MODE_PRIVATE);
+                    mSharedPreferencesEditor = mSharedPreferences.edit();
+                    mSharedPreferencesEditor.putString(CooeeSDKConstants.SDK_TOKEN, sdkToken);
+                    mSharedPreferencesEditor.commit();
+                    appFirstOpen();
+                    subscriber.onNext(sdkToken);
+                }
+            } else {
+                mSharedPreferences = context.getSharedPreferences(CooeeSDKConstants.SDK_TOKEN, Context.MODE_PRIVATE);
+                String sdk = mSharedPreferences.getString(CooeeSDKConstants.SDK_TOKEN, "");
+                Log.i(CooeeSDKConstants.LOG_PREFIX + " SDK return", sdk);
+                subscriber.onNext(sdk);
+                subscriber.onComplete();
+            }
+        });
     }
 
     /**
@@ -62,42 +99,15 @@ public class PostLaunchActivity {
         if (this.context == null) {
             return;
         }
-        if (isAppFirstTimeLaunch()) {
-            String[] appCredentials = getAppCredentials();
-            AuthenticationRequestBody authenticationRequestBody = new AuthenticationRequestBody(
-                    appCredentials[0],
-                    appCredentials[1],
-                    new DeviceData("ANDROID",
-                            BuildConfig.VERSION_NAME + "",
-                            defaultUserPropertiesCollector.getAppVersion(),
-                            Build.VERSION.RELEASE));
 
-            this.apiService.firstOpen(authenticationRequestBody).enqueue(new retrofit2.Callback<SDKAuthentication>() {
-                @Override
-                public void onResponse(@NonNull Call<SDKAuthentication> call, @NonNull Response<SDKAuthentication> response) {
-                    if (response.isSuccessful()) {
-                        assert response.body() != null;
-                        String sdkToken = response.body().getSdkToken();
-                        Log.i(LOG_PREFIX + " bodyResponse", sdkToken);
-                        appFirstOpen(sdkToken);
-
-                    } else {
-                        Log.e(LOG_PREFIX + " bodyError", String.valueOf(response.errorBody()));
-                    }
-                }
-
-                @Override
-                public void onFailure(@NonNull Call<SDKAuthentication> call, @NonNull Throwable t) {
-                    Log.e(LOG_PREFIX + " bodyError", t.toString());
-                }
-            });
-        } else {
-            this.mSharedPreferences = this.context.getSharedPreferences(CooeeSDKConstants.SDK_TOKEN, Context.MODE_PRIVATE);
-            String sdk = this.mSharedPreferences.getString(CooeeSDKConstants.SDK_TOKEN, "");
-            Log.i(LOG_PREFIX + " SDK return", sdk);
-
-            successiveAppLaunch(sdk);
-        }
+        observable.subscribe((String sdkToken) -> {
+            Log.i(CooeeSDKConstants.LOG_PREFIX, "Sdk Token : " + sdkToken);
+        }, (Throwable error) -> {
+            Log.e(CooeeSDKConstants.LOG_PREFIX, "Observable Error : " + error.toString());
+        }, () -> {
+            Log.d(CooeeSDKConstants.LOG_PREFIX, "Observable Completed");
+            successiveAppLaunch();
+        });
     }
 
     /**
@@ -140,37 +150,44 @@ public class PostLaunchActivity {
     }
 
     /**
-     * Runs when app is opened for the first time after sdkToken is received from server asynchronously
+     * returns  AuthenticationRequestBody to be used in observer
      *
-     * @param sdkToken sdkToken from server
+     * @return AuthenticationRequestBody
      */
-    private void appFirstOpen(String sdkToken) {
-        mSharedPreferences = context.getSharedPreferences(CooeeSDKConstants.SDK_TOKEN, Context.MODE_PRIVATE);
-        mSharedPreferencesEditor = mSharedPreferences.edit();
-        mSharedPreferencesEditor.putString(CooeeSDKConstants.SDK_TOKEN, sdkToken);
-        mSharedPreferencesEditor.apply();
+    private AuthenticationRequestBody getAuthenticationRequestBody() {
+        String[] appCredentials = getAppCredentials();
+        return new AuthenticationRequestBody(
+                appCredentials[0],
+                appCredentials[1],
+                new DeviceData("ANDROID",
+                        BuildConfig.VERSION_NAME + "",
+                        defaultUserPropertiesCollector.getAppVersion(),
+                        Build.VERSION.RELEASE));
+    }
 
+    /**
+     * Runs when app is opened for the first time after sdkToken is received from server asynchronously
+     */
+    private void appFirstOpen() {
         Map<String, String> userProperties = new HashMap<>();
         userProperties.put("CE First Launch Time", new Date().toString());
-        sendUserProperties(sdkToken, userProperties);
+        sendUserProperties(userProperties);
 
         Map<String, String> eventProperties = new HashMap<>();
         eventProperties.put("CE Source", "SYSTEM");
         eventProperties.put("CE App Version", defaultUserPropertiesCollector.getAppVersion());
         Event event = new Event("CE App Installed", eventProperties);
 
-        sendEvent(sdkToken, event);
+        sendEvent(event);
 
         createSession();
     }
 
     /**
      * Runs every time when app is opened for a new session
-     *
-     * @param sdkToken sdkToken stored in shared preferences
      */
-    private void successiveAppLaunch(String sdkToken) {
-        sendUserProperties(sdkToken, null);
+    private void successiveAppLaunch() {
+        sendUserProperties(null);
 
         String[] networkData = defaultUserPropertiesCollector.getNetworkData();
         Map<String, String> eventProperties = new HashMap<>();
@@ -185,7 +202,7 @@ public class PostLaunchActivity {
         eventProperties.put("CE Device Battery", defaultUserPropertiesCollector.getBatteryLevel());
 
         Event event = new Event("CE App Launched", eventProperties);
-        sendEvent(sdkToken, event);
+        sendEvent(event);
 
         createSession();
     }
@@ -193,76 +210,86 @@ public class PostLaunchActivity {
     /**
      * Send sdk events asynchronously
      *
-     * @param sdkToken sdkToken from server/shared preferences
-     * @param event    event name and properties
+     * @param event event name and properties
      */
-    private void sendEvent(String sdkToken, Event event) {
-        apiService.sendEvent(sdkToken, event).enqueue(new Callback<Campaign>() {
-            @Override
-            public void onResponse(@NonNull Call<Campaign> call, @NonNull Response<Campaign> response) {
-                Log.i(LOG_PREFIX + " Event Sent", response.code() + "");
-            }
+    private void sendEvent(Event event) {
+        observable.subscribe((String sdkToken) -> {
+            apiService.sendEvent(sdkToken, event).enqueue(new Callback<Campaign>() {
+                @Override
+                public void onResponse(@NonNull Call<Campaign> call, @NonNull Response<Campaign> response) {
+                    Log.i(CooeeSDKConstants.LOG_PREFIX, " Event Sent Response Code : " + response.code());
+                }
 
-            @Override
-            public void onFailure(@NonNull Call<Campaign> call, @NonNull Throwable t) {
-                Log.e(LOG_PREFIX + " bodyError", t.toString());
-            }
+                @Override
+                public void onFailure(@NonNull Call<Campaign> call, @NonNull Throwable t) {
+                    Log.e(CooeeSDKConstants.LOG_PREFIX, "Event Sent Error Message : " + t.toString());
+                }
+            });
+        }, (Throwable error) -> {
+            Log.e(CooeeSDKConstants.LOG_PREFIX, "Observable Error : " + error.toString());
+        }, () -> {
+            Log.d(CooeeSDKConstants.LOG_PREFIX, "Observable Completed");
         });
     }
 
     /**
      * Sends default user properties to the server
      *
-     * @param sdkToken  unique token received from server
      * @param userProps additional user properties
      */
-    private void sendUserProperties(String sdkToken, Map<String, String> userProps) {
-        apiService = APIClient.getServerAPIService();
-        defaultUserPropertiesCollector = new DefaultUserPropertiesCollector(context);
-        String[] location = defaultUserPropertiesCollector.getLocation();
-        String[] networkData = defaultUserPropertiesCollector.getNetworkData();
+    private void sendUserProperties(Map<String, String> userProps) {
+        observable.subscribe((String sdkToken) -> {
+            apiService = APIClient.getServerAPIService();
+            defaultUserPropertiesCollector = new DefaultUserPropertiesCollector(context);
+            String[] location = defaultUserPropertiesCollector.getLocation();
+            String[] networkData = defaultUserPropertiesCollector.getNetworkData();
 
-        Map<String, String> userProperties = new HashMap<>();
-        if (userProps != null) {
-            userProperties = new HashMap<>(userProps);
-        }
-
-        userProperties.put("CE OS", "ANDROID");
-        userProperties.put("CE SDK Version", BuildConfig.VERSION_NAME);
-        userProperties.put("CE App Version", defaultUserPropertiesCollector.getAppVersion());
-        userProperties.put("CE OS Version", Build.VERSION.RELEASE);
-        userProperties.put("CE Device Manufacturer", Build.MANUFACTURER);
-        userProperties.put("CE Device Model", Build.MODEL);
-        userProperties.put("CE Latitude", location[0]);
-        userProperties.put("CE Longitude", location[1]);
-        userProperties.put("CE Network Operator", networkData[0]);
-        userProperties.put("CE Network Type", networkData[1]);
-        userProperties.put("CE Bluetooth On", defaultUserPropertiesCollector.isBluetoothOn());
-        userProperties.put("CE Wifi Connected", defaultUserPropertiesCollector.isConnectedToWifi());
-        userProperties.put("CE Available Internal Memory", defaultUserPropertiesCollector.getAvailableInternalMemorySize());
-        userProperties.put("CE Total Internal Memory", defaultUserPropertiesCollector.getTotalInternalMemorySize());
-        userProperties.put("CE Available RAM", defaultUserPropertiesCollector.getAvailableRAMMemorySize());
-        userProperties.put("CE Total RAM", defaultUserPropertiesCollector.getTotalRAMMemorySize());
-        userProperties.put("CE Device Orientation", defaultUserPropertiesCollector.getDeviceOrientation());
-        userProperties.put("CE Device Battery", defaultUserPropertiesCollector.getBatteryLevel());
-        userProperties.put("CE Screen Resolution", defaultUserPropertiesCollector.getScreenResolution());
-        userProperties.put("CE DPI", defaultUserPropertiesCollector.getDpi());
-        userProperties.put("CE Device Locale", defaultUserPropertiesCollector.getLocale());
-        userProperties.put("CE Installed Time", defaultUserPropertiesCollector.getInstalledTime());
-        userProperties.put("CE Last Launch Time", new Date().toString());
-        Map<String, Object> userMap = new HashMap<>();
-        userMap.put("userProperties", userProperties);
-
-        apiService.updateProfile(sdkToken, userMap).enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
-                Log.i(LOG_PREFIX + " userProperties", response.code() + "");
+            Map<String, String> userProperties = new HashMap<>();
+            if (userProps != null) {
+                userProperties = new HashMap<>(userProps);
             }
 
-            @Override
-            public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
-                Log.e(LOG_PREFIX + " bodyError", t.toString());
-            }
+            userProperties.put("CE OS", "ANDROID");
+            userProperties.put("CE SDK Version", BuildConfig.VERSION_NAME);
+            userProperties.put("CE App Version", defaultUserPropertiesCollector.getAppVersion());
+            userProperties.put("CE OS Version", Build.VERSION.RELEASE);
+            userProperties.put("CE Device Manufacturer", Build.MANUFACTURER);
+            userProperties.put("CE Device Model", Build.MODEL);
+            userProperties.put("CE Latitude", location[0]);
+            userProperties.put("CE Longitude", location[1]);
+            userProperties.put("CE Network Operator", networkData[0]);
+            userProperties.put("CE Network Type", networkData[1]);
+            userProperties.put("CE Bluetooth On", defaultUserPropertiesCollector.isBluetoothOn());
+            userProperties.put("CE Wifi Connected", defaultUserPropertiesCollector.isConnectedToWifi());
+            userProperties.put("CE Available Internal Memory", defaultUserPropertiesCollector.getAvailableInternalMemorySize());
+            userProperties.put("CE Total Internal Memory", defaultUserPropertiesCollector.getTotalInternalMemorySize());
+            userProperties.put("CE Available RAM", defaultUserPropertiesCollector.getAvailableRAMMemorySize());
+            userProperties.put("CE Total RAM", defaultUserPropertiesCollector.getTotalRAMMemorySize());
+            userProperties.put("CE Device Orientation", defaultUserPropertiesCollector.getDeviceOrientation());
+            userProperties.put("CE Device Battery", defaultUserPropertiesCollector.getBatteryLevel());
+            userProperties.put("CE Screen Resolution", defaultUserPropertiesCollector.getScreenResolution());
+            userProperties.put("CE DPI", defaultUserPropertiesCollector.getDpi());
+            userProperties.put("CE Device Locale", defaultUserPropertiesCollector.getLocale());
+            userProperties.put("CE Installed Time", defaultUserPropertiesCollector.getInstalledTime());
+            userProperties.put("CE Last Launch Time", new Date().toString());
+            Map<String, Object> userMap = new HashMap<>();
+            userMap.put("userProperties", userProperties);
+
+            apiService.updateProfile(sdkToken, userMap).enqueue(new Callback<ResponseBody>() {
+                @Override
+                public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
+                    Log.i(CooeeSDKConstants.LOG_PREFIX, "User Properties Response Code : " + response.code());
+                }
+
+                @Override
+                public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
+                    Log.e(CooeeSDKConstants.LOG_PREFIX, "User Properties Error Message : " + t.toString());
+                }
+            });
+        }, (Throwable error) -> {
+            Log.e(CooeeSDKConstants.LOG_PREFIX, "Observable Error : " + error.toString());
+        }, () -> {
+            Log.d(CooeeSDKConstants.LOG_PREFIX, "Observable Completed");
         });
     }
 
@@ -270,11 +297,7 @@ public class PostLaunchActivity {
      * Create new session on every launch
      */
     private void createSession() {
-        String startTime = new Date().toString();
-        mSharedPreferences = context.getSharedPreferences(CooeeSDKConstants.SESSION_START_TIME, Context.MODE_PRIVATE);
-        mSharedPreferencesEditor = mSharedPreferences.edit();
-        mSharedPreferencesEditor.putString(CooeeSDKConstants.SESSION_START_TIME, startTime);
-        mSharedPreferencesEditor.apply();
+        SESSION_START_TIME = new Date().toString();
         CURRENT_SESSION_ID = createSessionId();
     }
 
