@@ -35,6 +35,7 @@ public class CooeeSDK {
     private Context context;
     private static CooeeSDK cooeeSDK = null;
     private String currentScreenName = "";
+    private ServerAPIService apiService;
 
     /**
      * Private constructor for Singleton Class
@@ -44,6 +45,8 @@ public class CooeeSDK {
     private CooeeSDK(Context context) {
         this.context = context;
         new PostLaunchActivity(context).appLaunch();
+
+        this.apiService = APIClient.getServerAPIService();
     }
 
     /**
@@ -78,7 +81,6 @@ public class CooeeSDK {
         }
 
         Event event = new Event(eventName, eventProperties);
-        ServerAPIService apiService = APIClient.getServerAPIService();
 
         PostLaunchActivity.observable.subscribe((String sdkToken) -> {
             apiService.sendEvent(sdkToken, event).enqueue(new Callback<Campaign>() {
@@ -171,8 +173,6 @@ public class CooeeSDK {
                 throw new PropertyNameException();
             }
         }
-
-        ServerAPIService apiService = APIClient.getServerAPIService();
 
         Map<String, Object> userMap = new HashMap<>();
         if (userData != null) {

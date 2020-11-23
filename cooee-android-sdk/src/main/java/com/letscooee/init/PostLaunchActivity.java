@@ -71,7 +71,7 @@ public class PostLaunchActivity {
                 if (response == null) {
                     subscriber.onError(new ConnectException());
                 }
-                if (response != null && response.isSuccessful()) {
+                else if (response.isSuccessful()) {
                     assert response.body() != null;
                     String sdkToken = response.body().getSdkToken();
                     Log.i(CooeeSDKConstants.LOG_PREFIX + " bodyResponse", sdkToken);
@@ -104,6 +104,8 @@ public class PostLaunchActivity {
             Log.i(CooeeSDKConstants.LOG_PREFIX, "Sdk Token : " + sdkToken);
         }, (Throwable error) -> {
             Log.e(CooeeSDKConstants.LOG_PREFIX, "Observable Error : " + error.toString());
+            mSharedPreferences.edit().remove(CooeeSDKConstants.IS_APP_FIRST_TIME_LAUNCH).commit();
+            isFirstSubscriber = true;
         }, () -> {
             Log.d(CooeeSDKConstants.LOG_PREFIX, "Observable Completed");
             successiveAppLaunch();
@@ -171,6 +173,7 @@ public class PostLaunchActivity {
     private void appFirstOpen() {
         Map<String, String> userProperties = new HashMap<>();
         userProperties.put("CE First Launch Time", new Date().toString());
+        userProperties.put("CE Installed Time", defaultUserPropertiesCollector.getInstalledTime());
         sendUserProperties(userProperties);
 
         Map<String, String> eventProperties = new HashMap<>();
@@ -270,7 +273,6 @@ public class PostLaunchActivity {
             userProperties.put("CE Screen Resolution", defaultUserPropertiesCollector.getScreenResolution());
             userProperties.put("CE DPI", defaultUserPropertiesCollector.getDpi());
             userProperties.put("CE Device Locale", defaultUserPropertiesCollector.getLocale());
-            userProperties.put("CE Installed Time", defaultUserPropertiesCollector.getInstalledTime());
             userProperties.put("CE Last Launch Time", new Date().toString());
             Map<String, Object> userMap = new HashMap<>();
             userMap.put("userProperties", userProperties);
