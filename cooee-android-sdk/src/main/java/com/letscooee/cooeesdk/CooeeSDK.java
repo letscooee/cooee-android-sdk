@@ -79,6 +79,8 @@ public class CooeeSDK {
             eventProperties.put("CE Screen Name", this.currentScreenName);
         }
 
+        eventProperties.put("CE Session ID", PostLaunchActivity.CURRENT_SESSION_ID);
+        eventProperties.put("CE Session Number", PostLaunchActivity.CURRENT_SESSION_NUMBER);
         Event event = new Event(eventName, eventProperties);
 
         PostLaunchActivity.onSDKStateDecided.subscribe((Object ignored) -> {

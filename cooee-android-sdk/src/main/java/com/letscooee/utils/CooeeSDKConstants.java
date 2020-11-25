@@ -2,6 +2,7 @@ package com.letscooee.utils;
 
 /**
  * The CooeeSDKConstants class contains all the constants required by SDK
+ *
  * @author Abhishek Taparia
  */
 public class CooeeSDKConstants {
@@ -13,4 +14,5 @@ public class CooeeSDKConstants {
     public static final String VIDEO_CAMPAIGN = "video_campaign";
     public static final String SPLASH_CAMPAIGN = "splash_campaign";
     public static final String LOG_PREFIX = "CooeeSDK";
+    public static final int IDLE_TIME = 30 * 60 * 1000;
 }

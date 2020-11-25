@@ -25,6 +25,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java.util.UUID;
 
 
 /**
@@ -43,6 +44,7 @@ public class PostLaunchActivity {
     public static ReplaySubject<Object> onSDKStateDecided = ReplaySubject.create(1);
     public static String currentSessionStartTime;
     public static String currentSessionId = "";
+    public static String CURRENT_SESSION_NUMBER = "";
 
     /**
      * Public Constructor
@@ -167,6 +169,8 @@ public class PostLaunchActivity {
      * Runs when app is opened for the first time after sdkToken is received from server asynchronously
      */
     private void appFirstOpen() {
+        createSession();
+
         Map<String, String> userProperties = new HashMap<>();
         userProperties.put("CE First Launch Time", new Date().toString());
         userProperties.put("CE Installed Time", defaultUserPropertiesCollector.getInstalledTime());
@@ -175,17 +179,20 @@ public class PostLaunchActivity {
         Map<String, String> eventProperties = new HashMap<>();
         eventProperties.put("CE Source", "SYSTEM");
         eventProperties.put("CE App Version", defaultUserPropertiesCollector.getAppVersion());
+        eventProperties.put("CE Session ID", CURRENT_SESSION_ID);
+        eventProperties.put("CE Session Number", CURRENT_SESSION_NUMBER);
+        eventProperties.put("CE Screen Name", AppController.CURRENT_SCREEN);
         Event event = new Event("CE App Installed", eventProperties);
 
         sendEvent(event);
-
-        createSession();
     }
 
     /**
      * Runs every time when app is opened for a new session
      */
     private void successiveAppLaunch() {
+        createSession();
+
         sendUserProperties(null);
 
         String[] networkData = defaultUserPropertiesCollector.getNetworkData();
@@ -199,11 +206,12 @@ public class PostLaunchActivity {
         eventProperties.put("CE Bluetooth On", defaultUserPropertiesCollector.isBluetoothOn());
         eventProperties.put("CE Wifi Connected", defaultUserPropertiesCollector.isConnectedToWifi());
         eventProperties.put("CE Device Battery", defaultUserPropertiesCollector.getBatteryLevel());
+        eventProperties.put("CE Session ID", CURRENT_SESSION_ID);
+        eventProperties.put("CE Session Number", CURRENT_SESSION_NUMBER);
+        eventProperties.put("CE Screen Name", AppController.CURRENT_SCREEN);
 
         Event event = new Event("CE App Launched", eventProperties);
         sendEvent(event);
-
-        createSession();
     }
 
     /**
@@ -293,6 +301,7 @@ public class PostLaunchActivity {
     private void createSession() {
         currentSessionStartTime = new Date().toString();
         currentSessionId = createSessionId();
+        CURRENT_SESSION_NUMBER = getSessionNumber();
     }
 
     /**
@@ -301,6 +310,25 @@ public class PostLaunchActivity {
      * @return session id
      */
     private String createSessionId() {
-        return Math.abs((int) System.currentTimeMillis()) + "";
+        return UUID.randomUUID().toString();
+    }
+
+    /**
+     * Create or get next session number from shared preference
+     *
+     * @return next session number
+     */
+    private String getSessionNumber() {
+        mSharedPreferences = context.getSharedPreferences("Session Number", Context.MODE_PRIVATE);
+        String sessionNumber = mSharedPreferences.getString("Session Number", "");
+        if (sessionNumber.isEmpty()) {
+            sessionNumber = "1";
+        } else {
+            int number = Integer.parseInt(sessionNumber);
+            number += 1;
+            sessionNumber = String.valueOf(number);
+        }
+        mSharedPreferences.edit().putString("Session Number", sessionNumber).commit();
+        return sessionNumber;
     }
 }
