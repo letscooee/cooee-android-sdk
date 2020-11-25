@@ -67,6 +67,7 @@ public class AppController extends Application implements LifecycleObserver, App
 
                     @Override
                     public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
+                        //TODO: Saving the request locally so that it can be sent later
                         Log.e(CooeeSDKConstants.LOG_PREFIX, "User Properties Error Message : " + t.toString());
                     }
                 });
@@ -89,6 +90,7 @@ public class AppController extends Application implements LifecycleObserver, App
 
                     @Override
                     public void onFailure(Call<Campaign> call, Throwable t) {
+                        //TODO: Saving the request locally so that it can be sent later
                         Log.e(CooeeSDKConstants.LOG_PREFIX, "Session Event Sent Error Message" + t.toString());
                     }
                 });

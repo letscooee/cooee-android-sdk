@@ -70,8 +70,7 @@ public class PostLaunchActivity {
                 Response<SDKAuthentication> response = new AuthSyncNetworkClass().execute(authenticationRequestBody).get();
                 if (response == null) {
                     subscriber.onError(new ConnectException());
-                }
-                else if (response.isSuccessful()) {
+                } else if (response.isSuccessful()) {
                     assert response.body() != null;
                     String sdkToken = response.body().getSdkToken();
                     Log.i(CooeeSDKConstants.LOG_PREFIX + " bodyResponse", sdkToken);
@@ -225,6 +224,7 @@ public class PostLaunchActivity {
 
                 @Override
                 public void onFailure(@NonNull Call<Campaign> call, @NonNull Throwable t) {
+                    //TODO: Saving the request locally so that it can be sent later
                     Log.e(CooeeSDKConstants.LOG_PREFIX, "Event Sent Error Message : " + t.toString());
                 }
             });
@@ -285,6 +285,7 @@ public class PostLaunchActivity {
 
                 @Override
                 public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
+                    //TODO: Saving the request locally so that it can be sent later
                     Log.e(CooeeSDKConstants.LOG_PREFIX, "User Properties Error Message : " + t.toString());
                 }
             });

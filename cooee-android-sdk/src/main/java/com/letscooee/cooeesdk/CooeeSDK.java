@@ -93,6 +93,7 @@ public class CooeeSDK {
 
                 @Override
                 public void onFailure(@NonNull Call<Campaign> call, @NonNull Throwable t) {
+                    //TODO: Saving the request locally so that it can be sent later
                     Log.e(CooeeSDKConstants.LOG_PREFIX, "User Event Sent Error Message : " + t.toString());
                 }
             });
@@ -189,6 +190,7 @@ public class CooeeSDK {
                 }
 
                 public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
+                    //TODO: Saving the request locally so that it can be sent later
                     Log.e(CooeeSDKConstants.LOG_PREFIX, "Manual User Profile Error Message : " + t.toString());
                 }
             });
