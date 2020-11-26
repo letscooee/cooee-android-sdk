@@ -193,7 +193,9 @@ public class PostLaunchActivity {
     private void successiveAppLaunch() {
         createSession();
 
-        sendUserProperties(null);
+        Map<String, String> userProperties = new HashMap<>();
+        userProperties.put("CE Session Count", CURRENT_SESSION_NUMBER);
+        sendUserProperties(userProperties);
 
         String[] networkData = defaultUserPropertiesCollector.getNetworkData();
         Map<String, String> eventProperties = new HashMap<>();
