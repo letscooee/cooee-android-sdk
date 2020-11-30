@@ -26,6 +26,9 @@ public interface ServerAPIService {
     @POST("v1/event/save/")
     Call<Campaign> sendEvent(@Header("x-sdk-token") String sdkToken, @Body Event event);
 
+    @POST("v1/event/saveSessionConcluded/")
+    Call<Campaign> sendSessionConcludedEvent(@Header("x-sdk-token") String sdkToken, @Body Event event);
+
     @PUT("v1/user/update/")
     Call<ResponseBody> updateProfile(@Header("x-sdk-token") String sdkToken, @Body Map<String, Object> objectMap);
 }

@@ -59,7 +59,7 @@ public class AppController extends Application implements LifecycleObserver, App
                 sessionProperties.put("CE Duration", duration);
 
                 Event session = new Event("CE Session Concluded", sessionProperties);
-                apiService.sendEvent(sdkToken, session).enqueue(new Callback<Campaign>() {
+                apiService.sendSessionConcludedEvent(sdkToken, session).enqueue(new Callback<Campaign>() {
                     @Override
                     public void onResponse(@NonNull Call<Campaign> call, @NonNull Response<Campaign> response) {
                         Log.i(CooeeSDKConstants.LOG_PREFIX, "Session Concluded Event Sent Code : " + response.code());
