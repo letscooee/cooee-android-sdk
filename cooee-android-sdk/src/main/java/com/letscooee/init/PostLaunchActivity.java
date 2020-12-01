@@ -234,6 +234,7 @@ public class PostLaunchActivity {
 
                 @Override
                 public void onFailure(@NonNull Call<Campaign> call, @NonNull Throwable t) {
+                    //TODO: Saving the request locally so that it can be sent later
                     Log.e(CooeeSDKConstants.LOG_PREFIX, "Event Sent Error Message : " + t.toString());
                 }
             });
@@ -294,6 +295,7 @@ public class PostLaunchActivity {
 
                 @Override
                 public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
+                    //TODO: Saving the request locally so that it can be sent later
                     Log.e(CooeeSDKConstants.LOG_PREFIX, "User Properties Error Message : " + t.toString());
                 }
             });
