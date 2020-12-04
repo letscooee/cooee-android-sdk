@@ -54,7 +54,7 @@ public class AppController extends Application implements LifecycleObserver, App
 
         PostLaunchActivity.observable.subscribe((String sdkToken) -> {
             if (backgroundDuration > CooeeSDKConstants.IDLE_TIME) {
-                String duration = (stopTime.getTime() - new Date(PostLaunchActivity.SESSION_START_TIME).getTime()) / 1000 + "s";
+                String duration = (stopTime.getTime() - new Date(PostLaunchActivity.SESSION_START_TIME).getTime()) / 1000 + "";
                 Map<String, String> sessionProperties = new HashMap<>();
                 sessionProperties.put("CE Duration", duration);
 
@@ -123,7 +123,7 @@ public class AppController extends Application implements LifecycleObserver, App
             });
 
             stopTime = new Date();
-            String duration = (stopTime.getTime() - new Date(PostLaunchActivity.SESSION_START_TIME).getTime()) / 1000 + "s";
+            String duration = (stopTime.getTime() - new Date(PostLaunchActivity.SESSION_START_TIME).getTime()) / 1000 + "";
 
             Map<String, String> sessionProperties = new HashMap<>();
             sessionProperties.put("CE Session ID", PostLaunchActivity.CURRENT_SESSION_ID);
