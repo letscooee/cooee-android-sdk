@@ -53,17 +53,18 @@ public class PostLaunchActivity {
      * @param context application context
      */
     public PostLaunchActivity(Context context) {
-        if (context == null) {
-            return;
-        }
+        // TODO:Fix indentation after merge
+            if (context == null) {
+                return;
+            }
 
-        this.context = context;
-        this.mSharedPreferences = context.getSharedPreferences(CooeeSDKConstants.IS_APP_FIRST_TIME_LAUNCH, Context.MODE_PRIVATE);
-        this.defaultUserPropertiesCollector = new DefaultUserPropertiesCollector(context);
-        this.apiService = APIClient.getServerAPIService();
+            this.context = context;
+            this.mSharedPreferences = context.getSharedPreferences(CooeeSDKConstants.IS_APP_FIRST_TIME_LAUNCH, Context.MODE_PRIVATE);
+            this.defaultUserPropertiesCollector = new DefaultUserPropertiesCollector(context);
+            this.apiService = APIClient.getServerAPIService();
 
         if (isAppFirstTimeLaunch()) {
-                // Fix indentation after merge
+                //TODO: Fix indentation after merge
                 AuthenticationRequestBody authenticationRequestBody = getAuthenticationRequestBody();
 
                 Response<SDKAuthentication> response = null;
@@ -207,6 +208,7 @@ public class PostLaunchActivity {
      */
     private void sendEvent(Event event) {
         onSDKStateDecided.subscribe((String sdkToken) -> {
+        //TODO:Fix indentation after merge
         apiService.sendEvent(event).enqueue(new Callback<Campaign>() {
             @Override
             public void onResponse(@NonNull Call<Campaign> call, @NonNull Response<Campaign> response) {
@@ -233,53 +235,54 @@ public class PostLaunchActivity {
      */
     private void sendUserProperties(Map<String, String> userProps) {
         onSDKStateDecided.subscribe((String sdkToken) -> {
-            apiService = APIClient.getServerAPIService();
-            defaultUserPropertiesCollector = new DefaultUserPropertiesCollector(context);
-            String[] location = defaultUserPropertiesCollector.getLocation();
-            String[] networkData = defaultUserPropertiesCollector.getNetworkData();
+        //TODO:Fix indentation after merge
+        apiService = APIClient.getServerAPIService();
+        defaultUserPropertiesCollector = new DefaultUserPropertiesCollector(context);
+        String[] location = defaultUserPropertiesCollector.getLocation();
+        String[] networkData = defaultUserPropertiesCollector.getNetworkData();
 
-            Map<String, String> userProperties = new HashMap<>();
-            if (userProps != null) {
-                userProperties = new HashMap<>(userProps);
+        Map<String, String> userProperties = new HashMap<>();
+        if (userProps != null) {
+            userProperties = new HashMap<>(userProps);
+        }
+
+        userProperties.put("CE OS", "ANDROID");
+        userProperties.put("CE SDK Version", BuildConfig.VERSION_NAME);
+        userProperties.put("CE App Version", defaultUserPropertiesCollector.getAppVersion());
+        userProperties.put("CE OS Version", Build.VERSION.RELEASE);
+        userProperties.put("CE Device Manufacturer", Build.MANUFACTURER);
+        userProperties.put("CE Device Model", Build.MODEL);
+        userProperties.put("CE Latitude", location[0]);
+        userProperties.put("CE Longitude", location[1]);
+        userProperties.put("CE Network Operator", networkData[0]);
+        userProperties.put("CE Network Type", networkData[1]);
+        userProperties.put("CE Bluetooth On", defaultUserPropertiesCollector.isBluetoothOn());
+        userProperties.put("CE Wifi Connected", defaultUserPropertiesCollector.isConnectedToWifi());
+        userProperties.put("CE Available Internal Memory", defaultUserPropertiesCollector.getAvailableInternalMemorySize());
+        userProperties.put("CE Total Internal Memory", defaultUserPropertiesCollector.getTotalInternalMemorySize());
+        userProperties.put("CE Available RAM", defaultUserPropertiesCollector.getAvailableRAMMemorySize());
+        userProperties.put("CE Total RAM", defaultUserPropertiesCollector.getTotalRAMMemorySize());
+        userProperties.put("CE Device Orientation", defaultUserPropertiesCollector.getDeviceOrientation());
+        userProperties.put("CE Device Battery", defaultUserPropertiesCollector.getBatteryLevel());
+        userProperties.put("CE Screen Resolution", defaultUserPropertiesCollector.getScreenResolution());
+        userProperties.put("CE DPI", defaultUserPropertiesCollector.getDpi());
+        userProperties.put("CE Device Locale", defaultUserPropertiesCollector.getLocale());
+        userProperties.put("CE Last Launch Time", new Date().toString());
+        Map<String, Object> userMap = new HashMap<>();
+        userMap.put("userProperties", userProperties);
+
+        apiService.updateProfile(userMap).enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
+                Log.i(CooeeSDKConstants.LOG_PREFIX, "User Properties Response Code : " + response.code());
             }
 
-            userProperties.put("CE OS", "ANDROID");
-            userProperties.put("CE SDK Version", BuildConfig.VERSION_NAME);
-            userProperties.put("CE App Version", defaultUserPropertiesCollector.getAppVersion());
-            userProperties.put("CE OS Version", Build.VERSION.RELEASE);
-            userProperties.put("CE Device Manufacturer", Build.MANUFACTURER);
-            userProperties.put("CE Device Model", Build.MODEL);
-            userProperties.put("CE Latitude", location[0]);
-            userProperties.put("CE Longitude", location[1]);
-            userProperties.put("CE Network Operator", networkData[0]);
-            userProperties.put("CE Network Type", networkData[1]);
-            userProperties.put("CE Bluetooth On", defaultUserPropertiesCollector.isBluetoothOn());
-            userProperties.put("CE Wifi Connected", defaultUserPropertiesCollector.isConnectedToWifi());
-            userProperties.put("CE Available Internal Memory", defaultUserPropertiesCollector.getAvailableInternalMemorySize());
-            userProperties.put("CE Total Internal Memory", defaultUserPropertiesCollector.getTotalInternalMemorySize());
-            userProperties.put("CE Available RAM", defaultUserPropertiesCollector.getAvailableRAMMemorySize());
-            userProperties.put("CE Total RAM", defaultUserPropertiesCollector.getTotalRAMMemorySize());
-            userProperties.put("CE Device Orientation", defaultUserPropertiesCollector.getDeviceOrientation());
-            userProperties.put("CE Device Battery", defaultUserPropertiesCollector.getBatteryLevel());
-            userProperties.put("CE Screen Resolution", defaultUserPropertiesCollector.getScreenResolution());
-            userProperties.put("CE DPI", defaultUserPropertiesCollector.getDpi());
-            userProperties.put("CE Device Locale", defaultUserPropertiesCollector.getLocale());
-            userProperties.put("CE Last Launch Time", new Date().toString());
-            Map<String, Object> userMap = new HashMap<>();
-            userMap.put("userProperties", userProperties);
-
-            apiService.updateProfile(userMap).enqueue(new Callback<ResponseBody>() {
-                @Override
-                public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
-                    Log.i(CooeeSDKConstants.LOG_PREFIX, "User Properties Response Code : " + response.code());
-                }
-
-                @Override
-                public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
-                    //TODO: Saving the request locally so that it can be sent later
-                    Log.e(CooeeSDKConstants.LOG_PREFIX, "User Properties Error Message : " + t.toString());
-                }
-            });
+            @Override
+            public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
+                //TODO: Saving the request locally so that it can be sent later
+                Log.e(CooeeSDKConstants.LOG_PREFIX, "User Properties Error Message : " + t.toString());
+            }
+        });
         }, (Throwable error) -> {
             Log.e(CooeeSDKConstants.LOG_PREFIX, "Observable Error : " + error.toString());
         }, () -> {
