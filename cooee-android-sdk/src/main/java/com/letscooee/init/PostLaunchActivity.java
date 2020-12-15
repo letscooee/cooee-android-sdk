@@ -207,18 +207,18 @@ public class PostLaunchActivity {
      */
     private void sendEvent(Event event) {
         onSDKStateDecided.subscribe((String sdkToken) -> {
-            apiService.sendEvent(event).enqueue(new Callback<Campaign>() {
-                @Override
-                public void onResponse(@NonNull Call<Campaign> call, @NonNull Response<Campaign> response) {
-                    Log.i(CooeeSDKConstants.LOG_PREFIX, " Event Sent Response Code : " + response.code());
-                }
+        apiService.sendEvent(event).enqueue(new Callback<Campaign>() {
+            @Override
+            public void onResponse(@NonNull Call<Campaign> call, @NonNull Response<Campaign> response) {
+                Log.i(CooeeSDKConstants.LOG_PREFIX, " Event Sent Response Code : " + response.code());
+            }
 
-                @Override
-                public void onFailure(@NonNull Call<Campaign> call, @NonNull Throwable t) {
-                    //TODO: Saving the request locally so that it can be sent later
-                    Log.e(CooeeSDKConstants.LOG_PREFIX, "Event Sent Error Message : " + t.toString());
-                }
-            });
+            @Override
+            public void onFailure(@NonNull Call<Campaign> call, @NonNull Throwable t) {
+                //TODO: Saving the request locally so that it can be sent later
+                Log.e(CooeeSDKConstants.LOG_PREFIX, "Event Sent Error Message : " + t.toString());
+            }
+        });
         }, (Throwable error) -> {
             Log.e(CooeeSDKConstants.LOG_PREFIX, "Observable Error : " + error.toString());
         }, () -> {
