@@ -75,9 +75,8 @@ public class CooeeSDK {
             }
         }
 
-        String currentActivityName = this.currentScreenName;
-        if (currentActivityName != null && !currentActivityName.equals("")) {
-            eventProperties.put("screenName", currentActivityName);
+        if (this.currentScreenName != null && !this.currentScreenName.equals("")) {
+            eventProperties.put("CE Screen Name", this.currentScreenName);
         }
 
         Event event = new Event(eventName, eventProperties);
@@ -194,7 +193,7 @@ public class CooeeSDK {
      *
      * @param screenName Screen name given by user
      */
-    public void updateScreenName(String screenName) {
+    public void setCurrentScreen(String screenName) {
         if (screenName == null || (!this.currentScreenName.isEmpty() && this.currentScreenName.equals(screenName))) {
             return;
         }
