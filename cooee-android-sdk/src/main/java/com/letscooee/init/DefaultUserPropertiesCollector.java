@@ -18,7 +18,9 @@ import android.os.Environment;
 import android.os.StatFs;
 import android.telephony.TelephonyManager;
 import android.util.DisplayMetrics;
+
 import androidx.core.app.ActivityCompat;
+
 import com.google.android.gms.location.LocationRequest;
 
 import java.io.File;
@@ -43,7 +45,11 @@ class DefaultUserPropertiesCollector {
         this.context = context;
     }
 
-    //    get GPS coordinates of the device
+    /**
+     * Get GPS coordinates of the device if user-permission is there
+     *
+     * @return String[] {latitude, longitude}
+     */
     public String[] getLocation() {
         LocationRequest locationRequest = new LocationRequest();
         locationRequest.setInterval(10000);
@@ -69,18 +75,28 @@ class DefaultUserPropertiesCollector {
         return new String[]{location.getLatitude() + "", location.getLongitude() + ""};
     }
 
-    //    get Network Details like Carrier Name and Network type
+    /**
+     * Get Network Details
+     *
+     * @return String[] {Network Operator Name,Network type}
+     */
     public String[] getNetworkData() {
         String[] networkData = new String[2];
         TelephonyManager manager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
         assert manager != null;
         int networkType = manager.getNetworkType();
-        networkData[0] = manager.getNetworkOperatorName();
+        networkData[0] = !manager.getNetworkOperatorName().isEmpty() ? manager.getNetworkOperatorName() : "Unknown";
         networkData[1] = getNetworkName(networkType);
         return networkData;
     }
 
-    //    get exact network name by network type
+
+    /**
+     * Get exact network name(2G/3G/4G/5G) by network type
+     *
+     * @param networkType network type from class TelephonyManager
+     * @return network name(2G/3G/4G/5G)
+     */
     private String getNetworkName(int networkType) {
 
         switch (networkType) {
@@ -121,7 +137,11 @@ class DefaultUserPropertiesCollector {
         return (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) ? "N" : "Y";
     }
 
-    //    get app version
+    /**
+     * Get host application version
+     *
+     * @return app version(eg - 0.0.1)
+     */
     public String getAppVersion() {
         PackageInfo packageInfo = null;
 
@@ -150,7 +170,11 @@ class DefaultUserPropertiesCollector {
         return mWifi.isConnected() ? "Y" : "N";
     }
 
-    //    get available internal storage
+    /**
+     * Get available internal storage of the device
+     *
+     * @return available storage in megabytes(MB)
+     */
     public String getAvailableInternalMemorySize() {
         File path = Environment.getDataDirectory();
         StatFs stat = new StatFs(path.getPath());
@@ -159,7 +183,11 @@ class DefaultUserPropertiesCollector {
         return String.valueOf((availableBlocks * blockSize) / 0x100000L);
     }
 
-    //    get total internal storage
+    /**
+     * Get total internal storage of the device
+     *
+     * @return total storage in megabytes(MB)
+     */
     public String getTotalInternalMemorySize() {
         File path = Environment.getDataDirectory();
         StatFs stat = new StatFs(path.getPath());
@@ -168,7 +196,11 @@ class DefaultUserPropertiesCollector {
         return String.valueOf((totalBlocks * blockSize) / 0x100000L);
     }
 
-    //    get total RAM size
+    /**
+     * Get total RAM size of the device
+     *
+     * @return total RAM size in megabytes(MB)
+     */
     public String getTotalRAMMemorySize() {
         ActivityManager.MemoryInfo mi = new ActivityManager.MemoryInfo();
         ActivityManager activityManager = (ActivityManager) context.getSystemService(ACTIVITY_SERVICE);
@@ -178,7 +210,11 @@ class DefaultUserPropertiesCollector {
         return String.valueOf(availableMegs);
     }
 
-    //    get available RAM size
+    /**
+     * Get available RAM size of the device
+     *
+     * @return available RAM size in megabytes(MB)
+     */
     public String getAvailableRAMMemorySize() {
         ActivityManager.MemoryInfo mi = new ActivityManager.MemoryInfo();
         ActivityManager activityManager = (ActivityManager) context.getSystemService(ACTIVITY_SERVICE);
@@ -188,7 +224,11 @@ class DefaultUserPropertiesCollector {
         return String.valueOf(availableMegs);
     }
 
-    //    get CPU information
+    /**
+     * Get detailed information of the CPU
+     *
+     * @return CPU info
+     */
     public String getCPUInfo() {
         StringBuilder output = new StringBuilder();
 
@@ -211,13 +251,21 @@ class DefaultUserPropertiesCollector {
         return output.toString();
     }
 
-    //    get device orientation
+    /**
+     * Get device orientation
+     *
+     * @return "Landscape"/"Portrait"
+     */
     public String getDeviceOrientation() {
         int orientation = context.getResources().getConfiguration().orientation;
         return orientation == Configuration.ORIENTATION_LANDSCAPE ? "Landscape" : "Portrait";
     }
 
-    //    get battery percentage
+    /**
+     * Get device battery percentage
+     *
+     * @return battery percent(eg - 89,94)
+     */
     public String getBatteryLevel() {
         BatteryManager batteryManager = (BatteryManager) context.getSystemService(Context.BATTERY_SERVICE);
         String batteryLevel = "";
@@ -229,7 +277,11 @@ class DefaultUserPropertiesCollector {
         return batteryLevel;
     }
 
-    //    get screen resolution and pixel density
+    /**
+     * Get device screen resolution
+     *
+     * @return screen resolution(eg - 1080X720)
+     */
     public String getScreenResolution() {
         DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
         int h = displayMetrics.heightPixels;
@@ -237,14 +289,22 @@ class DefaultUserPropertiesCollector {
         return w + "X" + h;
     }
 
-    //    get pixel density
+    /**
+     * Get pixel density
+     *
+     * @return dpi (eg - 300dpi)
+     */
     public String getDpi() {
         DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
         int densityPixel = displayMetrics.densityDpi;
         return densityPixel + "dpi";
     }
 
-    //    get installed applications list
+    /**
+     * Get installed applications list
+     *
+     * @return list of installed applications
+     */
     public List<String> getInstalledApps() {
         List<String> installedApps = new ArrayList<>();
         List<PackageInfo> packs = context.getPackageManager().getInstalledPackages(0);
@@ -255,14 +315,22 @@ class DefaultUserPropertiesCollector {
         return installedApps;
     }
 
-    //    get package name
+    /**
+     * Get host application package name
+     *
+     * @return package name
+     */
     public String getPackageName() {
         Package aPackage = context.getClass().getPackage();
         if (aPackage != null) return aPackage.getName();
         return null;
     }
 
-    // get default locale of the device
+    /**
+     * Get default locale of the device
+     *
+     * @return default locale with country code (eg - en-IN)
+     */
     public String getLocale() {
         Locale locale;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -273,7 +341,11 @@ class DefaultUserPropertiesCollector {
         return locale.getLanguage() + "-" + locale.getCountry();
     }
 
-    // get app installed time
+    /**
+     * Get host application's time of installation
+     *
+     * @return timestamp
+     */
     public String getInstalledTime() {
         PackageManager pm = context.getPackageManager();
         ApplicationInfo appInfo = null;
