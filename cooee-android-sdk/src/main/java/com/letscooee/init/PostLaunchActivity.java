@@ -17,7 +17,7 @@ import com.letscooee.retrofit.APIClient;
 import com.letscooee.retrofit.ServerAPIService;
 import com.letscooee.utils.CooeeSDKConstants;
 
-import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.subjects.ReplaySubject;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -27,6 +27,7 @@ import java.net.ConnectException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 
 /**
@@ -41,9 +42,8 @@ public class PostLaunchActivity {
     private Context context;
     private DefaultUserPropertiesCollector defaultUserPropertiesCollector;
     private ServerAPIService apiService;
-    private boolean isFirstSubscriber = true;
 
-    public static Observable<String> observable;
+    public static ReplaySubject<String> onSDKStateDecided = ReplaySubject.create(1);
     public static String SESSION_START_TIME;
     public static String CURRENT_SESSION_ID = "";
 
@@ -62,14 +62,22 @@ public class PostLaunchActivity {
         this.defaultUserPropertiesCollector = new DefaultUserPropertiesCollector(context);
         this.apiService = APIClient.getServerAPIService();
 
-        observable = Observable.create(subscriber -> {
-            if (isAppFirstTimeLaunch() && isFirstSubscriber) {
-                isFirstSubscriber = false;
+        if (isAppFirstTimeLaunch()) {
+                // Fix indentation after merge
                 AuthenticationRequestBody authenticationRequestBody = getAuthenticationRequestBody();
 
-                Response<SDKAuthentication> response = new AuthSyncNetworkClass().execute(authenticationRequestBody).get();
+                Response<SDKAuthentication> response = null;
+
+                try {
+                    response = new AuthSyncNetworkClass().execute(authenticationRequestBody).get();
+                } catch (ExecutionException | InterruptedException e) {
+                    onSDKStateDecided.onError(e);
+                    mSharedPreferences.edit().remove(CooeeSDKConstants.IS_APP_FIRST_TIME_LAUNCH).commit();
+                }
+
                 if (response == null) {
-                    subscriber.onError(new ConnectException());
+                    onSDKStateDecided.onError(new ConnectException());
+                    mSharedPreferences.edit().remove(CooeeSDKConstants.IS_APP_FIRST_TIME_LAUNCH).commit();
                 } else if (response.isSuccessful()) {
                     assert response.body() != null;
                     String sdkToken = response.body().getSdkToken();
@@ -79,36 +87,19 @@ public class PostLaunchActivity {
                     mSharedPreferencesEditor.putString(CooeeSDKConstants.SDK_TOKEN, sdkToken);
                     mSharedPreferencesEditor.commit();
                     appFirstOpen();
-                    subscriber.onNext(sdkToken);
+                    APIClient.sdk_token = sdkToken;
+                    onSDKStateDecided.onNext(sdkToken);
+                    onSDKStateDecided.onComplete();
                 }
             } else {
                 mSharedPreferences = context.getSharedPreferences(CooeeSDKConstants.SDK_TOKEN, Context.MODE_PRIVATE);
                 String sdk = mSharedPreferences.getString(CooeeSDKConstants.SDK_TOKEN, "");
                 Log.i(CooeeSDKConstants.LOG_PREFIX + " SDK return", sdk);
-                subscriber.onNext(sdk);
-                subscriber.onComplete();
+                APIClient.sdk_token = sdk;
+                onSDKStateDecided.onNext(sdk);
+                onSDKStateDecided.onComplete();
+                successiveAppLaunch();
             }
-        });
-    }
-
-    /**
-     * Runs every time app is launched
-     */
-    public void appLaunch() {
-        if (this.context == null) {
-            return;
-        }
-
-        observable.subscribe((String sdkToken) -> {
-            Log.i(CooeeSDKConstants.LOG_PREFIX, "Sdk Token : " + sdkToken);
-        }, (Throwable error) -> {
-            Log.e(CooeeSDKConstants.LOG_PREFIX, "Observable Error : " + error.toString());
-            mSharedPreferences.edit().remove(CooeeSDKConstants.IS_APP_FIRST_TIME_LAUNCH).commit();
-            isFirstSubscriber = true;
-        }, () -> {
-            Log.d(CooeeSDKConstants.LOG_PREFIX, "Observable Completed");
-            successiveAppLaunch();
-        });
     }
 
     /**
@@ -215,8 +206,8 @@ public class PostLaunchActivity {
      * @param event event name and properties
      */
     private void sendEvent(Event event) {
-        observable.subscribe((String sdkToken) -> {
-            apiService.sendEvent(sdkToken, event).enqueue(new Callback<Campaign>() {
+        onSDKStateDecided.subscribe((String sdkToken) -> {
+            apiService.sendEvent(event).enqueue(new Callback<Campaign>() {
                 @Override
                 public void onResponse(@NonNull Call<Campaign> call, @NonNull Response<Campaign> response) {
                     Log.i(CooeeSDKConstants.LOG_PREFIX, " Event Sent Response Code : " + response.code());
@@ -241,7 +232,7 @@ public class PostLaunchActivity {
      * @param userProps additional user properties
      */
     private void sendUserProperties(Map<String, String> userProps) {
-        observable.subscribe((String sdkToken) -> {
+        onSDKStateDecided.subscribe((String sdkToken) -> {
             apiService = APIClient.getServerAPIService();
             defaultUserPropertiesCollector = new DefaultUserPropertiesCollector(context);
             String[] location = defaultUserPropertiesCollector.getLocation();
@@ -277,7 +268,7 @@ public class PostLaunchActivity {
             Map<String, Object> userMap = new HashMap<>();
             userMap.put("userProperties", userProperties);
 
-            apiService.updateProfile(sdkToken, userMap).enqueue(new Callback<ResponseBody>() {
+            apiService.updateProfile(userMap).enqueue(new Callback<ResponseBody>() {
                 @Override
                 public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
                     Log.i(CooeeSDKConstants.LOG_PREFIX, "User Properties Response Code : " + response.code());

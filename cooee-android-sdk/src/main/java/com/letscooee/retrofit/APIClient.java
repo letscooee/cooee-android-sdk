@@ -1,7 +1,9 @@
 package com.letscooee.retrofit;
 
 import android.util.Log;
+
 import com.letscooee.BuildConfig;
+
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import retrofit2.Retrofit;
@@ -19,6 +21,8 @@ public class APIClient {
     private static final String BASE_URL = BuildConfig.SERVER_URL;
     private static Retrofit retrofit = null;
 
+    public static String sdk_token;
+
     public static ServerAPIService getServerAPIService() {
         Retrofit retrofit = getClient(BASE_URL);
         return retrofit.create(ServerAPIService.class);
@@ -27,13 +31,18 @@ public class APIClient {
     public static Retrofit getClient(String baseUrl) {
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
                 .addInterceptor(chain -> {
-                    Request request = chain.request()
+                    Request.Builder requestBuilder = chain.request()
                             .newBuilder()
-                            .addHeader("Content-Type", "application/json")
-                            .build();
+                            .addHeader("Content-Type", "application/json");
 
-                    Log.d(LOG_PREFIX + " request", request.toString());
-                    return chain.proceed(request);
+                    boolean isPublicAPI = chain.request().url().toString().endsWith("v1/user/save/");
+
+                    if (!isPublicAPI) {
+                        requestBuilder.addHeader("x-sdk-token", sdk_token);
+                    }
+
+                    Log.d(LOG_PREFIX, "Request : " + requestBuilder.build().toString());
+                    return chain.proceed(requestBuilder.build());
                 })
                 .build();
 

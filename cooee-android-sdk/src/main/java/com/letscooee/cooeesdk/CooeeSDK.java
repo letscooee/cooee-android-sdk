@@ -44,7 +44,7 @@ public class CooeeSDK {
      */
     private CooeeSDK(Context context) {
         this.context = context;
-        new PostLaunchActivity(context).appLaunch();
+        new PostLaunchActivity(context);
 
         this.apiService = APIClient.getServerAPIService();
     }
@@ -82,8 +82,8 @@ public class CooeeSDK {
 
         Event event = new Event(eventName, eventProperties);
 
-        PostLaunchActivity.observable.subscribe((String sdkToken) -> {
-            apiService.sendEvent(sdkToken, event).enqueue(new Callback<Campaign>() {
+        PostLaunchActivity.onSDKStateDecided.subscribe((String sdkToken) -> {
+            apiService.sendEvent(event).enqueue(new Callback<Campaign>() {
                 @Override
                 public void onResponse(@NonNull Call<Campaign> call, @NonNull Response<Campaign> response) {
                     Log.d(CooeeSDKConstants.LOG_PREFIX, "User Event Sent Response Code : " + response.code());
@@ -181,8 +181,8 @@ public class CooeeSDK {
         }
         userMap.put("userProperties", userProperties);
 
-        PostLaunchActivity.observable.subscribe((String sdkToken) -> {
-            Call<ResponseBody> call = apiService.updateProfile(sdkToken, userMap);
+        PostLaunchActivity.onSDKStateDecided.subscribe((String sdkToken) -> {
+            Call<ResponseBody> call = apiService.updateProfile(userMap);
             call.enqueue(new Callback<ResponseBody>() {
                 @Override
                 public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
