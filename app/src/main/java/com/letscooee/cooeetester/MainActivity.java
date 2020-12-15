@@ -15,6 +15,7 @@ import android.widget.Button;
 
 import com.letscooee.cooeesdk.CooeeSDK;
 import com.letscooee.utils.CooeeSDKConstants;
+import com.letscooee.utils.PropertyNameException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -32,7 +33,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         setPermission();
+
         mySdk = CooeeSDK.getDefaultInstance(getApplicationContext());
+
 
         buttonImage = findViewById(R.id.btnImage);
         buttonVideo = findViewById(R.id.btnVideo);
@@ -49,13 +52,33 @@ public class MainActivity extends AppCompatActivity {
 //            e.printStackTrace();
 //        }
 
+        try {
+            mySdk.sendEvent("onCreate",new HashMap<>());
+        } catch (PropertyNameException e) {
+            e.printStackTrace();
+        }
+
+
+
         buttonImage.setOnClickListener(view -> {
             // sending event to the server
-            mySdk.sendEvent(CooeeSDKConstants.IMAGE_CAMPAIGN, new HashMap<>());
+            try {
+                Map<String,String> eventProp = new HashMap<>();
+                eventProp.put("key1", "value1");
+                mySdk.sendEvent(CooeeSDKConstants.IMAGE_CAMPAIGN, eventProp);
+            } catch (PropertyNameException e) {
+                e.printStackTrace();
+            }
         });
 
+
+
         buttonVideo.setOnClickListener(view -> {
-            mySdk.sendEvent(CooeeSDKConstants.VIDEO_CAMPAIGN, new HashMap<>());
+            try {
+                mySdk.sendEvent(CooeeSDKConstants.VIDEO_CAMPAIGN, new HashMap<>());
+            } catch (PropertyNameException e) {
+                e.printStackTrace();
+            }
         });
 
         findViewById(R.id.textViewToken).setOnClickListener(view -> {

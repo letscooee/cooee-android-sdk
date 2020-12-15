@@ -39,6 +39,7 @@ public class PostLaunchActivity {
     private Context context;
     private DefaultUserPropertiesCollector defaultUserPropertiesCollector;
     private ServerAPIService apiService;
+    public static String CURRENT_SESSION_ID = "";
 
     /**
      * Public Constructor
@@ -159,6 +160,8 @@ public class PostLaunchActivity {
         Event event = new Event("CE App Installed", eventProperties);
 
         sendEvent(sdkToken, event);
+
+        createSession();
     }
 
     /**
@@ -183,6 +186,8 @@ public class PostLaunchActivity {
 
         Event event = new Event("CE App Launched", eventProperties);
         sendEvent(sdkToken, event);
+
+        createSession();
     }
 
     /**
@@ -259,5 +264,26 @@ public class PostLaunchActivity {
                 Log.e(LOG_PREFIX + " bodyError", t.toString());
             }
         });
+    }
+
+    /**
+     * Create new session on every launch
+     */
+    private void createSession() {
+        String startTime = new Date().toString();
+        mSharedPreferences = context.getSharedPreferences(CooeeSDKConstants.SESSION_START_TIME, Context.MODE_PRIVATE);
+        mSharedPreferencesEditor = mSharedPreferences.edit();
+        mSharedPreferencesEditor.putString(CooeeSDKConstants.SESSION_START_TIME, startTime);
+        mSharedPreferencesEditor.apply();
+        CURRENT_SESSION_ID = createSessionId();
+    }
+
+    /**
+     * Create session id
+     *
+     * @return session id
+     */
+    private String createSessionId() {
+        return Math.abs((int) System.currentTimeMillis()) + "";
     }
 }

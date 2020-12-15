@@ -36,6 +36,7 @@ public class CooeeSDK {
 
     private Context context;
     private static CooeeSDK cooeeSDK = null;
+    private String currentScreenName = "";
 
     /**
      * Private constructor for Singleton Class
@@ -73,6 +74,11 @@ public class CooeeSDK {
                 throw new PropertyNameException();
             }
         }
+
+        if (this.currentScreenName != null && !this.currentScreenName.equals("")) {
+            eventProperties.put("CE Screen Name", this.currentScreenName);
+        }
+
         Event event = new Event(eventName, eventProperties);
         Campaign campaign = null;
 
@@ -180,5 +186,27 @@ public class CooeeSDK {
                 Log.e(CooeeSDKConstants.LOG_PREFIX + " Error", t.toString());
             }
         });
+    }
+
+    /**
+     * Manually update screen name
+     *
+     * @param screenName Screen name given by user
+     */
+    public void setCurrentScreen(String screenName) {
+        if (screenName == null || (!this.currentScreenName.isEmpty() && this.currentScreenName.equals(screenName))) {
+            return;
+        }
+        Log.d(CooeeSDKConstants.LOG_PREFIX, "Updated screen : " + screenName);
+        this.currentScreenName = screenName;
+    }
+
+    /**
+     * Get manually updated screen name
+     *
+     * @return current screen name
+     */
+    public String getCurrentScreenName() {
+        return this.currentScreenName;
     }
 }

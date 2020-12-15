@@ -85,7 +85,7 @@ class DefaultUserPropertiesCollector {
         TelephonyManager manager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
         assert manager != null;
         int networkType = manager.getNetworkType();
-        networkData[0] = manager.getNetworkOperatorName();
+        networkData[0] = !manager.getNetworkOperatorName().isEmpty() ? manager.getNetworkOperatorName() : "Unknown";
         networkData[1] = getNetworkName(networkType);
         return networkData;
     }
