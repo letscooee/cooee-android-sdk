@@ -11,7 +11,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import com.letscooee.BuildConfig;
-import com.letscooee.async.AuthSyncNetworkClass;
+import com.letscooee.async.AuthSyncNetwork;
 import com.letscooee.models.*;
 import com.letscooee.retrofit.APIClient;
 import com.letscooee.retrofit.ServerAPIService;
@@ -70,7 +70,7 @@ public class PostLaunchActivity {
                 Response<SDKAuthentication> response = null;
 
                 try {
-                    response = new AuthSyncNetworkClass().execute(authenticationRequestBody).get();
+                    response = new AuthSyncNetwork().execute(authenticationRequestBody).get();
                 } catch (ExecutionException | InterruptedException e) {
                     onSDKStateDecided.onError(e);
                     mSharedPreferences.edit().remove(CooeeSDKConstants.IS_APP_FIRST_TIME_LAUNCH).commit();

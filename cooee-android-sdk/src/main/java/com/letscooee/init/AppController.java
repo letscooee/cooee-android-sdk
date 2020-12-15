@@ -43,12 +43,12 @@ public class AppController extends Application implements LifecycleObserver, App
 
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
     public void onEnterForeground() {
-        Log.d(CooeeSDKConstants.LOG_PREFIX + "AppController", "Foreground");
+        Log.d(CooeeSDKConstants.LOG_PREFIX, "AppController : " + "Foreground");
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
     public void onEnterBackground() {
-        Log.d(CooeeSDKConstants.LOG_PREFIX + "AppController", "Background");
+        Log.d(CooeeSDKConstants.LOG_PREFIX, "AppController : " + "Background");
 
         if (getApplicationContext() == null) {
             return;
@@ -125,7 +125,7 @@ public class AppController extends Application implements LifecycleObserver, App
     @Override
     public void onActivityResumed(@NonNull Activity activity) {
         this.startUp = new Date().getTime() - this.startTime.getTime();
-        Log.d("COOEESDK StartupTime", this.startUp + "");
+        Log.d(CooeeSDKConstants.LOG_PREFIX, "Start up time : " + this.startUp);
     }
 
     @Override
