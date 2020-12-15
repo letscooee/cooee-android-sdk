@@ -82,7 +82,7 @@ public class PostLaunchActivity {
                 } else if (response.isSuccessful()) {
                     assert response.body() != null;
                     String sdkToken = response.body().getSdkToken();
-                    Log.i(CooeeSDKConstants.LOG_PREFIX + " bodyResponse", sdkToken);
+                    Log.i(CooeeSDKConstants.LOG_PREFIX, "Token : " + sdkToken);
                     mSharedPreferences = context.getSharedPreferences(CooeeSDKConstants.SDK_TOKEN, Context.MODE_PRIVATE);
                     mSharedPreferencesEditor = mSharedPreferences.edit();
                     mSharedPreferencesEditor.putString(CooeeSDKConstants.SDK_TOKEN, sdkToken);
@@ -95,7 +95,7 @@ public class PostLaunchActivity {
             } else {
                 mSharedPreferences = context.getSharedPreferences(CooeeSDKConstants.SDK_TOKEN, Context.MODE_PRIVATE);
                 String sdk = mSharedPreferences.getString(CooeeSDKConstants.SDK_TOKEN, "");
-                Log.i(CooeeSDKConstants.LOG_PREFIX + " SDK return", sdk);
+                Log.i(CooeeSDKConstants.LOG_PREFIX, "Token : " + sdk);
                 APIClient.sdk_token = sdk;
                 onSDKStateDecided.onNext(sdk);
                 onSDKStateDecided.onComplete();
