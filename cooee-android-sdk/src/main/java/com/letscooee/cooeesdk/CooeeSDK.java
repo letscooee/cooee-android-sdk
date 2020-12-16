@@ -7,7 +7,6 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import com.letscooee.async.SendEventAsyncNetworkClass;
 import com.letscooee.campaign.ImagePopUpActivity;
 import com.letscooee.campaign.VideoPopUpActivity;
 import com.letscooee.init.PostLaunchActivity;
@@ -25,7 +24,6 @@ import retrofit2.Response;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 
 /**
  * The CooeeSDK class contains all the functions required by application to achieve the campaign tasks(Singleton Class)
@@ -37,6 +35,7 @@ public class CooeeSDK {
     private Context context;
     private static CooeeSDK cooeeSDK = null;
     private String currentScreenName = "";
+    private ServerAPIService apiService;
 
     /**
      * Private constructor for Singleton Class
@@ -45,7 +44,9 @@ public class CooeeSDK {
      */
     private CooeeSDK(Context context) {
         this.context = context;
-        new PostLaunchActivity(context).appLaunch();
+        new PostLaunchActivity(context);
+
+        this.apiService = APIClient.getServerAPIService();
     }
 
     /**
@@ -80,15 +81,25 @@ public class CooeeSDK {
         }
 
         Event event = new Event(eventName, eventProperties);
-        Campaign campaign = null;
 
-        try {
-            campaign = new SendEventAsyncNetworkClass(this.context).execute(event).get();
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
-        }
+        PostLaunchActivity.onSDKStateDecided.subscribe((Object ignored) -> {
+            apiService.sendEvent(event).enqueue(new Callback<Campaign>() {
+                @Override
+                public void onResponse(@NonNull Call<Campaign> call, @NonNull Response<Campaign> response) {
+                    Log.d(CooeeSDKConstants.LOG_PREFIX, "User Event Sent Response Code : " + response.code());
+                    Campaign campaign = response.body();
+                    createCampaign(campaign);
+                }
 
-        createCampaign(campaign);
+                @Override
+                public void onFailure(@NonNull Call<Campaign> call, @NonNull Throwable t) {
+                    //TODO: Saving the request locally so that it can be sent later
+                    Log.e(CooeeSDKConstants.LOG_PREFIX, "User Event Sent Error Message : " + t.toString());
+                }
+            });
+        }, (Throwable error) -> {
+            Log.e(CooeeSDKConstants.LOG_PREFIX, "Observable Error : " + error.toString());
+        });
     }
 
     /**
@@ -162,29 +173,27 @@ public class CooeeSDK {
             }
         }
 
-        ServerAPIService apiService = APIClient.getServerAPIService();
-        String header = this.context
-                .getSharedPreferences(CooeeSDKConstants.SDK_TOKEN, Context.MODE_PRIVATE)
-                .getString(CooeeSDKConstants.SDK_TOKEN, "");
-
         Map<String, Object> userMap = new HashMap<>();
-
         if (userData != null) {
             userMap.put("userData", userData);
         }
-
         userMap.put("userProperties", userProperties);
 
-        Call<ResponseBody> call = apiService.updateProfile(header, userMap);
-        call.enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
-                Log.i(CooeeSDKConstants.LOG_PREFIX + " status", response.code() + "");
-            }
+        PostLaunchActivity.onSDKStateDecided.subscribe((Object ignored) -> {
+            Call<ResponseBody> call = apiService.updateProfile(userMap);
+            call.enqueue(new Callback<ResponseBody>() {
+                @Override
+                public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
+                    Log.i(CooeeSDKConstants.LOG_PREFIX, "Manual User Profile Response Code : " + response.code());
+                }
 
-            public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
-                Log.e(CooeeSDKConstants.LOG_PREFIX + " Error", t.toString());
-            }
+                public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
+                    //TODO: Saving the request locally so that it can be sent later
+                    Log.e(CooeeSDKConstants.LOG_PREFIX, "Manual User Profile Error Message : " + t.toString());
+                }
+            });
+        }, (Throwable error) -> {
+            Log.e(CooeeSDKConstants.LOG_PREFIX, "Observable Error : " + error.toString());
         });
     }
 

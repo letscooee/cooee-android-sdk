@@ -24,8 +24,8 @@ public interface ServerAPIService {
     Call<SDKAuthentication> firstOpen(@Body AuthenticationRequestBody authenticationRequestBody);
 
     @POST("v1/event/save/")
-    Call<Campaign> sendEvent(@Header("x-sdk-token") String sdkToken, @Body Event event);
+    Call<Campaign> sendEvent(@Body Event event);
 
     @PUT("v1/user/update/")
-    Call<ResponseBody> updateProfile(@Header("x-sdk-token") String sdkToken, @Body Map<String, Object> objectMap);
+    Call<ResponseBody> updateProfile(@Body Map<String, Object> objectMap);
 }
