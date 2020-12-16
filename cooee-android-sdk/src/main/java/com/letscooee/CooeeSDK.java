@@ -1,4 +1,4 @@
-package com.letscooee.cooeesdk;
+package com.letscooee;
 
 import android.content.Context;
 import android.content.Intent;

@@ -1,19 +1,16 @@
 package com.letscooee.cooeetester;
 
-
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 
 import android.widget.Button;
 
-import com.letscooee.cooeesdk.CooeeSDK;
+import com.letscooee.CooeeSDK;
 import com.letscooee.utils.CooeeSDKConstants;
 import com.letscooee.utils.PropertyNameException;
 
@@ -46,20 +43,11 @@ public class MainActivity extends AppCompatActivity {
         userData.put("mobileNumber", "9876543210");
         userData.put("cemobileNumber", "9876543210");
 
-//        try {
-//            mySdk.updateUserProperties(userData);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-
         try {
             mySdk.sendEvent("onCreate",new HashMap<>());
         } catch (PropertyNameException e) {
             e.printStackTrace();
         }
-
-
-
         buttonImage.setOnClickListener(view -> {
             // sending event to the server
             try {
@@ -70,8 +58,6 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         });
-
-
 
         buttonVideo.setOnClickListener(view -> {
             try {

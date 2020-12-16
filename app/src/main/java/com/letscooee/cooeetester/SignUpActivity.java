@@ -5,10 +5,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 
-import com.letscooee.cooeesdk.CooeeSDK;
-import com.letscooee.cooeetester.R;
+import com.letscooee.CooeeSDK;
 
 import java.util.HashMap;
 import java.util.Map;
