@@ -54,7 +54,7 @@ public class AppController extends Application implements LifecycleObserver, App
             return;
         }
 
-        PostLaunchActivity.onSDKStateDecided.subscribe((String sdkToken) -> {
+        PostLaunchActivity.onSDKStateDecided.subscribe((Object ignored) -> {
             Map<String, String> userProperties = new HashMap<>();
             userProperties.put("CE Last Screen", lastScreen);
             userProperties.put("CE Package Name", packageName);
@@ -98,6 +98,8 @@ public class AppController extends Application implements LifecycleObserver, App
                     Log.e(CooeeSDKConstants.LOG_PREFIX, "Session Event Sent Error Message" + t.toString());
                 }
             });
+        }, (Throwable error) -> {
+            Log.e(CooeeSDKConstants.LOG_PREFIX, "Observable Error : " + error.toString());
         });
     }
 

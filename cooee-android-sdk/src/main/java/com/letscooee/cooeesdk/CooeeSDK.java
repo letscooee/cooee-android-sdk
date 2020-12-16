@@ -82,7 +82,7 @@ public class CooeeSDK {
 
         Event event = new Event(eventName, eventProperties);
 
-        PostLaunchActivity.onSDKStateDecided.subscribe((String sdkToken) -> {
+        PostLaunchActivity.onSDKStateDecided.subscribe((Object ignored) -> {
             apiService.sendEvent(event).enqueue(new Callback<Campaign>() {
                 @Override
                 public void onResponse(@NonNull Call<Campaign> call, @NonNull Response<Campaign> response) {
@@ -99,8 +99,6 @@ public class CooeeSDK {
             });
         }, (Throwable error) -> {
             Log.e(CooeeSDKConstants.LOG_PREFIX, "Observable Error : " + error.toString());
-        }, () -> {
-            Log.d(CooeeSDKConstants.LOG_PREFIX, "Observable Completed");
         });
     }
 
@@ -181,7 +179,7 @@ public class CooeeSDK {
         }
         userMap.put("userProperties", userProperties);
 
-        PostLaunchActivity.onSDKStateDecided.subscribe((String sdkToken) -> {
+        PostLaunchActivity.onSDKStateDecided.subscribe((Object ignored) -> {
             Call<ResponseBody> call = apiService.updateProfile(userMap);
             call.enqueue(new Callback<ResponseBody>() {
                 @Override
@@ -196,8 +194,6 @@ public class CooeeSDK {
             });
         }, (Throwable error) -> {
             Log.e(CooeeSDKConstants.LOG_PREFIX, "Observable Error : " + error.toString());
-        }, () -> {
-            Log.d(CooeeSDKConstants.LOG_PREFIX, "Observable Completed");
         });
     }
 

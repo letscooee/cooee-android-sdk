@@ -43,7 +43,7 @@ public class PostLaunchActivity {
     private DefaultUserPropertiesCollector defaultUserPropertiesCollector;
     private ServerAPIService apiService;
 
-    public static ReplaySubject<String> onSDKStateDecided = ReplaySubject.create(1);
+    public static ReplaySubject<Object> onSDKStateDecided = ReplaySubject.create(1);
     public static String SESSION_START_TIME;
     public static String CURRENT_SESSION_ID = "";
 
@@ -89,7 +89,7 @@ public class PostLaunchActivity {
                     mSharedPreferencesEditor.commit();
                     appFirstOpen();
                     APIClient.sdk_token = sdkToken;
-                    onSDKStateDecided.onNext(sdkToken);
+                    onSDKStateDecided.onNext(""); // cannot send null here
                     onSDKStateDecided.onComplete();
                 }
             } else {
@@ -97,7 +97,7 @@ public class PostLaunchActivity {
                 String sdk = mSharedPreferences.getString(CooeeSDKConstants.SDK_TOKEN, "");
                 Log.i(CooeeSDKConstants.LOG_PREFIX, "Token : " + sdk);
                 APIClient.sdk_token = sdk;
-                onSDKStateDecided.onNext(sdk);
+                onSDKStateDecided.onNext("");  // cannot send null here
                 onSDKStateDecided.onComplete();
                 successiveAppLaunch();
             }
@@ -207,7 +207,7 @@ public class PostLaunchActivity {
      * @param event event name and properties
      */
     private void sendEvent(Event event) {
-        onSDKStateDecided.subscribe((String sdkToken) -> {
+        onSDKStateDecided.subscribe((Object ignored) -> {
         //TODO:Fix indentation after merge
         apiService.sendEvent(event).enqueue(new Callback<Campaign>() {
             @Override
@@ -223,8 +223,6 @@ public class PostLaunchActivity {
         });
         }, (Throwable error) -> {
             Log.e(CooeeSDKConstants.LOG_PREFIX, "Observable Error : " + error.toString());
-        }, () -> {
-            Log.d(CooeeSDKConstants.LOG_PREFIX, "Observable Completed");
         });
     }
 
@@ -234,7 +232,7 @@ public class PostLaunchActivity {
      * @param userProps additional user properties
      */
     private void sendUserProperties(Map<String, String> userProps) {
-        onSDKStateDecided.subscribe((String sdkToken) -> {
+        onSDKStateDecided.subscribe((Object ignored) -> {
         //TODO:Fix indentation after merge
         apiService = APIClient.getServerAPIService();
         defaultUserPropertiesCollector = new DefaultUserPropertiesCollector(context);
@@ -285,8 +283,6 @@ public class PostLaunchActivity {
         });
         }, (Throwable error) -> {
             Log.e(CooeeSDKConstants.LOG_PREFIX, "Observable Error : " + error.toString());
-        }, () -> {
-            Log.d(CooeeSDKConstants.LOG_PREFIX, "Observable Completed");
         });
     }
 
