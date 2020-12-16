@@ -4,9 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-
 import androidx.annotation.NonNull;
-
 import com.letscooee.campaign.ImagePopUpActivity;
 import com.letscooee.campaign.VideoPopUpActivity;
 import com.letscooee.init.PostLaunchActivity;
@@ -16,7 +14,6 @@ import com.letscooee.retrofit.APIClient;
 import com.letscooee.retrofit.ServerAPIService;
 import com.letscooee.utils.CooeeSDKConstants;
 import com.letscooee.utils.PropertyNameException;
-
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -32,10 +29,12 @@ import java.util.Map;
  */
 public class CooeeSDK {
 
-    private Context context;
     private static CooeeSDK cooeeSDK = null;
+
+    private final Context context;
+    private final ServerAPIService apiService;
+
     private String currentScreenName = "";
-    private ServerAPIService apiService;
 
     /**
      * Private constructor for Singleton Class
@@ -93,7 +92,7 @@ public class CooeeSDK {
 
                 @Override
                 public void onFailure(@NonNull Call<Campaign> call, @NonNull Throwable t) {
-                    //TODO: Saving the request locally so that it can be sent later
+                    // TODO Saving the request locally so that it can be sent later
                     Log.e(CooeeSDKConstants.LOG_PREFIX, "User Event Sent Error Message : " + t.toString());
                 }
             });
@@ -188,7 +187,7 @@ public class CooeeSDK {
                 }
 
                 public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
-                    //TODO: Saving the request locally so that it can be sent later
+                    // TODO Saving the request locally so that it can be sent later
                     Log.e(CooeeSDKConstants.LOG_PREFIX, "Manual User Profile Error Message : " + t.toString());
                 }
             });

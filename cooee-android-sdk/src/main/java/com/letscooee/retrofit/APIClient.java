@@ -21,7 +21,7 @@ public class APIClient {
     private static final String BASE_URL = BuildConfig.SERVER_URL;
     private static Retrofit retrofit = null;
 
-    public static String sdk_token;
+    private static String apiToken;
 
     public static ServerAPIService getServerAPIService() {
         Retrofit retrofit = getClient(BASE_URL);
@@ -38,7 +38,7 @@ public class APIClient {
                     boolean isPublicAPI = chain.request().url().toString().endsWith("v1/user/save/");
 
                     if (!isPublicAPI) {
-                        requestBuilder.addHeader("x-sdk-token", sdk_token);
+                        requestBuilder.addHeader("x-sdk-token", apiToken);
                     }
 
                     Log.d(LOG_PREFIX, "Request : " + requestBuilder.build().toString());
@@ -55,5 +55,9 @@ public class APIClient {
         }
 
         return retrofit;
+    }
+
+    public static void setAPIToken(String token) {
+        apiToken = token;
     }
 }

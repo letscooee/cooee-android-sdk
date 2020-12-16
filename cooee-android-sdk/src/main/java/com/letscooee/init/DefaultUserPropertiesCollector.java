@@ -18,9 +18,7 @@ import android.os.Environment;
 import android.os.StatFs;
 import android.telephony.TelephonyManager;
 import android.util.DisplayMetrics;
-
 import androidx.core.app.ActivityCompat;
-
 import com.google.android.gms.location.LocationRequest;
 
 import java.io.File;

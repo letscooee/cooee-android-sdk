@@ -25,7 +25,7 @@ public class AuthSyncNetwork extends AsyncTask<AuthenticationRequestBody, Void, 
 
         Response<SDKAuthentication> sdkAuthentication = null;
         try {
-            sdkAuthentication = apiService.firstOpen(authenticationRequestBodies[0]).execute();
+            sdkAuthentication = apiService.registerUser(authenticationRequestBodies[0]).execute();
         } catch (IOException e) {
             Log.e(CooeeSDKConstants.LOG_PREFIX, "Auth Token Error Message : " + e.toString());
         }

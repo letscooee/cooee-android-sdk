@@ -41,8 +41,8 @@ public class PostLaunchActivity {
     private ServerAPIService apiService;
 
     public static ReplaySubject<Object> onSDKStateDecided = ReplaySubject.create(1);
-    public static String SESSION_START_TIME;
-    public static String CURRENT_SESSION_ID = "";
+    public static String currentSessionStartTime;
+    public static String currentSessionId = "";
 
     /**
      * Public Constructor
@@ -68,30 +68,40 @@ public class PostLaunchActivity {
                 response = new AuthSyncNetwork().execute(authenticationRequestBody).get();
             } catch (ExecutionException | InterruptedException e) {
                 onSDKStateDecided.onError(e);
-                mSharedPreferences.edit().remove(CooeeSDKConstants.IS_APP_FIRST_TIME_LAUNCH).commit();
+                mSharedPreferences
+                        .edit()
+                        .remove(CooeeSDKConstants.IS_APP_FIRST_TIME_LAUNCH)
+                        .apply();
             }
 
             if (response == null) {
                 onSDKStateDecided.onError(new ConnectException());
-                mSharedPreferences.edit().remove(CooeeSDKConstants.IS_APP_FIRST_TIME_LAUNCH).commit();
+                mSharedPreferences
+                        .edit()
+                        .remove(CooeeSDKConstants.IS_APP_FIRST_TIME_LAUNCH)
+                        .apply();
+
             } else if (response.isSuccessful()) {
                 assert response.body() != null;
                 String sdkToken = response.body().getSdkToken();
                 Log.i(CooeeSDKConstants.LOG_PREFIX, "Token : " + sdkToken);
+
                 mSharedPreferences = context.getSharedPreferences(CooeeSDKConstants.SDK_TOKEN, Context.MODE_PRIVATE);
                 mSharedPreferencesEditor = mSharedPreferences.edit();
                 mSharedPreferencesEditor.putString(CooeeSDKConstants.SDK_TOKEN, sdkToken);
-                mSharedPreferencesEditor.commit();
+                mSharedPreferencesEditor.apply();
+
                 appFirstOpen();
-                APIClient.sdk_token = sdkToken;
+                APIClient.setAPIToken(sdkToken);
                 onSDKStateDecided.onNext(""); // cannot send null here
                 onSDKStateDecided.onComplete();
             }
         } else {
             mSharedPreferences = context.getSharedPreferences(CooeeSDKConstants.SDK_TOKEN, Context.MODE_PRIVATE);
-            String sdk = mSharedPreferences.getString(CooeeSDKConstants.SDK_TOKEN, "");
-            Log.i(CooeeSDKConstants.LOG_PREFIX, "Token : " + sdk);
-            APIClient.sdk_token = sdk;
+            String apiToken = mSharedPreferences.getString(CooeeSDKConstants.SDK_TOKEN, "");
+            Log.i(CooeeSDKConstants.LOG_PREFIX, "Token : " + apiToken);
+
+            APIClient.setAPIToken(apiToken);
             onSDKStateDecided.onNext("");  // cannot send null here
             onSDKStateDecided.onComplete();
             successiveAppLaunch();
@@ -211,7 +221,7 @@ public class PostLaunchActivity {
 
                 @Override
                 public void onFailure(@NonNull Call<Campaign> call, @NonNull Throwable t) {
-                    //TODO: Saving the request locally so that it can be sent later
+                    // TODO Saving the request locally so that it can be sent later
                     Log.e(CooeeSDKConstants.LOG_PREFIX, "Event Sent Error Message : " + t.toString());
                 }
             });
@@ -227,9 +237,6 @@ public class PostLaunchActivity {
      */
     private void sendUserProperties(Map<String, String> userProps) {
         onSDKStateDecided.subscribe((Object ignored) -> {
-            //TODO:Fix indentation after merge
-            apiService = APIClient.getServerAPIService();
-            defaultUserPropertiesCollector = new DefaultUserPropertiesCollector(context);
             String[] location = defaultUserPropertiesCollector.getLocation();
             String[] networkData = defaultUserPropertiesCollector.getNetworkData();
 
@@ -271,7 +278,7 @@ public class PostLaunchActivity {
 
                 @Override
                 public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
-                    //TODO: Saving the request locally so that it can be sent later
+                    // TODO Saving the request locally so that it can be sent later
                     Log.e(CooeeSDKConstants.LOG_PREFIX, "User Properties Error Message : " + t.toString());
                 }
             });
@@ -284,8 +291,8 @@ public class PostLaunchActivity {
      * Create new session on every launch
      */
     private void createSession() {
-        SESSION_START_TIME = new Date().toString();
-        CURRENT_SESSION_ID = createSessionId();
+        currentSessionStartTime = new Date().toString();
+        currentSessionId = createSessionId();
     }
 
     /**

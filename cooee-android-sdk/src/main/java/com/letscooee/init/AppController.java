@@ -4,22 +4,18 @@ import android.app.Activity;
 import android.app.Application;
 import android.os.Bundle;
 import android.util.Log;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.OnLifecycleEvent;
 import androidx.lifecycle.ProcessLifecycleOwner;
-
-import com.letscooee.campaign.CheckObservable;
 import com.letscooee.cooeesdk.CooeeSDK;
 import com.letscooee.models.Campaign;
 import com.letscooee.models.Event;
 import com.letscooee.retrofit.APIClient;
 import com.letscooee.retrofit.ServerAPIService;
 import com.letscooee.utils.CooeeSDKConstants;
-
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -43,12 +39,12 @@ public class AppController extends Application implements LifecycleObserver, App
 
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
     public void onEnterForeground() {
-        Log.d(CooeeSDKConstants.LOG_PREFIX, "AppController : " + "Foreground");
+        Log.d(CooeeSDKConstants.LOG_PREFIX, "AppController : Foreground");
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
     public void onEnterBackground() {
-        Log.d(CooeeSDKConstants.LOG_PREFIX, "AppController : " + "Background");
+        Log.d(CooeeSDKConstants.LOG_PREFIX, "AppController : Background");
 
         if (getApplicationContext() == null) {
             return;
@@ -71,17 +67,17 @@ public class AppController extends Application implements LifecycleObserver, App
 
                 @Override
                 public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
-                    //TODO: Saving the request locally so that it can be sent later
+                    // TODO Saving the request locally so that it can be sent later
                     Log.e(CooeeSDKConstants.LOG_PREFIX, "User Properties Error Message : " + t.toString());
                 }
             });
 
             String stopTime = new Date().toString();
-            String duration = (new Date(stopTime).getTime() - new Date(PostLaunchActivity.SESSION_START_TIME).getTime()) / 1000 + "s";
+            String duration = (new Date(stopTime).getTime() - new Date(PostLaunchActivity.currentSessionStartTime).getTime()) / 1000 + "s";
 
             Map<String, String> sessionProperties = new HashMap<>();
-            sessionProperties.put("CE Session ID", PostLaunchActivity.CURRENT_SESSION_ID);
-            sessionProperties.put("CE Session Start", PostLaunchActivity.SESSION_START_TIME);
+            sessionProperties.put("CE Session ID", PostLaunchActivity.currentSessionId);
+            sessionProperties.put("CE Session Start", PostLaunchActivity.currentSessionStartTime);
             sessionProperties.put("CE Session Stop", stopTime);
             sessionProperties.put("CE Session Duration", duration);
             sessionProperties.put("CE Session Start Up Time", String.valueOf((this.startUp / 1000)));
@@ -94,7 +90,7 @@ public class AppController extends Application implements LifecycleObserver, App
 
                 @Override
                 public void onFailure(Call<Campaign> call, Throwable t) {
-                    //TODO: Saving the request locally so that it can be sent later
+                    // TODO Saving the request locally so that it can be sent later
                     Log.e(CooeeSDKConstants.LOG_PREFIX, "Session Event Sent Error Message" + t.toString());
                 }
             });
