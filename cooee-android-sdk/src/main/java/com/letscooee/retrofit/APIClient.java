@@ -35,7 +35,7 @@ public class APIClient {
                             .newBuilder()
                             .addHeader("Content-Type", "application/json");
 
-                    boolean isPublicAPI = chain.request().url().toString().endsWith("v1/user/save/");
+                    boolean isPublicAPI = chain.request().url().toString().endsWith("v1/user/save");
 
                     if (!isPublicAPI) {
                         requestBuilder.addHeader("x-sdk-token", apiToken);

@@ -7,13 +7,16 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+
 import androidx.annotation.NonNull;
+
 import com.letscooee.BuildConfig;
 import com.letscooee.async.AuthSyncNetwork;
 import com.letscooee.models.*;
 import com.letscooee.retrofit.APIClient;
 import com.letscooee.retrofit.ServerAPIService;
 import com.letscooee.utils.CooeeSDKConstants;
+
 import io.reactivex.rxjava3.subjects.ReplaySubject;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -24,6 +27,7 @@ import java.net.ConnectException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.UUID;
 
@@ -42,9 +46,9 @@ public class PostLaunchActivity {
     private ServerAPIService apiService;
 
     public static ReplaySubject<Object> onSDKStateDecided = ReplaySubject.create(1);
-    public static String currentSessionStartTime;
+    public static String currentSessionStartTime = "";
     public static String currentSessionId = "";
-    public static String CURRENT_SESSION_NUMBER = "";
+    public static String currentSessionNumber = "";
 
     /**
      * Public Constructor
@@ -179,9 +183,9 @@ public class PostLaunchActivity {
         Map<String, String> eventProperties = new HashMap<>();
         eventProperties.put("CE Source", "SYSTEM");
         eventProperties.put("CE App Version", defaultUserPropertiesCollector.getAppVersion());
-        eventProperties.put("CE Session ID", CURRENT_SESSION_ID);
-        eventProperties.put("CE Session Number", CURRENT_SESSION_NUMBER);
-        eventProperties.put("CE Screen Name", AppController.CURRENT_SCREEN);
+        eventProperties.put("CE Session ID", currentSessionId);
+        eventProperties.put("CE Session Number", currentSessionNumber);
+        eventProperties.put("CE Screen Name", AppController.currentScreen);
         Event event = new Event("CE App Installed", eventProperties);
 
         sendEvent(event);
@@ -194,7 +198,7 @@ public class PostLaunchActivity {
         createSession();
 
         Map<String, String> userProperties = new HashMap<>();
-        userProperties.put("CE Session Count", CURRENT_SESSION_NUMBER);
+        userProperties.put("CE Session Count", currentSessionNumber);
         sendUserProperties(userProperties);
 
         String[] networkData = defaultUserPropertiesCollector.getNetworkData();
@@ -208,9 +212,9 @@ public class PostLaunchActivity {
         eventProperties.put("CE Bluetooth On", defaultUserPropertiesCollector.isBluetoothOn());
         eventProperties.put("CE Wifi Connected", defaultUserPropertiesCollector.isConnectedToWifi());
         eventProperties.put("CE Device Battery", defaultUserPropertiesCollector.getBatteryLevel());
-        eventProperties.put("CE Session ID", CURRENT_SESSION_ID);
-        eventProperties.put("CE Session Number", CURRENT_SESSION_NUMBER);
-        eventProperties.put("CE Screen Name", AppController.CURRENT_SCREEN);
+        eventProperties.put("CE Session ID", currentSessionId);
+        eventProperties.put("CE Session Number", currentSessionNumber);
+        eventProperties.put("CE Screen Name", AppController.currentScreen);
 
         Event event = new Event("CE App Launched", eventProperties);
         sendEvent(event);
@@ -300,10 +304,10 @@ public class PostLaunchActivity {
     /**
      * Create new session on every launch
      */
-    private void createSession() {
+    void createSession() {
         currentSessionStartTime = new Date().toString();
         currentSessionId = createSessionId();
-        CURRENT_SESSION_NUMBER = getSessionNumber();
+        currentSessionNumber = getSessionNumber();
     }
 
     /**
@@ -323,6 +327,7 @@ public class PostLaunchActivity {
     private String getSessionNumber() {
         mSharedPreferences = context.getSharedPreferences("Session Number", Context.MODE_PRIVATE);
         String sessionNumber = mSharedPreferences.getString("Session Number", "");
+
         if (sessionNumber.isEmpty()) {
             sessionNumber = "1";
         } else {
@@ -330,7 +335,12 @@ public class PostLaunchActivity {
             number += 1;
             sessionNumber = String.valueOf(number);
         }
-        mSharedPreferences.edit().putString("Session Number", sessionNumber).commit();
+
+        mSharedPreferences
+                .edit()
+                .putString("Session Number", sessionNumber)
+                .apply();
+
         return sessionNumber;
     }
 }

@@ -4,18 +4,21 @@ import android.app.Activity;
 import android.app.Application;
 import android.os.Bundle;
 import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.OnLifecycleEvent;
 import androidx.lifecycle.ProcessLifecycleOwner;
+
 import com.letscooee.cooeesdk.CooeeSDK;
 import com.letscooee.models.Campaign;
 import com.letscooee.models.Event;
 import com.letscooee.retrofit.APIClient;
 import com.letscooee.retrofit.ServerAPIService;
 import com.letscooee.utils.CooeeSDKConstants;
+
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -32,7 +35,7 @@ import java.util.Map;
  */
 public class AppController extends Application implements LifecycleObserver, Application.ActivityLifecycleCallbacks {
 
-    static String CURRENT_SCREEN;
+    static String currentScreen;
     private String packageName;
     private Date startTime;
     private Date stopTime;
@@ -49,14 +52,16 @@ public class AppController extends Application implements LifecycleObserver, App
         long backgroundDuration = new Date().getTime() - stopTime.getTime();
         ServerAPIService apiService = APIClient.getServerAPIService();
 
-        PostLaunchActivity.observable.subscribe((String sdkToken) -> {
+        PostLaunchActivity.onSDKStateDecided.subscribe((Object ignored) -> {
             if (backgroundDuration > CooeeSDKConstants.IDLE_TIME) {
-                String duration = (stopTime.getTime() - new Date(PostLaunchActivity.SESSION_START_TIME).getTime()) / 1000 + "s";
+                String duration = (stopTime.getTime() - new Date(PostLaunchActivity.currentSessionStartTime).getTime()) / 1000 + "";
                 Map<String, String> sessionProperties = new HashMap<>();
                 sessionProperties.put("CE Duration", duration);
+                sessionProperties.put("CE Session ID", PostLaunchActivity.currentSessionId);
+                sessionProperties.put("CE Session Number", PostLaunchActivity.currentSessionNumber);
 
                 Event session = new Event("CE Session Concluded", sessionProperties);
-                apiService.sendSessionConcludedEvent(sdkToken, session).enqueue(new Callback<Campaign>() {
+                apiService.sendSessionConcludedEvent(session).enqueue(new Callback<Campaign>() {
                     @Override
                     public void onResponse(@NonNull Call<Campaign> call, @NonNull Response<Campaign> response) {
                         Log.i(CooeeSDKConstants.LOG_PREFIX, "Session Concluded Event Sent Code : " + response.code());
@@ -69,13 +74,13 @@ public class AppController extends Application implements LifecycleObserver, App
                 });
 
                 new PostLaunchActivity(getApplicationContext()).createSession();
-                Log.d(CooeeSDKConstants.LOG_PREFIX, "After 30 min of App Background " + "Session Concluded");
+                Log.d(CooeeSDKConstants.LOG_PREFIX, "Session Concluded");
             } else {
                 Map<String, String> sessionProperties = new HashMap<>();
                 sessionProperties.put("CE Duration", String.valueOf(backgroundDuration / 1000));
 
                 Event session = new Event("CE App Foreground", sessionProperties);
-                apiService.sendEvent(sdkToken, session).enqueue(new Callback<Campaign>() {
+                apiService.sendEvent(session).enqueue(new Callback<Campaign>() {
                     @Override
                     public void onResponse(@NonNull Call<Campaign> call, @NonNull Response<Campaign> response) {
                         Log.i(CooeeSDKConstants.LOG_PREFIX, "App Foreground Event Sent Code : " + response.code());
@@ -87,6 +92,8 @@ public class AppController extends Application implements LifecycleObserver, App
                     }
                 });
             }
+        }, (Throwable error) -> {
+            Log.e(CooeeSDKConstants.LOG_PREFIX, "Observable Error : " + error.toString());
         });
     }
 
@@ -100,14 +107,14 @@ public class AppController extends Application implements LifecycleObserver, App
 
         PostLaunchActivity.onSDKStateDecided.subscribe((Object ignored) -> {
             Map<String, String> userProperties = new HashMap<>();
-            userProperties.put("CE Last Screen", CURRENT_SCREEN);
+            userProperties.put("CE Last Screen", currentScreen);
             userProperties.put("CE Package Name", packageName);
 
             Map<String, Object> userMap = new HashMap<>();
             userMap.put("userProperties", userProperties);
 
             ServerAPIService apiService = APIClient.getServerAPIService();
-            apiService.updateProfile(sdkToken, userMap).enqueue(new Callback<ResponseBody>() {
+            apiService.updateProfile(userMap).enqueue(new Callback<ResponseBody>() {
                 @Override
                 public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
                     Log.i(CooeeSDKConstants.LOG_PREFIX, "User Properties Response Code : " + response.code());
@@ -115,22 +122,21 @@ public class AppController extends Application implements LifecycleObserver, App
 
                 @Override
                 public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
-                    // TODO Saving the request locally so that it can be sent later
                     Log.e(CooeeSDKConstants.LOG_PREFIX, "User Properties Error Message : " + t.toString());
                 }
             });
 
             stopTime = new Date();
-            String duration = (stopTime.getTime() - new Date(PostLaunchActivity.SESSION_START_TIME).getTime()) / 1000 + "s";
+            String duration = (stopTime.getTime() - new Date(PostLaunchActivity.currentSessionStartTime).getTime()) / 1000 + "";
 
             Map<String, String> sessionProperties = new HashMap<>();
-            sessionProperties.put("CE Session ID", PostLaunchActivity.CURRENT_SESSION_ID);
-            sessionProperties.put("CE Session Number", PostLaunchActivity.CURRENT_SESSION_NUMBER);
-            sessionProperties.put("CE Session Start", PostLaunchActivity.SESSION_START_TIME);
+            sessionProperties.put("CE Session ID", PostLaunchActivity.currentSessionId);
+            sessionProperties.put("CE Session Number", PostLaunchActivity.currentSessionNumber);
+            sessionProperties.put("CE Session Start", PostLaunchActivity.currentSessionStartTime);
             sessionProperties.put("CE Session Stop", stopTime.toString());
             sessionProperties.put("CE Duration", duration);
             Event session = new Event("CE App Background", sessionProperties);
-            apiService.sendEvent(sdkToken, session).enqueue(new Callback<Campaign>() {
+            apiService.sendEvent(session).enqueue(new Callback<Campaign>() {
                 @Override
                 public void onResponse(Call<Campaign> call, Response<Campaign> response) {
                     Log.i(CooeeSDKConstants.LOG_PREFIX, "App Background Event Sent Code : " + response.code());
@@ -138,11 +144,11 @@ public class AppController extends Application implements LifecycleObserver, App
 
                 @Override
                 public void onFailure(Call<Campaign> call, Throwable t) {
-                    // TODO Saving the request locally so that it can be sent later
-                    Log.e(CooeeSDKConstants.LOG_PREFIX, "Session Event Sent Error Message" + t.toString());
+                    Log.e(CooeeSDKConstants.LOG_PREFIX, "App Background Event Sent Error Message" + t.toString());
                 }
             });
         });
+
     }
 
     @Override
@@ -156,13 +162,13 @@ public class AppController extends Application implements LifecycleObserver, App
     @Override
     public void onActivityCreated(@NonNull Activity activity, @Nullable Bundle bundle) {
         packageName = activity.getClass().getPackage().getName();
-        CURRENT_SCREEN = activity.getLocalClassName();
+        currentScreen = activity.getLocalClassName();
     }
 
     @Override
     public void onActivityStarted(@NonNull Activity activity) {
-        String manualScreenName = CooeeSDK.getDefaultInstance(null).getCurrentScreenName();
-        CURRENT_SCREEN = (manualScreenName != null && !manualScreenName.isEmpty()) ? manualScreenName : activity.getLocalClassName();
+        String manualScreenName = CooeeSDK.getDefaultInstance(getApplicationContext()).getCurrentScreenName();
+        currentScreen = (manualScreenName != null && !manualScreenName.isEmpty()) ? manualScreenName : activity.getLocalClassName();
     }
 
     @Override
