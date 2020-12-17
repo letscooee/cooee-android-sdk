@@ -19,15 +19,15 @@ import java.util.Map;
  */
 public interface ServerAPIService {
 
-    @POST("v1/user/save")
+    @POST("/v1/user/save")
     Call<SDKAuthentication> registerUser(@Body AuthenticationRequestBody authenticationRequestBody);
 
-    @POST("v1/event/save")
+    @POST("/v1/event/save")
     Call<Campaign> sendEvent(@Body Event event);
 
-    @POST("v1/event/saveSessionConcluded")
+    @POST("/v1/event/saveSessionConcluded")
     Call<Campaign> sendSessionConcludedEvent(@Body Event event);
 
-    @PUT("v1/user/update")
+    @PUT("/v1/user/update")
     Call<ResponseBody> updateProfile(@Body Map<String, Object> objectMap);
 }

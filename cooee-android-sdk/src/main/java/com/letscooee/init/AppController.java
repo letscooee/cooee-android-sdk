@@ -43,7 +43,7 @@ public class AppController extends Application implements LifecycleObserver, App
 
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
     public void onEnterForeground() {
-        Log.d(CooeeSDKConstants.LOG_PREFIX, "AppController : " + "Foreground");
+        Log.d(CooeeSDKConstants.LOG_PREFIX, "AppController : Foreground");
 
         if (stopTime == null) {
             return;
@@ -95,7 +95,7 @@ public class AppController extends Application implements LifecycleObserver, App
 
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
     public void onEnterBackground() {
-        Log.d(CooeeSDKConstants.LOG_PREFIX, "AppController : " + "Background");
+        Log.d(CooeeSDKConstants.LOG_PREFIX, "AppController : Background");
 
         if (getApplicationContext() == null) {
             return;
@@ -118,6 +118,7 @@ public class AppController extends Application implements LifecycleObserver, App
 
                 @Override
                 public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
+                    // TODO Saving the request locally so that it can be sent later
                     Log.e(CooeeSDKConstants.LOG_PREFIX, "User Properties Error Message : " + t.toString());
                 }
             });
@@ -140,6 +141,7 @@ public class AppController extends Application implements LifecycleObserver, App
 
                 @Override
                 public void onFailure(Call<Campaign> call, Throwable t) {
+                    // TODO Saving the request locally so that it can be sent later
                     Log.e(CooeeSDKConstants.LOG_PREFIX, "App Background Event Sent Error Message" + t.toString());
                 }
             });
