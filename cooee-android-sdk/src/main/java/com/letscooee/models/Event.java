@@ -15,7 +15,7 @@ public class Event {
     private int sessionNumber;
     private String screenName;
 
-    public Event(String name, Map<String, String> properties, String sessionID, int sessionNumber, String screenName) {
+    public Event(String name, Map<String, String> properties) {
         this.name = name;
         this.properties = properties;
         this.sessionID = sessionID;
