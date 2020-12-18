@@ -2,6 +2,8 @@ package com.letscooee.init;
 
 import android.app.Activity;
 import android.app.Application;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -12,18 +14,21 @@ import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.OnLifecycleEvent;
 import androidx.lifecycle.ProcessLifecycleOwner;
 
+import com.letscooee.BuildConfig;
 import com.letscooee.cooeesdk.CooeeSDK;
 import com.letscooee.models.Campaign;
 import com.letscooee.models.Event;
 import com.letscooee.retrofit.APIClient;
 import com.letscooee.retrofit.ServerAPIService;
 import com.letscooee.utils.CooeeSDKConstants;
+import com.letscooee.utils.LocalStorageHelper;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import java.io.File;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -154,6 +159,10 @@ public class AppController extends Application implements LifecycleObserver, App
         super.onCreate();
         registerActivityLifecycleCallbacks(this);
         ProcessLifecycleOwner.get().getLifecycle().addObserver(this);
+//       Code for bharat-post app migration from 0.0.3: need testing
+//        if (BuildConfig.VERSION_NAME.equals("0.0.3")) {
+//            migrate();
+//        }
     }
 
     @Override
@@ -190,5 +199,37 @@ public class AppController extends Application implements LifecycleObserver, App
 
     @Override
     public void onActivityDestroyed(@NonNull Activity activity) {
+    }
+
+    // Code for bharat-post app migration from 0.0.3: need testing
+    private void migrate() {
+        boolean appLaunchFromOldVersion = getApplicationContext().getSharedPreferences("is_app_first_time_launch", MODE_PRIVATE).getBoolean("is_app_first_time_launch", false);
+        String sdkFromOldVersion = getApplicationContext().getSharedPreferences("com.letscooee.tester", MODE_PRIVATE).getString("com.letscooee.tester", "");
+
+        Log.d("appLaunchFromOldVersion", appLaunchFromOldVersion + "");
+        Log.d("sdkFromOldVersion", sdkFromOldVersion + "5");
+
+        PackageInfo packageInfo = null;
+        try {
+            packageInfo = getApplicationContext().getPackageManager().getPackageInfo(getApplicationContext().getPackageName(), 0);
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        File dir = new File(getApplicationContext().getFilesDir().getPath()+"/data/" + packageInfo.packageName + "/shared_prefs/");
+        Log.d("file path", dir.getAbsolutePath());
+
+//        LocalStorageHelper.getBoolean(getApplicationContext(), CooeeSDKConstants.IS_APP_FIRST_TIME_LAUNCH, appLaunchFromOldVersion);
+//        LocalStorageHelper.getString(getApplicationContext(), CooeeSDKConstants.SDK_TOKEN, sdkFromOldVersion);
+
+        boolean q = getApplicationContext().getSharedPreferences("is_app_first_time_launch", MODE_PRIVATE).edit().clear().commit();
+        boolean r = getApplicationContext().getSharedPreferences("com.letscooee.tester", MODE_PRIVATE).edit().clear().commit();
+        Log.d("file1 cleared",q+"");
+        Log.d("file2 cleared",r+"");
+        boolean x = new File(dir + "/is_app_first_time_launch.xml").delete();
+        boolean y = new File(dir + "/com.letscooee.tester.xml").delete();
+
+        Log.d("qwert",new File(dir + "is_app_first_time_launch.xml").getAbsolutePath());
+        Log.d("file1 deleted",x+"");
+        Log.d("file2 deleted",y+"");
     }
 }

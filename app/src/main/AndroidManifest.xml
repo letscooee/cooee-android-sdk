@@ -4,7 +4,7 @@
     package="com.letscooee.cooeetester">
 
     <application
-        android:allowBackup="true"
+        android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
@@ -21,11 +21,11 @@
 
         <meta-data
             android:name="COOEE_APP_ID"
-            android:value="MY_COOEE_APP_VALUE" />
+            android:value="5fc6466b7124fe671128f0db" />
 
         <meta-data
             android:name="COOEE_APP_SECRET"
-            android:value="MY_COOEE_APP_SECRET" />
+            android:value="bMBX3EK6DPRVw6w74POz" />
 
         <service
             android:name="com.letscooee.services.MyFirebaseMessagingService"
