@@ -159,10 +159,11 @@ public class AppController extends Application implements LifecycleObserver, App
         super.onCreate();
         registerActivityLifecycleCallbacks(this);
         ProcessLifecycleOwner.get().getLifecycle().addObserver(this);
-//       Code for bharat-post app migration from 0.0.3: need testing
-//        if (BuildConfig.VERSION_NAME.equals("0.0.3")) {
-//            migrate();
-//        }
+
+        // Code for bharat-post app migration from 0.0.3: need testing
+        if (BuildConfig.VERSION_NAME.equals("0.0.4")) {
+            migrate();
+        }
     }
 
     @Override
@@ -201,35 +202,37 @@ public class AppController extends Application implements LifecycleObserver, App
     public void onActivityDestroyed(@NonNull Activity activity) {
     }
 
-    // Code for bharat-post app migration from 0.0.3: need testing
+    // Code for bharat-post app migration from 0.0.3 to 0.0.4: need testing
     private void migrate() {
+        // Getting value from old storage
         boolean appLaunchFromOldVersion = getApplicationContext().getSharedPreferences("is_app_first_time_launch", MODE_PRIVATE).getBoolean("is_app_first_time_launch", false);
         String sdkFromOldVersion = getApplicationContext().getSharedPreferences("com.letscooee.tester", MODE_PRIVATE).getString("com.letscooee.tester", "");
 
-        Log.d("appLaunchFromOldVersion", appLaunchFromOldVersion + "");
-        Log.d("sdkFromOldVersion", sdkFromOldVersion + "5");
+        Log.d(CooeeSDKConstants.LOG_PREFIX, "Old value of is app launch : " + appLaunchFromOldVersion);
+        Log.d(CooeeSDKConstants.LOG_PREFIX, "Old value of SDK Token : " + sdkFromOldVersion);
 
+        // Updating value to new storage
+        LocalStorageHelper.putBooleanImmediately(getApplicationContext(), CooeeSDKConstants.IS_APP_FIRST_TIME_LAUNCH, appLaunchFromOldVersion);
+        LocalStorageHelper.putStringImmediately(getApplicationContext(), CooeeSDKConstants.SDK_TOKEN, sdkFromOldVersion);
+
+        // Delete the files from the local shared preference folder
         PackageInfo packageInfo = null;
         try {
+            // Clearing data from the files
+            getApplicationContext().getSharedPreferences("is_app_first_time_launch", MODE_PRIVATE).edit().clear().commit();
+            getApplicationContext().getSharedPreferences("com.letscooee.tester", MODE_PRIVATE).edit().clear().commit();
+
             packageInfo = getApplicationContext().getPackageManager().getPackageInfo(getApplicationContext().getPackageName(), 0);
-        } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
+            File dir = new File(getApplicationContext().getFilesDir().getPath() + "/data/" + packageInfo.packageName + "/shared_prefs/");
+
+            // Deleting the files
+            boolean isAppLaunchFileDeleted = new File(dir + "/is_app_first_time_launch.xml").delete();
+            boolean isSDKFileDeleted = new File(dir + "/com.letscooee.tester.xml").delete();
+            Log.d(CooeeSDKConstants.LOG_PREFIX, "App Launch deleted : " + isAppLaunchFileDeleted);
+            Log.d(CooeeSDKConstants.LOG_PREFIX, "SDK deleted : " + isSDKFileDeleted);
+
+        } catch (Exception e) {
+            Log.e(CooeeSDKConstants.LOG_PREFIX, "Could not delete the file locally");
         }
-        File dir = new File(getApplicationContext().getFilesDir().getPath()+"/data/" + packageInfo.packageName + "/shared_prefs/");
-        Log.d("file path", dir.getAbsolutePath());
-
-//        LocalStorageHelper.getBoolean(getApplicationContext(), CooeeSDKConstants.IS_APP_FIRST_TIME_LAUNCH, appLaunchFromOldVersion);
-//        LocalStorageHelper.getString(getApplicationContext(), CooeeSDKConstants.SDK_TOKEN, sdkFromOldVersion);
-
-        boolean q = getApplicationContext().getSharedPreferences("is_app_first_time_launch", MODE_PRIVATE).edit().clear().commit();
-        boolean r = getApplicationContext().getSharedPreferences("com.letscooee.tester", MODE_PRIVATE).edit().clear().commit();
-        Log.d("file1 cleared",q+"");
-        Log.d("file2 cleared",r+"");
-        boolean x = new File(dir + "/is_app_first_time_launch.xml").delete();
-        boolean y = new File(dir + "/com.letscooee.tester.xml").delete();
-
-        Log.d("qwert",new File(dir + "is_app_first_time_launch.xml").getAbsolutePath());
-        Log.d("file1 deleted",x+"");
-        Log.d("file2 deleted",y+"");
     }
 }
