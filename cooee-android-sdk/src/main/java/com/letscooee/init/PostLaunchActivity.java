@@ -26,9 +26,6 @@ import java.net.ConnectException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ExecutionException;
-
 
 /**
  * PostLaunchActivity initialized when app is launched

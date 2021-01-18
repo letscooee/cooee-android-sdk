@@ -1,17 +1,12 @@
 package com.letscooee.cooeesdk;
 
 import android.content.Context;
-import android.content.Intent;
-import android.os.Bundle;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import com.letscooee.campaign.ImagePopUpActivity;
-import com.letscooee.campaign.VideoPopUpActivity;
 import com.letscooee.init.AppController;
 import com.letscooee.init.PostLaunchActivity;
-import com.letscooee.models.Campaign;
 import com.letscooee.models.Event;
 import com.letscooee.retrofit.APIClient;
 import com.letscooee.retrofit.ServerAPIService;
@@ -96,43 +91,6 @@ public class CooeeSDK {
         }, (Throwable error) -> {
             Log.e(CooeeSDKConstants.LOG_PREFIX, "Observable Error : " + error.toString());
         });
-    }
-
-    /**
-     * Create graphical view from campaign details received from events.
-     *
-     * @param campaign Campaign details received from server
-     */
-    private void createCampaign(Campaign campaign) {
-        // TODO: Create all the available type of campaign/ Enhancement of this is yet to be done
-        if (campaign != null && campaign.getEventName() != null) {
-            Bundle bundle = new Bundle();
-            bundle.putString("title", campaign.getEventName());
-            bundle.putString("mediaURL", campaign.getContent().getMediaUrl());
-            bundle.putString("transitionSide", campaign.getContent().getLayout().getDirection());
-            bundle.putString("autoClose", campaign.getContent().getLayout().getCloseBehaviour().getAutoCloseTime() + "");
-
-            switch (campaign.getEventName()) {
-                case CooeeSDKConstants.IMAGE_CAMPAIGN: {
-                    Intent intent = new Intent(this.context, ImagePopUpActivity.class);
-                    intent.putExtras(bundle);
-                    this.context.startActivity(intent);
-                    break;
-                }
-                case CooeeSDKConstants.VIDEO_CAMPAIGN:
-                    Intent intent = new Intent(this.context, VideoPopUpActivity.class);
-                    intent.putExtras(bundle);
-                    this.context.startActivity(intent);
-                    break;
-                case CooeeSDKConstants.SPLASH_CAMPAIGN: {
-                    // TODO create Splash Campaign Layout class
-                    break;
-                }
-                default: {
-                    Log.e(CooeeSDKConstants.LOG_PREFIX + " error", "No familiar campaign");
-                }
-            }
-        }
     }
 
     /**
