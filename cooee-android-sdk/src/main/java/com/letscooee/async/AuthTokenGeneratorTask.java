@@ -17,7 +17,7 @@ import retrofit2.Response;
  * This is used to create separate thread for synchronous http calls
  * @author Abhishek Taparia
  */
-public class AuthSyncNetwork extends AsyncTask<AuthenticationRequestBody, Void, Response<SDKAuthentication>> {
+public class AuthTokenGeneratorTask extends AsyncTask<AuthenticationRequestBody, Void, Response<SDKAuthentication>> {
 
     @Override
     protected Response<SDKAuthentication> doInBackground(AuthenticationRequestBody... authenticationRequestBodies) {

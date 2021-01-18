@@ -4,9 +4,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+
 import androidx.annotation.NonNull;
+
 import com.letscooee.campaign.ImagePopUpActivity;
 import com.letscooee.campaign.VideoPopUpActivity;
+import com.letscooee.init.AppController;
 import com.letscooee.init.PostLaunchActivity;
 import com.letscooee.models.Campaign;
 import com.letscooee.models.Event;
@@ -14,6 +17,7 @@ import com.letscooee.retrofit.APIClient;
 import com.letscooee.retrofit.ServerAPIService;
 import com.letscooee.utils.CooeeSDKConstants;
 import com.letscooee.utils.PropertyNameException;
+
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -75,25 +79,16 @@ public class CooeeSDK {
             }
         }
 
-        if (this.currentScreenName != null && !this.currentScreenName.equals("")) {
-            eventProperties.put("CE Screen Name", this.currentScreenName);
-        }
-
-        eventProperties.put("CE Session ID", PostLaunchActivity.currentSessionId);
-        eventProperties.put("CE Session Number", PostLaunchActivity.currentSessionNumber);
-        Event event = new Event(eventName, eventProperties);
-
         PostLaunchActivity.onSDKStateDecided.subscribe((Object ignored) -> {
-            apiService.sendEvent(event).enqueue(new Callback<Campaign>() {
+            Event event = new Event(eventName, eventProperties, PostLaunchActivity.currentSessionId, PostLaunchActivity.currentSessionNumber, AppController.currentScreen);
+            apiService.sendEvent(event).enqueue(new Callback<Map<String, Object>>() {
                 @Override
-                public void onResponse(@NonNull Call<Campaign> call, @NonNull Response<Campaign> response) {
+                public void onResponse(@NonNull Call<Map<String, Object>> call, @NonNull Response<Map<String, Object>> response) {
                     Log.d(CooeeSDKConstants.LOG_PREFIX, "User Event Sent Response Code : " + response.code());
-                    Campaign campaign = response.body();
-                    createCampaign(campaign);
                 }
 
                 @Override
-                public void onFailure(@NonNull Call<Campaign> call, @NonNull Throwable t) {
+                public void onFailure(@NonNull Call<Map<String, Object>> call, @NonNull Throwable t) {
                     // TODO Saving the request locally so that it can be sent later
                     Log.e(CooeeSDKConstants.LOG_PREFIX, "User Event Sent Error Message : " + t.toString());
                 }
@@ -168,17 +163,28 @@ public class CooeeSDK {
      * @throws PropertyNameException Custom Exception so that properties' key has no prefix as 'ce '
      */
     public void updateUserProfile(Map<String, String> userData, Map<String, String> userProperties) throws PropertyNameException {
+        if (userProperties != null) {
         for (String key : userProperties.keySet()) {
             if (key.substring(0, 3).equalsIgnoreCase("ce ")) {
                 throw new PropertyNameException();
             }
         }
+        }
 
         Map<String, Object> userMap = new HashMap<>();
-        if (userData != null) {
+        if (userData == null) {
+            userMap.put("userData", new HashMap<>());
+        } else {
             userMap.put("userData", userData);
         }
-        userMap.put("userProperties", userProperties);
+
+        if (userProperties == null) {
+            userMap.put("userProperties", new HashMap<>());
+        } else {
+            userMap.put("userProperties", userProperties);
+        }
+
+        userMap.put("sessionID", PostLaunchActivity.currentSessionId);
 
         PostLaunchActivity.onSDKStateDecided.subscribe((Object ignored) -> {
             Call<ResponseBody> call = apiService.updateProfile(userMap);

@@ -3,6 +3,7 @@ package com.letscooee.init;
 import android.app.Activity;
 import android.app.Application;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -35,57 +36,79 @@ import java.util.Map;
  */
 public class AppController extends Application implements LifecycleObserver, Application.ActivityLifecycleCallbacks {
 
-    static String currentScreen;
+    public static String currentScreen;
     private String packageName;
     private Date startTime;
     private Date stopTime;
     private long startUp;
 
+    private Handler handler = new Handler();
+    private Runnable runnable;
+
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
     public void onEnterForeground() {
         Log.d(CooeeSDKConstants.LOG_PREFIX, "AppController : Foreground");
+
+        ServerAPIService apiService = APIClient.getServerAPIService();
+
+        //send server check message every 5 min that session is still alive
+        handler.postDelayed(runnable = new Runnable() {
+            public void run() {
+                handler.postDelayed(runnable, 5 * 60 * 1000);
+//                PostLaunchActivity.onSDKStateDecided.subscribe((Object ignored) -> {
+//                    apiService.keepAlive(PostLaunchActivity.currentSessionId).enqueue(new Callback<ResponseBody>() {
+//                        @Override
+//                        public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+//                            Log.i(CooeeSDKConstants.LOG_PREFIX, "Session Alive Response Code : " + response.code());
+//                        }
+//
+//                        @Override
+//                        public void onFailure(Call<ResponseBody> call, Throwable t) {
+//                            Log.e(CooeeSDKConstants.LOG_PREFIX, "Session Alive Response Error Message" + t.toString());
+//                        }
+//                    });
+//                });
+                Log.d(CooeeSDKConstants.LOG_PREFIX, "Sent keep alive call");
+            }
+        }, 5 * 60 * 1000);
 
         if (stopTime == null) {
             return;
         }
 
         long backgroundDuration = new Date().getTime() - stopTime.getTime();
-        ServerAPIService apiService = APIClient.getServerAPIService();
 
         PostLaunchActivity.onSDKStateDecided.subscribe((Object ignored) -> {
             if (backgroundDuration > CooeeSDKConstants.IDLE_TIME) {
-                String duration = (stopTime.getTime() - new Date(PostLaunchActivity.currentSessionStartTime).getTime()) / 1000 + "";
-                Map<String, String> sessionProperties = new HashMap<>();
-                sessionProperties.put("CE Duration", duration);
+                int duration = (int) (stopTime.getTime() - new Date(PostLaunchActivity.currentSessionStartTime).getTime()) / 1000;
 
-                Event session = new Event("CE Session Concluded", sessionProperties);
-                apiService.sendSessionConcludedEvent(session).enqueue(new Callback<Campaign>() {
+                apiService.concludeSession(PostLaunchActivity.currentSessionId, duration).enqueue(new Callback<ResponseBody>() {
                     @Override
-                    public void onResponse(@NonNull Call<Campaign> call, @NonNull Response<Campaign> response) {
+                    public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
                         Log.i(CooeeSDKConstants.LOG_PREFIX, "Session Concluded Event Sent Code : " + response.code());
                     }
 
                     @Override
-                    public void onFailure(@NonNull Call<Campaign> call, @NonNull Throwable t) {
+                    public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
                         Log.e(CooeeSDKConstants.LOG_PREFIX, "Session Concluded Event Sent Error Message" + t.toString());
                     }
                 });
 
-                new PostLaunchActivity(getApplicationContext()).createSession();
+                new PostLaunchActivity(getApplicationContext());
                 Log.d(CooeeSDKConstants.LOG_PREFIX, "After 30 min of App Background " + "Session Concluded");
             } else {
                 Map<String, String> sessionProperties = new HashMap<>();
                 sessionProperties.put("CE Duration", String.valueOf(backgroundDuration / 1000));
 
-                Event session = new Event("CE App Foreground", sessionProperties);
-                apiService.sendEvent(session).enqueue(new Callback<Campaign>() {
+                Event session = new Event("CE App Foreground", sessionProperties, PostLaunchActivity.currentSessionId, PostLaunchActivity.currentSessionNumber, currentScreen);
+                apiService.sendEvent(session).enqueue(new Callback<Map<String, Object>>() {
                     @Override
-                    public void onResponse(@NonNull Call<Campaign> call, @NonNull Response<Campaign> response) {
+                    public void onResponse(@NonNull Call<Map<String, Object>> call, @NonNull Response<Map<String, Object>> response) {
                         Log.i(CooeeSDKConstants.LOG_PREFIX, "App Foreground Event Sent Code : " + response.code());
                     }
 
                     @Override
-                    public void onFailure(@NonNull Call<Campaign> call, @NonNull Throwable t) {
+                    public void onFailure(@NonNull Call<Map<String, Object>> call, @NonNull Throwable t) {
                         Log.e(CooeeSDKConstants.LOG_PREFIX, "App Foreground Event Sent Error Message" + t.toString());
                     }
                 });
@@ -96,6 +119,9 @@ public class AppController extends Application implements LifecycleObserver, App
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
     public void onEnterBackground() {
         Log.d(CooeeSDKConstants.LOG_PREFIX, "AppController : Background");
+
+        //stop sending check message of session alive on app background
+        handler.removeCallbacks(runnable);
 
         if (getApplicationContext() == null) {
             return;
@@ -108,6 +134,8 @@ public class AppController extends Application implements LifecycleObserver, App
 
             Map<String, Object> userMap = new HashMap<>();
             userMap.put("userProperties", userProperties);
+            userMap.put("sessionID", PostLaunchActivity.currentSessionId);
+            userMap.put("userData", new HashMap<>());
 
             ServerAPIService apiService = APIClient.getServerAPIService();
             apiService.updateProfile(userMap).enqueue(new Callback<ResponseBody>() {
@@ -127,20 +155,16 @@ public class AppController extends Application implements LifecycleObserver, App
             String duration = (stopTime.getTime() - new Date(PostLaunchActivity.currentSessionStartTime).getTime()) / 1000 + "";
 
             Map<String, String> sessionProperties = new HashMap<>();
-            sessionProperties.put("CE Session ID", PostLaunchActivity.currentSessionId);
-            sessionProperties.put("CE Session Number", PostLaunchActivity.currentSessionNumber);
-            sessionProperties.put("CE Session Start", PostLaunchActivity.currentSessionStartTime);
-            sessionProperties.put("CE Session Stop", stopTime.toString());
             sessionProperties.put("CE Duration", duration);
-            Event session = new Event("CE App Background", sessionProperties);
-            apiService.sendEvent(session).enqueue(new Callback<Campaign>() {
+            Event session = new Event("CE App Background", sessionProperties, PostLaunchActivity.currentSessionId, PostLaunchActivity.currentSessionNumber, currentScreen);
+            apiService.sendEvent(session).enqueue(new Callback<Map<String, Object>>() {
                 @Override
-                public void onResponse(Call<Campaign> call, Response<Campaign> response) {
+                public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {
                     Log.i(CooeeSDKConstants.LOG_PREFIX, "App Background Event Sent Code : " + response.code());
                 }
 
                 @Override
-                public void onFailure(Call<Campaign> call, Throwable t) {
+                public void onFailure(Call<Map<String, Object>> call, Throwable t) {
                     // TODO Saving the request locally so that it can be sent later
                     Log.e(CooeeSDKConstants.LOG_PREFIX, "App Background Event Sent Error Message" + t.toString());
                 }
@@ -164,7 +188,7 @@ public class AppController extends Application implements LifecycleObserver, App
 
     @Override
     public void onActivityStarted(@NonNull Activity activity) {
-        String manualScreenName = CooeeSDK.getDefaultInstance(null).getCurrentScreenName();
+        String manualScreenName = CooeeSDK.getDefaultInstance(getApplicationContext()).getCurrentScreenName();
         currentScreen = (manualScreenName != null && !manualScreenName.isEmpty()) ? manualScreenName : activity.getLocalClassName();
     }
 

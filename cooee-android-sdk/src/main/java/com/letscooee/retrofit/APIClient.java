@@ -4,6 +4,8 @@ import android.util.Log;
 
 import com.letscooee.BuildConfig;
 
+import java.util.concurrent.TimeUnit;
+
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import retrofit2.Retrofit;
@@ -30,6 +32,8 @@ public class APIClient {
 
     public static Retrofit getClient(String baseUrl) {
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                .connectTimeout(60, TimeUnit.SECONDS)
+                .readTimeout(60, TimeUnit.SECONDS)
                 .addInterceptor(chain -> {
                     Request.Builder requestBuilder = chain.request()
                             .newBuilder()

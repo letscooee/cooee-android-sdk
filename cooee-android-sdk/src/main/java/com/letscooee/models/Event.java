@@ -1,7 +1,5 @@
 package com.letscooee.models;
 
-import com.google.gson.annotations.SerializedName;
-
 import java.util.Map;
 
 /**
@@ -11,30 +9,57 @@ import java.util.Map;
  */
 public class Event {
 
-    @SerializedName("name")
-    private String eventName;
+    private String name;
+    private Map<String, String> properties;
+    private String sessionID;
+    private int sessionNumber;
+    private String screenName;
 
-    @SerializedName("userEventProperties")
-    private Map<String, String> eventProperties;
-
-    public Event(String eventName, Map<String, String> eventProperties) {
-        this.eventName = eventName;
-        this.eventProperties = eventProperties;
+    public Event(String name, Map<String, String> properties, String sessionID, int sessionNumber, String screenName) {
+        this.name = name;
+        this.properties = properties;
+        this.sessionID = sessionID;
+        this.sessionNumber = sessionNumber;
+        this.screenName = screenName;
     }
 
-    public String getEventName() {
-        return eventName;
+    public String getName() {
+        return name;
     }
 
-    public void setEventName(String eventName) {
-        this.eventName = eventName;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public Map<String, String> getEventProperties() {
-        return eventProperties;
+    public Map<String, String> getProperties() {
+        return properties;
     }
 
-    public void setEventProperties(Map<String, String> eventProperties) {
-        this.eventProperties = eventProperties;
+    public void setProperties(Map<String, String> properties) {
+        this.properties = properties;
+    }
+
+    public String getSessionID() {
+        return sessionID;
+    }
+
+    public void setSessionID(String sessionID) {
+        this.sessionID = sessionID;
+    }
+
+    public int getSessionNumber() {
+        return sessionNumber;
+    }
+
+    public void setSessionNumber(int sessionNumber) {
+        this.sessionNumber = sessionNumber;
+    }
+
+    public String getScreenName() {
+        return screenName;
+    }
+
+    public void setScreenName(String screenName) {
+        this.screenName = screenName;
     }
 }

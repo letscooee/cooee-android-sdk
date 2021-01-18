@@ -6,6 +6,7 @@ package com.letscooee.models;
  */
 public class SDKAuthentication {
     private String sdkToken;
+    private String sessionID;
 
     public String getSdkToken() {
         return sdkToken;
@@ -13,5 +14,14 @@ public class SDKAuthentication {
 
     public void setSdkToken(String sdkToken) {
         this.sdkToken = sdkToken;
+    }
+
+
+    public String getSessionID() {
+        return sessionID;
+    }
+
+    public void setSessionID(String sessionID) {
+        this.sessionID = sessionID;
     }
 }
