@@ -14,5 +14,5 @@ public class CooeeSDKConstants {
     public static final String VIDEO_CAMPAIGN = "video_campaign";
     public static final String SPLASH_CAMPAIGN = "splash_campaign";
     public static final String LOG_PREFIX = "CooeeSDK";
-    public static final int IDLE_TIME = 30 * 60 * 1000;
+    public static final int IDLE_TIME_IN_MS = 30 * 60 * 1000;
 }

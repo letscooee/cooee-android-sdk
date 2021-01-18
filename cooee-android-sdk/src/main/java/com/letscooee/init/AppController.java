@@ -37,8 +37,8 @@ public class AppController extends Application implements LifecycleObserver, App
 
     public static String currentScreen;
     private String packageName;
-    private Date startTime;
-    private Date stopTime;
+    private Date lastEnterForeground;
+    private Date lastEnterBackground;
     private long startUp;
 
     private Handler handler = new Handler();
@@ -48,38 +48,23 @@ public class AppController extends Application implements LifecycleObserver, App
     public void onEnterForeground() {
         Log.d(CooeeSDKConstants.LOG_PREFIX, "AppController : Foreground");
 
+        keepSessionAlive();
+
+        lastEnterForeground = new Date();
+
         ServerAPIService apiService = APIClient.getServerAPIService();
 
-        //send server check message every 5 min that session is still alive
-        handler.postDelayed(runnable = new Runnable() {
-            public void run() {
-                handler.postDelayed(runnable, 5 * 60 * 1000);
-//                PostLaunchActivity.onSDKStateDecided.subscribe((Object ignored) -> {
-//                    apiService.keepAlive(PostLaunchActivity.currentSessionId).enqueue(new Callback<ResponseBody>() {
-//                        @Override
-//                        public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-//                            Log.i(CooeeSDKConstants.LOG_PREFIX, "Session Alive Response Code : " + response.code());
-//                        }
-//
-//                        @Override
-//                        public void onFailure(Call<ResponseBody> call, Throwable t) {
-//                            Log.e(CooeeSDKConstants.LOG_PREFIX, "Session Alive Response Error Message" + t.toString());
-//                        }
-//                    });
-//                });
-                Log.d(CooeeSDKConstants.LOG_PREFIX, "Sent keep alive call");
-            }
-        }, 5 * 60 * 1000);
-
-        if (stopTime == null) {
+        // return if this method runs when app is just installed/launched
+        if (lastEnterBackground == null) {
             return;
         }
 
-        long backgroundDuration = new Date().getTime() - stopTime.getTime();
+        long backgroundDuration = new Date().getTime() - lastEnterBackground.getTime();
 
+        //Purposefully not added to another method, will be taken cared in separate-http-call merge
         PostLaunchActivity.onSDKStateDecided.subscribe((Object ignored) -> {
-            if (backgroundDuration > CooeeSDKConstants.IDLE_TIME) {
-                int duration = (int) (stopTime.getTime() - new Date(PostLaunchActivity.currentSessionStartTime).getTime()) / 1000;
+            if (backgroundDuration > CooeeSDKConstants.IDLE_TIME_IN_MS) {
+                int duration = (int) (lastEnterBackground.getTime() - PostLaunchActivity.currentSessionStartTime.getTime()) / 1000;
 
                 apiService.concludeSession(PostLaunchActivity.currentSessionId, duration).enqueue(new Callback<ResponseBody>() {
                     @Override
@@ -126,32 +111,12 @@ public class AppController extends Application implements LifecycleObserver, App
             return;
         }
 
+        //Purposefully not added to another method, will be taken cared in separate-http-call merge
         PostLaunchActivity.onSDKStateDecided.subscribe((Object ignored) -> {
-            Map<String, String> userProperties = new HashMap<>();
-            userProperties.put("CE Last Screen", currentScreen);
-            userProperties.put("CE Package Name", packageName);
-
-            Map<String, Object> userMap = new HashMap<>();
-            userMap.put("userProperties", userProperties);
-            userMap.put("sessionID", PostLaunchActivity.currentSessionId);
-            userMap.put("userData", new HashMap<>());
-
             ServerAPIService apiService = APIClient.getServerAPIService();
-            apiService.updateProfile(userMap).enqueue(new Callback<ResponseBody>() {
-                @Override
-                public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
-                    Log.i(CooeeSDKConstants.LOG_PREFIX, "User Properties Response Code : " + response.code());
-                }
 
-                @Override
-                public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
-                    // TODO Saving the request locally so that it can be sent later
-                    Log.e(CooeeSDKConstants.LOG_PREFIX, "User Properties Error Message : " + t.toString());
-                }
-            });
-
-            stopTime = new Date();
-            String duration = (stopTime.getTime() - new Date(PostLaunchActivity.currentSessionStartTime).getTime()) / 1000 + "";
+            lastEnterBackground = new Date();
+            String duration = (lastEnterBackground.getTime() - lastEnterForeground.getTime()) / 1000 + "";
 
             Map<String, String> sessionProperties = new HashMap<>();
             sessionProperties.put("CE Duration", duration);
@@ -171,9 +136,32 @@ public class AppController extends Application implements LifecycleObserver, App
         });
     }
 
+
+    private void keepSessionAlive(){
+        //send server check message every 5 min that session is still alive
+        handler.postDelayed(runnable = new Runnable() {
+            public void run() {
+                handler.postDelayed(runnable, 5 * 60 * 1000);
+//                PostLaunchActivity.onSDKStateDecided.subscribe((Object ignored) -> {
+//                    apiService.keepAlive(PostLaunchActivity.currentSessionId).enqueue(new Callback<ResponseBody>() {
+//                        @Override
+//                        public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+//                            Log.i(CooeeSDKConstants.LOG_PREFIX, "Session Alive Response Code : " + response.code());
+//                        }
+//
+//                        @Override
+//                        public void onFailure(Call<ResponseBody> call, Throwable t) {
+//                            Log.e(CooeeSDKConstants.LOG_PREFIX, "Session Alive Response Error Message" + t.toString());
+//                        }
+//                    });
+//                });
+                Log.d(CooeeSDKConstants.LOG_PREFIX, "Sent keep alive call");
+            }
+        }, 5 * 60 * 1000);
+    }
+
     @Override
     public void onCreate() {
-        this.startTime = new Date();
         super.onCreate();
         registerActivityLifecycleCallbacks(this);
         ProcessLifecycleOwner.get().getLifecycle().addObserver(this);
@@ -193,8 +181,6 @@ public class AppController extends Application implements LifecycleObserver, App
 
     @Override
     public void onActivityResumed(@NonNull Activity activity) {
-        this.startUp = new Date().getTime() - this.startTime.getTime();
-        Log.d(CooeeSDKConstants.LOG_PREFIX, "Start Up Time : " + this.startUp);
     }
 
     @Override

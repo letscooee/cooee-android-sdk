@@ -34,6 +34,7 @@ import java.util.Map;
  */
 public class PostLaunchActivity {
 
+    //sharedPreferences and http calls are made using specific classes in next branches to be merged
     private SharedPreferences sharedPreferences;
     private SharedPreferences.Editor sharedPreferencesEditor;
     private Context context;
@@ -41,7 +42,7 @@ public class PostLaunchActivity {
     private ServerAPIService apiService;
 
     public static ReplaySubject<Object> onSDKStateDecided;
-    public static String currentSessionStartTime = "";
+    public static Date currentSessionStartTime;
     public static String currentSessionId = "";
     public static int currentSessionNumber;
 
@@ -120,7 +121,7 @@ public class PostLaunchActivity {
         onSDKStateDecided = ReplaySubject.create(1);
 
         currentSessionNumber = getSessionNumber();
-        currentSessionStartTime = new Date().toString();
+        currentSessionStartTime = new Date();
     }
 
     /**
