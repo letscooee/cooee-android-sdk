@@ -24,12 +24,11 @@ public interface ServerAPIService {
     @POST("/v1/user/save")
     Call<SDKAuthentication> registerUser(@Body AuthenticationRequestBody authenticationRequestBody);
 
-    @FormUrlEncoded
     @POST("/v1/event/save")
     Call<Map<String, Object>> sendEvent(@Body Event event);
 
     @FormUrlEncoded
-    @POST("/v1/event/concludeSession")
+    @POST("/v1/session/conclude")
     Call<ResponseBody> concludeSession(@Field("sessionID") String sessionID, @Field("duration") int duration);
 
     @PUT("/v1/user/update")

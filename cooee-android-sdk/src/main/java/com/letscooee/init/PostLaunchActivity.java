@@ -82,6 +82,7 @@ public class PostLaunchActivity {
                 LocalStorageHelper.putString(context, CooeeSDKConstants.STORAGE_SDK_TOKEN, sdkToken);
 
                 APIClient.setAPIToken(sdkToken);
+                notifySDKStateDecided();
                 appFirstOpen();
             }
                 }
@@ -127,7 +128,7 @@ public class PostLaunchActivity {
      * @return true if app is launched for first time, else false
      */
     private boolean isAppFirstTimeLaunch() {
-        if (LocalStorageHelper.getBoolean(context, CooeeSDKConstants.STORAGE_FIRST_TIME_LAUNCH, true)) {
+        if (LocalStorageHelper.getBoolean(context, CooeeSDKConstants.STORAGE_FIRST_TIME_LAUNCH, false)) {
             LocalStorageHelper.putBoolean(context, CooeeSDKConstants.STORAGE_FIRST_TIME_LAUNCH, false);
             return true;
         } else {
@@ -217,6 +218,7 @@ public class PostLaunchActivity {
                     currentSessionId = String.valueOf(data.get("sessionID"));
                 }
                 notifySDKStateDecided();
+                Log.d("test","data"+ data.toString());
             }
         });
     }

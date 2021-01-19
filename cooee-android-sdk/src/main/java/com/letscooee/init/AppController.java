@@ -63,23 +63,23 @@ public class AppController extends Application implements LifecycleObserver, App
         long backgroundDuration = new Date().getTime() - lastEnterBackground.getTime();
 
         //Indentation to be solved
-            if (backgroundDuration > CooeeSDKConstants.IDLE_TIME_IN_MS) {
-                int duration = (int) (lastEnterBackground.getTime() - PostLaunchActivity.currentSessionStartTime.getTime()) / 1000;
-                Map<String, String> sessionProperties = new HashMap<>();
-                sessionProperties.put("CE Duration", duration + "");
+        if (backgroundDuration > CooeeSDKConstants.IDLE_TIME_IN_MS) {
+            int duration = (int) (lastEnterBackground.getTime() - PostLaunchActivity.currentSessionStartTime.getTime()) / 1000;
+            Map<String, String> sessionProperties = new HashMap<>();
+            sessionProperties.put("CE Duration", duration + "");
 
-                HttpCallsHelper.sendSessionConcludedEvent(PostLaunchActivity.currentSessionId, duration);
+            HttpCallsHelper.sendSessionConcludedEvent(PostLaunchActivity.currentSessionId, duration);
 
-                new PostLaunchActivity(getApplicationContext());
-                Log.d(CooeeSDKConstants.LOG_PREFIX, "After 30 min of App Background " + "Session Concluded");
-            } else {
-                Map<String, String> sessionProperties = new HashMap<>();
-                sessionProperties.put("CE Duration", String.valueOf(backgroundDuration / 1000));
+            new PostLaunchActivity(getApplicationContext());
+            Log.d(CooeeSDKConstants.LOG_PREFIX, "After 30 min of App Background " + "Session Concluded");
+        } else {
+            Map<String, String> sessionProperties = new HashMap<>();
+            sessionProperties.put("CE Duration", String.valueOf(backgroundDuration / 1000));
 
-                Event session = new Event("CE App Foreground", sessionProperties);
-                HttpCallsHelper.sendEvent(session, "App Foreground");
+            Event session = new Event("CE App Foreground", sessionProperties);
+            HttpCallsHelper.sendEvent(session, "App Foreground");
 
-            }
+        }
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
@@ -104,7 +104,7 @@ public class AppController extends Application implements LifecycleObserver, App
             sessionProperties.put("CE Duration", duration);
 
             Event session = new Event("CE App Background", sessionProperties);
-            HttpCallsHelper.sendEvent(session,"App Background");
+            HttpCallsHelper.sendEvent(session, "App Background");
         });
     }
 
@@ -139,7 +139,8 @@ public class AppController extends Application implements LifecycleObserver, App
         ProcessLifecycleOwner.get().getLifecycle().addObserver(this);
 
         // Code for bharat-post app migration from 0.0.3: need testing
-        if (BuildConfig.VERSION_CODE > 1) {
+        int version = LocalStorageHelper.getInt(getApplicationContext(), "sdk_version", 0);
+        if (version == 0) {
             migrate();
         }
     }
@@ -181,7 +182,7 @@ public class AppController extends Application implements LifecycleObserver, App
     // Code for bharat-post app migration from 0.0.3 to 0.0.4: need testing
     private void migrate() {
         // Getting value from old storage
-        boolean appLaunchFromOldVersion = getApplicationContext().getSharedPreferences("is_app_first_time_launch", MODE_PRIVATE).getBoolean("is_app_first_time_launch", false);
+        boolean appLaunchFromOldVersion = getApplicationContext().getSharedPreferences("is_app_first_time_launch", MODE_PRIVATE).getBoolean("is_app_first_time_launch", true);
         String sdkTokenFromOldVersion = getApplicationContext().getSharedPreferences("com.letscooee.tester", MODE_PRIVATE).getString("com.letscooee.tester", "");
 
         Log.d(CooeeSDKConstants.LOG_PREFIX, "Old value of is app launch : " + appLaunchFromOldVersion);
@@ -190,6 +191,7 @@ public class AppController extends Application implements LifecycleObserver, App
         // Updating value to new storage
         LocalStorageHelper.putBooleanImmediately(getApplicationContext(), CooeeSDKConstants.STORAGE_FIRST_TIME_LAUNCH, appLaunchFromOldVersion);
         LocalStorageHelper.putStringImmediately(getApplicationContext(), CooeeSDKConstants.STORAGE_SDK_TOKEN, sdkTokenFromOldVersion);
+        LocalStorageHelper.putIntImmediately(getApplicationContext(), "sdk_version", BuildConfig.VERSION_CODE);
 
         // Delete the files from the local shared preference folder
         PackageInfo packageInfo = null;

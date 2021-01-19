@@ -23,22 +23,23 @@ import retrofit2.Response;
  * @author Abhishek Taparia
  */
 public final class HttpCallsHelper {
+
     static ServerAPIService serverAPIService = APIClient.getServerAPIService();
 
     public static void sendEvent(Event event, String msg) {
         PostLaunchActivity.onSDKStateDecided.subscribe((Object ignored) -> {
+            event.setSessionID(PostLaunchActivity.currentSessionId);
+            event.setScreenName(AppController.currentScreen);
+            event.setSessionNumber(PostLaunchActivity.currentSessionNumber);
+
             sendEventWithoutSDKState(event, msg, null);
 
-        }, (Throwable error) -> {
-            Log.e(CooeeSDKConstants.LOG_PREFIX, "Observable Error : " + error.toString());
         });
     }
 
     public static void sendEventWithoutSDKState(Event event, String msg, Closure closure) {
-        event.setSessionID(PostLaunchActivity.currentSessionId);
         event.setScreenName(AppController.currentScreen);
         event.setSessionNumber(PostLaunchActivity.currentSessionNumber);
-
         serverAPIService.sendEvent(event).enqueue(new Callback<Map<String, Object>>() {
             @Override
             public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {
@@ -70,13 +71,10 @@ public final class HttpCallsHelper {
                     Log.e(CooeeSDKConstants.LOG_PREFIX, msg + " User Profile Error Message : " + t.toString());
                 }
             });
-        }, (Throwable error) -> {
-            Log.e(CooeeSDKConstants.LOG_PREFIX, "Observable Error : " + error.toString());
         });
     }
 
     public static void sendSessionConcludedEvent(String sessionID, int duration) {
-        //TODO remove session from parameter and also update sendSessionConcludedEvent method in ServerAPIService
         PostLaunchActivity.onSDKStateDecided.subscribe((Object ignored) -> {
             serverAPIService.concludeSession(sessionID, duration).enqueue(new Callback<ResponseBody>() {
                 @Override
