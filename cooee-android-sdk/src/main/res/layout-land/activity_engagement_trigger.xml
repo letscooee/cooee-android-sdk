@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/parentRelative"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/transparent"
+    tools:context=".campaign.EngagementTriggerActivity">
+
+    <RelativeLayout
+        android:id="@+id/secondParentRelative"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_centerInParent="true"
+        android:layout_margin="15dp"
+        android:background="@android:color/transparent">
+
+        <ImageButton
+            android:id="@+id/buttonClose"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:src="@drawable/ic_close_button"
+            android:translationZ="1dp" />
+
+        <LinearLayout
+            android:id="@+id/contentLinearLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="13dp"
+            android:background="@android:color/transparent">
+
+            <RelativeLayout
+                android:id="@+id/textLayout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1.5"
+                android:gravity="center">
+
+                <TextView
+                    android:id="@+id/textViewTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:gravity="center"
+                    android:padding="5dp"
+                    android:text="Hello title" />
+
+                <TextView
+                    android:id="@+id/textViewContent"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/textViewTitle"
+                    android:layout_centerHorizontal="true"
+                    android:gravity="center"
+                    android:padding="5dp"
+                    android:text="Content" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/mediaRelativeLayout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1">
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/mediaFrameLayout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:layout_margin="3dp"
+                    app:cardCornerRadius="3dp">
+
+                    <RelativeLayout
+                        android:id="@+id/insideMediaFrameLayout"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+
+                    </RelativeLayout>
+
+                </androidx.cardview.widget.CardView>
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/actionLayout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1.75">
+
+            </RelativeLayout>
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/textViewTimer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+    </RelativeLayout>
+
+</RelativeLayout>

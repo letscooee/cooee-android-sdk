@@ -212,7 +212,6 @@ public class PostLaunchActivity {
             }
 
             notifySDKStateDecided();
-            Log.d("test", "data" + data.toString());
         });
     }
 
