@@ -1,12 +1,14 @@
 package com.letscooee.retrofit;
 
 import com.letscooee.models.AuthenticationRequestBody;
-import com.letscooee.models.Campaign;
 import com.letscooee.models.Event;
 import com.letscooee.models.SDKAuthentication;
+
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.Field;
+import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
 
@@ -23,8 +25,15 @@ public interface ServerAPIService {
     Call<SDKAuthentication> registerUser(@Body AuthenticationRequestBody authenticationRequestBody);
 
     @POST("/v1/event/save")
-    Call<Campaign> sendEvent(@Body Event event);
+    Call<Map<String, Object>> sendEvent(@Body Event event);
+
+    @FormUrlEncoded
+    @POST("/v1/event/concludeSession")
+    Call<ResponseBody> concludeSession(@Field("sessionID") String sessionID, @Field("duration") int duration);
 
     @PUT("/v1/user/update")
     Call<ResponseBody> updateProfile(@Body Map<String, Object> objectMap);
+
+    @POST("/v1/session/keepAlive")
+    Call<ResponseBody> keepAlive(@Field("sessionID") String sessionID);
 }
