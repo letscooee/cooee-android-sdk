@@ -21,7 +21,7 @@ allprojects {
         maven { url "https://oss.jfrog.org/libs-snapshot" }
     }
 
-    version "0.0.3"
+    version "0.1.0"
     group "com.letscooee"
 }
 
