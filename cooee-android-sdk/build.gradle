@@ -63,7 +63,7 @@ android {
 
     buildTypes {
         debug {
-            buildConfigField "String", "SERVER_URL", '"https://api.sdk.letscooee.com"'
+            buildConfigField "String", "SERVER_URL", '"http://192.168.29.10:3003"'
         }
         release {
             minifyEnabled false
