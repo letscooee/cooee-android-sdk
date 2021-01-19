@@ -1,7 +1,6 @@
 package com.letscooee.init;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -15,6 +14,7 @@ import com.letscooee.models.*;
 import com.letscooee.retrofit.APIClient;
 import com.letscooee.retrofit.ServerAPIService;
 import com.letscooee.utils.CooeeSDKConstants;
+import com.letscooee.utils.LocalStorageHelper;
 
 import io.reactivex.rxjava3.subjects.ReplaySubject;
 import okhttp3.ResponseBody;
@@ -34,9 +34,6 @@ import java.util.Map;
  */
 public class PostLaunchActivity {
 
-    //sharedPreferences and http calls are made using specific classes in next branches to be merged
-    private SharedPreferences sharedPreferences;
-    private SharedPreferences.Editor sharedPreferencesEditor;
     private Context context;
     private DefaultUserPropertiesCollector defaultUserPropertiesCollector;
     private ServerAPIService apiService;
@@ -57,7 +54,7 @@ public class PostLaunchActivity {
         }
 
         this.context = context;
-        this.sharedPreferences = context.getSharedPreferences(CooeeSDKConstants.IS_APP_FIRST_TIME_LAUNCH, Context.MODE_PRIVATE);
+
         this.defaultUserPropertiesCollector = new DefaultUserPropertiesCollector(context);
         this.apiService = APIClient.getServerAPIService();
 
@@ -66,16 +63,13 @@ public class PostLaunchActivity {
         {
         if (isAppFirstTimeLaunch()) {
             AuthenticationRequestBody authenticationRequestBody = getAuthenticationRequestBody();
-
             apiService.registerUser(authenticationRequestBody).enqueue(new Callback<SDKAuthentication>() {
                 @Override
                 public void onResponse(Call<SDKAuthentication> call, Response<SDKAuthentication> response) {
+
             if (response == null) {
                 onSDKStateDecided.onError(new ConnectException());
-                sharedPreferences
-                        .edit()
-                        .remove(CooeeSDKConstants.IS_APP_FIRST_TIME_LAUNCH)
-                        .apply();
+                LocalStorageHelper.remove(context, CooeeSDKConstants.STORAGE_FIRST_TIME_LAUNCH);
 
             } else if (response.isSuccessful()) {
                 assert response.body() != null;
@@ -83,10 +77,7 @@ public class PostLaunchActivity {
                 Log.i(CooeeSDKConstants.LOG_PREFIX, "Token : " + sdkToken);
                 currentSessionId = response.body().getSessionID();
 
-                sharedPreferences = context.getSharedPreferences(CooeeSDKConstants.SDK_TOKEN, Context.MODE_PRIVATE);
-                sharedPreferencesEditor = sharedPreferences.edit();
-                sharedPreferencesEditor.putString(CooeeSDKConstants.SDK_TOKEN, sdkToken);
-                sharedPreferencesEditor.apply();
+                LocalStorageHelper.putString(context, CooeeSDKConstants.STORAGE_SDK_TOKEN, sdkToken);
 
                 APIClient.setAPIToken(sdkToken);
                 appFirstOpen();
@@ -96,15 +87,11 @@ public class PostLaunchActivity {
                 @Override
                 public void onFailure(Call<SDKAuthentication> call, Throwable t) {
             onSDKStateDecided.onError(t);
-            sharedPreferences
-                    .edit()
-                    .remove(CooeeSDKConstants.IS_APP_FIRST_TIME_LAUNCH)
-                    .apply();
+                    LocalStorageHelper.remove(context, CooeeSDKConstants.STORAGE_FIRST_TIME_LAUNCH);
                 }
             });
         } else {
-            sharedPreferences = context.getSharedPreferences(CooeeSDKConstants.SDK_TOKEN, Context.MODE_PRIVATE);
-            String apiToken = sharedPreferences.getString(CooeeSDKConstants.SDK_TOKEN, "");
+            String apiToken = LocalStorageHelper.getString(context, CooeeSDKConstants.STORAGE_SDK_TOKEN, "");
             Log.i(CooeeSDKConstants.LOG_PREFIX, "Token : " + apiToken);
 
             APIClient.setAPIToken(apiToken);
@@ -138,14 +125,10 @@ public class PostLaunchActivity {
      * @return true if app is launched for first time, else false
      */
     private boolean isAppFirstTimeLaunch() {
-        if (this.sharedPreferences != null && this.sharedPreferences.getBoolean(CooeeSDKConstants.IS_APP_FIRST_TIME_LAUNCH, true)) {
-            // App is open/launch for first time, update the preference
-            this.sharedPreferencesEditor = this.sharedPreferences.edit();
-            this.sharedPreferencesEditor.putBoolean(CooeeSDKConstants.IS_APP_FIRST_TIME_LAUNCH, false);
-            this.sharedPreferencesEditor.apply();
+        if (LocalStorageHelper.getBoolean(context, CooeeSDKConstants.STORAGE_FIRST_TIME_LAUNCH, true)) {
+            LocalStorageHelper.putBoolean(context, CooeeSDKConstants.STORAGE_FIRST_TIME_LAUNCH, false);
             return true;
         } else {
-            // App previously opened
             return false;
         }
     }
@@ -318,17 +301,13 @@ public class PostLaunchActivity {
      * @return next session number
      */
     private int getSessionNumber() {
-        sharedPreferences = context.getSharedPreferences("Session Number", Context.MODE_PRIVATE);
-        int sessionNumber = sharedPreferences.getInt("Session Number", 0);
+        int sessionNumber = LocalStorageHelper.getInt(context, CooeeSDKConstants.STORAGE_SESSION_NUMBER,0);
 
         if (sessionNumber >= 0) {
             sessionNumber += 1;
         }
 
-        sharedPreferences
-                .edit()
-                .putInt("Session Number", sessionNumber)
-                .apply();
+        LocalStorageHelper.putInt(context, CooeeSDKConstants.STORAGE_SESSION_NUMBER, sessionNumber);
 
         return sessionNumber;
     }
