@@ -1,21 +1,18 @@
 package com.letscooee.retrofit;
 
 import android.util.Log;
-
 import androidx.annotation.NonNull;
-
 import com.letscooee.init.AppController;
 import com.letscooee.init.PostLaunchActivity;
 import com.letscooee.models.Event;
 import com.letscooee.utils.Closure;
 import com.letscooee.utils.CooeeSDKConstants;
-
-import java.util.Map;
-
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+
+import java.util.Map;
 
 /**
  * HttpCallsHelper will be used to create http calls to the server
@@ -26,24 +23,22 @@ public final class HttpCallsHelper {
 
     static ServerAPIService serverAPIService = APIClient.getServerAPIService();
 
-    public static void sendEvent(Event event, String msg) {
+    public static void sendEvent(Event event) {
+        //noinspection ResultOfMethodCallIgnored
         PostLaunchActivity.onSDKStateDecided.subscribe((Object ignored) -> {
             event.setSessionID(PostLaunchActivity.currentSessionId);
-            event.setScreenName(AppController.currentScreen);
-            event.setSessionNumber(PostLaunchActivity.currentSessionNumber);
-
-            sendEventWithoutSDKState(event, msg, null);
-
+            sendEventWithoutSDKState(event, null);
         });
     }
 
-    public static void sendEventWithoutSDKState(Event event, String msg, Closure closure) {
+    public static void sendEventWithoutSDKState(Event event, Closure closure) {
         event.setScreenName(AppController.currentScreen);
         event.setSessionNumber(PostLaunchActivity.currentSessionNumber);
+
         serverAPIService.sendEvent(event).enqueue(new Callback<Map<String, Object>>() {
             @Override
             public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {
-                Log.i(CooeeSDKConstants.LOG_PREFIX, msg + " Event Sent Code : " + response.code());
+                Log.i(CooeeSDKConstants.LOG_PREFIX, event.getName() + " Event Sent Code: " + response.code());
 
                 if (closure != null) {
                     closure.call(response.body());
@@ -52,15 +47,15 @@ public final class HttpCallsHelper {
 
             @Override
             public void onFailure(Call<Map<String, Object>> call, Throwable t) {
-                Log.e(CooeeSDKConstants.LOG_PREFIX, msg + " Event Sent Error Message" + t.toString());
+                Log.e(CooeeSDKConstants.LOG_PREFIX, event.getName() + " Event Sent Error Message: " + t.toString());
             }
         });
     }
 
     public static void sendUserProfile(Map<String, Object> userMap, String msg) {
+        //noinspection ResultOfMethodCallIgnored
         PostLaunchActivity.onSDKStateDecided.subscribe((Object ignored) -> {
-            Call<ResponseBody> call = serverAPIService.updateProfile(userMap);
-            call.enqueue(new Callback<ResponseBody>() {
+            serverAPIService.updateProfile(userMap).enqueue(new Callback<ResponseBody>() {
                 @Override
                 public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
                     Log.i(CooeeSDKConstants.LOG_PREFIX, msg + " User Profile Response Code : " + response.code());
@@ -75,6 +70,7 @@ public final class HttpCallsHelper {
     }
 
     public static void sendSessionConcludedEvent(String sessionID, int duration) {
+        //noinspection ResultOfMethodCallIgnored
         PostLaunchActivity.onSDKStateDecided.subscribe((Object ignored) -> {
             serverAPIService.concludeSession(sessionID, duration).enqueue(new Callback<ResponseBody>() {
                 @Override

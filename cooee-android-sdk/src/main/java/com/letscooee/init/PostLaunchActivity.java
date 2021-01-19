@@ -6,20 +6,17 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
-
-import androidx.annotation.NonNull;
-
 import com.letscooee.BuildConfig;
-import com.letscooee.models.*;
+import com.letscooee.models.AuthenticationRequestBody;
+import com.letscooee.models.DeviceData;
+import com.letscooee.models.Event;
+import com.letscooee.models.SDKAuthentication;
 import com.letscooee.retrofit.APIClient;
 import com.letscooee.retrofit.HttpCallsHelper;
 import com.letscooee.retrofit.ServerAPIService;
-import com.letscooee.utils.Closure;
 import com.letscooee.utils.CooeeSDKConstants;
 import com.letscooee.utils.LocalStorageHelper;
-
 import io.reactivex.rxjava3.subjects.ReplaySubject;
-import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -61,35 +58,34 @@ public class PostLaunchActivity {
         this.apiService = APIClient.getServerAPIService();
 
         sessionCreation();
-        //Block code to be transferred to sessionCreation function after merge
-        {
+
         if (isAppFirstTimeLaunch()) {
             AuthenticationRequestBody authenticationRequestBody = getAuthenticationRequestBody();
             apiService.registerUser(authenticationRequestBody).enqueue(new Callback<SDKAuthentication>() {
                 @Override
                 public void onResponse(Call<SDKAuthentication> call, Response<SDKAuthentication> response) {
 
-            if (response == null) {
-                onSDKStateDecided.onError(new ConnectException());
-                LocalStorageHelper.remove(context, CooeeSDKConstants.STORAGE_FIRST_TIME_LAUNCH);
+                    if (response == null) {
+                        onSDKStateDecided.onError(new ConnectException());
+                        LocalStorageHelper.remove(context, CooeeSDKConstants.STORAGE_FIRST_TIME_LAUNCH);
 
-            } else if (response.isSuccessful()) {
-                assert response.body() != null;
-                String sdkToken = response.body().getSdkToken();
-                Log.i(CooeeSDKConstants.LOG_PREFIX, "Token : " + sdkToken);
-                currentSessionId = response.body().getSessionID();
+                    } else if (response.isSuccessful()) {
+                        assert response.body() != null;
+                        String sdkToken = response.body().getSdkToken();
+                        Log.i(CooeeSDKConstants.LOG_PREFIX, "Token : " + sdkToken);
+                        currentSessionId = response.body().getSessionID();
 
-                LocalStorageHelper.putString(context, CooeeSDKConstants.STORAGE_SDK_TOKEN, sdkToken);
+                        LocalStorageHelper.putString(context, CooeeSDKConstants.STORAGE_SDK_TOKEN, sdkToken);
 
-                APIClient.setAPIToken(sdkToken);
-                notifySDKStateDecided();
-                appFirstOpen();
-            }
+                        APIClient.setAPIToken(sdkToken);
+                        notifySDKStateDecided();
+                        appFirstOpen();
+                    }
                 }
 
                 @Override
                 public void onFailure(Call<SDKAuthentication> call, Throwable t) {
-            onSDKStateDecided.onError(t);
+                    onSDKStateDecided.onError(t);
                     LocalStorageHelper.remove(context, CooeeSDKConstants.STORAGE_FIRST_TIME_LAUNCH);
                 }
             });
@@ -100,7 +96,6 @@ public class PostLaunchActivity {
             APIClient.setAPIToken(apiToken);
 
             successiveAppLaunch();
-        }
         }
     }
 
@@ -187,7 +182,7 @@ public class PostLaunchActivity {
         eventProperties.put("CE App Version", defaultUserPropertiesCollector.getAppVersion());
         Event event = new Event("CE App Installed", eventProperties);
 
-        HttpCallsHelper.sendEvent(event,"App Installed");
+        HttpCallsHelper.sendEvent(event);
     }
 
     /**
@@ -211,15 +206,13 @@ public class PostLaunchActivity {
         eventProperties.put("CE Device Battery", defaultUserPropertiesCollector.getBatteryLevel());
 
         Event event = new Event("CE App Launched", eventProperties);
-        HttpCallsHelper.sendEventWithoutSDKState(event, "App Launched", new Closure() {
-            @Override
-            public void call(Map<String, Object> data) {
-                if (data != null && data.get("sessionID") != null) {
-                    currentSessionId = String.valueOf(data.get("sessionID"));
-                }
-                notifySDKStateDecided();
-                Log.d("test","data"+ data.toString());
+        HttpCallsHelper.sendEventWithoutSDKState(event, data -> {
+            if (data != null && data.get("sessionID") != null) {
+                currentSessionId = String.valueOf(data.get("sessionID"));
             }
+
+            notifySDKStateDecided();
+            Log.d("test", "data" + data.toString());
         });
     }
 
@@ -229,56 +222,52 @@ public class PostLaunchActivity {
      * @param userProps additional user properties
      */
     private void sendUserProperties(Map<String, String> userProps) {
-            //Fix indentation after merge
-            String[] location = defaultUserPropertiesCollector.getLocation();
-            String[] networkData = defaultUserPropertiesCollector.getNetworkData();
+        String[] location = defaultUserPropertiesCollector.getLocation();
+        String[] networkData = defaultUserPropertiesCollector.getNetworkData();
 
-            Map<String, String> userProperties = new HashMap<>();
-            if (userProps != null) {
-                userProperties = new HashMap<>(userProps);
-            }
+        Map<String, String> userProperties = new HashMap<>();
+        if (userProps != null) {
+            userProperties = new HashMap<>(userProps);
+        }
 
-            userProperties.put("CE OS", "ANDROID");
-            userProperties.put("CE SDK Version", BuildConfig.VERSION_NAME);
-            userProperties.put("CE App Version", defaultUserPropertiesCollector.getAppVersion());
-            userProperties.put("CE OS Version", Build.VERSION.RELEASE);
-            userProperties.put("CE Device Manufacturer", Build.MANUFACTURER);
-            userProperties.put("CE Device Model", Build.MODEL);
-            userProperties.put("CE Latitude", location[0]);
-            userProperties.put("CE Longitude", location[1]);
-            userProperties.put("CE Network Operator", networkData[0]);
-            userProperties.put("CE Network Type", networkData[1]);
-            userProperties.put("CE Bluetooth On", defaultUserPropertiesCollector.isBluetoothOn());
-            userProperties.put("CE Wifi Connected", defaultUserPropertiesCollector.isConnectedToWifi());
-            userProperties.put("CE Available Internal Memory", defaultUserPropertiesCollector.getAvailableInternalMemorySize());
-            userProperties.put("CE Total Internal Memory", defaultUserPropertiesCollector.getTotalInternalMemorySize());
-            userProperties.put("CE Available RAM", defaultUserPropertiesCollector.getAvailableRAMMemorySize());
-            userProperties.put("CE Total RAM", defaultUserPropertiesCollector.getTotalRAMMemorySize());
-            userProperties.put("CE Device Orientation", defaultUserPropertiesCollector.getDeviceOrientation());
-            userProperties.put("CE Device Battery", defaultUserPropertiesCollector.getBatteryLevel());
-            userProperties.put("CE Screen Resolution", defaultUserPropertiesCollector.getScreenResolution());
-            userProperties.put("CE DPI", defaultUserPropertiesCollector.getDpi());
-            userProperties.put("CE Device Locale", defaultUserPropertiesCollector.getLocale());
-            userProperties.put("CE Last Launch Time", new Date().toString());
-            Map<String, Object> userMap = new HashMap<>();
-            userMap.put("userProperties", userProperties);
-            userMap.put("sessionID", currentSessionId);
-            userMap.put("userData", new HashMap<>());
+        userProperties.put("CE OS", "ANDROID");
+        userProperties.put("CE SDK Version", BuildConfig.VERSION_NAME);
+        userProperties.put("CE App Version", defaultUserPropertiesCollector.getAppVersion());
+        userProperties.put("CE OS Version", Build.VERSION.RELEASE);
+        userProperties.put("CE Device Manufacturer", Build.MANUFACTURER);
+        userProperties.put("CE Device Model", Build.MODEL);
+        userProperties.put("CE Latitude", location[0]);
+        userProperties.put("CE Longitude", location[1]);
+        userProperties.put("CE Network Operator", networkData[0]);
+        userProperties.put("CE Network Type", networkData[1]);
+        userProperties.put("CE Bluetooth On", defaultUserPropertiesCollector.isBluetoothOn());
+        userProperties.put("CE Wifi Connected", defaultUserPropertiesCollector.isConnectedToWifi());
+        userProperties.put("CE Available Internal Memory", defaultUserPropertiesCollector.getAvailableInternalMemorySize());
+        userProperties.put("CE Total Internal Memory", defaultUserPropertiesCollector.getTotalInternalMemorySize());
+        userProperties.put("CE Available RAM", defaultUserPropertiesCollector.getAvailableRAMMemorySize());
+        userProperties.put("CE Total RAM", defaultUserPropertiesCollector.getTotalRAMMemorySize());
+        userProperties.put("CE Device Orientation", defaultUserPropertiesCollector.getDeviceOrientation());
+        userProperties.put("CE Device Battery", defaultUserPropertiesCollector.getBatteryLevel());
+        userProperties.put("CE Screen Resolution", defaultUserPropertiesCollector.getScreenResolution());
+        userProperties.put("CE DPI", defaultUserPropertiesCollector.getDpi());
+        userProperties.put("CE Device Locale", defaultUserPropertiesCollector.getLocale());
+        userProperties.put("CE Last Launch Time", new Date().toString());
+        Map<String, Object> userMap = new HashMap<>();
+        userMap.put("userProperties", userProperties);
+        userMap.put("sessionID", currentSessionId);
+        userMap.put("userData", new HashMap<>());
 
-            HttpCallsHelper.sendUserProfile(userMap,"SDK");
+        HttpCallsHelper.sendUserProfile(userMap, "SDK");
     }
 
     /**
-     * Create or get next session number from shared preference
+     * Create or get next session number from shared preference.
      *
      * @return next session number
      */
     private int getSessionNumber() {
-        int sessionNumber = LocalStorageHelper.getInt(context, CooeeSDKConstants.STORAGE_SESSION_NUMBER,0);
-
-        if (sessionNumber >= 0) {
-            sessionNumber += 1;
-        }
+        int sessionNumber = LocalStorageHelper.getInt(context, CooeeSDKConstants.STORAGE_SESSION_NUMBER, 0);
+        sessionNumber += 1;
 
         LocalStorageHelper.putInt(context, CooeeSDKConstants.STORAGE_SESSION_NUMBER, sessionNumber);
 

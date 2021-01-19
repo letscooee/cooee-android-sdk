@@ -40,7 +40,6 @@ public class AppController extends Application implements LifecycleObserver, App
     private String packageName;
     private Date lastEnterForeground;
     private Date lastEnterBackground;
-    private long startUp;
 
     private Handler handler = new Handler();
     private Runnable runnable;
@@ -52,8 +51,6 @@ public class AppController extends Application implements LifecycleObserver, App
         keepSessionAlive();
 
         lastEnterForeground = new Date();
-
-        ServerAPIService apiService = APIClient.getServerAPIService();
 
         // return if this method runs when app is just installed/launched
         if (lastEnterBackground == null) {
@@ -77,7 +74,7 @@ public class AppController extends Application implements LifecycleObserver, App
             sessionProperties.put("CE Duration", String.valueOf(backgroundDuration / 1000));
 
             Event session = new Event("CE App Foreground", sessionProperties);
-            HttpCallsHelper.sendEvent(session, "App Foreground");
+            HttpCallsHelper.sendEvent(session);
 
         }
     }
@@ -104,10 +101,9 @@ public class AppController extends Application implements LifecycleObserver, App
             sessionProperties.put("CE Duration", duration);
 
             Event session = new Event("CE App Background", sessionProperties);
-            HttpCallsHelper.sendEvent(session, "App Background");
+            HttpCallsHelper.sendEvent(session);
         });
     }
-
 
     private void keepSessionAlive() {
         //send server check message every 5 min that session is still alive
@@ -194,7 +190,7 @@ public class AppController extends Application implements LifecycleObserver, App
         LocalStorageHelper.putIntImmediately(getApplicationContext(), "sdk_version", BuildConfig.VERSION_CODE);
 
         // Delete the files from the local shared preference folder
-        PackageInfo packageInfo = null;
+        PackageInfo packageInfo;
         try {
             // Clearing data from the files
             getApplicationContext().getSharedPreferences("is_app_first_time_launch", MODE_PRIVATE).edit().clear().commit();

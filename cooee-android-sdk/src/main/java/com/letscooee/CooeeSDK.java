@@ -77,7 +77,7 @@ public class CooeeSDK {
 
         Event event = new Event(eventName, eventProperties);
 
-        HttpCallsHelper.sendEvent(event, "User");
+        HttpCallsHelper.sendEvent(event);
     }
 
     /**
