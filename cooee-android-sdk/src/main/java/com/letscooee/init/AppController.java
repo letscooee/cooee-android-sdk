@@ -3,6 +3,7 @@ package com.letscooee.init;
 import android.app.Activity;
 import android.app.Application;
 import android.content.pm.PackageInfo;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -18,6 +19,8 @@ import com.letscooee.CooeeSDK;
 
 import com.letscooee.BuildConfig;
 import com.letscooee.models.Event;
+import com.letscooee.campaign.EngagementTriggerActivity;
+import com.letscooee.models.TriggerData3;
 import com.letscooee.retrofit.APIClient;
 import com.letscooee.retrofit.HttpCallsHelper;
 import com.letscooee.retrofit.ServerAPIService;
@@ -151,6 +154,24 @@ public class AppController extends Application implements LifecycleObserver, App
     public void onActivityStarted(@NonNull Activity activity) {
         String manualScreenName = CooeeSDK.getDefaultInstance(getApplicationContext()).getCurrentScreenName();
         currentScreen = (manualScreenName != null && !manualScreenName.isEmpty()) ? manualScreenName : activity.getLocalClassName();
+
+        Bundle bundle = activity.getIntent().getExtras();
+//        TODO use better hook instead of bundle.getString("id")
+        if (bundle != null && bundle.getString("id") != null) {
+            Map<String, String> triggerDataMap = new HashMap<>();
+
+            for (String key : bundle.keySet()) {
+                triggerDataMap.put(key, String.valueOf(bundle.get(key)));
+            }
+
+            TriggerData3 triggerData = new TriggerData3(triggerDataMap);
+            Intent intent = new Intent(getApplicationContext(), EngagementTriggerActivity.class);
+            Bundle sendBundle = new Bundle();
+            sendBundle.putParcelable("triggerData", triggerData);
+            intent.putExtra("bundle", sendBundle);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            getApplicationContext().startActivity(intent);
+        }
     }
 
     @Override

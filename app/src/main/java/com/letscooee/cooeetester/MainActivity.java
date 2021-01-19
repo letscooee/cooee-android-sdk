@@ -1,16 +1,25 @@
 package com.letscooee.cooeetester;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.graphics.drawable.RoundedBitmapDrawable;
+import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
 
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
 import android.widget.Button;
 
 import com.letscooee.CooeeSDK;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.CustomTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.letscooee.utils.CooeeSDKConstants;
 import com.letscooee.utils.PropertyNameException;
 
@@ -44,14 +53,14 @@ public class MainActivity extends AppCompatActivity {
         userData.put("cemobileNumber", "9876543210");
 
         try {
-            mySdk.sendEvent("onCreate",new HashMap<>());
+            mySdk.sendEvent("onCreate", new HashMap<>());
         } catch (PropertyNameException e) {
             e.printStackTrace();
         }
         buttonImage.setOnClickListener(view -> {
             // sending event to the server
             try {
-                Map<String,String> eventProp = new HashMap<>();
+                Map<String, String> eventProp = new HashMap<>();
                 eventProp.put("key1", "value1");
                 mySdk.sendEvent("image", eventProp);
             } catch (PropertyNameException e) {
@@ -66,6 +75,22 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         });
+        Glide.with(this)
+                .asBitmap()
+                .load("https://images.unsplash.com/photo-1606845023594-4395299f0b23?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=675&q=80")
+                .into(new CustomTarget<Bitmap>() {
+                    @Override
+                    public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                        RoundedBitmapDrawable drawable = RoundedBitmapDrawableFactory.create(getResources(), resource);
+                        drawable.setCornerRadius(20);
+                        findViewById(R.id.linearLayout2).setBackground(drawable);
+                    }
+
+                    @Override
+                    public void onLoadCleared(@Nullable Drawable placeholder) {
+
+                    }
+                });
 
         findViewById(R.id.textViewToken).setOnClickListener(view -> {
             Intent intent = new Intent(MainActivity.this, SignUpActivity.class);

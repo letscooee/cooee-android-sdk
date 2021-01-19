@@ -29,7 +29,7 @@
             android:value="MY_COOEE_APP_SECRET" />
 
         <service
-            android:name="com.letscooee.services.MyFirebaseMessagingService"
+            android:name=".ParentFirebaseMessagingService"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />

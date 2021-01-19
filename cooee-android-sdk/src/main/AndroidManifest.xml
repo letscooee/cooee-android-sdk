@@ -2,21 +2,30 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.letscooee">
 
-    <application android:name=".init.AppController">
-        <activity
-            android:name=".campaign.VideoPopUpActivity"
-            android:theme="@style/AppTheme.PopUp" />
-        <activity
-            android:name=".campaign.ImagePopUpActivity"
-            android:theme="@style/AppTheme.PopUp" />
 
-    </application>
-
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    
+    <application
+        android:name=".init.AppController"
+        android:usesCleartextTraffic="true">
+        <activity
+            android:name=".campaign.FeedbackActivity"
+            android:theme="@style/AppTheme.PopUp" />
+        <activity
+            android:name=".campaign.EngagementTriggerActivity"
+            android:theme="@style/AppTheme.PopUp" />
 
+        <service
+            android:name=".services.CooeeFirebaseMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+        <service android:name=".services.CooeeIntentService" />
+    </application>
 </manifest>
