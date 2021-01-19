@@ -24,7 +24,7 @@ public interface ServerAPIService {
     @POST("/v1/user/save")
     Call<SDKAuthentication> registerUser(@Body AuthenticationRequestBody authenticationRequestBody);
 
-    @POST("/v1/event/save")
+    @POST("/v1/event/track")
     Call<Map<String, Object>> sendEvent(@Body Event event);
 
     @FormUrlEncoded
