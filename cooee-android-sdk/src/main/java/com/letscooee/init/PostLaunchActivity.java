@@ -1,7 +1,6 @@
 package com.letscooee.init;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -70,7 +69,7 @@ public class PostLaunchActivity {
 
             if (response == null) {
                 onSDKStateDecided.onError(new ConnectException());
-                LocalStorageHelper.remove(context, CooeeSDKConstants.IS_APP_FIRST_TIME_LAUNCH);
+                LocalStorageHelper.remove(context, CooeeSDKConstants.STORAGE_FIRST_TIME_LAUNCH);
 
             } else if (response.isSuccessful()) {
                 assert response.body() != null;
@@ -78,7 +77,7 @@ public class PostLaunchActivity {
                 Log.i(CooeeSDKConstants.LOG_PREFIX, "Token : " + sdkToken);
                 currentSessionId = response.body().getSessionID();
 
-                LocalStorageHelper.putString(context, CooeeSDKConstants.SDK_TOKEN, sdkToken);
+                LocalStorageHelper.putString(context, CooeeSDKConstants.STORAGE_SDK_TOKEN, sdkToken);
 
                 APIClient.setAPIToken(sdkToken);
                 appFirstOpen();
@@ -88,11 +87,11 @@ public class PostLaunchActivity {
                 @Override
                 public void onFailure(Call<SDKAuthentication> call, Throwable t) {
             onSDKStateDecided.onError(t);
-                    LocalStorageHelper.remove(context, CooeeSDKConstants.IS_APP_FIRST_TIME_LAUNCH);
+                    LocalStorageHelper.remove(context, CooeeSDKConstants.STORAGE_FIRST_TIME_LAUNCH);
                 }
             });
         } else {
-            String apiToken = LocalStorageHelper.getString(context, CooeeSDKConstants.SDK_TOKEN, "");
+            String apiToken = LocalStorageHelper.getString(context, CooeeSDKConstants.STORAGE_SDK_TOKEN, "");
             Log.i(CooeeSDKConstants.LOG_PREFIX, "Token : " + apiToken);
 
             APIClient.setAPIToken(apiToken);
@@ -126,8 +125,8 @@ public class PostLaunchActivity {
      * @return true if app is launched for first time, else false
      */
     private boolean isAppFirstTimeLaunch() {
-        if (LocalStorageHelper.getBoolean(context, CooeeSDKConstants.IS_APP_FIRST_TIME_LAUNCH, true)) {
-            LocalStorageHelper.putBoolean(context, CooeeSDKConstants.IS_APP_FIRST_TIME_LAUNCH, false);
+        if (LocalStorageHelper.getBoolean(context, CooeeSDKConstants.STORAGE_FIRST_TIME_LAUNCH, true)) {
+            LocalStorageHelper.putBoolean(context, CooeeSDKConstants.STORAGE_FIRST_TIME_LAUNCH, false);
             return true;
         } else {
             return false;
@@ -302,13 +301,13 @@ public class PostLaunchActivity {
      * @return next session number
      */
     private int getSessionNumber() {
-        int sessionNumber = LocalStorageHelper.getInt(context,"session_number",0);
+        int sessionNumber = LocalStorageHelper.getInt(context, CooeeSDKConstants.STORAGE_SESSION_NUMBER,0);
 
         if (sessionNumber >= 0) {
             sessionNumber += 1;
         }
 
-        LocalStorageHelper.putInt(context, "session_number", sessionNumber);
+        LocalStorageHelper.putInt(context, CooeeSDKConstants.STORAGE_SESSION_NUMBER, sessionNumber);
 
         return sessionNumber;
     }

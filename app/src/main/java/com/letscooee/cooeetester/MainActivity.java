@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
             try {
                 Map<String,String> eventProp = new HashMap<>();
                 eventProp.put("key1", "value1");
-                mySdk.sendEvent(CooeeSDKConstants.IMAGE_CAMPAIGN, eventProp);
+                mySdk.sendEvent("image", eventProp);
             } catch (PropertyNameException e) {
                 e.printStackTrace();
             }
@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
 
         buttonVideo.setOnClickListener(view -> {
             try {
-                mySdk.sendEvent(CooeeSDKConstants.VIDEO_CAMPAIGN, new HashMap<>());
+                mySdk.sendEvent("video", new HashMap<>());
             } catch (PropertyNameException e) {
                 e.printStackTrace();
             }

@@ -3,7 +3,6 @@ package com.letscooee.init;
 import android.app.Activity;
 import android.app.Application;
 import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -14,6 +13,7 @@ import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.OnLifecycleEvent;
 import androidx.lifecycle.ProcessLifecycleOwner;
+
 import com.letscooee.CooeeSDK;
 
 import com.letscooee.BuildConfig;
@@ -142,11 +142,11 @@ public class AppController extends Application implements LifecycleObserver, App
     }
 
 
-    private void keepSessionAlive(){
+    private void keepSessionAlive() {
         //send server check message every 5 min that session is still alive
         handler.postDelayed(runnable = new Runnable() {
             public void run() {
-                handler.postDelayed(runnable, 5 * 60 * 1000);
+                handler.postDelayed(runnable, CooeeSDKConstants.KEEP_ALIVE_TIME_IN_MS);
 //                PostLaunchActivity.onSDKStateDecided.subscribe((Object ignored) -> {
 //                    apiService.keepAlive(PostLaunchActivity.currentSessionId).enqueue(new Callback<ResponseBody>() {
 //                        @Override
@@ -162,7 +162,7 @@ public class AppController extends Application implements LifecycleObserver, App
 //                });
                 Log.d(CooeeSDKConstants.LOG_PREFIX, "Sent keep alive call");
             }
-        }, 5 * 60 * 1000);
+        }, CooeeSDKConstants.KEEP_ALIVE_TIME_IN_MS);
     }
 
     @Override
@@ -172,7 +172,7 @@ public class AppController extends Application implements LifecycleObserver, App
         ProcessLifecycleOwner.get().getLifecycle().addObserver(this);
 
         // Code for bharat-post app migration from 0.0.3: need testing
-        if (BuildConfig.VERSION_NAME.equals("0.0.4")) {
+        if (BuildConfig.VERSION_CODE > 1) {
             migrate();
         }
     }
@@ -215,14 +215,14 @@ public class AppController extends Application implements LifecycleObserver, App
     private void migrate() {
         // Getting value from old storage
         boolean appLaunchFromOldVersion = getApplicationContext().getSharedPreferences("is_app_first_time_launch", MODE_PRIVATE).getBoolean("is_app_first_time_launch", false);
-        String sdkFromOldVersion = getApplicationContext().getSharedPreferences("com.letscooee.tester", MODE_PRIVATE).getString("com.letscooee.tester", "");
+        String sdkTokenFromOldVersion = getApplicationContext().getSharedPreferences("com.letscooee.tester", MODE_PRIVATE).getString("com.letscooee.tester", "");
 
         Log.d(CooeeSDKConstants.LOG_PREFIX, "Old value of is app launch : " + appLaunchFromOldVersion);
-        Log.d(CooeeSDKConstants.LOG_PREFIX, "Old value of SDK Token : " + sdkFromOldVersion);
+        Log.d(CooeeSDKConstants.LOG_PREFIX, "Old value of SDK Token : " + sdkTokenFromOldVersion);
 
         // Updating value to new storage
-        LocalStorageHelper.putBooleanImmediately(getApplicationContext(), CooeeSDKConstants.IS_APP_FIRST_TIME_LAUNCH, appLaunchFromOldVersion);
-        LocalStorageHelper.putStringImmediately(getApplicationContext(), CooeeSDKConstants.SDK_TOKEN, sdkFromOldVersion);
+        LocalStorageHelper.putBooleanImmediately(getApplicationContext(), CooeeSDKConstants.STORAGE_FIRST_TIME_LAUNCH, appLaunchFromOldVersion);
+        LocalStorageHelper.putStringImmediately(getApplicationContext(), CooeeSDKConstants.STORAGE_SDK_TOKEN, sdkTokenFromOldVersion);
 
         // Delete the files from the local shared preference folder
         PackageInfo packageInfo = null;

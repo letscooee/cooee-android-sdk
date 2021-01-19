@@ -8,11 +8,12 @@ package com.letscooee.utils;
 public class CooeeSDKConstants {
 
     public static final int REQUEST_LOCATION = 1;
-    public static final String IS_APP_FIRST_TIME_LAUNCH = "is_first_launch";
-    public static final String SDK_TOKEN = "com_letscooee";
-    public static final String IMAGE_CAMPAIGN = "image_campaign";
-    public static final String VIDEO_CAMPAIGN = "video_campaign";
-    public static final String SPLASH_CAMPAIGN = "splash_campaign";
+
+    public static final String STORAGE_FIRST_TIME_LAUNCH = "is_first_launch";
+    public static final String STORAGE_SDK_TOKEN = "sdk_token";
+    public static final String STORAGE_SESSION_NUMBER = "session_number";
+
     public static final String LOG_PREFIX = "CooeeSDK";
     public static final int IDLE_TIME_IN_MS = 30 * 60 * 1000;
+    public static final int KEEP_ALIVE_TIME_IN_MS = 5 * 60 * 1000;
 }
