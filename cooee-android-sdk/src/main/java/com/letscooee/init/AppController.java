@@ -19,14 +19,10 @@ import com.letscooee.CooeeSDK;
 import com.letscooee.BuildConfig;
 import com.letscooee.models.Event;
 import com.letscooee.retrofit.APIClient;
+import com.letscooee.retrofit.HttpCallsHelper;
 import com.letscooee.retrofit.ServerAPIService;
 import com.letscooee.utils.CooeeSDKConstants;
 import com.letscooee.utils.LocalStorageHelper;
-
-import okhttp3.ResponseBody;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 import java.io.File;
 import java.util.Date;
@@ -66,43 +62,24 @@ public class AppController extends Application implements LifecycleObserver, App
 
         long backgroundDuration = new Date().getTime() - lastEnterBackground.getTime();
 
-        //Purposefully not added to another method, will be taken cared in separate-http-call merge
-        PostLaunchActivity.onSDKStateDecided.subscribe((Object ignored) -> {
-            if (backgroundDuration > CooeeSDKConstants.IDLE_TIME_IN_MS) {
-                int duration = (int) (lastEnterBackground.getTime() - PostLaunchActivity.currentSessionStartTime.getTime()) / 1000;
+        //Indentation to be solved
+        if (backgroundDuration > CooeeSDKConstants.IDLE_TIME_IN_MS) {
+            int duration = (int) (lastEnterBackground.getTime() - PostLaunchActivity.currentSessionStartTime.getTime()) / 1000;
+            Map<String, String> sessionProperties = new HashMap<>();
+            sessionProperties.put("CE Duration", duration + "");
 
-                apiService.concludeSession(PostLaunchActivity.currentSessionId, duration).enqueue(new Callback<ResponseBody>() {
-                    @Override
-                    public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
-                        Log.i(CooeeSDKConstants.LOG_PREFIX, "Session Concluded Event Sent Code : " + response.code());
-                    }
+            HttpCallsHelper.sendSessionConcludedEvent(PostLaunchActivity.currentSessionId, duration);
 
-                    @Override
-                    public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
-                        Log.e(CooeeSDKConstants.LOG_PREFIX, "Session Concluded Event Sent Error Message" + t.toString());
-                    }
-                });
+            new PostLaunchActivity(getApplicationContext());
+            Log.d(CooeeSDKConstants.LOG_PREFIX, "After 30 min of App Background " + "Session Concluded");
+        } else {
+            Map<String, String> sessionProperties = new HashMap<>();
+            sessionProperties.put("CE Duration", String.valueOf(backgroundDuration / 1000));
 
-                new PostLaunchActivity(getApplicationContext());
-                Log.d(CooeeSDKConstants.LOG_PREFIX, "After 30 min of App Background " + "Session Concluded");
-            } else {
-                Map<String, String> sessionProperties = new HashMap<>();
-                sessionProperties.put("CE Duration", String.valueOf(backgroundDuration / 1000));
+            Event session = new Event("CE App Foreground", sessionProperties);
+            HttpCallsHelper.sendEvent(session, "App Foreground");
 
-                Event session = new Event("CE App Foreground", sessionProperties, PostLaunchActivity.currentSessionId, PostLaunchActivity.currentSessionNumber, currentScreen);
-                apiService.sendEvent(session).enqueue(new Callback<Map<String, Object>>() {
-                    @Override
-                    public void onResponse(@NonNull Call<Map<String, Object>> call, @NonNull Response<Map<String, Object>> response) {
-                        Log.i(CooeeSDKConstants.LOG_PREFIX, "App Foreground Event Sent Code : " + response.code());
-                    }
-
-                    @Override
-                    public void onFailure(@NonNull Call<Map<String, Object>> call, @NonNull Throwable t) {
-                        Log.e(CooeeSDKConstants.LOG_PREFIX, "App Foreground Event Sent Error Message" + t.toString());
-                    }
-                });
-            }
-        });
+        }
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
@@ -125,19 +102,9 @@ public class AppController extends Application implements LifecycleObserver, App
 
             Map<String, String> sessionProperties = new HashMap<>();
             sessionProperties.put("CE Duration", duration);
-            Event session = new Event("CE App Background", sessionProperties, PostLaunchActivity.currentSessionId, PostLaunchActivity.currentSessionNumber, currentScreen);
-            apiService.sendEvent(session).enqueue(new Callback<Map<String, Object>>() {
-                @Override
-                public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {
-                    Log.i(CooeeSDKConstants.LOG_PREFIX, "App Background Event Sent Code : " + response.code());
-                }
 
-                @Override
-                public void onFailure(Call<Map<String, Object>> call, Throwable t) {
-                    // TODO Saving the request locally so that it can be sent later
-                    Log.e(CooeeSDKConstants.LOG_PREFIX, "App Background Event Sent Error Message" + t.toString());
-                }
-            });
+            Event session = new Event("CE App Background", sessionProperties);
+            HttpCallsHelper.sendEvent(session, "App Background");
         });
     }
 
@@ -172,7 +139,8 @@ public class AppController extends Application implements LifecycleObserver, App
         ProcessLifecycleOwner.get().getLifecycle().addObserver(this);
 
         // Code for bharat-post app migration from 0.0.3: need testing
-        if (BuildConfig.VERSION_CODE > 1) {
+        int version = LocalStorageHelper.getInt(getApplicationContext(), "sdk_version", 0);
+        if (version == 0) {
             migrate();
         }
     }
@@ -214,7 +182,7 @@ public class AppController extends Application implements LifecycleObserver, App
     // Code for bharat-post app migration from 0.0.3 to 0.0.4: need testing
     private void migrate() {
         // Getting value from old storage
-        boolean appLaunchFromOldVersion = getApplicationContext().getSharedPreferences("is_app_first_time_launch", MODE_PRIVATE).getBoolean("is_app_first_time_launch", false);
+        boolean appLaunchFromOldVersion = getApplicationContext().getSharedPreferences("is_app_first_time_launch", MODE_PRIVATE).getBoolean("is_app_first_time_launch", true);
         String sdkTokenFromOldVersion = getApplicationContext().getSharedPreferences("com.letscooee.tester", MODE_PRIVATE).getString("com.letscooee.tester", "");
 
         Log.d(CooeeSDKConstants.LOG_PREFIX, "Old value of is app launch : " + appLaunchFromOldVersion);
@@ -223,6 +191,7 @@ public class AppController extends Application implements LifecycleObserver, App
         // Updating value to new storage
         LocalStorageHelper.putBooleanImmediately(getApplicationContext(), CooeeSDKConstants.STORAGE_FIRST_TIME_LAUNCH, appLaunchFromOldVersion);
         LocalStorageHelper.putStringImmediately(getApplicationContext(), CooeeSDKConstants.STORAGE_SDK_TOKEN, sdkTokenFromOldVersion);
+        LocalStorageHelper.putIntImmediately(getApplicationContext(), "sdk_version", BuildConfig.VERSION_CODE);
 
         // Delete the files from the local shared preference folder
         PackageInfo packageInfo = null;

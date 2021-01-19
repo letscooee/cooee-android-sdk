@@ -12,7 +12,9 @@ import androidx.annotation.NonNull;
 import com.letscooee.BuildConfig;
 import com.letscooee.models.*;
 import com.letscooee.retrofit.APIClient;
+import com.letscooee.retrofit.HttpCallsHelper;
 import com.letscooee.retrofit.ServerAPIService;
+import com.letscooee.utils.Closure;
 import com.letscooee.utils.CooeeSDKConstants;
 import com.letscooee.utils.LocalStorageHelper;
 
@@ -80,6 +82,7 @@ public class PostLaunchActivity {
                 LocalStorageHelper.putString(context, CooeeSDKConstants.STORAGE_SDK_TOKEN, sdkToken);
 
                 APIClient.setAPIToken(sdkToken);
+                notifySDKStateDecided();
                 appFirstOpen();
             }
                 }
@@ -125,7 +128,7 @@ public class PostLaunchActivity {
      * @return true if app is launched for first time, else false
      */
     private boolean isAppFirstTimeLaunch() {
-        if (LocalStorageHelper.getBoolean(context, CooeeSDKConstants.STORAGE_FIRST_TIME_LAUNCH, true)) {
+        if (LocalStorageHelper.getBoolean(context, CooeeSDKConstants.STORAGE_FIRST_TIME_LAUNCH, false)) {
             LocalStorageHelper.putBoolean(context, CooeeSDKConstants.STORAGE_FIRST_TIME_LAUNCH, false);
             return true;
         } else {
@@ -182,9 +185,9 @@ public class PostLaunchActivity {
         Map<String, String> eventProperties = new HashMap<>();
         eventProperties.put("CE Source", "SYSTEM");
         eventProperties.put("CE App Version", defaultUserPropertiesCollector.getAppVersion());
-        Event event = new Event("CE App Installed", eventProperties, currentSessionId, currentSessionNumber, AppController.currentScreen);
+        Event event = new Event("CE App Installed", eventProperties);
 
-        sendEvent(event);
+        HttpCallsHelper.sendEvent(event,"App Installed");
     }
 
     /**
@@ -207,33 +210,17 @@ public class PostLaunchActivity {
         eventProperties.put("CE Wifi Connected", defaultUserPropertiesCollector.isConnectedToWifi());
         eventProperties.put("CE Device Battery", defaultUserPropertiesCollector.getBatteryLevel());
 
-        Event event = new Event("CE App Launched", eventProperties, currentSessionId, currentSessionNumber, AppController.currentScreen);
-        sendEvent(event);
-    }
-
-    /**
-     * Send sdk events asynchronously
-     *
-     * @param event event name and properties
-     */
-    private void sendEvent(Event event) {
-        //Solve indentation after merge
-            apiService.sendEvent(event).enqueue(new Callback<Map<String, Object>>() {
-                @Override
-                public void onResponse(@NonNull Call<Map<String, Object>> call, @NonNull Response<Map<String, Object>> response) {
-                    Log.i(CooeeSDKConstants.LOG_PREFIX, "Event Sent Response Code : " + response.code());
-                    if (response.body() != null && response.body().get("sessionID") != null) {
-                        currentSessionId = String.valueOf(response.body().get("sessionID"));
-                    }
-                    notifySDKStateDecided();
+        Event event = new Event("CE App Launched", eventProperties);
+        HttpCallsHelper.sendEventWithoutSDKState(event, "App Launched", new Closure() {
+            @Override
+            public void call(Map<String, Object> data) {
+                if (data != null && data.get("sessionID") != null) {
+                    currentSessionId = String.valueOf(data.get("sessionID"));
                 }
-
-                @Override
-                public void onFailure(@NonNull Call<Map<String, Object>> call, @NonNull Throwable t) {
-                    // TODO Saving the request locally so that it can be sent later
-                    Log.e(CooeeSDKConstants.LOG_PREFIX, "Event Sent Error Message : " + t.toString());
-                }
-            });
+                notifySDKStateDecided();
+                Log.d("test","data"+ data.toString());
+            }
+        });
     }
 
     /**
@@ -242,7 +229,7 @@ public class PostLaunchActivity {
      * @param userProps additional user properties
      */
     private void sendUserProperties(Map<String, String> userProps) {
-        onSDKStateDecided.subscribe((Object ignored) -> {
+            //Fix indentation after merge
             String[] location = defaultUserPropertiesCollector.getLocation();
             String[] networkData = defaultUserPropertiesCollector.getNetworkData();
 
@@ -278,21 +265,7 @@ public class PostLaunchActivity {
             userMap.put("sessionID", currentSessionId);
             userMap.put("userData", new HashMap<>());
 
-            apiService.updateProfile(userMap).enqueue(new Callback<ResponseBody>() {
-                @Override
-                public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
-                    Log.i(CooeeSDKConstants.LOG_PREFIX, "User Properties Response Code : " + response.code());
-                }
-
-                @Override
-                public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
-                    // TODO Saving the request locally so that it can be sent later
-                    Log.e(CooeeSDKConstants.LOG_PREFIX, "User Properties Error Message : " + t.toString());
-                }
-            });
-        }, (Throwable error) -> {
-            Log.e(CooeeSDKConstants.LOG_PREFIX, "Observable Error : " + error.toString());
-        });
+            HttpCallsHelper.sendUserProfile(userMap,"SDK");
     }
 
     /**

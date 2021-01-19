@@ -9,6 +9,7 @@ import com.letscooee.init.AppController;
 import com.letscooee.init.PostLaunchActivity;
 import com.letscooee.models.Event;
 import com.letscooee.retrofit.APIClient;
+import com.letscooee.retrofit.HttpCallsHelper;
 import com.letscooee.retrofit.ServerAPIService;
 import com.letscooee.utils.CooeeSDKConstants;
 import com.letscooee.utils.PropertyNameException;
@@ -74,23 +75,9 @@ public class CooeeSDK {
             }
         }
 
-        PostLaunchActivity.onSDKStateDecided.subscribe((Object ignored) -> {
-            Event event = new Event(eventName, eventProperties, PostLaunchActivity.currentSessionId, PostLaunchActivity.currentSessionNumber, AppController.currentScreen);
-            apiService.sendEvent(event).enqueue(new Callback<Map<String, Object>>() {
-                @Override
-                public void onResponse(@NonNull Call<Map<String, Object>> call, @NonNull Response<Map<String, Object>> response) {
-                    Log.d(CooeeSDKConstants.LOG_PREFIX, "User Event Sent Response Code : " + response.code());
-                }
+        Event event = new Event(eventName, eventProperties);
 
-                @Override
-                public void onFailure(@NonNull Call<Map<String, Object>> call, @NonNull Throwable t) {
-                    // TODO Saving the request locally so that it can be sent later
-                    Log.e(CooeeSDKConstants.LOG_PREFIX, "User Event Sent Error Message : " + t.toString());
-                }
-            });
-        }, (Throwable error) -> {
-            Log.e(CooeeSDKConstants.LOG_PREFIX, "Observable Error : " + error.toString());
-        });
+        HttpCallsHelper.sendEvent(event, "User");
     }
 
     /**
@@ -144,22 +131,7 @@ public class CooeeSDK {
 
         userMap.put("sessionID", PostLaunchActivity.currentSessionId);
 
-        PostLaunchActivity.onSDKStateDecided.subscribe((Object ignored) -> {
-            Call<ResponseBody> call = apiService.updateProfile(userMap);
-            call.enqueue(new Callback<ResponseBody>() {
-                @Override
-                public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
-                    Log.i(CooeeSDKConstants.LOG_PREFIX, "Manual User Profile Response Code : " + response.code());
-                }
-
-                public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
-                    // TODO Saving the request locally so that it can be sent later
-                    Log.e(CooeeSDKConstants.LOG_PREFIX, "Manual User Profile Error Message : " + t.toString());
-                }
-            });
-        }, (Throwable error) -> {
-            Log.e(CooeeSDKConstants.LOG_PREFIX, "Observable Error : " + error.toString());
-        });
+        HttpCallsHelper.sendUserProfile(userMap,"Manual");
     }
 
     /**

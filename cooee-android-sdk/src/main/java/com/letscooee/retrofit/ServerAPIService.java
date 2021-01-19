@@ -28,7 +28,7 @@ public interface ServerAPIService {
     Call<Map<String, Object>> sendEvent(@Body Event event);
 
     @FormUrlEncoded
-    @POST("/v1/event/concludeSession")
+    @POST("/v1/session/conclude")
     Call<ResponseBody> concludeSession(@Field("sessionID") String sessionID, @Field("duration") int duration);
 
     @PUT("/v1/user/update")
