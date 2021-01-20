@@ -24,9 +24,12 @@ import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.letscooee.R;
 import com.letscooee.campaign.EngagementTriggerActivity;
-import com.letscooee.models.TriggerData3;
+import com.letscooee.models.Event;
+import com.letscooee.models.TriggerData;
+import com.letscooee.retrofit.HttpCallsHelper;
 import com.letscooee.utils.CooeeSDKConstants;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -38,8 +41,8 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
 
     @Override
     public void onNewToken(@NonNull String token) {
-        //TODO Send token value as user property to server. To be updated after new api class is implemented( separate http call class)
         Log.d(CooeeSDKConstants.LOG_PREFIX, "Firebase Refreshed token: " + token);
+        sendTokenToServer(token);
     }
 
     @Override
@@ -56,13 +59,18 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
 
     private void showInAppMessaging(RemoteMessage remoteMessage) {
         Map<String, String> triggerDataMap = remoteMessage.getData();
-        TriggerData3 triggerData = new TriggerData3(triggerDataMap);
+        try {
+        TriggerData triggerData = new TriggerData(triggerDataMap);
         Intent intent = new Intent(getApplicationContext(), EngagementTriggerActivity.class);
         Bundle bundle = new Bundle();
         bundle.putParcelable("triggerData", triggerData);
         intent.putExtra("bundle", bundle);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         getApplicationContext().startActivity(intent);
+        } catch (Exception ex) {
+            Log.d(CooeeSDKConstants.LOG_PREFIX, "Couldn't show Engagement Trigger");
+            HttpCallsHelper.sendEvent(new Event("CE KPI", new HashMap<>()));
+        }
     }
 
     private void showNotification(RemoteMessage remoteMessage) {
@@ -81,7 +89,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
 
         PackageManager packageManager = getPackageManager();
         Intent appLaunchIntent = packageManager.getLaunchIntentForPackage(getApplicationContext().getPackageName());
-//        appLaunchIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
         Bundle bundle = new Bundle();
         for (String key : remoteMessage.getData().keySet())
             bundle.putString(key, remoteMessage.getData().get(key));
@@ -135,7 +143,12 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
                         .addAction(R.drawable.common_google_signin_btn_icon_dark, remoteMessage.getData().get("actionButtonTwoText"), actionButtonTwoPendingIntent)
                         .addAction(R.drawable.common_google_signin_btn_icon_dark, remoteMessage.getData().get("actionButtonThreeText"), actionButtonThreePendingIntent);
                 Log.d("imageDownloaded", "true");
-                notificationManager.notify(34, notificationBuilder.build());
+                try {
+                    int id = Integer.parseInt(remoteMessage.getData().get("notificationId"));
+                    notificationManager.notify(id, notificationBuilder.build());
+                } catch (Exception e) {
+                    notificationManager.notify(36648, notificationBuilder.build());
+                }
             }
 
             @Override
@@ -143,5 +156,15 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
 
             }
         });
+    }
+
+    private void sendTokenToServer(String token) {
+        Map<String, Object> userMap = new HashMap<>();
+        userMap.put("userData", new HashMap<>());
+        Map<String, String> userProperties = new HashMap<>();
+        userProperties.put("Firebase Token", token);
+        userMap.put("userProperties", userProperties);
+
+        HttpCallsHelper.sendUserProfile(userMap, "Firebase Refreshed Token");
     }
 }

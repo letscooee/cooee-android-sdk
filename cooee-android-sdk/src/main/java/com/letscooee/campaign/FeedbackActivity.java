@@ -9,7 +9,7 @@ import android.util.Log;
 import android.widget.Button;
 
 import com.letscooee.R;
-import com.letscooee.models.TriggerData3;
+import com.letscooee.models.TriggerData;
 import com.letscooee.utils.CooeeSDKConstants;
 
 import java.util.HashMap;
@@ -33,7 +33,7 @@ public class FeedbackActivity extends AppCompatActivity {
             getWindow().setLayout((int) (dm.widthPixels * 0.7), (int) (dm.heightPixels * 0.15));
         }
 
-        updateExit((TriggerData3.ExitAnimation) Objects.requireNonNull(getIntent().getSerializableExtra("exit")));
+        updateExit((TriggerData.ExitAnimation) Objects.requireNonNull(getIntent().getSerializableExtra("exit")));
 
         setContentView(R.layout.activity_feedback);
 
@@ -50,7 +50,7 @@ public class FeedbackActivity extends AppCompatActivity {
         });
     }
 
-    private void updateExit(TriggerData3.ExitAnimation animation) {
+    private void updateExit(TriggerData.ExitAnimation animation) {
         int transitionId;
         switch (animation) {
             case SLIDE_OUT_LEFT: {

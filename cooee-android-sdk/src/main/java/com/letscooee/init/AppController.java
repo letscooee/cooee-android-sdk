@@ -20,7 +20,7 @@ import com.letscooee.CooeeSDK;
 import com.letscooee.BuildConfig;
 import com.letscooee.models.Event;
 import com.letscooee.campaign.EngagementTriggerActivity;
-import com.letscooee.models.TriggerData3;
+import com.letscooee.models.TriggerData;
 import com.letscooee.retrofit.APIClient;
 import com.letscooee.retrofit.HttpCallsHelper;
 import com.letscooee.retrofit.ServerAPIService;
@@ -68,7 +68,7 @@ public class AppController extends Application implements LifecycleObserver, App
             Map<String, String> sessionProperties = new HashMap<>();
             sessionProperties.put("CE Duration", duration + "");
 
-            HttpCallsHelper.sendSessionConcludedEvent(PostLaunchActivity.currentSessionId, duration);
+            HttpCallsHelper.sendSessionConcludedEvent(duration);
 
             new PostLaunchActivity(getApplicationContext());
             Log.d(CooeeSDKConstants.LOG_PREFIX, "After 30 min of App Background " + "Session Concluded");
@@ -164,13 +164,18 @@ public class AppController extends Application implements LifecycleObserver, App
                 triggerDataMap.put(key, String.valueOf(bundle.get(key)));
             }
 
-            TriggerData3 triggerData = new TriggerData3(triggerDataMap);
-            Intent intent = new Intent(getApplicationContext(), EngagementTriggerActivity.class);
-            Bundle sendBundle = new Bundle();
-            sendBundle.putParcelable("triggerData", triggerData);
-            intent.putExtra("bundle", sendBundle);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            getApplicationContext().startActivity(intent);
+            try {
+                TriggerData triggerData = new TriggerData(triggerDataMap);
+                Intent intent = new Intent(getApplicationContext(), EngagementTriggerActivity.class);
+                Bundle sendBundle = new Bundle();
+                sendBundle.putParcelable("triggerData", triggerData);
+                intent.putExtra("bundle", sendBundle);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                getApplicationContext().startActivity(intent);
+            }catch (Exception ex){
+                Log.d(CooeeSDKConstants.LOG_PREFIX, "Couldn't show Engagement Trigger");
+                HttpCallsHelper.sendEvent(new Event("CE KPI", new HashMap<>()));
+            }
         }
     }
 

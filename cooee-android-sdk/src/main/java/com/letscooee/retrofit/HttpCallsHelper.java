@@ -55,6 +55,7 @@ public final class HttpCallsHelper {
     public static void sendUserProfile(Map<String, Object> userMap, String msg) {
         //noinspection ResultOfMethodCallIgnored
         PostLaunchActivity.onSDKStateDecided.subscribe((Object ignored) -> {
+            userMap.put("sessionID", PostLaunchActivity.currentSessionId);
             serverAPIService.updateProfile(userMap).enqueue(new Callback<ResponseBody>() {
                 @Override
                 public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
@@ -69,10 +70,10 @@ public final class HttpCallsHelper {
         });
     }
 
-    public static void sendSessionConcludedEvent(String sessionID, int duration) {
+    public static void sendSessionConcludedEvent(int duration) {
         //noinspection ResultOfMethodCallIgnored
         PostLaunchActivity.onSDKStateDecided.subscribe((Object ignored) -> {
-            serverAPIService.concludeSession(sessionID, duration).enqueue(new Callback<ResponseBody>() {
+            serverAPIService.concludeSession(PostLaunchActivity.currentSessionId, duration).enqueue(new Callback<ResponseBody>() {
                 @Override
                 public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
                     Log.i(CooeeSDKConstants.LOG_PREFIX, "Session Concluded Event Sent Code : " + response.code());
