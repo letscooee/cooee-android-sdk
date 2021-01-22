@@ -10,6 +10,7 @@ import com.letscooee.retrofit.HttpCallsHelper;
 import com.letscooee.retrofit.ServerAPIService;
 import com.letscooee.utils.Closure;
 import com.letscooee.utils.CooeeSDKConstants;
+import com.letscooee.utils.LocalStorageHelper;
 import com.letscooee.utils.PropertyNameException;
 
 import java.util.HashMap;
@@ -28,6 +29,7 @@ public class CooeeSDK {
     private final ServerAPIService apiService;
 
     private String currentScreenName = "";
+    private String uuid = "";
 
     /**
      * Private constructor for Singleton Class
@@ -127,7 +129,14 @@ public class CooeeSDK {
             userMap.put("userProperties", userProperties);
         }
 
-        HttpCallsHelper.sendUserProfile(userMap, "Manual");
+        HttpCallsHelper.sendUserProfile(userMap, "Manual", new Closure() {
+            @Override
+            public void call(Map<String, Object> data) {
+                if (data.get("id") != null){
+                    LocalStorageHelper.putString(context, CooeeSDKConstants.STORAGE_UUID, data.get("id").toString());
+                }
+            }
+        });
     }
 
     /**
@@ -150,5 +159,12 @@ public class CooeeSDK {
      */
     public String getCurrentScreenName() {
         return this.currentScreenName;
+    }
+
+    public String getUUID() {
+        if (uuid.isEmpty()){
+            uuid = LocalStorageHelper.getString(context, CooeeSDKConstants.STORAGE_UUID, "");
+        }
+        return uuid;
     }
 }

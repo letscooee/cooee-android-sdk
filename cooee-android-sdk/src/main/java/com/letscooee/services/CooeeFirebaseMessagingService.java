@@ -156,6 +156,6 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
         userProperties.put("Firebase Token", token);
         userMap.put("userProperties", userProperties);
 
-        HttpCallsHelper.sendUserProfile(userMap, "Firebase Refreshed Token");
+        HttpCallsHelper.sendUserProfile(userMap, "Firebase Refreshed Token", null);
     }
 }

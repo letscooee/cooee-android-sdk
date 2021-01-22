@@ -55,17 +55,25 @@ public final class HttpCallsHelper {
         });
     }
 
-    public static void sendUserProfile(Map<String, Object> userMap, String msg) {
+    public static void sendUserProfile(Map<String, Object> userMap, String msg, Closure closure) {
         //noinspection ResultOfMethodCallIgnored
         PostLaunchActivity.onSDKStateDecided.subscribe((Object ignored) -> {
             userMap.put("sessionID", PostLaunchActivity.currentSessionId);
-            serverAPIService.updateProfile(userMap).enqueue(new Callback<ResponseBody>() {
+            serverAPIService.updateProfile(userMap).enqueue(new Callback<Map<String, Object>>() {
                 @Override
-                public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
+                public void onResponse(@NonNull Call<Map<String, Object>> call, @NonNull Response<Map<String, Object>> response) {
                     Log.i(CooeeSDKConstants.LOG_PREFIX, msg + " User Profile Response Code : " + response.code());
+
+                    if (closure == null){
+                        return;
+                    }
+
+                    if (response.body() != null){
+                        closure.call(response.body());
+                    }
                 }
 
-                public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
+                public void onFailure(@NonNull Call<Map<String, Object>> call, @NonNull Throwable t) {
                     // TODO Saving the request locally so that it can be sent later
                     Log.e(CooeeSDKConstants.LOG_PREFIX, msg + " User Profile Error Message : " + t.toString());
                 }

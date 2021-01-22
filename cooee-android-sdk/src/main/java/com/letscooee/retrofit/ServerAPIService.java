@@ -32,7 +32,7 @@ public interface ServerAPIService {
     Call<ResponseBody> concludeSession(@Field("sessionID") String sessionID, @Field("duration") int duration);
 
     @PUT("/v1/user/update")
-    Call<ResponseBody> updateProfile(@Body Map<String, Object> objectMap);
+    Call<Map<String, Object>> updateProfile(@Body Map<String, Object> objectMap);
 
     @POST("/v1/session/keepAlive")
     Call<ResponseBody> keepAlive(@Field("sessionID") String sessionID);
