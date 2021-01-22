@@ -24,6 +24,7 @@ import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.letscooee.R;
 import com.letscooee.campaign.EngagementTriggerActivity;
+import com.letscooee.init.PostLaunchActivity;
 import com.letscooee.models.Event;
 import com.letscooee.models.TriggerData;
 import com.letscooee.retrofit.HttpCallsHelper;
@@ -58,19 +59,9 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
     }
 
     private void showInAppMessaging(RemoteMessage remoteMessage) {
-        Map<String, String> triggerDataMap = remoteMessage.getData();
-        try {
-        TriggerData triggerData = new TriggerData(triggerDataMap);
-        Intent intent = new Intent(getApplicationContext(), EngagementTriggerActivity.class);
-        Bundle bundle = new Bundle();
-        bundle.putParcelable("triggerData", triggerData);
-        intent.putExtra("bundle", bundle);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        getApplicationContext().startActivity(intent);
-        } catch (Exception ex) {
-            Log.d(CooeeSDKConstants.LOG_PREFIX, "Couldn't show Engagement Trigger");
-            HttpCallsHelper.sendEvent(new Event("CE KPI", new HashMap<>()));
-        }
+        Map<String, Object> data = new HashMap<>();
+        data.put("triggerData", remoteMessage.getData());
+        PostLaunchActivity.createTrigger(getApplicationContext(), data);
     }
 
     private void showNotification(RemoteMessage remoteMessage) {

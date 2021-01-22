@@ -24,6 +24,7 @@ import com.letscooee.models.TriggerData;
 import com.letscooee.retrofit.APIClient;
 import com.letscooee.retrofit.HttpCallsHelper;
 import com.letscooee.retrofit.ServerAPIService;
+import com.letscooee.utils.Closure;
 import com.letscooee.utils.CooeeSDKConstants;
 import com.letscooee.utils.LocalStorageHelper;
 
@@ -77,7 +78,12 @@ public class AppController extends Application implements LifecycleObserver, App
             sessionProperties.put("CE Duration", String.valueOf(backgroundDuration / 1000));
 
             Event session = new Event("CE App Foreground", sessionProperties);
-            HttpCallsHelper.sendEvent(session);
+            HttpCallsHelper.sendEvent(session, new Closure() {
+                @Override
+                public void call(Map<String, Object> data) {
+                    PostLaunchActivity.createTrigger(getApplicationContext(), data);
+                }
+            });
 
         }
     }
@@ -104,7 +110,7 @@ public class AppController extends Application implements LifecycleObserver, App
             sessionProperties.put("CE Duration", duration);
 
             Event session = new Event("CE App Background", sessionProperties);
-            HttpCallsHelper.sendEvent(session);
+            HttpCallsHelper.sendEvent(session, null);
         });
     }
 
@@ -164,18 +170,9 @@ public class AppController extends Application implements LifecycleObserver, App
                 triggerDataMap.put(key, String.valueOf(bundle.get(key)));
             }
 
-            try {
-                TriggerData triggerData = new TriggerData(triggerDataMap);
-                Intent intent = new Intent(getApplicationContext(), EngagementTriggerActivity.class);
-                Bundle sendBundle = new Bundle();
-                sendBundle.putParcelable("triggerData", triggerData);
-                intent.putExtra("bundle", sendBundle);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                getApplicationContext().startActivity(intent);
-            }catch (Exception ex){
-                Log.d(CooeeSDKConstants.LOG_PREFIX, "Couldn't show Engagement Trigger");
-                HttpCallsHelper.sendEvent(new Event("CE KPI", new HashMap<>()));
-            }
+            Map<String, Object> data = new HashMap<>();
+            data.put("triggerData", triggerDataMap);
+            PostLaunchActivity.createTrigger(getApplicationContext(), data);
         }
     }
 

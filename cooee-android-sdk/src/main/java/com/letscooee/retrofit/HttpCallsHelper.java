@@ -23,11 +23,11 @@ public final class HttpCallsHelper {
 
     static ServerAPIService serverAPIService = APIClient.getServerAPIService();
 
-    public static void sendEvent(Event event) {
+    public static void sendEvent(Event event, Closure closure) {
         //noinspection ResultOfMethodCallIgnored
         PostLaunchActivity.onSDKStateDecided.subscribe((Object ignored) -> {
             event.setSessionID(PostLaunchActivity.currentSessionId);
-            sendEventWithoutSDKState(event, null);
+            sendEventWithoutSDKState(event, closure);
         });
     }
 

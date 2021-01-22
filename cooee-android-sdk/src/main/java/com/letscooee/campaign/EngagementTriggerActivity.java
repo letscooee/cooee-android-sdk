@@ -494,7 +494,7 @@ public class EngagementTriggerActivity extends AppCompatActivity {
         }
 
         Event event = new Event("CE KPI", kpiMap);
-        HttpCallsHelper.sendEvent(event);
+        HttpCallsHelper.sendEvent(event, null);
 
         updateExit();
     }

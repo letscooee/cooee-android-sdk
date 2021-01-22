@@ -8,6 +8,7 @@ import com.letscooee.models.Event;
 import com.letscooee.retrofit.APIClient;
 import com.letscooee.retrofit.HttpCallsHelper;
 import com.letscooee.retrofit.ServerAPIService;
+import com.letscooee.utils.Closure;
 import com.letscooee.utils.CooeeSDKConstants;
 import com.letscooee.utils.PropertyNameException;
 
@@ -69,7 +70,12 @@ public class CooeeSDK {
 
         Event event = new Event(eventName, eventProperties);
 
-        HttpCallsHelper.sendEvent(event);
+        HttpCallsHelper.sendEvent(event, new Closure() {
+            @Override
+            public void call(Map<String, Object> data) {
+                PostLaunchActivity.createTrigger(context, data);
+            }
+        });
     }
 
     /**
