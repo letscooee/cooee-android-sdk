@@ -119,19 +119,7 @@ public class AppController extends Application implements LifecycleObserver, App
         handler.postDelayed(runnable = new Runnable() {
             public void run() {
                 handler.postDelayed(runnable, CooeeSDKConstants.KEEP_ALIVE_TIME_IN_MS);
-//                PostLaunchActivity.onSDKStateDecided.subscribe((Object ignored) -> {
-//                    apiService.keepAlive(PostLaunchActivity.currentSessionId).enqueue(new Callback<ResponseBody>() {
-//                        @Override
-//                        public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-//                            Log.i(CooeeSDKConstants.LOG_PREFIX, "Session Alive Response Code : " + response.code());
-//                        }
-//
-//                        @Override
-//                        public void onFailure(Call<ResponseBody> call, Throwable t) {
-//                            Log.e(CooeeSDKConstants.LOG_PREFIX, "Session Alive Response Error Message" + t.toString());
-//                        }
-//                    });
-//                });
+//                HttpCallsHelper.keepAlive();
                 Log.d(CooeeSDKConstants.LOG_PREFIX, "Sent keep alive call");
             }
         }, CooeeSDKConstants.KEEP_ALIVE_TIME_IN_MS);
