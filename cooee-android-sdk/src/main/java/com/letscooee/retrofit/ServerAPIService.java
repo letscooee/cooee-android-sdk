@@ -34,6 +34,7 @@ public interface ServerAPIService {
     @PUT("/v1/user/update")
     Call<Map<String, Object>> updateProfile(@Body Map<String, Object> objectMap);
 
+    @FormUrlEncoded
     @POST("/v1/session/keepAlive")
     Call<ResponseBody> keepAlive(@Field("sessionID") String sessionID);
 }

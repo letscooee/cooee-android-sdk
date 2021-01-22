@@ -119,7 +119,7 @@ public class AppController extends Application implements LifecycleObserver, App
         handler.postDelayed(runnable = new Runnable() {
             public void run() {
                 handler.postDelayed(runnable, CooeeSDKConstants.KEEP_ALIVE_TIME_IN_MS);
-//                HttpCallsHelper.keepAlive();
+                HttpCallsHelper.keepAlive();
                 Log.d(CooeeSDKConstants.LOG_PREFIX, "Sent keep alive call");
             }
         }, CooeeSDKConstants.KEEP_ALIVE_TIME_IN_MS);
