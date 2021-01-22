@@ -253,7 +253,6 @@ public class PostLaunchActivity {
         userProperties.put("CE Last Launch Time", new Date().toString());
         Map<String, Object> userMap = new HashMap<>();
         userMap.put("userProperties", userProperties);
-        userMap.put("sessionID", currentSessionId);
         userMap.put("userData", new HashMap<>());
 
         HttpCallsHelper.sendUserProfile(userMap, "SDK");

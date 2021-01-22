@@ -39,9 +39,13 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.letscooee.R;
+import com.letscooee.models.Event;
 import com.letscooee.models.TriggerBackground;
-import com.letscooee.models.TriggerData3;
+import com.letscooee.models.TriggerData;
+import com.letscooee.retrofit.HttpCallsHelper;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -49,7 +53,7 @@ import java.util.concurrent.TimeUnit;
 
 public class EngagementTriggerActivity extends AppCompatActivity {
 
-    TriggerData3 triggerData3;
+    TriggerData triggerData;
     ImageButton closeImageButton;
     RelativeLayout secondParentLayout;
     TextView textViewTimer;
@@ -69,11 +73,12 @@ public class EngagementTriggerActivity extends AppCompatActivity {
         secondParentLayout = findViewById(R.id.secondParentRelative);
         textViewTimer = findViewById(R.id.textViewTimer);
 
-        triggerData3 = (TriggerData3) Objects.requireNonNull(getIntent().getBundleExtra("bundle")).getParcelable("triggerData");
+        try {
+        triggerData = (TriggerData) Objects.requireNonNull(getIntent().getBundleExtra("bundle")).getParcelable("triggerData");
 
-        if (triggerData3 == null) finish();
-
-//        triggerData3 = new randomCode().x();
+        if (triggerData == null) {
+            finish();
+        }
 
         updateFill();
         addMediaView();
@@ -84,13 +89,16 @@ public class EngagementTriggerActivity extends AppCompatActivity {
         updateText();
         updateMessage();
         updateTextPosition();
+        } catch (Exception ignored) {
+            finish();
+        }
     }
 
     /**
      * Update text/media position as given by the server
      */
     private void updateTextPosition() {
-        if (triggerData3.getTextPosition() == TriggerData3.TextPosition.BOTTOM || triggerData3.getTextPosition() == TriggerData3.TextPosition.RIGHT) {
+        if (triggerData.getTextPosition() == TriggerData.TextPosition.BOTTOM || triggerData.getTextPosition() == TriggerData.TextPosition.RIGHT) {
             RelativeLayout textRelativeLayout = findViewById(R.id.textLayout);
             RelativeLayout mediaRelativeLayout = findViewById(R.id.mediaRelativeLayout);
             RelativeLayout actionRelativeLayout = findViewById(R.id.actionLayout);
@@ -109,12 +117,12 @@ public class EngagementTriggerActivity extends AppCompatActivity {
      */
     private void updateText() {
         TextView textView = findViewById(R.id.textViewTitle);
-        textView.setText(triggerData3.getText().getData());
-        int color = triggerData3.getText().getColor() == null || triggerData3.getText().getColor().isEmpty()
+        textView.setText(triggerData.getText().getData());
+        int color = triggerData.getText().getColor() == null || triggerData.getText().getColor().isEmpty()
                 ? getResources().getColor(R.color.colorText)
-                : Color.parseColor(triggerData3.getText().getColor());
+                : Color.parseColor(triggerData.getText().getColor());
         textView.setTextColor(color);
-        textView.setTextSize(triggerData3.getText().getFontSize());
+        textView.setTextSize(triggerData.getText().getFontSize());
     }
 
     /**
@@ -122,12 +130,12 @@ public class EngagementTriggerActivity extends AppCompatActivity {
      */
     private void updateMessage() {
         TextView textView = findViewById(R.id.textViewContent);
-        textView.setText(triggerData3.getMessage().getData());
-        int color = triggerData3.getMessage().getColor() == null || triggerData3.getMessage().getColor().isEmpty()
+        textView.setText(triggerData.getMessage().getData());
+        int color = triggerData.getMessage().getColor() == null || triggerData.getMessage().getColor().isEmpty()
                 ? getResources().getColor(R.color.colorText)
-                : Color.parseColor(triggerData3.getMessage().getColor());
+                : Color.parseColor(triggerData.getMessage().getColor());
         textView.setTextColor(color);
-        textView.setTextSize(triggerData3.getMessage().getFontSize());
+        textView.setTextSize(triggerData.getMessage().getFontSize());
     }
 
     /**
@@ -135,8 +143,8 @@ public class EngagementTriggerActivity extends AppCompatActivity {
      * eg. if it should be auto close or close button is provided
      */
     private void updateClose() {
-        if (triggerData3.isAutoClose()) {
-            int autoClose = (Integer) triggerData3.getAutoClose();
+        if (triggerData.isAutoClose()) {
+            int autoClose = (Integer) triggerData.getAutoClose();
             closeImageButton.setVisibility(View.GONE);
             textViewTimer.setVisibility(View.GONE);
             new Handler().postDelayed(this::finish, autoClose * 1000);
@@ -148,7 +156,7 @@ public class EngagementTriggerActivity extends AppCompatActivity {
      */
     private void updateEntrance() {
         int transitionId;
-        switch (triggerData3.getEntranceAnimation()) {
+        switch (triggerData.getEntranceAnimation()) {
             case SLIDE_IN_LEFT: {
                 transitionId = android.R.anim.slide_in_left;
                 break;
@@ -178,24 +186,24 @@ public class EngagementTriggerActivity extends AppCompatActivity {
      * eg. SOLID_COLOR, IMAGE and BLURRED
      */
     private void updateBackground() {
-        if (triggerData3.getBackground().getType() == TriggerBackground.TriggerType.SOLID_COLOR) {
-            int color = triggerData3.getBackground().getColor() == null || triggerData3.getBackground().getColor().isEmpty()
+        if (triggerData.getBackground().getType() == TriggerBackground.TriggerType.SOLID_COLOR) {
+            int color = triggerData.getBackground().getColor() == null || triggerData.getBackground().getColor().isEmpty()
                     ? Color.parseColor("#DDDDDD")
-                    : Color.parseColor(triggerData3.getBackground().getColor());
+                    : Color.parseColor(triggerData.getBackground().getColor());
 
             GradientDrawable drawable = new GradientDrawable();
             drawable.setColor(color);
             drawable.setCornerRadius(20);
             secondParentLayout.setBackground(drawable);
-        } else if (triggerData3.getBackground().getType() == TriggerBackground.TriggerType.IMAGE) {
-            if (triggerData3.getBackground().getImage() == null || triggerData3.getBackground().getImage().isEmpty()) {
+        } else if (triggerData.getBackground().getType() == TriggerBackground.TriggerType.IMAGE) {
+            if (triggerData.getBackground().getImage() == null || triggerData.getBackground().getImage().isEmpty()) {
                 secondParentLayout.setBackgroundColor(getResources().getColor(R.color.colorBackground));
                 return;
             }
 
             Glide.with(this)
                     .asBitmap()
-                    .load(triggerData3.getBackground().getImage())
+                    .load(triggerData.getBackground().getImage())
                     .into(new CustomTarget<Bitmap>() {
                         @Override
                         public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
@@ -209,13 +217,13 @@ public class EngagementTriggerActivity extends AppCompatActivity {
 
                         }
                     });
-        } else if (triggerData3.getBackground().getType() == TriggerBackground.TriggerType.BLURRED) {
+        } else if (triggerData.getBackground().getType() == TriggerBackground.TriggerType.BLURRED) {
             int z;
 
-            if (triggerData3.getBackground().getBlur() == 0) {
+            if (triggerData.getBackground().getBlur() == 0) {
                 z = 255 - (int) (20 * 255 / 100);
             } else {
-                z = 255 - (int) (triggerData3.getBackground().getBlur() * 255 / 100);
+                z = 255 - (int) (triggerData.getBackground().getBlur() * 255 / 100);
             }
 
             String y = Integer.toHexString(z);
@@ -242,14 +250,14 @@ public class EngagementTriggerActivity extends AppCompatActivity {
 
         RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
 
-        if (triggerData3.getFill() == TriggerData3.Fill.COVER) {
+        if (triggerData.getFill() == TriggerData.Fill.COVER) {
             findViewById(R.id.contentLinearLayout).setLayoutParams(layoutParams);
             layoutParams.setMargins(0, 0, 0, 0);
-        } else if (triggerData3.getFill() == TriggerData3.Fill.INTERSTITIAL) {
+        } else if (triggerData.getFill() == TriggerData.Fill.INTERSTITIAL) {
             layoutParams = new RelativeLayout.LayoutParams((int) (dm.widthPixels * 0.9), (int) (dm.heightPixels * 0.9));
             layoutParams.addRule(RelativeLayout.CENTER_IN_PARENT);
 
-        } else if (triggerData3.getFill() == TriggerData3.Fill.HALF_INTERSTITIAL) {
+        } else if (triggerData.getFill() == TriggerData.Fill.HALF_INTERSTITIAL) {
             if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
                 layoutParams = new RelativeLayout.LayoutParams((int) (dm.widthPixels * 0.5), (int) (dm.heightPixels * 0.9));
             } else {
@@ -267,20 +275,20 @@ public class EngagementTriggerActivity extends AppCompatActivity {
      * eg. IMAGE, VIDEO (as of now)
      */
     private void addMediaView() {
-        if (triggerData3.getType() == TriggerData3.Type.IMAGE) {
-            if (triggerData3.getImageUrl() == null || triggerData3.getImageUrl().isEmpty()) {
+        if (triggerData.getType() == TriggerData.Type.IMAGE) {
+            if (triggerData.getImageUrl() == null || triggerData.getImageUrl().isEmpty()) {
                 finish();
             }
             createImageView();
-        } else if (triggerData3.getType() == TriggerData3.Type.VIDEO) {
-            if (triggerData3.getVideoUrl() == null || triggerData3.getVideoUrl().isEmpty()) {
+        } else if (triggerData.getType() == TriggerData.Type.VIDEO) {
+            if (triggerData.getVideoUrl() == null || triggerData.getVideoUrl().isEmpty()) {
                 finish();
             }
             createVideoView();
         }
     }
 
-    private void createImageView(){
+    private void createImageView() {
         RelativeLayout insideMediaFrameLayout = findViewById(R.id.insideMediaFrameLayout);
         RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 
@@ -288,21 +296,21 @@ public class EngagementTriggerActivity extends AppCompatActivity {
         imageView.setLayoutParams(layoutParams);
         imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
-        Glide.with(getApplicationContext()).load(triggerData3.getImageUrl()).into(imageView);
+        Glide.with(getApplicationContext()).load(triggerData.getImageUrl()).into(imageView);
 
         new Handler().postDelayed(() -> isEngaged = true, 5000);
 
         insideMediaFrameLayout.addView(imageView);
     }
 
-    private void createVideoView(){
+    private void createVideoView() {
         RelativeLayout insideMediaFrameLayout = findViewById(R.id.insideMediaFrameLayout);
         RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 
         VideoView videoView = new VideoView(EngagementTriggerActivity.this);
 
         videoView.setLayoutParams(layoutParams);
-        videoView.setVideoPath(triggerData3.getVideoUrl());
+        videoView.setVideoPath(triggerData.getVideoUrl());
         videoView.seekTo(30);
         videoView.start();
 
@@ -421,12 +429,12 @@ public class EngagementTriggerActivity extends AppCompatActivity {
 
         RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 
-        if (triggerData3.getCloseButtonPosition() == TriggerData3.CloseButtonPosition.TOP_RIGHT) {
+        if (triggerData.getCloseButtonPosition() == TriggerData.CloseButtonPosition.TOP_RIGHT) {
             layoutParams.addRule(RelativeLayout.ALIGN_PARENT_END);
-        } else if (triggerData3.getCloseButtonPosition() == TriggerData3.CloseButtonPosition.DOWN_RIGHT) {
+        } else if (triggerData.getCloseButtonPosition() == TriggerData.CloseButtonPosition.DOWN_RIGHT) {
             layoutParams.addRule(RelativeLayout.ALIGN_PARENT_END);
             layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-        } else if (triggerData3.getCloseButtonPosition() == TriggerData3.CloseButtonPosition.DOWN_LEFT) {
+        } else if (triggerData.getCloseButtonPosition() == TriggerData.CloseButtonPosition.DOWN_LEFT) {
             layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
         }
 
@@ -438,7 +446,7 @@ public class EngagementTriggerActivity extends AppCompatActivity {
 
     private void updateExit() {
         int transitionId;
-        switch (triggerData3.getExitAnimation()) {
+        switch (triggerData.getExitAnimation()) {
             case SLIDE_OUT_LEFT: {
                 transitionId = R.anim.slide_out_left;
                 break;
@@ -475,16 +483,19 @@ public class EngagementTriggerActivity extends AppCompatActivity {
     @Override
     public void finish() {
         super.finish();
-        Bundle bundle = new Bundle();
-        bundle.putString("CE Id", String.valueOf(triggerData3.getId()));
-        bundle.putString("CE Viewed", String.valueOf(isViewed));
-        bundle.putString("CE Engaged", String.valueOf(isEngaged));
+        Map<String, String> kpiMap = new HashMap<>();
+        kpiMap.put("CE Id", String.valueOf(triggerData.getId()));
+        kpiMap.put("CE Viewed", String.valueOf(isViewed));
+        kpiMap.put("CE Engaged", String.valueOf(isEngaged));
 
-        if (triggerData3.getType() == TriggerData3.Type.VIDEO) {
-            bundle.putString("CE Completion Rate", completionRate + "");
-            bundle.putString("CE Played", String.valueOf(isPlayed));
+        if (triggerData.getType() == TriggerData.Type.VIDEO) {
+            kpiMap.put("CE Completion Rate", completionRate + "");
+            kpiMap.put("CE Played", String.valueOf(isPlayed));
         }
-        //TODO send feedback KPIs to server
+
+        Event event = new Event("CE KPI", kpiMap);
+        HttpCallsHelper.sendEvent(event);
+
         updateExit();
     }
 

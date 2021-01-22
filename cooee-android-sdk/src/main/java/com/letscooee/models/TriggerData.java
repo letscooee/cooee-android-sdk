@@ -10,7 +10,7 @@ import java.util.Map;
  *
  * @author Abhishek Taparia
  */
-public class TriggerData3 implements Parcelable {
+public class TriggerData implements Parcelable {
     public enum Type {
         IMAGE, VIDEO
     }
@@ -51,22 +51,22 @@ public class TriggerData3 implements Parcelable {
     private boolean isAutoClose;
 
 
-    public static final Creator<TriggerData3> CREATOR = new Creator<TriggerData3>() {
+    public static final Creator<TriggerData> CREATOR = new Creator<TriggerData>() {
         @Override
-        public TriggerData3 createFromParcel(Parcel in) {
-            return new TriggerData3(in);
+        public TriggerData createFromParcel(Parcel in) {
+            return new TriggerData(in);
         }
 
         @Override
-        public TriggerData3[] newArray(int size) {
-            return new TriggerData3[size];
+        public TriggerData[] newArray(int size) {
+            return new TriggerData[size];
         }
     };
 
-    public TriggerData3() {
+    public TriggerData() {
     }
 
-    protected TriggerData3(Parcel in) {
+    protected TriggerData(Parcel in) {
         id = in.readInt();
         background = in.readParcelable(TriggerBackground.class.getClassLoader());
         imageUrl = in.readString();
@@ -87,7 +87,7 @@ public class TriggerData3 implements Parcelable {
         }
     }
 
-    public TriggerData3(Map<String, String> triggerData) {
+    public TriggerData(Map<String, String> triggerData) {
         id = Integer.parseInt(triggerData.get("id"));
         background = new TriggerBackground(triggerData.get("backgroundType"), triggerData.get("backgroundColor"), triggerData.get("backgroundImage"), triggerData.get("backgroundBlur"));
         imageUrl = triggerData.get("imageUrl");

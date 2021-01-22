@@ -1,15 +1,10 @@
 package com.letscooee;
 
 import android.content.Context;
-import android.content.Intent;
-import android.os.Bundle;
 import android.util.Log;
 
-import com.letscooee.campaign.EngagementTriggerActivity;
-import com.letscooee.campaign.randomCode;
 import com.letscooee.init.PostLaunchActivity;
 import com.letscooee.models.Event;
-import com.letscooee.models.TriggerData3;
 import com.letscooee.retrofit.APIClient;
 import com.letscooee.retrofit.HttpCallsHelper;
 import com.letscooee.retrofit.ServerAPIService;
@@ -75,14 +70,6 @@ public class CooeeSDK {
         Event event = new Event(eventName, eventProperties);
 
         HttpCallsHelper.sendEvent(event);
-
-        TriggerData3 triggerData3 = new randomCode().x();
-        Intent intent = new Intent(context, EngagementTriggerActivity.class);
-        Bundle bundle = new Bundle();
-        bundle.putParcelable("triggerData",triggerData3);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.putExtra("bundle",bundle);
-        context.startActivity(intent);
     }
 
     /**
@@ -133,8 +120,6 @@ public class CooeeSDK {
         } else {
             userMap.put("userProperties", userProperties);
         }
-
-        userMap.put("sessionID", PostLaunchActivity.currentSessionId);
 
         HttpCallsHelper.sendUserProfile(userMap, "Manual");
     }
