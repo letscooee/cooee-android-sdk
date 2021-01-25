@@ -1,6 +1,7 @@
 package com.letscooee.init;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
@@ -48,6 +49,7 @@ class DefaultUserPropertiesCollector {
      *
      * @return String[] {latitude, longitude}
      */
+    @SuppressLint("MissingPermission")
     public String[] getLocation() {
         LocationRequest locationRequest = new LocationRequest();
         locationRequest.setInterval(10000);
