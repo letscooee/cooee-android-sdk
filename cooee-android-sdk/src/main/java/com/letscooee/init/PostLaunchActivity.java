@@ -17,7 +17,6 @@ import com.letscooee.models.TriggerData;
 import com.letscooee.retrofit.APIClient;
 import com.letscooee.retrofit.HttpCallsHelper;
 import com.letscooee.retrofit.ServerAPIService;
-import com.letscooee.utils.Closure;
 import com.letscooee.utils.CooeeSDKConstants;
 import com.letscooee.utils.LocalStorageHelper;
 import io.reactivex.rxjava3.subjects.ReplaySubject;
@@ -25,7 +24,6 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-import java.net.ConnectException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -93,10 +91,11 @@ public class PostLaunchActivity {
             });
         } else {
             String apiToken = LocalStorageHelper.getString(context, CooeeSDKConstants.STORAGE_SDK_TOKEN, "");
-            if (apiToken.isEmpty()){
+            if (apiToken.isEmpty()) {
                 LocalStorageHelper.putBoolean(context, CooeeSDKConstants.STORAGE_FIRST_TIME_LAUNCH, true);
                 return;
             }
+
             Log.i(CooeeSDKConstants.LOG_PREFIX, "Token : " + apiToken);
 
             APIClient.setAPIToken(apiToken);
@@ -188,12 +187,7 @@ public class PostLaunchActivity {
         eventProperties.put("CE App Version", defaultUserPropertiesCollector.getAppVersion());
         Event event = new Event("CE App Installed", eventProperties);
 
-        HttpCallsHelper.sendEvent(event, new Closure() {
-            @Override
-            public void call(Map<String, Object> data) {
-                createTrigger(context, data);
-            }
-        });
+        HttpCallsHelper.sendEvent(event, data -> createTrigger(context, data));
     }
 
     /**
@@ -284,8 +278,8 @@ public class PostLaunchActivity {
         return sessionNumber;
     }
 
-    public static void createTrigger(Context context, Map<String, Object> data){
-        if (data == null || data.get("triggerData") == null){
+    public static void createTrigger(Context context, Map<String, Object> data) {       //indentation changes
+        if (data == null || data.get("triggerData") == null) {
             return;
         }
         try {
@@ -296,10 +290,9 @@ public class PostLaunchActivity {
             intent.putExtra("bundle", sendBundle);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(intent);
-        }
-        catch (Exception ex) {
-            Log.d(CooeeSDKConstants.LOG_PREFIX, "Couldn't show Engagement Trigger"+ex.toString());
-            HttpCallsHelper.sendEvent( new Event("CE KPI", new HashMap<>()),null);
+        } catch (Exception ex) {
+            Log.d(CooeeSDKConstants.LOG_PREFIX, "Couldn't show Engagement Trigger " + ex.toString());
+            HttpCallsHelper.sendEvent(new Event("CE KPI", new HashMap<>()), null);
         }
     }
 }

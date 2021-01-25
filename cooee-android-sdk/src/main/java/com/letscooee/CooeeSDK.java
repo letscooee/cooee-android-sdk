@@ -70,12 +70,7 @@ public class CooeeSDK {
 
         Event event = new Event(eventName, eventProperties);
 
-        HttpCallsHelper.sendEvent(event, new Closure() {
-            @Override
-            public void call(Map<String, Object> data) {
-                PostLaunchActivity.createTrigger(context, data);
-            }
-        });
+        HttpCallsHelper.sendEvent(event, data -> PostLaunchActivity.createTrigger(context, data));
     }
 
     /**
