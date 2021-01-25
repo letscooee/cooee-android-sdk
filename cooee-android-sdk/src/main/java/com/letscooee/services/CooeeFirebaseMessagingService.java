@@ -150,12 +150,6 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
     }
 
     private void sendTokenToServer(String token) {
-        Map<String, Object> userMap = new HashMap<>();
-        userMap.put("userData", new HashMap<>());
-        Map<String, String> userProperties = new HashMap<>();
-        userProperties.put("Firebase Token", token);
-        userMap.put("userProperties", userProperties);
-
-        HttpCallsHelper.sendUserProfile(userMap, "Firebase Refreshed Token", null);
+        HttpCallsHelper.setFirebaseToken(token);
     }
 }

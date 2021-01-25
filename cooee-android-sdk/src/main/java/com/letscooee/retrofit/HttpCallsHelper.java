@@ -64,11 +64,11 @@ public final class HttpCallsHelper {
                 public void onResponse(@NonNull Call<Map<String, Object>> call, @NonNull Response<Map<String, Object>> response) {
                     Log.i(CooeeSDKConstants.LOG_PREFIX, msg + " User Profile Response Code : " + response.code());
 
-                    if (closure == null){
+                    if (closure == null) {          // space change
                         return;
                     }
 
-                    if (response.body() != null){
+                    if (response.body() != null) {          // space change
                         closure.call(response.body());
                     }
                 }
@@ -110,6 +110,22 @@ public final class HttpCallsHelper {
                 @Override
                 public void onFailure(Call<ResponseBody> call, Throwable t) {
                     Log.e(CooeeSDKConstants.LOG_PREFIX, "Session Alive Response Error Message" + t.toString());
+                }
+            });
+        });
+    }
+
+    public static void setFirebaseToken(String firebaseToken) {
+        PostLaunchActivity.onSDKStateDecided.subscribe((Object ignored) -> {
+            serverAPIService.setFirebaseToken(PostLaunchActivity.currentSessionId, firebaseToken).enqueue(new Callback<ResponseBody>() {
+                @Override
+                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                    Log.i(CooeeSDKConstants.LOG_PREFIX, "Firebase Token Response Code : " + response.code());
+                }
+
+                @Override
+                public void onFailure(Call<ResponseBody> call, Throwable t) {
+                    Log.e(CooeeSDKConstants.LOG_PREFIX, "Firebase Token Response Error Message" + t.toString());
                 }
             });
         });

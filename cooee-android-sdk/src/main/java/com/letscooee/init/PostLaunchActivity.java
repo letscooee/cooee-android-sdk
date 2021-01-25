@@ -267,13 +267,10 @@ public class PostLaunchActivity {
         userMap.put("userProperties", userProperties);
         userMap.put("userData", new HashMap<>());
 
-        HttpCallsHelper.sendUserProfile(userMap, "SDK", new Closure() {
-            @Override
-            public void call(Map<String, Object> data) {
-                if (data.get("id") != null){
-                    Log.d(CooeeSDKConstants.LOG_PREFIX, data.get("id").toString());
-                    LocalStorageHelper.putString(context, CooeeSDKConstants.STORAGE_UUID, data.get("id").toString());
-                }
+        HttpCallsHelper.sendUserProfile(userMap, "SDK", data -> {
+            if (data.get("id") != null){
+                Log.d(CooeeSDKConstants.LOG_PREFIX, data.get("id").toString());
+                LocalStorageHelper.putString(context, CooeeSDKConstants.STORAGE_UUID, data.get("id").toString());
             }
         });
     }

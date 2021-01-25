@@ -37,4 +37,8 @@ public interface ServerAPIService {
     @FormUrlEncoded
     @POST("/v1/session/keepAlive")
     Call<ResponseBody> keepAlive(@Field("sessionID") String sessionID);
+
+    @FormUrlEncoded
+    @POST("/v1/user/setFirebaseToken")
+    Call<ResponseBody> setFirebaseToken(@Field("sessionID") String sessionID, @Field("firebaseToken") String firebaseToken);
 }

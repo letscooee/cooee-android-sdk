@@ -129,12 +129,9 @@ public class CooeeSDK {
             userMap.put("userProperties", userProperties);
         }
 
-        HttpCallsHelper.sendUserProfile(userMap, "Manual", new Closure() {
-            @Override
-            public void call(Map<String, Object> data) {
-                if (data.get("id") != null){
-                    LocalStorageHelper.putString(context, CooeeSDKConstants.STORAGE_UUID, data.get("id").toString());
-                }
+        HttpCallsHelper.sendUserProfile(userMap, "Manual", data -> {
+            if (data.get("id") != null){
+                LocalStorageHelper.putString(context, CooeeSDKConstants.STORAGE_UUID, data.get("id").toString());
             }
         });
     }
