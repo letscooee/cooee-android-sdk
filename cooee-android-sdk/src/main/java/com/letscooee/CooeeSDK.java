@@ -124,7 +124,7 @@ public class CooeeSDK {
 
         HttpCallsHelper.sendUserProfile(userMap, "Manual", data -> {
             if (data.get("id") != null) {
-                LocalStorageHelper.putString(context, CooeeSDKConstants.STORAGE_UUID, data.get("id").toString());
+                LocalStorageHelper.putString(context, CooeeSDKConstants.STORAGE_USER_ID, data.get("id").toString());
             }
         });
     }
@@ -153,7 +153,7 @@ public class CooeeSDK {
 
     public String getUUID() {
         if (uuid.isEmpty()) {
-            uuid = LocalStorageHelper.getString(context, CooeeSDKConstants.STORAGE_UUID, "");
+            uuid = LocalStorageHelper.getString(context, CooeeSDKConstants.STORAGE_USER_ID, "");
         }
         return uuid;
     }
