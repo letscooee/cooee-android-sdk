@@ -27,18 +27,15 @@ public interface ServerAPIService {
     @POST("/v1/event/track")
     Call<Map<String, Object>> sendEvent(@Body Event event);
 
-    @FormUrlEncoded
     @POST("/v1/session/conclude")
-    Call<ResponseBody> concludeSession(@Field("sessionID") String sessionID, @Field("duration") int duration);
+    Call<ResponseBody> concludeSession(@Body Map<String, Object> sessionConcludeRequest);
 
     @PUT("/v1/user/update")
     Call<Map<String, Object>> updateProfile(@Body Map<String, Object> objectMap);
 
-    @FormUrlEncoded
     @POST("/v1/session/keepAlive")
-    Call<ResponseBody> keepAlive(@Field("sessionID") String sessionID);
+    Call<ResponseBody> keepAlive(@Body Map<String, String> keepAliveRequest);
 
-    @FormUrlEncoded
     @POST("/v1/user/setFirebaseToken")
-    Call<ResponseBody> setFirebaseToken(@Field("sessionID") String sessionID, @Field("firebaseToken") String firebaseToken);
+    Call<ResponseBody> setFirebaseToken(@Body Map<String, String> tokenRequest);
 }

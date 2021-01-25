@@ -15,6 +15,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -84,7 +85,11 @@ public final class HttpCallsHelper {
     public static void sendSessionConcludedEvent(int duration) {
         //noinspection ResultOfMethodCallIgnored
         PostLaunchActivity.onSDKStateDecided.subscribe((Object ignored) -> {
-            serverAPIService.concludeSession(PostLaunchActivity.currentSessionId, duration).enqueue(new Callback<ResponseBody>() {
+            Map<String, Object> sessionConcludedRequest = new HashMap<>();
+            sessionConcludedRequest.put("sessionID", PostLaunchActivity.currentSessionId);
+            sessionConcludedRequest.put("duration", duration);
+
+            serverAPIService.concludeSession(sessionConcludedRequest).enqueue(new Callback<ResponseBody>() {
                 @Override
                 public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
                     Log.i(CooeeSDKConstants.LOG_PREFIX, "Session Concluded Event Sent Code : " + response.code());
@@ -101,7 +106,10 @@ public final class HttpCallsHelper {
     public static void keepAlive() {
         //noinspection ResultOfMethodCallIgnored
         PostLaunchActivity.onSDKStateDecided.subscribe((Object ignored) -> {
-            serverAPIService.keepAlive(PostLaunchActivity.currentSessionId).enqueue(new Callback<ResponseBody>() {
+            Map<String, String> keepAliveRequest = new HashMap<>();
+            keepAliveRequest.put("sessionID", PostLaunchActivity.currentSessionId);
+
+            serverAPIService.keepAlive(keepAliveRequest).enqueue(new Callback<ResponseBody>() {
                 @Override
                 public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                     Log.i(CooeeSDKConstants.LOG_PREFIX, "Session Alive Response Code : " + response.code());
@@ -117,7 +125,11 @@ public final class HttpCallsHelper {
 
     public static void setFirebaseToken(String firebaseToken) {
         PostLaunchActivity.onSDKStateDecided.subscribe((Object ignored) -> {
-            serverAPIService.setFirebaseToken(PostLaunchActivity.currentSessionId, firebaseToken).enqueue(new Callback<ResponseBody>() {
+            Map<String, String> tokenRequest = new HashMap<>();
+            tokenRequest.put("sessionID", PostLaunchActivity.currentSessionId);
+            tokenRequest.put("firebaseToken", firebaseToken);
+
+            serverAPIService.setFirebaseToken(tokenRequest).enqueue(new Callback<ResponseBody>() {
                 @Override
                 public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                     Log.i(CooeeSDKConstants.LOG_PREFIX, "Firebase Token Response Code : " + response.code());
