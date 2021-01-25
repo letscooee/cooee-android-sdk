@@ -1,12 +1,15 @@
 package com.letscooee.retrofit;
 
 import android.util.Log;
+
 import androidx.annotation.NonNull;
+
 import com.letscooee.init.AppController;
 import com.letscooee.init.PostLaunchActivity;
 import com.letscooee.models.Event;
 import com.letscooee.utils.Closure;
 import com.letscooee.utils.CooeeSDKConstants;
+
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -23,11 +26,11 @@ public final class HttpCallsHelper {
 
     static ServerAPIService serverAPIService = APIClient.getServerAPIService();
 
-    public static void sendEvent(Event event) {
+    public static void sendEvent(Event event, Closure closure) {
         //noinspection ResultOfMethodCallIgnored
         PostLaunchActivity.onSDKStateDecided.subscribe((Object ignored) -> {
             event.setSessionID(PostLaunchActivity.currentSessionId);
-            sendEventWithoutSDKState(event, null);
+            sendEventWithoutSDKState(event, closure);
         });
     }
 
@@ -82,6 +85,23 @@ public final class HttpCallsHelper {
                 @Override
                 public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
                     Log.e(CooeeSDKConstants.LOG_PREFIX, "Session Concluded Event Sent Error Message" + t.toString());
+                }
+            });
+        });
+    }
+
+    public static void keepAlive() {
+        //noinspection ResultOfMethodCallIgnored
+        PostLaunchActivity.onSDKStateDecided.subscribe((Object ignored) -> {
+            serverAPIService.keepAlive(PostLaunchActivity.currentSessionId).enqueue(new Callback<ResponseBody>() {
+                @Override
+                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                    Log.i(CooeeSDKConstants.LOG_PREFIX, "Session Alive Response Code : " + response.code());
+                }
+
+                @Override
+                public void onFailure(Call<ResponseBody> call, Throwable t) {
+                    Log.e(CooeeSDKConstants.LOG_PREFIX, "Session Alive Response Error Message" + t.toString());
                 }
             });
         });

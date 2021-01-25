@@ -1,16 +1,19 @@
 package com.letscooee.init;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import com.letscooee.BuildConfig;
+import com.letscooee.campaign.EngagementTriggerActivity;
 import com.letscooee.models.AuthenticationRequestBody;
 import com.letscooee.models.DeviceData;
 import com.letscooee.models.Event;
 import com.letscooee.models.SDKAuthentication;
+import com.letscooee.models.TriggerData;
 import com.letscooee.retrofit.APIClient;
 import com.letscooee.retrofit.HttpCallsHelper;
 import com.letscooee.retrofit.ServerAPIService;
@@ -21,7 +24,6 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-import java.net.ConnectException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -66,8 +68,7 @@ public class PostLaunchActivity {
                 public void onResponse(Call<SDKAuthentication> call, Response<SDKAuthentication> response) {
 
                     if (response == null) {
-                        onSDKStateDecided.onError(new ConnectException());
-                        LocalStorageHelper.remove(context, CooeeSDKConstants.STORAGE_FIRST_TIME_LAUNCH);
+                        LocalStorageHelper.putBoolean(context, CooeeSDKConstants.STORAGE_FIRST_TIME_LAUNCH, true);
 
                     } else if (response.isSuccessful()) {
                         assert response.body() != null;
@@ -85,12 +86,16 @@ public class PostLaunchActivity {
 
                 @Override
                 public void onFailure(Call<SDKAuthentication> call, Throwable t) {
-                    onSDKStateDecided.onError(t);
-                    LocalStorageHelper.remove(context, CooeeSDKConstants.STORAGE_FIRST_TIME_LAUNCH);
+                    LocalStorageHelper.putBoolean(context, CooeeSDKConstants.STORAGE_FIRST_TIME_LAUNCH, true);
                 }
             });
         } else {
             String apiToken = LocalStorageHelper.getString(context, CooeeSDKConstants.STORAGE_SDK_TOKEN, "");
+            if (apiToken.isEmpty()) {
+                LocalStorageHelper.putBoolean(context, CooeeSDKConstants.STORAGE_FIRST_TIME_LAUNCH, true);
+                return;
+            }
+
             Log.i(CooeeSDKConstants.LOG_PREFIX, "Token : " + apiToken);
 
             APIClient.setAPIToken(apiToken);
@@ -123,7 +128,7 @@ public class PostLaunchActivity {
      * @return true if app is launched for first time, else false
      */
     private boolean isAppFirstTimeLaunch() {
-        if (LocalStorageHelper.getBoolean(context, CooeeSDKConstants.STORAGE_FIRST_TIME_LAUNCH, false)) {
+        if (LocalStorageHelper.getBoolean(context, CooeeSDKConstants.STORAGE_FIRST_TIME_LAUNCH, true)) {
             LocalStorageHelper.putBoolean(context, CooeeSDKConstants.STORAGE_FIRST_TIME_LAUNCH, false);
             return true;
         } else {
@@ -182,7 +187,7 @@ public class PostLaunchActivity {
         eventProperties.put("CE App Version", defaultUserPropertiesCollector.getAppVersion());
         Event event = new Event("CE App Installed", eventProperties);
 
-        HttpCallsHelper.sendEvent(event);
+        HttpCallsHelper.sendEvent(event, data -> createTrigger(context, data));
     }
 
     /**
@@ -212,6 +217,7 @@ public class PostLaunchActivity {
             }
 
             notifySDKStateDecided();
+            createTrigger(context, data);
         });
     }
 
@@ -270,5 +276,23 @@ public class PostLaunchActivity {
         LocalStorageHelper.putInt(context, CooeeSDKConstants.STORAGE_SESSION_NUMBER, sessionNumber);
 
         return sessionNumber;
+    }
+
+    public static void createTrigger(Context context, Map<String, Object> data) {       //indentation changes
+        if (data == null || data.get("triggerData") == null) {
+            return;
+        }
+        try {
+            TriggerData triggerData = new TriggerData((Map<String, String>) data.get("triggerData"));
+            Intent intent = new Intent(context, EngagementTriggerActivity.class);
+            Bundle sendBundle = new Bundle();
+            sendBundle.putParcelable("triggerData", triggerData);
+            intent.putExtra("bundle", sendBundle);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(intent);
+        } catch (Exception ex) {
+            Log.d(CooeeSDKConstants.LOG_PREFIX, "Couldn't show Engagement Trigger " + ex.toString());
+            HttpCallsHelper.sendEvent(new Event("CE KPI", new HashMap<>()), null);
+        }
     }
 }
