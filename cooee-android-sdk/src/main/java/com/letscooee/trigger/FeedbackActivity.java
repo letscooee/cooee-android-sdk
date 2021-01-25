@@ -1,4 +1,4 @@
-package com.letscooee.campaign;
+package com.letscooee.trigger;
 
 import androidx.appcompat.app.AppCompatActivity;
 

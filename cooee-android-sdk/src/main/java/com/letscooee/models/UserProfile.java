@@ -1,7 +1,5 @@
 package com.letscooee.models;
 
-import com.google.gson.annotations.SerializedName;
-
 import java.util.Map;
 
 /**

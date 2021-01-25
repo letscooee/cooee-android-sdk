@@ -12,21 +12,16 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.RemoteViews;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
-
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.letscooee.R;
-import com.letscooee.campaign.EngagementTriggerActivity;
 import com.letscooee.init.PostLaunchActivity;
-import com.letscooee.models.Event;
-import com.letscooee.models.TriggerData;
 import com.letscooee.retrofit.HttpCallsHelper;
 import com.letscooee.utils.CooeeSDKConstants;
 

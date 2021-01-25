@@ -1,10 +1,4 @@
-package com.letscooee.campaign;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.drawable.RoundedBitmapDrawable;
-import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
+package com.letscooee.trigger;
 
 import android.content.Context;
 import android.content.res.Configuration;
@@ -27,14 +21,12 @@ import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
-import android.widget.VideoView;
-
+import android.widget.*;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.drawable.RoundedBitmapDrawable;
+import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
@@ -63,7 +55,6 @@ public class EngagementTriggerActivity extends AppCompatActivity {
     private boolean isPlayed = false;
     private boolean isEngaged = false;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,21 +65,21 @@ public class EngagementTriggerActivity extends AppCompatActivity {
         textViewTimer = findViewById(R.id.textViewTimer);
 
         try {
-        triggerData = (TriggerData) Objects.requireNonNull(getIntent().getBundleExtra("bundle")).getParcelable("triggerData");
+            triggerData = (TriggerData) Objects.requireNonNull(getIntent().getBundleExtra("bundle")).getParcelable("triggerData");
 
-        if (triggerData == null) {
-            finish();
-        }
+            if (triggerData == null) {
+                finish();
+            }
 
-        updateFill();
-        addMediaView();
-        closeButtonPosition();
-        updateBackground();
-        updateEntrance();
-        updateClose();
-        updateText();
-        updateMessage();
-        updateTextPosition();
+            updateFill();
+            addMediaView();
+            closeButtonPosition();
+            updateBackground();
+            updateEntrance();
+            updateClose();
+            updateText();
+            updateMessage();
+            updateTextPosition();
         } catch (Exception ignored) {
             finish();
         }

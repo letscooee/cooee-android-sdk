@@ -1,15 +1,13 @@
 package com.letscooee.retrofit;
 
 import android.util.Log;
-
 import com.letscooee.BuildConfig;
-
-import java.util.concurrent.TimeUnit;
-
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+
+import java.util.concurrent.TimeUnit;
 
 import static com.letscooee.utils.CooeeSDKConstants.LOG_PREFIX;
 

@@ -11,7 +11,7 @@ import android.util.Log;
  */
 public final class LocalStorageHelper {
 
-    private static final String SHARED_PREFERENCE_NAME= "cooee_sdk";
+    private static final String SHARED_PREFERENCE_NAME = "cooee_sdk";
 
     public static SharedPreferences getPreferences(Context context) {
         return context.getSharedPreferences(SHARED_PREFERENCE_NAME, Context.MODE_PRIVATE);

@@ -1,15 +1,12 @@
 package com.letscooee.retrofit;
 
 import android.util.Log;
-
 import androidx.annotation.NonNull;
-
 import com.letscooee.init.AppController;
 import com.letscooee.init.PostLaunchActivity;
 import com.letscooee.models.Event;
 import com.letscooee.utils.Closure;
 import com.letscooee.utils.CooeeSDKConstants;
-
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;

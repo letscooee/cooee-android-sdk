@@ -3,12 +3,9 @@ package com.letscooee.retrofit;
 import com.letscooee.models.AuthenticationRequestBody;
 import com.letscooee.models.Event;
 import com.letscooee.models.SDKAuthentication;
-
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
-import retrofit2.http.Field;
-import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
 

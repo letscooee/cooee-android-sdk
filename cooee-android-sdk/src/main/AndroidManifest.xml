@@ -12,10 +12,10 @@
         android:name=".init.AppController"
         android:usesCleartextTraffic="true">
         <activity
-            android:name=".campaign.FeedbackActivity"
+            android:name=".trigger.FeedbackActivity"
             android:theme="@style/AppTheme.PopUp" />
         <activity
-            android:name=".campaign.EngagementTriggerActivity"
+            android:name=".trigger.EngagementTriggerActivity"
             android:theme="@style/AppTheme.PopUp" />
 
         <service

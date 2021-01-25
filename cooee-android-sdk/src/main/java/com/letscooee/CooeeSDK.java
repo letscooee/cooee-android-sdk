@@ -2,13 +2,11 @@ package com.letscooee;
 
 import android.content.Context;
 import android.util.Log;
-
 import com.letscooee.init.PostLaunchActivity;
 import com.letscooee.models.Event;
 import com.letscooee.retrofit.APIClient;
 import com.letscooee.retrofit.HttpCallsHelper;
 import com.letscooee.retrofit.ServerAPIService;
-import com.letscooee.utils.Closure;
 import com.letscooee.utils.CooeeSDKConstants;
 import com.letscooee.utils.LocalStorageHelper;
 import com.letscooee.utils.PropertyNameException;
@@ -125,7 +123,7 @@ public class CooeeSDK {
         }
 
         HttpCallsHelper.sendUserProfile(userMap, "Manual", data -> {
-            if (data.get("id") != null){
+            if (data.get("id") != null) {
                 LocalStorageHelper.putString(context, CooeeSDKConstants.STORAGE_UUID, data.get("id").toString());
             }
         });
@@ -154,7 +152,7 @@ public class CooeeSDK {
     }
 
     public String getUUID() {
-        if (uuid.isEmpty()){
+        if (uuid.isEmpty()) {
             uuid = LocalStorageHelper.getString(context, CooeeSDKConstants.STORAGE_UUID, "");
         }
         return uuid;

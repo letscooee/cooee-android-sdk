@@ -3,28 +3,21 @@ package com.letscooee.init;
 import android.app.Activity;
 import android.app.Application;
 import android.content.pm.PackageInfo;
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.OnLifecycleEvent;
 import androidx.lifecycle.ProcessLifecycleOwner;
-
-import com.letscooee.CooeeSDK;
-
 import com.letscooee.BuildConfig;
+import com.letscooee.CooeeSDK;
 import com.letscooee.models.Event;
-import com.letscooee.campaign.EngagementTriggerActivity;
-import com.letscooee.models.TriggerData;
 import com.letscooee.retrofit.APIClient;
 import com.letscooee.retrofit.HttpCallsHelper;
 import com.letscooee.retrofit.ServerAPIService;
-import com.letscooee.utils.Closure;
 import com.letscooee.utils.CooeeSDKConstants;
 import com.letscooee.utils.LocalStorageHelper;
 

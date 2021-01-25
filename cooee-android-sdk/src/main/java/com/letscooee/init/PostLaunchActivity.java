@@ -8,12 +8,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import com.letscooee.BuildConfig;
-import com.letscooee.campaign.EngagementTriggerActivity;
-import com.letscooee.models.AuthenticationRequestBody;
-import com.letscooee.models.DeviceData;
-import com.letscooee.models.Event;
-import com.letscooee.models.SDKAuthentication;
-import com.letscooee.models.TriggerData;
+import com.letscooee.trigger.EngagementTriggerActivity;
+import com.letscooee.models.*;
 import com.letscooee.retrofit.APIClient;
 import com.letscooee.retrofit.HttpCallsHelper;
 import com.letscooee.retrofit.ServerAPIService;
@@ -263,7 +259,7 @@ public class PostLaunchActivity {
         userMap.put("userData", new HashMap<>());
 
         HttpCallsHelper.sendUserProfile(userMap, "SDK", data -> {
-            if (data.get("id") != null){
+            if (data.get("id") != null) {
                 Log.d(CooeeSDKConstants.LOG_PREFIX, data.get("id").toString());
                 LocalStorageHelper.putString(context, CooeeSDKConstants.STORAGE_UUID, data.get("id").toString());
             }
