@@ -15,6 +15,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -55,17 +56,25 @@ public final class HttpCallsHelper {
         });
     }
 
-    public static void sendUserProfile(Map<String, Object> userMap, String msg) {
+    public static void sendUserProfile(Map<String, Object> userMap, String msg, Closure closure) {
         //noinspection ResultOfMethodCallIgnored
         PostLaunchActivity.onSDKStateDecided.subscribe((Object ignored) -> {
             userMap.put("sessionID", PostLaunchActivity.currentSessionId);
-            serverAPIService.updateProfile(userMap).enqueue(new Callback<ResponseBody>() {
+            serverAPIService.updateProfile(userMap).enqueue(new Callback<Map<String, Object>>() {
                 @Override
-                public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
+                public void onResponse(@NonNull Call<Map<String, Object>> call, @NonNull Response<Map<String, Object>> response) {
                     Log.i(CooeeSDKConstants.LOG_PREFIX, msg + " User Profile Response Code : " + response.code());
+
+                    if (closure == null) {          // space change
+                        return;
+                    }
+
+                    if (response.body() != null) {          // space change
+                        closure.call(response.body());
+                    }
                 }
 
-                public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
+                public void onFailure(@NonNull Call<Map<String, Object>> call, @NonNull Throwable t) {
                     // TODO Saving the request locally so that it can be sent later
                     Log.e(CooeeSDKConstants.LOG_PREFIX, msg + " User Profile Error Message : " + t.toString());
                 }
@@ -76,7 +85,11 @@ public final class HttpCallsHelper {
     public static void sendSessionConcludedEvent(int duration) {
         //noinspection ResultOfMethodCallIgnored
         PostLaunchActivity.onSDKStateDecided.subscribe((Object ignored) -> {
-            serverAPIService.concludeSession(PostLaunchActivity.currentSessionId, duration).enqueue(new Callback<ResponseBody>() {
+            Map<String, Object> sessionConcludedRequest = new HashMap<>();
+            sessionConcludedRequest.put("sessionID", PostLaunchActivity.currentSessionId);
+            sessionConcludedRequest.put("duration", duration);
+
+            serverAPIService.concludeSession(sessionConcludedRequest).enqueue(new Callback<ResponseBody>() {
                 @Override
                 public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
                     Log.i(CooeeSDKConstants.LOG_PREFIX, "Session Concluded Event Sent Code : " + response.code());
@@ -93,7 +106,10 @@ public final class HttpCallsHelper {
     public static void keepAlive() {
         //noinspection ResultOfMethodCallIgnored
         PostLaunchActivity.onSDKStateDecided.subscribe((Object ignored) -> {
-            serverAPIService.keepAlive(PostLaunchActivity.currentSessionId).enqueue(new Callback<ResponseBody>() {
+            Map<String, String> keepAliveRequest = new HashMap<>();
+            keepAliveRequest.put("sessionID", PostLaunchActivity.currentSessionId);
+
+            serverAPIService.keepAlive(keepAliveRequest).enqueue(new Callback<ResponseBody>() {
                 @Override
                 public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                     Log.i(CooeeSDKConstants.LOG_PREFIX, "Session Alive Response Code : " + response.code());
@@ -102,6 +118,26 @@ public final class HttpCallsHelper {
                 @Override
                 public void onFailure(Call<ResponseBody> call, Throwable t) {
                     Log.e(CooeeSDKConstants.LOG_PREFIX, "Session Alive Response Error Message" + t.toString());
+                }
+            });
+        });
+    }
+
+    public static void setFirebaseToken(String firebaseToken) {
+        PostLaunchActivity.onSDKStateDecided.subscribe((Object ignored) -> {
+            Map<String, String> tokenRequest = new HashMap<>();
+            tokenRequest.put("sessionID", PostLaunchActivity.currentSessionId);
+            tokenRequest.put("firebaseToken", firebaseToken);
+
+            serverAPIService.setFirebaseToken(tokenRequest).enqueue(new Callback<ResponseBody>() {
+                @Override
+                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                    Log.i(CooeeSDKConstants.LOG_PREFIX, "Firebase Token Response Code : " + response.code());
+                }
+
+                @Override
+                public void onFailure(Call<ResponseBody> call, Throwable t) {
+                    Log.e(CooeeSDKConstants.LOG_PREFIX, "Firebase Token Response Error Message" + t.toString());
                 }
             });
         });

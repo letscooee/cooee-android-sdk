@@ -77,6 +77,7 @@ public class PostLaunchActivity {
                         currentSessionId = response.body().getSessionID();
 
                         LocalStorageHelper.putString(context, CooeeSDKConstants.STORAGE_SDK_TOKEN, sdkToken);
+                        LocalStorageHelper.putString(context, CooeeSDKConstants.STORAGE_UUID, response.body().getId());
 
                         APIClient.setAPIToken(sdkToken);
                         notifySDKStateDecided();
@@ -261,7 +262,12 @@ public class PostLaunchActivity {
         userMap.put("userProperties", userProperties);
         userMap.put("userData", new HashMap<>());
 
-        HttpCallsHelper.sendUserProfile(userMap, "SDK");
+        HttpCallsHelper.sendUserProfile(userMap, "SDK", data -> {
+            if (data.get("id") != null){
+                Log.d(CooeeSDKConstants.LOG_PREFIX, data.get("id").toString());
+                LocalStorageHelper.putString(context, CooeeSDKConstants.STORAGE_UUID, data.get("id").toString());
+            }
+        });
     }
 
     /**
