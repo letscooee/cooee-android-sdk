@@ -1,5 +1,11 @@
 # Change Log
 
+## 0.1.1
+
+1. Storing Firebase token via a separate endpoint.
+2. Keep alive code is now working.
+3. Storing user's id in the cache.
+
 ## 0.1.0
 
 1. Support of tracking sessions.
