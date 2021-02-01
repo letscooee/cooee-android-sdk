@@ -7,10 +7,13 @@ import com.letscooee.models.Event;
 import com.letscooee.retrofit.APIClient;
 import com.letscooee.retrofit.HttpCallsHelper;
 import com.letscooee.retrofit.ServerAPIService;
+import com.letscooee.trigger.EngagementTriggerActivity;
 import com.letscooee.utils.CooeeSDKConstants;
+import com.letscooee.utils.InAppNotificationClickListener;
 import com.letscooee.utils.LocalStorageHelper;
 import com.letscooee.utils.PropertyNameException;
 
+import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,6 +31,8 @@ public class CooeeSDK {
 
     private String currentScreenName = "";
     private String uuid = "";
+
+    private WeakReference<InAppNotificationClickListener> inAppNotificationClickListenerWeakReference;
 
     /**
      * Private constructor for Singleton Class
@@ -156,5 +161,9 @@ public class CooeeSDK {
             uuid = LocalStorageHelper.getString(context, CooeeSDKConstants.STORAGE_USER_ID, "");
         }
         return uuid;
+    }
+
+    public void setInAppNotificationButtonListener(InAppNotificationClickListener listener) {
+        EngagementTriggerActivity.inAppNotificationClickListenerWeakReference = new WeakReference<>(listener);
     }
 }

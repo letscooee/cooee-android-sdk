@@ -38,7 +38,9 @@ import com.letscooee.models.Event;
 import com.letscooee.models.TriggerBackground;
 import com.letscooee.models.TriggerData;
 import com.letscooee.retrofit.HttpCallsHelper;
+import com.letscooee.utils.InAppNotificationClickListener;
 
+import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -61,6 +63,8 @@ public class EngagementTriggerActivity extends AppCompatActivity {
     private boolean isEngaged = false;
 
     private static Window _window;
+
+    public static WeakReference<InAppNotificationClickListener> inAppNotificationClickListenerWeakReference;
 
     public static void setWindow(Window window) {
         _window = window;
@@ -93,6 +97,18 @@ public class EngagementTriggerActivity extends AppCompatActivity {
             updateTextPosition();
         } catch (Exception ignored) {
         }
+
+        Button actionButton = findViewById(R.id.actionButton);
+        actionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+                HashMap<String, String> payload = new HashMap<>();
+                payload.put("k1","v1");
+                payload.put("k2","v2");
+                inAppNotificationClickListenerWeakReference.get().onInAppButtonClick(payload);
+            }
+        });
     }
 
     /**
