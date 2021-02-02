@@ -21,6 +21,7 @@ import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.*;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -43,6 +44,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import jp.wasabeef.blurry.Blurry;
+
 public class EngagementTriggerActivity extends AppCompatActivity {
 
     TriggerData triggerData;
@@ -54,6 +57,12 @@ public class EngagementTriggerActivity extends AppCompatActivity {
     private boolean isViewed = false;
     private boolean isPlayed = false;
     private boolean isEngaged = false;
+
+    private static Window _window;
+
+    public static void setWindow(Window window) {
+        _window = window;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,7 +90,6 @@ public class EngagementTriggerActivity extends AppCompatActivity {
             updateMessage();
             updateTextPosition();
         } catch (Exception ignored) {
-            finish();
         }
     }
 
@@ -228,6 +236,13 @@ public class EngagementTriggerActivity extends AppCompatActivity {
             drawable.setStroke(1, 0xFFFFFF);
             drawable.setColor(Color.parseColor("#" + y + "FFFFFF"));
             secondParentLayout.setBackground(drawable);
+
+            Blurry.with(getApplicationContext())
+                    .radius(25)
+                    .sampling(2)
+                    .async()
+                    .animate(500)
+                    .onto((ViewGroup) _window.getDecorView());
         }
     }
 
@@ -466,6 +481,12 @@ public class EngagementTriggerActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         isViewed = true;
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Blurry.delete((ViewGroup) _window.getDecorView());
     }
 
     /**

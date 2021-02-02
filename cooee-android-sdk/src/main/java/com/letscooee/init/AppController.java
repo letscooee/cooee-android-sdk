@@ -18,6 +18,7 @@ import com.letscooee.models.Event;
 import com.letscooee.retrofit.APIClient;
 import com.letscooee.retrofit.HttpCallsHelper;
 import com.letscooee.retrofit.ServerAPIService;
+import com.letscooee.trigger.EngagementTriggerActivity;
 import com.letscooee.utils.CooeeSDKConstants;
 import com.letscooee.utils.LocalStorageHelper;
 
@@ -129,6 +130,8 @@ public class AppController extends Application implements LifecycleObserver, App
     public void onActivityCreated(@NonNull Activity activity, @Nullable Bundle bundle) {
         packageName = activity.getClass().getPackage().getName();
         currentScreen = activity.getLocalClassName();
+        if (!activity.getLocalClassName().endsWith("EngagementTriggerActivity"))
+            EngagementTriggerActivity.setWindow(activity.getWindow());
     }
 
     @Override

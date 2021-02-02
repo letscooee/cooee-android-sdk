@@ -22,11 +22,11 @@
 
         <meta-data
             android:name="COOEE_APP_ID"
-            android:value="MY_COOEE_APP_VALUE" />
+            android:value="5f9136107d618d7d123cc118" />
 
         <meta-data
             android:name="COOEE_APP_SECRET"
-            android:value="MY_COOEE_APP_SECRET" />
+            android:value="TEST-6107d618d7d123cc118" />
 
         <service
             android:name=".ParentFirebaseMessagingService"
