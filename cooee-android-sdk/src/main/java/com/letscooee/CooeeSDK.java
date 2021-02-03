@@ -22,7 +22,7 @@ import java.util.Map;
  *
  * @author Abhishek Taparia
  */
-public class CooeeSDK {
+public class CooeeSDK implements EngagementTriggerActivity.InAppListener {
 
     private static CooeeSDK cooeeSDK = null;
 
@@ -164,6 +164,13 @@ public class CooeeSDK {
     }
 
     public void setInAppNotificationButtonListener(InAppNotificationClickListener listener) {
-        EngagementTriggerActivity.inAppNotificationClickListenerWeakReference = new WeakReference<>(listener);
+        inAppNotificationClickListenerWeakReference = new WeakReference<>(listener);
+    }
+
+    @Override
+    public void inAppNotificationDidClick(HashMap<String, String> payload) {
+        if (payload != null) {
+            inAppNotificationClickListenerWeakReference.get().onInAppButtonClick(payload);
+        }
     }
 }

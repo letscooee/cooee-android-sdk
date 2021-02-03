@@ -33,6 +33,7 @@ import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
+import com.letscooee.CooeeSDK;
 import com.letscooee.R;
 import com.letscooee.models.Event;
 import com.letscooee.models.TriggerBackground;
@@ -64,7 +65,11 @@ public class EngagementTriggerActivity extends AppCompatActivity {
 
     private static Window _window;
 
-    public static WeakReference<InAppNotificationClickListener> inAppNotificationClickListenerWeakReference;
+    public static WeakReference<InAppListener> inAppListenerWeakReference;
+
+    public interface InAppListener {
+        void inAppNotificationDidClick(HashMap<String, String> payload);
+    }
 
     public static void setWindow(Window window) {
         _window = window;
@@ -103,12 +108,17 @@ public class EngagementTriggerActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 finish();
-                HashMap<String, String> payload = new HashMap<>();
-                payload.put("k1","v1");
-                payload.put("k2","v2");
-                inAppNotificationClickListenerWeakReference.get().onInAppButtonClick(payload);
+                didClick();
             }
         });
+    }
+
+    private void didClick() {
+        InAppListener listener = CooeeSDK.getDefaultInstance(getApplicationContext());
+        HashMap<String, String> payload = new HashMap<>();
+        payload.put("k1", "v1");
+        payload.put("k2", "v2");
+        listener.inAppNotificationDidClick(payload);
     }
 
     /**
