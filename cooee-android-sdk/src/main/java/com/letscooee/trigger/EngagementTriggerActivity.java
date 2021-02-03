@@ -23,11 +23,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.*;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.drawable.RoundedBitmapDrawable;
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
+
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
@@ -185,6 +187,17 @@ public class EngagementTriggerActivity extends AppCompatActivity {
      * eg. SOLID_COLOR, IMAGE and BLURRED
      */
     private void updateBackground() {
+        if (_window == null) {
+            finish();
+        }
+
+        Blurry.with(getApplicationContext())
+                .radius(25)
+                .sampling(2)
+                .async()
+                .animate(500)
+                .onto((ViewGroup) _window.getDecorView());
+
         if (triggerData.getBackground().getType() == TriggerBackground.TriggerType.SOLID_COLOR) {
             int color = triggerData.getBackground().getColor() == null || triggerData.getBackground().getColor().isEmpty()
                     ? Color.parseColor("#DDDDDD")
@@ -236,13 +249,6 @@ public class EngagementTriggerActivity extends AppCompatActivity {
             drawable.setStroke(1, 0xFFFFFF);
             drawable.setColor(Color.parseColor("#" + y + "FFFFFF"));
             secondParentLayout.setBackground(drawable);
-
-            Blurry.with(getApplicationContext())
-                    .radius(25)
-                    .sampling(2)
-                    .async()
-                    .animate(500)
-                    .onto((ViewGroup) _window.getDecorView());
         }
     }
 
@@ -420,10 +426,10 @@ public class EngagementTriggerActivity extends AppCompatActivity {
         closeImageButton.setVisibility(View.INVISIBLE);
         closeImageButton.setEnabled(false);
 
-        new CountDownTimer(6000, 1000) {
+        new CountDownTimer(5000, 1000) {
 
             public void onTick(long millisUntilFinished) {
-                textViewTimer.setText("" + millisUntilFinished / 1000);
+                textViewTimer.setText(String.valueOf((millisUntilFinished / 1000) + 1));
             }
 
             public void onFinish() {

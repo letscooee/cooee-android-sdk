@@ -12,15 +12,18 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.RemoteViews;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
+
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.letscooee.R;
+import com.letscooee.init.AppController;
 import com.letscooee.init.PostLaunchActivity;
 import com.letscooee.retrofit.HttpCallsHelper;
 import com.letscooee.utils.CooeeSDKConstants;
@@ -56,7 +59,11 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
     private void showInAppMessaging(RemoteMessage remoteMessage) {
         Map<String, Object> data = new HashMap<>();
         data.put("triggerData", remoteMessage.getData());
-        PostLaunchActivity.createTrigger(getApplicationContext(), data);
+
+        // Don't show inapp notification if app is in background
+        if (!AppController.isBackground) {
+            PostLaunchActivity.createTrigger(getApplicationContext(), data);
+        }
     }
 
     private void showNotification(RemoteMessage remoteMessage) {

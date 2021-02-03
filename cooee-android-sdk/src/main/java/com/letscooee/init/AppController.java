@@ -35,6 +35,7 @@ import java.util.Map;
 public class AppController extends Application implements LifecycleObserver, Application.ActivityLifecycleCallbacks {
 
     public static String currentScreen;
+    public static boolean isBackground;
     private String packageName;
     private Date lastEnterForeground;
     private Date lastEnterBackground;
@@ -45,6 +46,8 @@ public class AppController extends Application implements LifecycleObserver, App
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
     public void onEnterForeground() {
         Log.d(CooeeSDKConstants.LOG_PREFIX, "AppController : Foreground");
+
+        isBackground = false;
 
         keepSessionAlive();
 
@@ -79,6 +82,8 @@ public class AppController extends Application implements LifecycleObserver, App
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
     public void onEnterBackground() {
         Log.d(CooeeSDKConstants.LOG_PREFIX, "AppController : Background");
+
+        isBackground = true;
 
         //stop sending check message of session alive on app background
         handler.removeCallbacks(runnable);
@@ -130,8 +135,11 @@ public class AppController extends Application implements LifecycleObserver, App
     public void onActivityCreated(@NonNull Activity activity, @Nullable Bundle bundle) {
         packageName = activity.getClass().getPackage().getName();
         currentScreen = activity.getLocalClassName();
-        if (!activity.getLocalClassName().endsWith("EngagementTriggerActivity"))
+
+        // Updating current activity's window for glassmorphism effect
+        if (!activity.getLocalClassName().endsWith("EngagementTriggerActivity")) {
             EngagementTriggerActivity.setWindow(activity.getWindow());
+        }
     }
 
     @Override
