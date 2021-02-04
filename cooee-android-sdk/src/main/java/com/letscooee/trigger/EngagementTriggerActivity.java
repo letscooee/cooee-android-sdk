@@ -21,12 +21,15 @@ import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.*;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.drawable.RoundedBitmapDrawable;
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
+
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
@@ -43,6 +46,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import jp.wasabeef.blurry.Blurry;
+
 public class EngagementTriggerActivity extends AppCompatActivity {
 
     TriggerData triggerData;
@@ -54,6 +59,12 @@ public class EngagementTriggerActivity extends AppCompatActivity {
     private boolean isViewed = false;
     private boolean isPlayed = false;
     private boolean isEngaged = false;
+
+    private static Window _window;
+
+    public static void setWindow(Window window) {
+        _window = window;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,7 +92,6 @@ public class EngagementTriggerActivity extends AppCompatActivity {
             updateMessage();
             updateTextPosition();
         } catch (Exception ignored) {
-            finish();
         }
     }
 
@@ -177,6 +187,10 @@ public class EngagementTriggerActivity extends AppCompatActivity {
      * eg. SOLID_COLOR, IMAGE and BLURRED
      */
     private void updateBackground() {
+        if (_window == null) {
+            finish();
+        }
+
         if (triggerData.getBackground().getType() == TriggerBackground.TriggerType.SOLID_COLOR) {
             int color = triggerData.getBackground().getColor() == null || triggerData.getBackground().getColor().isEmpty()
                     ? Color.parseColor("#DDDDDD")
@@ -405,18 +419,20 @@ public class EngagementTriggerActivity extends AppCompatActivity {
         closeImageButton.setVisibility(View.INVISIBLE);
         closeImageButton.setEnabled(false);
 
-        new CountDownTimer(6000, 1000) {
+        if (!triggerData.isAutoClose()) {
+            new CountDownTimer(5000, 1000) {
 
-            public void onTick(long millisUntilFinished) {
-                textViewTimer.setText("" + millisUntilFinished / 1000);
-            }
+                public void onTick(long millisUntilFinished) {
+                    textViewTimer.setText(String.valueOf((millisUntilFinished / 1000) + 1));
+                }
 
-            public void onFinish() {
-                textViewTimer.setVisibility(View.GONE);
-                closeImageButton.setVisibility(View.VISIBLE);
-                closeImageButton.setEnabled(true);
-            }
-        }.start();
+                public void onFinish() {
+                    textViewTimer.setVisibility(View.GONE);
+                    closeImageButton.setVisibility(View.VISIBLE);
+                    closeImageButton.setEnabled(true);
+                }
+            }.start();
+        }
 
         RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 
@@ -466,6 +482,24 @@ public class EngagementTriggerActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         isViewed = true;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        Blurry.with(getApplicationContext())
+                .radius(25)
+                .sampling(2)
+                .async()
+                .animate(500)
+                .onto((ViewGroup) _window.getDecorView());
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Blurry.delete((ViewGroup) _window.getDecorView());
     }
 
     /**

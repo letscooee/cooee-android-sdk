@@ -63,7 +63,7 @@ android {
 
     buildTypes {
         debug {
-            buildConfigField "String", "SERVER_URL", '"http://192.168.29.10:3003"'
+            buildConfigField "String", "SERVER_URL", '"https://api.sdk.letscooee.com"'
         }
         release {
             minifyEnabled false
@@ -95,6 +95,7 @@ dependencies {
     api 'io.reactivex.rxjava3:rxandroid:3.0.0'
     api 'io.reactivex.rxjava3:rxjava:3.0.0'
     api "androidx.cardview:cardview:1.0.0"
+    api 'jp.wasabeef:blurry:4.0.0'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.11.0'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
