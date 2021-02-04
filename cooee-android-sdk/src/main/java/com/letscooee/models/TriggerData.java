@@ -36,30 +36,48 @@ public class TriggerData implements Parcelable {
     }
 
     private int id;
-    private Type type;
-    private Fill fill;
+    private com.letscooee.models.TriggerData.Type type;
+    private com.letscooee.models.TriggerData.Fill fill;
     private TriggerBackground background;
     private String imageUrl;
     private String videoUrl;
-    private EntranceAnimation entranceAnimation;
-    private ExitAnimation exitAnimation;
+    private com.letscooee.models.TriggerData.EntranceAnimation entranceAnimation;
+    private com.letscooee.models.TriggerData.ExitAnimation exitAnimation;
     private Object autoClose;
-    private CloseButtonPosition closeButtonPosition;
+    private com.letscooee.models.TriggerData.CloseButtonPosition closeButtonPosition;
     private TriggerText text;
     private TriggerText message;
-    private TextPosition textPosition;
+    private com.letscooee.models.TriggerData.TextPosition textPosition;
     private boolean isAutoClose;
 
+    private String inappActionButtonText;
+    private String inappActionButtonColor;
 
-    public static final Creator<TriggerData> CREATOR = new Creator<TriggerData>() {
+    public String getInappActionButtonText() {
+        return inappActionButtonText;
+    }
+
+    public void setInappActionButtonText(String inappActionButtonText) {
+        this.inappActionButtonText = inappActionButtonText;
+    }
+
+    public String getInappActionButtonColor() {
+        return inappActionButtonColor;
+    }
+
+    public void setInappActionButtonColor(String inappActionButtonColor) {
+        this.inappActionButtonColor = inappActionButtonColor;
+    }
+
+    public static final Creator<com.letscooee.models.TriggerData> CREATOR = new Creator<com.letscooee.models.TriggerData>() {
         @Override
-        public TriggerData createFromParcel(Parcel in) {
-            return new TriggerData(in);
+        public com.letscooee.models.TriggerData createFromParcel(Parcel in) {
+            return new com.letscooee.models.TriggerData(in);
         }
 
         @Override
-        public TriggerData[] newArray(int size) {
-            return new TriggerData[size];
+        public com.letscooee.models.TriggerData[] newArray(int size) {
+            return new com.letscooee.models.TriggerData[size];
         }
     };
 
@@ -73,12 +91,14 @@ public class TriggerData implements Parcelable {
         videoUrl = in.readString();
         text = in.readParcelable(TriggerText.class.getClassLoader());
         message = in.readParcelable(TriggerText.class.getClassLoader());
-        entranceAnimation = EntranceAnimation.valueOf(in.readString());
-        exitAnimation = ExitAnimation.valueOf(in.readString());
-        type = Type.valueOf(in.readString());
-        fill = Fill.valueOf(in.readString());
-        closeButtonPosition = CloseButtonPosition.valueOf(in.readString());
-        textPosition = TextPosition.valueOf(in.readString());
+        entranceAnimation = com.letscooee.models.TriggerData.EntranceAnimation.valueOf(in.readString());
+        exitAnimation = com.letscooee.models.TriggerData.ExitAnimation.valueOf(in.readString());
+        type = com.letscooee.models.TriggerData.Type.valueOf(in.readString());
+        fill = com.letscooee.models.TriggerData.Fill.valueOf(in.readString());
+        closeButtonPosition = com.letscooee.models.TriggerData.CloseButtonPosition.valueOf(in.readString());
+        textPosition = com.letscooee.models.TriggerData.TextPosition.valueOf(in.readString());
+        inappActionButtonColor = in.readString();
+        inappActionButtonText = in.readString();
         autoClose = in.readInt();
         if (Integer.parseInt(autoClose.toString()) > 0) {
             isAutoClose = true;
@@ -94,12 +114,14 @@ public class TriggerData implements Parcelable {
         videoUrl = triggerData.get("videoUrl");
         text = new TriggerText(triggerData.get("textData"), triggerData.get("textColor"), triggerData.get("textSize"));
         message = new TriggerText(triggerData.get("messageData"), triggerData.get("messageColor"), triggerData.get("messageSize"));
-        entranceAnimation = EntranceAnimation.valueOf(triggerData.get("entranceAnimation"));
-        exitAnimation = ExitAnimation.valueOf(triggerData.get("exitAnimation"));
-        type = Type.valueOf(triggerData.get("type"));
-        fill = Fill.valueOf(triggerData.get("fill"));
-        closeButtonPosition = CloseButtonPosition.valueOf(triggerData.get("closeButtonPosition"));
-        textPosition = TextPosition.valueOf(triggerData.get("textPosition"));
+        entranceAnimation = com.letscooee.models.TriggerData.EntranceAnimation.valueOf(triggerData.get("entranceAnimation"));
+        exitAnimation = com.letscooee.models.TriggerData.ExitAnimation.valueOf(triggerData.get("exitAnimation"));
+        type = com.letscooee.models.TriggerData.Type.valueOf(triggerData.get("type"));
+        fill = com.letscooee.models.TriggerData.Fill.valueOf(triggerData.get("fill"));
+        closeButtonPosition = com.letscooee.models.TriggerData.CloseButtonPosition.valueOf(triggerData.get("closeButtonPosition"));
+        textPosition = com.letscooee.models.TriggerData.TextPosition.valueOf(triggerData.get("textPosition"));
+        inappActionButtonText = triggerData.get("inappActionButtonText");
+        inappActionButtonColor = triggerData.get("inappActionButtonColor");
         try {
             autoClose = Integer.parseInt(triggerData.get("autoClose"));
         } catch (Exception ignored) {
@@ -126,6 +148,8 @@ public class TriggerData implements Parcelable {
         dest.writeString(fill.name());
         dest.writeString(closeButtonPosition.name());
         dest.writeString(textPosition.name());
+        dest.writeString(inappActionButtonColor);
+        dest.writeString(inappActionButtonText);
         try {
             dest.writeInt((Integer) autoClose);
         } catch (ClassCastException ignored) {
@@ -144,19 +168,19 @@ public class TriggerData implements Parcelable {
         this.id = id;
     }
 
-    public Type getType() {
+    public com.letscooee.models.TriggerData.Type getType() {
         return type;
     }
 
-    public void setType(Type type) {
+    public void setType(com.letscooee.models.TriggerData.Type type) {
         this.type = type;
     }
 
-    public Fill getFill() {
+    public com.letscooee.models.TriggerData.Fill getFill() {
         return fill;
     }
 
-    public void setFill(Fill fill) {
+    public void setFill(com.letscooee.models.TriggerData.Fill fill) {
         this.fill = fill;
     }
 
@@ -184,19 +208,19 @@ public class TriggerData implements Parcelable {
         this.videoUrl = videoUrl;
     }
 
-    public EntranceAnimation getEntranceAnimation() {
+    public com.letscooee.models.TriggerData.EntranceAnimation getEntranceAnimation() {
         return entranceAnimation;
     }
 
-    public void setEntranceAnimation(EntranceAnimation entranceAnimation) {
+    public void setEntranceAnimation(com.letscooee.models.TriggerData.EntranceAnimation entranceAnimation) {
         this.entranceAnimation = entranceAnimation;
     }
 
-    public ExitAnimation getExitAnimation() {
+    public com.letscooee.models.TriggerData.ExitAnimation getExitAnimation() {
         return exitAnimation;
     }
 
-    public void setExitAnimation(ExitAnimation exitAnimation) {
+    public void setExitAnimation(com.letscooee.models.TriggerData.ExitAnimation exitAnimation) {
         this.exitAnimation = exitAnimation;
     }
 
@@ -208,11 +232,11 @@ public class TriggerData implements Parcelable {
         this.autoClose = autoClose;
     }
 
-    public CloseButtonPosition getCloseButtonPosition() {
+    public com.letscooee.models.TriggerData.CloseButtonPosition getCloseButtonPosition() {
         return closeButtonPosition;
     }
 
-    public void setCloseButtonPosition(CloseButtonPosition closeButtonPosition) {
+    public void setCloseButtonPosition(com.letscooee.models.TriggerData.CloseButtonPosition closeButtonPosition) {
         this.closeButtonPosition = closeButtonPosition;
     }
 
@@ -232,11 +256,12 @@ public class TriggerData implements Parcelable {
         this.message = message;
     }
 
-    public TextPosition getTextPosition() {
+    public com.letscooee.models.TriggerData.TextPosition getTextPosition() {
         return textPosition;
     }
 
-    public void setTextPosition(TextPosition textPosition) {
+    public void setTextPosition(com.letscooee.models.TriggerData.TextPosition textPosition) {
         this.textPosition = textPosition;
     }
 }
+

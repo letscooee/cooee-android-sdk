@@ -39,7 +39,6 @@ import com.letscooee.models.Event;
 import com.letscooee.models.TriggerBackground;
 import com.letscooee.models.TriggerData;
 import com.letscooee.retrofit.HttpCallsHelper;
-import com.letscooee.utils.InAppNotificationClickListener;
 
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
@@ -65,7 +64,7 @@ public class EngagementTriggerActivity extends AppCompatActivity {
 
     private static Window _window;
 
-    public static WeakReference<InAppListener> inAppListenerWeakReference;
+    private WeakReference<InAppListener> inAppListenerWeakReference;
 
     public interface InAppListener {
         void inAppNotificationDidClick(HashMap<String, String> payload);
@@ -83,6 +82,7 @@ public class EngagementTriggerActivity extends AppCompatActivity {
         closeImageButton.setOnClickListener(view -> finish());
         secondParentLayout = findViewById(R.id.secondParentRelative);
         textViewTimer = findViewById(R.id.textViewTimer);
+        inAppListenerWeakReference = new WeakReference<>(CooeeSDK.getDefaultInstance(this));
 
         try {
             triggerData = (TriggerData) Objects.requireNonNull(getIntent().getBundleExtra("bundle")).getParcelable("triggerData");
@@ -100,21 +100,39 @@ public class EngagementTriggerActivity extends AppCompatActivity {
             updateText();
             updateMessage();
             updateTextPosition();
+            createActionButton();
         } catch (Exception ignored) {
         }
+    }
 
-        Button actionButton = findViewById(R.id.actionButton);
-        actionButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
+    /**
+     * Create action button in trigger
+     */
+    private void createActionButton() {
+        if (triggerData.getInappActionButtonText() != null || !triggerData.getInappActionButtonText().isEmpty()) {
+            RelativeLayout actionRelativeLayout = findViewById(R.id.actionLayout);
+            RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            params.addRule(RelativeLayout.ALIGN_PARENT_END);
+            params.addRule(RelativeLayout.CENTER_VERTICAL);
+
+            Button button = new Button(this);
+            button.setLayoutParams(params);
+            button.setText(triggerData.getInappActionButtonText());
+            String color = triggerData.getInappActionButtonColor().isEmpty() ? "#0000FF" : triggerData.getInappActionButtonColor();
+            button.setTextColor(Color.parseColor(color));
+            button.setBackgroundColor(Color.parseColor("#00000000"));
+
+            button.setOnClickListener(view -> {
                 didClick();
-            }
-        });
+                finish();
+            });
+
+            actionRelativeLayout.addView(button);
+        }
     }
 
     private void didClick() {
-        InAppListener listener = CooeeSDK.getDefaultInstance(getApplicationContext());
+        InAppListener listener = inAppListenerWeakReference.get();
         HashMap<String, String> payload = new HashMap<>();
         payload.put("k1", "v1");
         payload.put("k2", "v2");

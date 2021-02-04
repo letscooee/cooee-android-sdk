@@ -91,15 +91,6 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1.75">
 
-                <Button
-                    android:id="@+id/actionButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@android:color/transparent"
-                    android:text="Action"
-                    android:layout_alignParentEnd="true"
-                    android:layout_centerVertical="true"/>
-
             </RelativeLayout>
 
         </LinearLayout>
