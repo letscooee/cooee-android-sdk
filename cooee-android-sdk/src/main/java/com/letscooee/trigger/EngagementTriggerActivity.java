@@ -191,13 +191,6 @@ public class EngagementTriggerActivity extends AppCompatActivity {
             finish();
         }
 
-        Blurry.with(getApplicationContext())
-                .radius(25)
-                .sampling(2)
-                .async()
-                .animate(500)
-                .onto((ViewGroup) _window.getDecorView());
-
         if (triggerData.getBackground().getType() == TriggerBackground.TriggerType.SOLID_COLOR) {
             int color = triggerData.getBackground().getColor() == null || triggerData.getBackground().getColor().isEmpty()
                     ? Color.parseColor("#DDDDDD")
@@ -426,18 +419,20 @@ public class EngagementTriggerActivity extends AppCompatActivity {
         closeImageButton.setVisibility(View.INVISIBLE);
         closeImageButton.setEnabled(false);
 
-        new CountDownTimer(5000, 1000) {
+        if (!triggerData.isAutoClose()) {
+            new CountDownTimer(5000, 1000) {
 
-            public void onTick(long millisUntilFinished) {
-                textViewTimer.setText(String.valueOf((millisUntilFinished / 1000) + 1));
-            }
+                public void onTick(long millisUntilFinished) {
+                    textViewTimer.setText(String.valueOf((millisUntilFinished / 1000) + 1));
+                }
 
-            public void onFinish() {
-                textViewTimer.setVisibility(View.GONE);
-                closeImageButton.setVisibility(View.VISIBLE);
-                closeImageButton.setEnabled(true);
-            }
-        }.start();
+                public void onFinish() {
+                    textViewTimer.setVisibility(View.GONE);
+                    closeImageButton.setVisibility(View.VISIBLE);
+                    closeImageButton.setEnabled(true);
+                }
+            }.start();
+        }
 
         RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 
@@ -487,6 +482,18 @@ public class EngagementTriggerActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         isViewed = true;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        Blurry.with(getApplicationContext())
+                .radius(25)
+                .sampling(2)
+                .async()
+                .animate(500)
+                .onto((ViewGroup) _window.getDecorView());
     }
 
     @Override
