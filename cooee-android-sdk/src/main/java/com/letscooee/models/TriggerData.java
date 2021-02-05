@@ -54,13 +54,13 @@ public class TriggerData implements Parcelable {
 
     public static final Creator<TriggerData> CREATOR = new Creator<TriggerData>() {
         @Override
-        public com.letscooee.models.TriggerData createFromParcel(Parcel in) {
-            return new com.letscooee.models.TriggerData(in);
+        public TriggerData createFromParcel(Parcel in) {
+            return new TriggerData(in);
         }
 
         @Override
-        public com.letscooee.models.TriggerData[] newArray(int size) {
-            return new com.letscooee.models.TriggerData[size];
+        public TriggerData[] newArray(int size) {
+            return new TriggerData[size];
         }
     };
 
