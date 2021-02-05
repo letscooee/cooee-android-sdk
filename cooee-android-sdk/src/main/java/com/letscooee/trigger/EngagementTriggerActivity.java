@@ -131,6 +131,9 @@ public class EngagementTriggerActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Action/data to be sent to application will be defined here
+     */
     private void didClick() {
         InAppListener listener = inAppListenerWeakReference.get();
         HashMap<String, String> payload = new HashMap<>();
@@ -566,52 +569,5 @@ public class EngagementTriggerActivity extends AppCompatActivity {
         HttpCallsHelper.sendEvent(event, null);
 
         updateExit();
-    }
-
-    /**
-     * Create a background screenshot that is used to create blur background
-     *
-     * @param view View whose background is needed
-     * @return background screenshot as bitmap
-     */
-    public static Bitmap captureScreenShot(View view) {
-        Bitmap bitmap = Bitmap.createBitmap(view.getWidth(), view.getHeight(), Bitmap.Config.ARGB_4444);
-        Canvas canvas = new Canvas(bitmap);
-        Drawable backgroundDrawable = view.getBackground();
-        if (backgroundDrawable != null) {
-            backgroundDrawable.draw(canvas);
-        } else {
-            canvas.drawColor(Color.parseColor("#80000000"));
-        }
-        view.draw(canvas);
-        return bitmap;
-    }
-
-    /**
-     * Create blurred image of the bitmap given
-     *
-     * @param context context of the activity
-     * @param image   bitmap image to be blurred
-     * @return blurred bitmap image
-     */
-    public static Bitmap blur(Context context, Bitmap image) {
-        float BITMAP_SCALE = 0.4f;
-        float BLUR_RADIUS = 23f;
-
-        int width = Math.round(image.getWidth() * BITMAP_SCALE);
-        int height = Math.round(image.getHeight() * BITMAP_SCALE);
-
-        Bitmap inputBitmap = Bitmap.createScaledBitmap(image, width, height, false);
-        Bitmap outputBitmap = Bitmap.createBitmap(inputBitmap);
-        RenderScript rs = RenderScript.create(context);
-        ScriptIntrinsicBlur theIntrinsic = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs));
-        Allocation tmpIn = Allocation.createFromBitmap(rs, inputBitmap);
-        Allocation tmpOut = Allocation.createFromBitmap(rs, outputBitmap);
-        theIntrinsic.setRadius(BLUR_RADIUS);
-        theIntrinsic.setInput(tmpIn);
-        theIntrinsic.forEach(tmpOut);
-        tmpOut.copyTo(outputBitmap);
-
-        return outputBitmap;
     }
 }
