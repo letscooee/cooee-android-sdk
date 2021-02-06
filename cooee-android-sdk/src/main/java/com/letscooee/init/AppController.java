@@ -140,26 +140,26 @@ public class AppController extends Application implements LifecycleObserver, App
         if (!activity.getLocalClassName().endsWith("EngagementTriggerActivity")) {
             EngagementTriggerActivity.setWindow(activity.getWindow());
         }
-    }
 
-    @Override
-    public void onActivityStarted(@NonNull Activity activity) {
-        String manualScreenName = CooeeSDK.getDefaultInstance(getApplicationContext()).getCurrentScreenName();
-        currentScreen = (manualScreenName != null && !manualScreenName.isEmpty()) ? manualScreenName : activity.getLocalClassName();
-
-        Bundle bundle = activity.getIntent().getExtras();
+        Bundle _bundle = activity.getIntent().getExtras();
 //        TODO use better hook instead of bundle.getString("id")
-        if (bundle != null && bundle.getString("id") != null) {
+        if (_bundle != null && _bundle.getString("id") != null) {
             Map<String, String> triggerDataMap = new HashMap<>();
 
-            for (String key : bundle.keySet()) {
-                triggerDataMap.put(key, String.valueOf(bundle.get(key)));
+            for (String key : _bundle.keySet()) {
+                triggerDataMap.put(key, String.valueOf(_bundle.get(key)));
             }
 
             Map<String, Object> data = new HashMap<>();
             data.put("triggerData", triggerDataMap);
             PostLaunchActivity.createTrigger(getApplicationContext(), data);
         }
+    }
+
+    @Override
+    public void onActivityStarted(@NonNull Activity activity) {
+        String manualScreenName = CooeeSDK.getDefaultInstance(getApplicationContext()).getCurrentScreenName();
+        currentScreen = (manualScreenName != null && !manualScreenName.isEmpty()) ? manualScreenName : activity.getLocalClassName();
     }
 
     @Override

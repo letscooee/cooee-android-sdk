@@ -3,6 +3,7 @@ package com.letscooee.services;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -83,12 +84,15 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
         PackageManager packageManager = getPackageManager();
         Intent appLaunchIntent = packageManager.getLaunchIntentForPackage(getApplicationContext().getPackageName());
 
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+        stackBuilder.addNextIntentWithParentStack(appLaunchIntent);
+
         Bundle bundle = new Bundle();
         for (String key : remoteMessage.getData().keySet())
             bundle.putString(key, remoteMessage.getData().get(key));
         appLaunchIntent.putExtras(bundle);
-        Log.d("bundle", bundle.toString());
-        PendingIntent appLaunchPendingIntent = PendingIntent.getActivity(getApplicationContext(), 36644, appLaunchIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        PendingIntent appLaunchPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
 
         Intent actionButtonOneIntent = new Intent(getApplicationContext(), CooeeIntentService.class);
         actionButtonOneIntent.setAction("Notification");

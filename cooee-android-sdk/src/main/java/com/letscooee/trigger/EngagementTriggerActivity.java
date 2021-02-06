@@ -544,9 +544,14 @@ public class EngagementTriggerActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+        Blurry.delete((ViewGroup) _window.getDecorView());
+    }
+
+    @Override
     protected void onStop() {
         super.onStop();
-        Blurry.delete((ViewGroup) _window.getDecorView());
     }
 
     /**
