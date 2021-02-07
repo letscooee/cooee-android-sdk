@@ -115,7 +115,7 @@ public class MainActivity extends AppCompatActivity implements InAppNotification
     public void onInAppButtonClick(HashMap<String, String> payload) {
         if (payload != null){
             Log.d("Data from inApp", payload.toString());
-            startActivity(new Intent(MainActivity.this, SignUpActivity.class));
+//            startActivity(new Intent(MainActivity.this, SignUpActivity.class));
         }
     }
 }

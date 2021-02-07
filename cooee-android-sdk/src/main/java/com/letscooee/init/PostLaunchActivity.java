@@ -297,4 +297,18 @@ public class PostLaunchActivity {
             HttpCallsHelper.sendEvent(new Event("CE KPI", new HashMap<>()), null);
         }
     }
+
+    public static void createTrigger(Context context, TriggerData triggerData) {       //indentation changes
+        try {
+            Intent intent = new Intent(context, EngagementTriggerActivity.class);
+            Bundle sendBundle = new Bundle();
+            sendBundle.putParcelable("triggerData", triggerData);
+            intent.putExtra("bundle", sendBundle);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(intent);
+        } catch (Exception ex) {
+            Log.d(CooeeSDKConstants.LOG_PREFIX, "Couldn't show Engagement Trigger " + ex.toString());
+            HttpCallsHelper.sendEvent(new Event("CE KPI", new HashMap<>()), null);
+        }
+    }
 }

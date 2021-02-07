@@ -3,7 +3,6 @@ package com.letscooee.trigger;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
@@ -13,11 +12,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
-import android.renderscript.Allocation;
-import android.renderscript.Element;
-import android.renderscript.RenderScript;
-import android.renderscript.ScriptIntrinsicBlur;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,7 +33,11 @@ import com.letscooee.CooeeSDK;
 import com.letscooee.R;
 import com.letscooee.models.Event;
 import com.letscooee.models.TriggerBackground;
+import com.letscooee.models.TriggerButton;
+import com.letscooee.models.TriggerButtonAction;
+import com.letscooee.models.TriggerCloseBehaviour;
 import com.letscooee.models.TriggerData;
+import com.letscooee.models.TriggerText;
 import com.letscooee.retrofit.HttpCallsHelper;
 
 import java.lang.ref.WeakReference;
@@ -109,44 +109,69 @@ public class EngagementTriggerActivity extends AppCompatActivity {
      * Create action button in trigger
      */
     private void createActionButton() {
-        if (triggerData.getInappActionButtonText() != null || !triggerData.getInappActionButtonText().isEmpty()) {
-            RelativeLayout actionRelativeLayout = findViewById(R.id.actionLayout);
-            RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            params.addRule(RelativeLayout.ALIGN_PARENT_END);
-            params.addRule(RelativeLayout.CENTER_VERTICAL);
+        if (triggerData.getButtons()[0] != null || !triggerData.getButtons()[0].getText().isEmpty()) {
+            boolean isFirst = true;
+            Button button = null;
+            int buttonID = 23;
+            for (TriggerButton triggerButton : triggerData.getButtons()) {
+                if (isFirst) {
+                    RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                    params.addRule(RelativeLayout.ALIGN_PARENT_END);
+                    button = createButton(triggerButton, params, buttonID++);
+                    isFirst = false;
+                } else {
+                    RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                    params.addRule(RelativeLayout.LEFT_OF, button.getId());
+                    button = createButton(triggerButton, params, buttonID++);
+                }
+            }
 
-            Button button = new Button(this);
-            button.setLayoutParams(params);
-            button.setText(triggerData.getInappActionButtonText());
-            String color = triggerData.getInappActionButtonColor().isEmpty() ? "#0000FF" : triggerData.getInappActionButtonColor();
-            button.setTextColor(Color.parseColor(color));
-            button.setBackgroundColor(Color.parseColor("#00000000"));
-
-            button.setOnClickListener(view -> {
-                didClick();
-                finish();
-            });
-
-            actionRelativeLayout.addView(button);
         }
+    }
+
+    private Button createButton(TriggerButton triggerButton, ViewGroup.LayoutParams params, int buttonID) {
+        RelativeLayout actionRelativeLayout = findViewById(R.id.actionLayout);
+        TableLayout tableLayout = new TableLayout(this);
+        Button button = new Button(this);
+        button.setLayoutParams(params);
+        button.setText(triggerButton.getText());
+        String color = triggerButton.getColor().isEmpty() ? "#0000FF" : triggerButton.getColor();
+        button.setTextColor(Color.parseColor(color));
+        button.setBackgroundColor(Color.parseColor(triggerButton.getBackground()));
+        button.setId(buttonID);
+
+        button.setOnClickListener(view -> {
+            didClick(triggerButton.getAction());
+            finish();
+        });
+
+        actionRelativeLayout.addView(button);
+
+        return button;
     }
 
     /**
      * Action/data to be sent to application will be defined here
      */
-    private void didClick() {
+    private void didClick(TriggerButtonAction action) {
         InAppListener listener = inAppListenerWeakReference.get();
-        HashMap<String, String> payload = new HashMap<>();
-        payload.put("k1", "v1");
-        payload.put("k2", "v2");
-        listener.inAppNotificationDidClick(payload);
+        if (action.getKv() != null) {
+            listener.inAppNotificationDidClick(action.getKv());
+        }
+
+        if (action.getUserProperty() != null){
+            Map<String, Object> userProfile = new HashMap<>();
+            userProfile.put("userData", new HashMap<>());
+            userProfile.put("userProperties", action.getUserProperty());
+            HttpCallsHelper.sendUserProfile(userProfile, "Trigger Property", null);
+        }
     }
 
     /**
      * Update text/media position as given by the server
      */
     private void updateTextPosition() {
-        if (triggerData.getTextPosition() == TriggerData.TextPosition.BOTTOM || triggerData.getTextPosition() == TriggerData.TextPosition.RIGHT) {
+        if (triggerData.getTitle().getPosition() == TriggerText.Position.BOTTOM || triggerData.getTitle().getPosition() == TriggerText.Position.RIGHT) {
             RelativeLayout textRelativeLayout = findViewById(R.id.textLayout);
             RelativeLayout mediaRelativeLayout = findViewById(R.id.mediaRelativeLayout);
             RelativeLayout actionRelativeLayout = findViewById(R.id.actionLayout);
@@ -165,12 +190,12 @@ public class EngagementTriggerActivity extends AppCompatActivity {
      */
     private void updateText() {
         TextView textView = findViewById(R.id.textViewTitle);
-        textView.setText(triggerData.getText().getData());
-        int color = triggerData.getText().getColor() == null || triggerData.getText().getColor().isEmpty()
+        textView.setText(triggerData.getTitle().getText());
+        int color = triggerData.getTitle().getColor() == null || triggerData.getTitle().getColor().isEmpty()
                 ? getResources().getColor(R.color.colorText)
-                : Color.parseColor(triggerData.getText().getColor());
+                : Color.parseColor(triggerData.getTitle().getColor());
         textView.setTextColor(color);
-        textView.setTextSize(triggerData.getText().getFontSize());
+        textView.setTextSize(triggerData.getTitle().getSize());
     }
 
     /**
@@ -178,12 +203,12 @@ public class EngagementTriggerActivity extends AppCompatActivity {
      */
     private void updateMessage() {
         TextView textView = findViewById(R.id.textViewContent);
-        textView.setText(triggerData.getMessage().getData());
+        textView.setText(triggerData.getMessage().getText());
         int color = triggerData.getMessage().getColor() == null || triggerData.getMessage().getColor().isEmpty()
                 ? getResources().getColor(R.color.colorText)
                 : Color.parseColor(triggerData.getMessage().getColor());
         textView.setTextColor(color);
-        textView.setTextSize(triggerData.getMessage().getFontSize());
+        textView.setTextSize(triggerData.getMessage().getSize());
     }
 
     /**
@@ -191,8 +216,8 @@ public class EngagementTriggerActivity extends AppCompatActivity {
      * eg. if it should be auto close or close button is provided
      */
     private void updateClose() {
-        if (triggerData.isAutoClose()) {
-            int autoClose = (Integer) triggerData.getAutoClose();
+        if (triggerData.getCloseBehaviour().isAuto() || triggerData.getCloseBehaviour().getTimeToClose() == 0) {
+            int autoClose = triggerData.getCloseBehaviour().getTimeToClose();
             closeImageButton.setVisibility(View.GONE);
             textViewTimer.setVisibility(View.GONE);
             new Handler().postDelayed(this::finish, autoClose * 1000);
@@ -239,13 +264,28 @@ public class EngagementTriggerActivity extends AppCompatActivity {
         }
 
         if (triggerData.getBackground().getType() == TriggerBackground.TriggerType.SOLID_COLOR) {
-            int color = triggerData.getBackground().getColor() == null || triggerData.getBackground().getColor().isEmpty()
-                    ? Color.parseColor("#DDDDDD")
-                    : Color.parseColor(triggerData.getBackground().getColor());
+            String color = triggerData.getBackground().getColor() == null || triggerData.getBackground().getColor().isEmpty()
+                    ? "#DDDDDD"
+                    : triggerData.getBackground().getColor();
+
+            int z;
+
+            if (triggerData.getBackground().getOpacity() == 0) {
+                z = 255 - (int) (20 * 255 / 100);
+            } else {
+                z = 255 - (int) (triggerData.getBackground().getOpacity() * 255 / 100);
+            }
+
+            String y = Integer.toHexString(z);
+
+            if (y.length() == 1) {
+                y = "0".concat(y);
+            }
 
             GradientDrawable drawable = new GradientDrawable();
-            drawable.setColor(color);
-            drawable.setCornerRadius(20);
+            drawable.setCornerRadius(triggerData.getBackground().getRadius());
+            drawable.setStroke(1, 0xFFFFFF);
+            drawable.setColor(Color.parseColor("#" + y + color.substring(1)));
             secondParentLayout.setBackground(drawable);
         } else if (triggerData.getBackground().getType() == TriggerBackground.TriggerType.IMAGE) {
             if (triggerData.getBackground().getImage() == null || triggerData.getBackground().getImage().isEmpty()) {
@@ -269,27 +309,28 @@ public class EngagementTriggerActivity extends AppCompatActivity {
 
                         }
                     });
-        } else if (triggerData.getBackground().getType() == TriggerBackground.TriggerType.BLURRED) {
-            int z;
-
-            if (triggerData.getBackground().getBlur() == 0) {
-                z = 255 - (int) (20 * 255 / 100);
-            } else {
-                z = 255 - (int) (triggerData.getBackground().getBlur() * 255 / 100);
-            }
-
-            String y = Integer.toHexString(z);
-
-            if (y.length() == 1) {
-                y = "0".concat(y);
-            }
-
-            GradientDrawable drawable = new GradientDrawable();
-            drawable.setCornerRadius(20f);
-            drawable.setStroke(1, 0xFFFFFF);
-            drawable.setColor(Color.parseColor("#" + y + "FFFFFF"));
-            secondParentLayout.setBackground(drawable);
         }
+//        else if (triggerData.getBackground().getType() == TriggerBackground.TriggerType.BLURRED) {
+//            int z;
+//
+//            if (triggerData.getBackground().getBlur() == 0) {
+//                z = 255 - (int) (20 * 255 / 100);
+//            } else {
+//                z = 255 - (int) (triggerData.getBackground().getBlur() * 255 / 100);
+//            }
+//
+//            String y = Integer.toHexString(z);
+//
+//            if (y.length() == 1) {
+//                y = "0".concat(y);
+//            }
+//
+//            GradientDrawable drawable = new GradientDrawable();
+//            drawable.setCornerRadius(20f);
+//            drawable.setStroke(1, 0xFFFFFF);
+//            drawable.setColor(Color.parseColor("#" + y + "FFFFFF"));
+//            secondParentLayout.setBackground(drawable);
+//        }
     }
 
     /**
@@ -466,7 +507,7 @@ public class EngagementTriggerActivity extends AppCompatActivity {
         closeImageButton.setVisibility(View.INVISIBLE);
         closeImageButton.setEnabled(false);
 
-        if (!triggerData.isAutoClose()) {
+        if (!triggerData.getCloseBehaviour().isAuto() || triggerData.getCloseBehaviour().getTimeToClose() == 0) {
             new CountDownTimer(5000, 1000) {
 
                 public void onTick(long millisUntilFinished) {
@@ -483,12 +524,12 @@ public class EngagementTriggerActivity extends AppCompatActivity {
 
         RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 
-        if (triggerData.getCloseButtonPosition() == TriggerData.CloseButtonPosition.TOP_RIGHT) {
+        if (triggerData.getCloseBehaviour().getPosition() == TriggerCloseBehaviour.Position.TOP_RIGHT) {
             layoutParams.addRule(RelativeLayout.ALIGN_PARENT_END);
-        } else if (triggerData.getCloseButtonPosition() == TriggerData.CloseButtonPosition.DOWN_RIGHT) {
+        } else if (triggerData.getCloseBehaviour().getPosition() == TriggerCloseBehaviour.Position.DOWN_RIGHT) {
             layoutParams.addRule(RelativeLayout.ALIGN_PARENT_END);
             layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-        } else if (triggerData.getCloseButtonPosition() == TriggerData.CloseButtonPosition.DOWN_LEFT) {
+        } else if (triggerData.getCloseBehaviour().getPosition() == TriggerCloseBehaviour.Position.DOWN_LEFT) {
             layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
         }
 
@@ -536,7 +577,9 @@ public class EngagementTriggerActivity extends AppCompatActivity {
         super.onResume();
 
         Blurry.with(getApplicationContext())
-                .radius(25)
+                .radius(triggerData.getTriggerBackground().getBlur() != 0
+                        ? triggerData.getTriggerBackground().getBlur()
+                        : 25)
                 .sampling(2)
                 .async()
                 .animate(500)

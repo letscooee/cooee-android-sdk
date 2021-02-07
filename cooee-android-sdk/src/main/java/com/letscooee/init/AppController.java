@@ -15,6 +15,7 @@ import androidx.lifecycle.ProcessLifecycleOwner;
 import com.letscooee.BuildConfig;
 import com.letscooee.CooeeSDK;
 import com.letscooee.models.Event;
+import com.letscooee.models.TriggerData;
 import com.letscooee.retrofit.APIClient;
 import com.letscooee.retrofit.HttpCallsHelper;
 import com.letscooee.retrofit.ServerAPIService;
@@ -141,18 +142,10 @@ public class AppController extends Application implements LifecycleObserver, App
             EngagementTriggerActivity.setWindow(activity.getWindow());
         }
 
-        Bundle _bundle = activity.getIntent().getExtras();
+        TriggerData triggerData = activity.getIntent().getParcelableExtra("triggerData");
 //        TODO use better hook instead of bundle.getString("id")
-        if (_bundle != null && _bundle.getString("id") != null) {
-            Map<String, String> triggerDataMap = new HashMap<>();
-
-            for (String key : _bundle.keySet()) {
-                triggerDataMap.put(key, String.valueOf(_bundle.get(key)));
-            }
-
-            Map<String, Object> data = new HashMap<>();
-            data.put("triggerData", triggerDataMap);
-            PostLaunchActivity.createTrigger(getApplicationContext(), data);
+        if (triggerData != null && triggerData.getId() != 0) {
+            PostLaunchActivity.createTrigger(getApplicationContext(), triggerData);
         }
     }
 

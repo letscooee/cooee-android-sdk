@@ -25,7 +25,7 @@ public class CooeeIntentService extends IntentService {
                 Log.d("ServiceIntent", intent.toString());
                 NotificationManager notificationManager = (NotificationManager) getApplicationContext().getSystemService(NOTIFICATION_SERVICE);
                 notificationManager.cancel(34);
-                Log.d("Option Choosen", intent.getStringExtra("option"));
+                Log.d("Option Choosen", intent.getParcelableExtra("action").toString());
                 break;
             }
         }
