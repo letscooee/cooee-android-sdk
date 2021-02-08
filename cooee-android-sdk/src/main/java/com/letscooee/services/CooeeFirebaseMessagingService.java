@@ -31,6 +31,8 @@ import com.letscooee.models.TriggerData;
 import com.letscooee.retrofit.HttpCallsHelper;
 import com.letscooee.utils.CooeeSDKConstants;
 
+import java.util.Date;
+
 /**
  * MyFirebaseMessagingService helps connects with firebase for push notification
  *
@@ -53,7 +55,11 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
 
         Gson gson = new Gson();
         TriggerData triggerData = gson.fromJson(remoteMessage.getData().get("triggerData"), TriggerData.class);
-        Log.d("TriggerDataInReceived", triggerData.toString());
+
+        if (triggerData.getId() == null) {
+            return;
+        }
+
         if (triggerData.isShowAsPN()) {
             showNotification(triggerData);
         } else {
@@ -76,17 +82,20 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
                 ? triggerData.getMessage().getText()
                 : triggerData.getMessage().getNotificationText();
 
-        NotificationManager notificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
-        String NOTIFICATION_CHANNEL_ID = "Cooee";
+        NotificationManager notificationManager = (NotificationManager) getApplicationContext()
+                .getSystemService(Context.NOTIFICATION_SERVICE);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel notificationChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ID, "Cooee",
+            NotificationChannel notificationChannel = new NotificationChannel(
+                    CooeeSDKConstants.NOTIFICATION_CHANNEL_ID,
+                    CooeeSDKConstants.NOTIFICATION_CHANNEL_NAME,
                     NotificationManager.IMPORTANCE_DEFAULT);
 
             notificationChannel.setDescription("");
             notificationManager.createNotificationChannel(notificationChannel);
         }
 
+        int notificationId = (int) new Date().getTime();
         PackageManager packageManager = getPackageManager();
         Intent appLaunchIntent = packageManager.getLaunchIntentForPackage(getApplicationContext().getPackageName());
         appLaunchIntent.putExtra("triggerData", triggerData);
@@ -95,13 +104,6 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
         stackBuilder.addNextIntentWithParentStack(appLaunchIntent);
 
         PendingIntent appLaunchPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
-
-        NotificationCompat.Action[] actions = new NotificationCompat.Action[triggerData.getButtons().length];
-        int requestCode = 36644;
-        int i = 0;
-        for (TriggerButton triggerButton : triggerData.getButtons()) {
-            actions[i++] = createActionButtonPendingIntent(triggerButton, requestCode++);
-        }
 
         RemoteViews smallNotification = new RemoteViews(getPackageName(), R.layout.notification_small);
         smallNotification.setTextViewText(R.id.textViewTitle, title);
@@ -115,8 +117,10 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
                 .asBitmap().load(triggerData.getImageUrl()).into(new CustomTarget<Bitmap>() {
             @Override
             public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
-                NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(getApplicationContext(), NOTIFICATION_CHANNEL_ID);
-                notificationBuilder = addAction(notificationBuilder, actions);
+                NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(
+                        getApplicationContext(),
+                        CooeeSDKConstants.NOTIFICATION_CHANNEL_ID);
+                notificationBuilder = addAction(notificationBuilder, createActionButtons(triggerData, notificationId));
 
                 smallNotification.setImageViewBitmap(R.id.imageViewLarge, resource);
                 largeNotification.setImageViewBitmap(R.id.imageViewLarge, resource);
@@ -126,17 +130,12 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
                         .setStyle(new NotificationCompat.DecoratedCustomViewStyle())
                         .setCustomContentView(smallNotification)
                         .setCustomBigContentView(largeNotification)
-
                         .setContentTitle(title)
                         .setContentText(body)
                         .setContentInfo("Info")
                         .setContentIntent(appLaunchPendingIntent);
-                try {
-                    int id = triggerData.getId();
-                    notificationManager.notify(id, notificationBuilder.build());
-                } catch (Exception e) {
-                    notificationManager.notify(36648, notificationBuilder.build());
-                }
+
+                notificationManager.notify(notificationId, notificationBuilder.build());
             }
 
             @Override
@@ -150,20 +149,41 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
         HttpCallsHelper.setFirebaseToken(token);
     }
 
-    private NotificationCompat.Action createActionButtonPendingIntent(TriggerButton button, int requestCode) {
-        if (button.isShowInPN()) {
-            Intent actionButtonIntent = new Intent(getApplicationContext(), CooeeIntentService.class);
-            actionButtonIntent.setAction("Notification");
-            actionButtonIntent.putExtra("action", button.getAction());
-            PendingIntent pendingIntent = PendingIntent.getService(getApplicationContext(), requestCode, actionButtonIntent, PendingIntent.FLAG_ONE_SHOT);
-            return new NotificationCompat.Action(R.drawable.common_google_signin_btn_icon_dark, button.getNotificationText(), pendingIntent);
+    private NotificationCompat.Action[] createActionButtons(TriggerData triggerData, int notificationId) {
+        NotificationCompat.Action[] actions = new NotificationCompat.Action[triggerData.getButtons().length];
+        int requestCode = 36644;
+        int i = 0;
+        for (TriggerButton triggerButton : triggerData.getButtons()) {
+            String title = null;
+            if (triggerButton.getNotificationText() != null) {
+                title = triggerButton.getNotificationText();
+            } else if (triggerButton.getText() != null) {
+                title = triggerButton.getText();
+            }
+
+            if (triggerButton.isShowInPN()) {
+                Intent actionButtonIntent = new Intent(getApplicationContext(), CooeeIntentService.class);
+                actionButtonIntent.setAction("Notification");
+                actionButtonIntent.putExtra("triggerData", triggerData);
+                actionButtonIntent.putExtra("buttonCount", i);
+                actionButtonIntent.putExtra("notificationId", notificationId);
+                PendingIntent pendingIntent = PendingIntent.getService(
+                        getApplicationContext(),
+                        requestCode++,
+                        actionButtonIntent,
+                        PendingIntent.FLAG_ONE_SHOT);
+                actions[i++] = new NotificationCompat.Action(R.drawable.common_google_signin_btn_icon_dark, title, pendingIntent);
+            }
         }
-        return new NotificationCompat.Action(R.drawable.common_google_signin_btn_icon_dark, null, null);
+
+        return actions;
     }
 
     private NotificationCompat.Builder addAction(NotificationCompat.Builder builder, NotificationCompat.Action[] actions) {
         for (NotificationCompat.Action action : actions) {
-            builder.addAction(action);
+            if (action != null && action.getTitle() != null) {
+                builder.addAction(action);
+            }
         }
         return builder;
     }

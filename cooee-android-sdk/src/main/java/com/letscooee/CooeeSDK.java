@@ -2,8 +2,11 @@ package com.letscooee;
 
 import android.content.Context;
 import android.util.Log;
+
+import com.google.gson.Gson;
 import com.letscooee.init.PostLaunchActivity;
 import com.letscooee.models.Event;
+import com.letscooee.models.TriggerData;
 import com.letscooee.retrofit.APIClient;
 import com.letscooee.retrofit.HttpCallsHelper;
 import com.letscooee.retrofit.ServerAPIService;
@@ -75,7 +78,13 @@ public class CooeeSDK implements EngagementTriggerActivity.InAppListener {
 
         Event event = new Event(eventName, eventProperties);
 
-        HttpCallsHelper.sendEvent(event, data -> PostLaunchActivity.createTrigger(context, data));
+        HttpCallsHelper.sendEvent(event, data -> {
+            if (data.get("triggerData") != null) {
+                Gson gson = new Gson();
+                TriggerData triggerData = gson.fromJson(data.get("triggerData").toString(), TriggerData.class);
+                PostLaunchActivity.createTrigger(context, triggerData);
+            }
+        });
     }
 
     /**

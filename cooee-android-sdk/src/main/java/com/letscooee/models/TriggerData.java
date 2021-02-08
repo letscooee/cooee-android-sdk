@@ -40,7 +40,7 @@ public class TriggerData implements Parcelable {
         return buttons;
     }
 
-    private int id;
+    private String id;
     private Type type;
     private Fill fill;
     private TriggerBehindBackground triggerBackground;
@@ -62,7 +62,7 @@ public class TriggerData implements Parcelable {
     }
 
     protected TriggerData(Parcel in) {
-        id = in.readInt();
+        id = in.readString();
         triggerBackground = in.readParcelable(TriggerBehindBackground.class.getClassLoader());
         background = in.readParcelable(TriggerBackground.class.getClassLoader());
         showAsPN = in.readByte() != 0;
@@ -80,7 +80,7 @@ public class TriggerData implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeInt(id);
+        dest.writeString(id);
         dest.writeParcelable(triggerBackground, flags);
         dest.writeParcelable(background, flags);
         dest.writeByte((byte) (showAsPN ? 1 : 0));
@@ -113,11 +113,11 @@ public class TriggerData implements Parcelable {
         }
     };
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 

@@ -7,6 +7,8 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+
+import com.google.gson.Gson;
 import com.letscooee.BuildConfig;
 import com.letscooee.trigger.EngagementTriggerActivity;
 import com.letscooee.models.*;
@@ -184,7 +186,13 @@ public class PostLaunchActivity {
         eventProperties.put("CE App Version", defaultUserPropertiesCollector.getAppVersion());
         Event event = new Event("CE App Installed", eventProperties);
 
-        HttpCallsHelper.sendEvent(event, data -> createTrigger(context, data));
+        HttpCallsHelper.sendEvent(event, data -> {
+            if (data.get("triggerData") != null) {
+                Gson gson = new Gson();
+                TriggerData triggerData = gson.fromJson(data.get("triggerData").toString(), TriggerData.class);
+                createTrigger(context, triggerData);
+            }
+        });
     }
 
     /**
@@ -214,7 +222,11 @@ public class PostLaunchActivity {
             }
 
             notifySDKStateDecided();
-            createTrigger(context, data);
+            if (data.get("triggerData") != null) {
+                Gson gson = new Gson();
+                TriggerData triggerData = gson.fromJson(data.get("triggerData").toString(), TriggerData.class);
+                createTrigger(context, triggerData);
+            }
         });
     }
 
@@ -280,25 +292,7 @@ public class PostLaunchActivity {
         return sessionNumber;
     }
 
-    public static void createTrigger(Context context, Map<String, Object> data) {       //indentation changes
-        if (data == null || data.get("triggerData") == null) {
-            return;
-        }
-        try {
-            TriggerData triggerData = new TriggerData((Map<String, String>) data.get("triggerData"));
-            Intent intent = new Intent(context, EngagementTriggerActivity.class);
-            Bundle sendBundle = new Bundle();
-            sendBundle.putParcelable("triggerData", triggerData);
-            intent.putExtra("bundle", sendBundle);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            context.startActivity(intent);
-        } catch (Exception ex) {
-            Log.d(CooeeSDKConstants.LOG_PREFIX, "Couldn't show Engagement Trigger " + ex.toString());
-            HttpCallsHelper.sendEvent(new Event("CE KPI", new HashMap<>()), null);
-        }
-    }
-
-    public static void createTrigger(Context context, TriggerData triggerData) {       //indentation changes
+    public static void createTrigger(Context context, TriggerData triggerData) {
         try {
             Intent intent = new Intent(context, EngagementTriggerActivity.class);
             Bundle sendBundle = new Bundle();
