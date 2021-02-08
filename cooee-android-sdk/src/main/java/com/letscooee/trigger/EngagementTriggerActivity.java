@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.media.AudioManager;
@@ -13,8 +14,8 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.Gravity;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -29,6 +30,7 @@ import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
+import com.google.android.flexbox.FlexboxLayout;
 import com.letscooee.CooeeSDK;
 import com.letscooee.R;
 import com.letscooee.models.Event;
@@ -110,44 +112,55 @@ public class EngagementTriggerActivity extends AppCompatActivity {
      */
     private void createActionButton() {
         if (triggerData.getButtons()[0] != null || !triggerData.getButtons()[0].getText().isEmpty()) {
-            boolean isFirst = true;
-            Button button = null;
             int buttonID = 23;
             for (TriggerButton triggerButton : triggerData.getButtons()) {
-                if (isFirst) {
-                    RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                    params.addRule(RelativeLayout.ALIGN_PARENT_END);
-                    button = createButton(triggerButton, params, buttonID++);
-                    isFirst = false;
-                } else {
-                    RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                    params.addRule(RelativeLayout.LEFT_OF, button.getId());
-                    button = createButton(triggerButton, params, buttonID++);
-                }
+                createButton(triggerButton, buttonID++);
             }
 
         }
     }
 
-    private Button createButton(TriggerButton triggerButton, ViewGroup.LayoutParams params, int buttonID) {
-        RelativeLayout actionRelativeLayout = findViewById(R.id.actionLayout);
-        TableLayout tableLayout = new TableLayout(this);
-        Button button = new Button(this);
+    private void createButton(TriggerButton triggerButton, int buttonID) {
+        FlexboxLayout flexboxLayout = findViewById(R.id.actionFlexLayout);
+
+        FlexboxLayout.LayoutParams params = new FlexboxLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        params.setMargins(15, 15, 15, 15);
+
+        TextView button = new TextView(this);
         button.setLayoutParams(params);
         button.setText(triggerButton.getText());
         String color = triggerButton.getColor().isEmpty() ? "#0000FF" : triggerButton.getColor();
         button.setTextColor(Color.parseColor(color));
-        button.setBackgroundColor(Color.parseColor(triggerButton.getBackground()));
+        button.setPadding(15, 15, 15, 15);
+        button.setTypeface(Typeface.DEFAULT_BOLD);
         button.setId(buttonID);
+
+        GradientDrawable drawable = new GradientDrawable();
+        drawable.setCornerRadius(triggerButton.getRadius());
+        drawable.setColor(Color.parseColor(triggerButton.getBackground()));
+        button.setBackground(drawable);
 
         button.setOnClickListener(view -> {
             didClick(triggerButton.getAction());
             finish();
         });
 
-        actionRelativeLayout.addView(button);
+        button.setOnTouchListener((v, event) -> {
+            if (MotionEvent.ACTION_DOWN == event.getAction()) {
+                drawable.setCornerRadius(triggerButton.getRadius());
+                drawable.setStroke(1, Color.BLACK);
+                drawable.setColor(Color.GRAY);
+                button.setBackground(drawable);
+            } else if (MotionEvent.ACTION_UP == event.getAction()) {
+                drawable.setCornerRadius(triggerButton.getRadius());
+                drawable.setStroke(0, Color.BLACK);
+                drawable.setColor(Color.parseColor(triggerButton.getBackground()));
+                button.setBackground(drawable);
+            }
+            return false;
+        });
 
-        return button;
+        flexboxLayout.addView(button);
     }
 
     /**
@@ -159,7 +172,7 @@ public class EngagementTriggerActivity extends AppCompatActivity {
             listener.inAppNotificationDidClick(action.getKv());
         }
 
-        if (action.getUserProperty() != null){
+        if (action.getUserProperty() != null) {
             Map<String, Object> userProfile = new HashMap<>();
             userProfile.put("userData", new HashMap<>());
             userProfile.put("userProperties", action.getUserProperty());
@@ -310,27 +323,6 @@ public class EngagementTriggerActivity extends AppCompatActivity {
                         }
                     });
         }
-//        else if (triggerData.getBackground().getType() == TriggerBackground.TriggerType.BLURRED) {
-//            int z;
-//
-//            if (triggerData.getBackground().getBlur() == 0) {
-//                z = 255 - (int) (20 * 255 / 100);
-//            } else {
-//                z = 255 - (int) (triggerData.getBackground().getBlur() * 255 / 100);
-//            }
-//
-//            String y = Integer.toHexString(z);
-//
-//            if (y.length() == 1) {
-//                y = "0".concat(y);
-//            }
-//
-//            GradientDrawable drawable = new GradientDrawable();
-//            drawable.setCornerRadius(20f);
-//            drawable.setStroke(1, 0xFFFFFF);
-//            drawable.setColor(Color.parseColor("#" + y + "FFFFFF"));
-//            secondParentLayout.setBackground(drawable);
-//        }
     }
 
     /**
@@ -595,6 +587,10 @@ public class EngagementTriggerActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
+    }
+
+    @Override
+    public void onBackPressed() {
     }
 
     /**
