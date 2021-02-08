@@ -102,25 +102,29 @@ public class EngagementTriggerActivity extends AppCompatActivity {
             updateText();
             updateMessage();
             updateTextPosition();
-            createActionButton();
+            createActionButtons();
         } catch (Exception ignored) {
         }
     }
 
     /**
-     * Create action button in trigger
+     * Create defined action buttons for the trigger
      */
-    private void createActionButton() {
+    private void createActionButtons() {
         if (triggerData.getButtons()[0] != null || !triggerData.getButtons()[0].getText().isEmpty()) {
-            int buttonID = 23;
             for (TriggerButton triggerButton : triggerData.getButtons()) {
-                createButton(triggerButton, buttonID++);
+                createButton(triggerButton);
             }
 
         }
     }
 
-    private void createButton(TriggerButton triggerButton, int buttonID) {
+    /**
+     * Create and add action button
+     *
+     * @param triggerButton trigger button data
+     */
+    private void createButton(TriggerButton triggerButton) {
         FlexboxLayout flexboxLayout = findViewById(R.id.actionFlexLayout);
 
         FlexboxLayout.LayoutParams params = new FlexboxLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -133,7 +137,6 @@ public class EngagementTriggerActivity extends AppCompatActivity {
         button.setTextColor(Color.parseColor(color));
         button.setPadding(15, 15, 15, 15);
         button.setTypeface(Typeface.DEFAULT_BOLD);
-        button.setId(buttonID);
 
         GradientDrawable drawable = new GradientDrawable();
         drawable.setCornerRadius(triggerButton.getRadius());

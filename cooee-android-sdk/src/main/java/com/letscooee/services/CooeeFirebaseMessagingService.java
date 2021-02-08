@@ -67,6 +67,11 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
         }
     }
 
+    /**
+     * Show inapp engagement trigger
+     *
+     * @param triggerData received from data payload
+     */
     private void showInAppMessaging(TriggerData triggerData) {
         // Don't show inapp notification if app is in background
         if (!AppController.isBackground) {
@@ -74,6 +79,11 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
         }
     }
 
+    /**
+     * Show push notification engagement trigger
+     *
+     * @param triggerData received from data payload
+     */
     private void showNotification(TriggerData triggerData) {
         String title = (triggerData.getTitle().getNotificationText().isEmpty() || triggerData.getTitle().getNotificationText() == null)
                 ? triggerData.getTitle().getText()
@@ -145,10 +155,22 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
         });
     }
 
+    /**
+     * Send firebase token to server
+     *
+     * @param token received from Firebase
+     */
     private void sendTokenToServer(String token) {
         HttpCallsHelper.setFirebaseToken(token);
     }
 
+    /**
+     * Create action button in notifications
+     *
+     * @param triggerData    received from data payload
+     * @param notificationId notification id
+     * @return NotificationCompat.Action array
+     */
     private NotificationCompat.Action[] createActionButtons(TriggerData triggerData, int notificationId) {
         NotificationCompat.Action[] actions = new NotificationCompat.Action[triggerData.getButtons().length];
         int requestCode = 36644;
@@ -179,6 +201,13 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
         return actions;
     }
 
+    /**
+     * Add action to NotificationCompat Builder
+     *
+     * @param builder NotificationCompat Builder
+     * @param actions NotificationCompat.Action array
+     * @return NotificationCompat Builder
+     */
     private NotificationCompat.Builder addAction(NotificationCompat.Builder builder, NotificationCompat.Action[] actions) {
         for (NotificationCompat.Action action : actions) {
             if (action != null && action.getTitle() != null) {
