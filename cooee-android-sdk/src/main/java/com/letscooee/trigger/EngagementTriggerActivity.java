@@ -602,13 +602,15 @@ public class EngagementTriggerActivity extends AppCompatActivity {
         int totalWatched = videoDuration * videoSeenCounter + watchedTill;
 
         Map<String, String> kpiMap = new HashMap<>();
-        kpiMap.put("Id", String.valueOf(triggerData.getId()));
         kpiMap.put("Duration", String.valueOf(duration));
         kpiMap.put("Close Behaviour", closeBehaviour);
-        kpiMap.put("Video Duration", String.valueOf(videoDuration));
-        kpiMap.put("Watched Till", String.valueOf(watchedTill));
-        kpiMap.put("Total Watched", String.valueOf(totalWatched));
-        kpiMap.put("Video Unmuted", String.valueOf(isVideoUnmuted));
+
+        if (triggerData.getType() == TriggerData.Type.VIDEO) {
+            kpiMap.put("Video Duration", String.valueOf(videoDuration));
+            kpiMap.put("Watched Till", String.valueOf(watchedTill));
+            kpiMap.put("Total Watched", String.valueOf(totalWatched));
+            kpiMap.put("Video Unmuted", String.valueOf(isVideoUnmuted));
+        }
 
         Event event = new Event("CE Trigger Closed", kpiMap);
         HttpCallsHelper.sendEvent(event, null);
