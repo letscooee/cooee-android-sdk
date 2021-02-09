@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -43,6 +44,8 @@ import com.letscooee.models.TriggerText;
 import com.letscooee.retrofit.HttpCallsHelper;
 
 import java.lang.ref.WeakReference;
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -59,14 +62,18 @@ public class EngagementTriggerActivity extends AppCompatActivity {
     RelativeLayout secondParentLayout;
     TextView textViewTimer;
 
-    private float completionRate = 0f;
-    private boolean isViewed = false;
-    private boolean isPlayed = false;
-    private boolean isEngaged = false;
-
     private static Window _window;
 
     private WeakReference<InAppListener> inAppListenerWeakReference;
+
+    private Date startTime;
+    private String closeBehaviour;
+    private Handler handler;
+    private Runnable runnable;
+    private int videoDuration;
+    private int watchedTill;
+    private int videoSeenCounter = 0;
+    private boolean isVideoUnmuted;
 
     public interface InAppListener {
         void inAppNotificationDidClick(HashMap<String, String> payload);
@@ -80,8 +87,13 @@ public class EngagementTriggerActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_engagement_trigger);
+
         closeImageButton = findViewById(R.id.buttonClose);
-        closeImageButton.setOnClickListener(view -> finish());
+        closeImageButton.setOnClickListener(view -> {
+            closeBehaviour = "Close Button";
+            finish();
+        });
+
         secondParentLayout = findViewById(R.id.secondParentRelative);
         textViewTimer = findViewById(R.id.textViewTimer);
         inAppListenerWeakReference = new WeakReference<>(CooeeSDK.getDefaultInstance(this));
@@ -145,6 +157,7 @@ public class EngagementTriggerActivity extends AppCompatActivity {
 
         button.setOnClickListener(view -> {
             didClick(triggerButton.getAction());
+            closeBehaviour = "Action Button";
             finish();
         });
 
@@ -236,7 +249,11 @@ public class EngagementTriggerActivity extends AppCompatActivity {
             int autoClose = triggerData.getCloseBehaviour().getTimeToClose();
             closeImageButton.setVisibility(View.GONE);
             textViewTimer.setVisibility(View.GONE);
-            new Handler().postDelayed(this::finish, autoClose * 1000);
+            handler = new Handler();
+            runnable = () -> finish();
+            handler.postDelayed(runnable, autoClose * 1000);
+
+            closeBehaviour = "Auto";
         }
     }
 
@@ -287,9 +304,9 @@ public class EngagementTriggerActivity extends AppCompatActivity {
             int z;
 
             if (triggerData.getBackground().getOpacity() == 0) {
-                z = 255 - (int) (20 * 255 / 100);
+                z = 255 - (20 * 255 / 100);
             } else {
-                z = 255 - (int) (triggerData.getBackground().getOpacity() * 255 / 100);
+                z = 255 - (triggerData.getBackground().getOpacity() * 255 / 100);
             }
 
             String y = Integer.toHexString(z);
@@ -386,8 +403,6 @@ public class EngagementTriggerActivity extends AppCompatActivity {
 
         Glide.with(getApplicationContext()).load(triggerData.getImageUrl()).into(imageView);
 
-        new Handler().postDelayed(() -> isEngaged = true, 5000);
-
         insideMediaFrameLayout.addView(imageView);
     }
 
@@ -417,19 +432,16 @@ public class EngagementTriggerActivity extends AppCompatActivity {
         Button muteUnmuteButton = new Button(this);
         muteUnmuteButton.setLayoutParams(muteButtonParams);
         muteUnmuteButton.setBackground(getDrawable(R.drawable.mute_background));
-        muteUnmuteButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                isPlayed = true;
-                AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    if (am.isStreamMute(AudioManager.STREAM_MUSIC)) {
-                        am.setStreamMute(AudioManager.STREAM_MUSIC, false);
-                        muteUnmuteButton.setBackground(getDrawable(R.drawable.unmute_background));
-                    } else {
-                        am.setStreamMute(AudioManager.STREAM_MUSIC, true);
-                        muteUnmuteButton.setBackground(getDrawable(R.drawable.mute_background));
-                    }
+        muteUnmuteButton.setOnClickListener(v -> {
+            isVideoUnmuted = true;
+            AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                if (am.isStreamMute(AudioManager.STREAM_MUSIC)) {
+                    am.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_UNMUTE, 0);
+                    muteUnmuteButton.setBackground(getDrawable(R.drawable.unmute_background));
+                } else {
+                    am.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_MUTE, 0);
+                    muteUnmuteButton.setBackground(getDrawable(R.drawable.mute_background));
                 }
             }
         });
@@ -437,7 +449,6 @@ public class EngagementTriggerActivity extends AppCompatActivity {
         insideMediaFrameLayout.addView(muteUnmuteButton);
 
         videoView.setOnClickListener(view -> {
-            isPlayed = true;
             playPauseImage.setVisibility(View.VISIBLE);
             if (videoView.isPlaying()) {
                 videoView.pause();
@@ -446,28 +457,19 @@ public class EngagementTriggerActivity extends AppCompatActivity {
                 videoView.start();
                 playPauseImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_baseline_pause_24));
             }
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    playPauseImage.setVisibility(View.INVISIBLE);
-                }
-            }, 2000);
+            handler.postDelayed(() -> playPauseImage.setVisibility(View.INVISIBLE), 2000);
         });
 
-        videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-            @Override
-            public void onPrepared(MediaPlayer mp) {
-                AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-                am.setStreamMute(AudioManager.STREAM_MUSIC, true);
-            }
+        videoView.setOnPreparedListener(mp -> {
+            videoDuration = videoView.getDuration() / 1000;
+            AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+            am.setStreamMute(AudioManager.STREAM_MUSIC, true);
         });
 
-        videoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-            @Override
-            public void onCompletion(MediaPlayer mp) {
-                playPauseImage.setImageDrawable(getDrawable(R.drawable.ic_baseline_replay_24));
-                playPauseImage.setVisibility(View.VISIBLE);
-            }
+        videoView.setOnCompletionListener(mp -> {
+            playPauseImage.setImageDrawable(getDrawable(R.drawable.ic_baseline_replay_24));
+            playPauseImage.setVisibility(View.VISIBLE);
+            videoSeenCounter++;
         });
 
         calculateCurrentPositionThread(videoView);
@@ -478,19 +480,14 @@ public class EngagementTriggerActivity extends AppCompatActivity {
     /**
      * Calculate how much video is seen. Triggered only if VIDEO media is given by server
      *
-     * @param videoView
+     * @param videoView dynamic videoview
      */
     private void calculateCurrentPositionThread(VideoView videoView) {
         ScheduledExecutorService mScheduledExecutorService;
         mScheduledExecutorService = Executors.newScheduledThreadPool(1);
         mScheduledExecutorService.scheduleWithFixedDelay(() -> videoView.post(() -> {
-            int currentPosition = videoView.getCurrentPosition();
-            completionRate = ((float) currentPosition / (float) videoView.getDuration()) * 100;
-
-            if (completionRate >= 20) {
-                isEngaged = true;
-            }
-        }), 3000, 1000, TimeUnit.MILLISECONDS);
+            watchedTill = videoView.getCurrentPosition() / 1000;
+        }), 1000, 1000, TimeUnit.MILLISECONDS);
 
     }
 
@@ -564,7 +561,9 @@ public class EngagementTriggerActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        isViewed = true;
+        startTime = new Date();
+        Event event = new Event("CE Trigger Displayed", new HashMap<>());
+        HttpCallsHelper.sendEvent(event, null);
     }
 
     @Override
@@ -602,18 +601,23 @@ public class EngagementTriggerActivity extends AppCompatActivity {
     @Override
     public void finish() {
         super.finish();
+        int duration = (int) ((new Date().getTime() - startTime.getTime()) / 1000);
+        int totalWatched = videoDuration * videoSeenCounter + watchedTill;
+
         Map<String, String> kpiMap = new HashMap<>();
-        kpiMap.put("CE Id", String.valueOf(triggerData.getId()));
-        kpiMap.put("CE Viewed", String.valueOf(isViewed));
-        kpiMap.put("CE Engaged", String.valueOf(isEngaged));
+        kpiMap.put("Id", String.valueOf(triggerData.getId()));
+        kpiMap.put("Duration", String.valueOf(duration));
+        kpiMap.put("Close Behaviour", closeBehaviour);
+        kpiMap.put("Video Duration", String.valueOf(videoDuration));
+        kpiMap.put("Watched Till", String.valueOf(watchedTill));
+        kpiMap.put("Total Watched", String.valueOf(totalWatched));
+        kpiMap.put("Video Unmuted", String.valueOf(isVideoUnmuted));
+        Log.d("kpiMap", kpiMap.toString());
 
-        if (triggerData.getType() == TriggerData.Type.VIDEO) {
-            kpiMap.put("CE Completion Rate", completionRate + "");
-            kpiMap.put("CE Played", String.valueOf(isPlayed));
-        }
-
-        Event event = new Event("CE KPI", kpiMap);
+        Event event = new Event("CE Trigger Closed", kpiMap);
         HttpCallsHelper.sendEvent(event, null);
+
+        handler.removeCallbacks(runnable);
 
         updateExit();
     }
