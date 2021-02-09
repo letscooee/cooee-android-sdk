@@ -85,12 +85,12 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
      * @param triggerData received from data payload
      */
     private void showNotification(TriggerData triggerData) {
-        String title = (triggerData.getTitle().getNotificationText().isEmpty() || triggerData.getTitle().getNotificationText() == null)
-                ? triggerData.getTitle().getText()
-                : triggerData.getTitle().getNotificationText();
-        String body = (triggerData.getMessage().getNotificationText().isEmpty() || triggerData.getMessage().getNotificationText() == null)
-                ? triggerData.getMessage().getText()
-                : triggerData.getMessage().getNotificationText();
+        String title = getNotificationTitle(triggerData);
+        String body = getNotificationBody(triggerData);
+
+        if (title == null) {
+            return;
+        }
 
         NotificationManager notificationManager = (NotificationManager) getApplicationContext()
                 .getSystemService(Context.NOTIFICATION_SERVICE);
@@ -153,6 +153,38 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
 
             }
         });
+    }
+
+    /**
+     * Get Notification title from trigger data
+     *
+     * @param triggerData Trigger data
+     * @return title
+     */
+    private String getNotificationTitle(TriggerData triggerData) {
+        String title = null;
+        if (triggerData.getTitle().getNotificationText() != null && !triggerData.getTitle().getNotificationText().isEmpty()) {
+            title = triggerData.getTitle().getNotificationText();
+        } else {
+            title = triggerData.getTitle().getText();
+        }
+        return title;
+    }
+
+    /**
+     * Get Notification body from trigger data
+     *
+     * @param triggerData Trigger data
+     * @return body
+     */
+    private String getNotificationBody(TriggerData triggerData) {
+        String body = "";
+        if (triggerData.getMessage().getNotificationText() != null && !triggerData.getMessage().getNotificationText().isEmpty()) {
+            body = triggerData.getMessage().getNotificationText();
+        } else {
+            body = triggerData.getMessage().getText();
+        }
+        return body;
     }
 
     /**
