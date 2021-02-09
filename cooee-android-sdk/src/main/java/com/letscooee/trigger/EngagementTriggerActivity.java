@@ -8,13 +8,11 @@ import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.media.AudioManager;
-import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -44,7 +42,6 @@ import com.letscooee.models.TriggerText;
 import com.letscooee.retrofit.HttpCallsHelper;
 
 import java.lang.ref.WeakReference;
-import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -612,12 +609,13 @@ public class EngagementTriggerActivity extends AppCompatActivity {
         kpiMap.put("Watched Till", String.valueOf(watchedTill));
         kpiMap.put("Total Watched", String.valueOf(totalWatched));
         kpiMap.put("Video Unmuted", String.valueOf(isVideoUnmuted));
-        Log.d("kpiMap", kpiMap.toString());
 
         Event event = new Event("CE Trigger Closed", kpiMap);
         HttpCallsHelper.sendEvent(event, null);
 
-        handler.removeCallbacks(runnable);
+        if (runnable != null) {
+            handler.removeCallbacks(runnable);
+        }
 
         updateExit();
     }
