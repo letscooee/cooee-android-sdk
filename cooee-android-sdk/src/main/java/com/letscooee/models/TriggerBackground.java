@@ -16,7 +16,8 @@ public class TriggerBackground implements Parcelable {
     private TriggerType type;
     private String color;
     private String image;
-    private int blur;
+    private int opacity;
+    private int radius;
 
     public static final Creator<TriggerBackground> CREATOR = new Creator<TriggerBackground>() {
         @Override
@@ -36,16 +37,11 @@ public class TriggerBackground implements Parcelable {
     protected TriggerBackground(Parcel in) {
         color = in.readString();
         image = in.readString();
-        blur = in.readInt();
+        opacity = in.readInt();
         type = TriggerType.valueOf(in.readString());
+        radius = in.readInt();
     }
 
-    public TriggerBackground(String type, String color, String image, String blur) {
-        this.color = color;
-        this.image = image;
-        this.blur = Integer.parseInt(blur);
-        this.type = TriggerType.valueOf(type);
-    }
 
     @Override
     public int describeContents() {
@@ -56,8 +52,9 @@ public class TriggerBackground implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(color);
         dest.writeString(image);
-        dest.writeInt(blur);
+        dest.writeInt(opacity);
         dest.writeString(type.name());
+        dest.writeInt(radius);
     }
 
     public TriggerType getType() {
@@ -84,11 +81,26 @@ public class TriggerBackground implements Parcelable {
         this.image = image;
     }
 
-    public int getBlur() {
-        return blur;
+    public int getOpacity() {
+        return opacity;
     }
 
-    public void setBlur(int blur) {
-        this.blur = blur;
+    public void setOpacity(int opacity) {
+        this.opacity = opacity;
+    }
+
+    public int getRadius() {
+        return radius;
+    }
+
+    @Override
+    public String toString() {
+        return "TriggerBackground{" +
+                "type=" + type +
+                ", color='" + color + '\'' +
+                ", image='" + image + '\'' +
+                ", opacity=" + opacity +
+                ", radius=" + radius +
+                '}';
     }
 }

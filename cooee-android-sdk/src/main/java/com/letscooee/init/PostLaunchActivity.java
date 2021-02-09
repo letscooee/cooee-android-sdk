@@ -7,6 +7,8 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+
+import com.google.gson.Gson;
 import com.letscooee.BuildConfig;
 import com.letscooee.trigger.EngagementTriggerActivity;
 import com.letscooee.models.*;
@@ -211,9 +213,8 @@ public class PostLaunchActivity {
         HttpCallsHelper.sendEventWithoutSDKState(event, data -> {
             if (data != null && data.get("sessionID") != null) {
                 currentSessionId = String.valueOf(data.get("sessionID"));
+                notifySDKStateDecided();
             }
-
-            notifySDKStateDecided();
             createTrigger(context, data);
         });
     }
@@ -280,12 +281,30 @@ public class PostLaunchActivity {
         return sessionNumber;
     }
 
-    public static void createTrigger(Context context, Map<String, Object> data) {       //indentation changes
+    /**
+     * Create inapp engagement trigger using map object
+     *
+     * @param context context of the application
+     * @param data    map data received from backend
+     */
+    public static void createTrigger(Context context, Map<String, Object> data) {
         if (data == null || data.get("triggerData") == null) {
             return;
         }
+
+        Gson gson = new Gson();
+        TriggerData triggerData = gson.fromJson(String.valueOf(data.get("triggerData")), TriggerData.class);
+        createTrigger(context, triggerData);
+    }
+
+    /**
+     * Create inapp engagement trigger
+     *
+     * @param context     context of the application
+     * @param triggerData trigger data received from PN data payload or overloaded function
+     */
+    public static void createTrigger(Context context, TriggerData triggerData) {
         try {
-            TriggerData triggerData = new TriggerData((Map<String, String>) data.get("triggerData"));
             Intent intent = new Intent(context, EngagementTriggerActivity.class);
             Bundle sendBundle = new Bundle();
             sendBundle.putParcelable("triggerData", triggerData);

@@ -2,15 +2,17 @@ package com.letscooee;
 
 import android.content.Context;
 import android.util.Log;
+
 import com.letscooee.init.PostLaunchActivity;
 import com.letscooee.models.Event;
-import com.letscooee.retrofit.APIClient;
 import com.letscooee.retrofit.HttpCallsHelper;
-import com.letscooee.retrofit.ServerAPIService;
+import com.letscooee.trigger.EngagementTriggerActivity;
 import com.letscooee.utils.CooeeSDKConstants;
+import com.letscooee.utils.InAppNotificationClickListener;
 import com.letscooee.utils.LocalStorageHelper;
 import com.letscooee.utils.PropertyNameException;
 
+import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,15 +21,16 @@ import java.util.Map;
  *
  * @author Abhishek Taparia
  */
-public class CooeeSDK {
+public class CooeeSDK implements EngagementTriggerActivity.InAppListener {
 
     private static CooeeSDK cooeeSDK = null;
 
     private final Context context;
-    private final ServerAPIService apiService;
 
     private String currentScreenName = "";
     private String uuid = "";
+
+    private WeakReference<InAppNotificationClickListener> inAppNotificationClickListener;
 
     /**
      * Private constructor for Singleton Class
@@ -37,8 +40,6 @@ public class CooeeSDK {
     private CooeeSDK(Context context) {
         this.context = context;
         new PostLaunchActivity(context);
-
-        this.apiService = APIClient.getServerAPIService();
     }
 
     /**
@@ -156,5 +157,16 @@ public class CooeeSDK {
             uuid = LocalStorageHelper.getString(context, CooeeSDKConstants.STORAGE_USER_ID, "");
         }
         return uuid;
+    }
+
+    public void setInAppNotificationButtonListener(InAppNotificationClickListener listener) {
+        inAppNotificationClickListener = new WeakReference<>(listener);
+    }
+
+    @Override
+    public void inAppNotificationDidClick(HashMap<String, String> payload) {
+        if (payload != null) {
+            inAppNotificationClickListener.get().onInAppButtonClick(payload);
+        }
     }
 }

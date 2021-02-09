@@ -89,8 +89,19 @@
                 android:id="@+id/actionLayout"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_weight="1.75">
+                android:layout_weight="1.5"
+                android:gravity="center">
 
+                <com.google.android.flexbox.FlexboxLayout
+                    android:id="@+id/actionFlexLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    app:alignContent="center"
+                    app:alignItems="center"
+                    app:flexWrap="wrap"
+                    app:justifyContent="center">
+
+                </com.google.android.flexbox.FlexboxLayout>
             </RelativeLayout>
 
         </LinearLayout>

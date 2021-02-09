@@ -12,9 +12,11 @@ import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.OnLifecycleEvent;
 import androidx.lifecycle.ProcessLifecycleOwner;
+
 import com.letscooee.BuildConfig;
 import com.letscooee.CooeeSDK;
 import com.letscooee.models.Event;
+import com.letscooee.models.TriggerData;
 import com.letscooee.retrofit.APIClient;
 import com.letscooee.retrofit.HttpCallsHelper;
 import com.letscooee.retrofit.ServerAPIService;
@@ -140,26 +142,18 @@ public class AppController extends Application implements LifecycleObserver, App
         if (!activity.getLocalClassName().endsWith("EngagementTriggerActivity")) {
             EngagementTriggerActivity.setWindow(activity.getWindow());
         }
+
+        TriggerData triggerData = activity.getIntent().getParcelableExtra("triggerData");
+
+        if (triggerData != null && triggerData.getId() != null) {
+            PostLaunchActivity.createTrigger(getApplicationContext(), triggerData);
+        }
     }
 
     @Override
     public void onActivityStarted(@NonNull Activity activity) {
         String manualScreenName = CooeeSDK.getDefaultInstance(getApplicationContext()).getCurrentScreenName();
         currentScreen = (manualScreenName != null && !manualScreenName.isEmpty()) ? manualScreenName : activity.getLocalClassName();
-
-        Bundle bundle = activity.getIntent().getExtras();
-//        TODO use better hook instead of bundle.getString("id")
-        if (bundle != null && bundle.getString("id") != null) {
-            Map<String, String> triggerDataMap = new HashMap<>();
-
-            for (String key : bundle.keySet()) {
-                triggerDataMap.put(key, String.valueOf(bundle.get(key)));
-            }
-
-            Map<String, Object> data = new HashMap<>();
-            data.put("triggerData", triggerDataMap);
-            PostLaunchActivity.createTrigger(getApplicationContext(), data);
-        }
     }
 
     @Override

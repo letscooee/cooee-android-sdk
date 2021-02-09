@@ -96,6 +96,7 @@ dependencies {
     api 'io.reactivex.rxjava3:rxjava:3.0.0'
     api "androidx.cardview:cardview:1.0.0"
     api 'jp.wasabeef:blurry:4.0.0'
+    api 'com.google.android:flexbox:2.0.1'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.11.0'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'

@@ -14,6 +14,7 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
+import android.util.Log;
 import android.widget.Button;
 
 import com.letscooee.CooeeSDK;
@@ -21,13 +22,14 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.letscooee.utils.CooeeSDKConstants;
+import com.letscooee.utils.InAppNotificationClickListener;
 import com.letscooee.utils.PropertyNameException;
 
 import java.util.HashMap;
 import java.util.Map;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements InAppNotificationClickListener {
 
     private Button buttonVideo, buttonImage;
     private String location[];
@@ -42,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
 
         mySdk = CooeeSDK.getDefaultInstance(getApplicationContext());
 
+        mySdk.setInAppNotificationButtonListener(this);
 
         buttonImage = findViewById(R.id.btnImage);
         buttonVideo = findViewById(R.id.btnVideo);
@@ -105,6 +108,14 @@ public class MainActivity extends AppCompatActivity {
         }
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.INTERNET}, CooeeSDKConstants.REQUEST_LOCATION);
+        }
+    }
+
+    @Override
+    public void onInAppButtonClick(HashMap<String, String> payload) {
+        if (payload != null){
+            Log.d("Data from inApp", payload.toString());
+//            startActivity(new Intent(MainActivity.this, SignUpActivity.class));
         }
     }
 }

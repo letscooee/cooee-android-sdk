@@ -3,6 +3,7 @@ package com.letscooee.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.Arrays;
 import java.util.Map;
 
 /**
@@ -27,29 +28,78 @@ public class TriggerData implements Parcelable {
         SLIDE_OUT_TOP, SLIDE_OUT_DOWN, SLIDE_OUT_LEFT, SLIDE_OUT_RIGHT
     }
 
-    public enum CloseButtonPosition {
-        TOP_RIGHT, TOP_LEFT, DOWN_RIGHT, DOWN_LEFT
+    public boolean isShowAsPN() {
+        return showAsPN;
     }
 
-    public enum TextPosition {
-        TOP, BOTTOM, LEFT, RIGHT
+    public TriggerCloseBehaviour getCloseBehaviour() {
+        return closeBehaviour;
     }
 
-    private int id;
+    public TriggerButton[] getButtons() {
+        return buttons;
+    }
+
+    private String id;
     private Type type;
     private Fill fill;
+    private TriggerBehindBackground triggerBackground;
     private TriggerBackground background;
+    private boolean showAsPN;
     private String imageUrl;
     private String videoUrl;
     private EntranceAnimation entranceAnimation;
     private ExitAnimation exitAnimation;
-    private Object autoClose;
-    private CloseButtonPosition closeButtonPosition;
-    private TriggerText text;
+    private TriggerCloseBehaviour closeBehaviour;
+    private TriggerText title;
     private TriggerText message;
-    private TextPosition textPosition;
-    private boolean isAutoClose;
+    private TriggerButton[] buttons;
 
+    public TriggerData() {
+    }
+
+    public TriggerData(Map<String, String> triggerData) {
+    }
+
+    protected TriggerData(Parcel in) {
+        id = in.readString();
+        triggerBackground = in.readParcelable(TriggerBehindBackground.class.getClassLoader());
+        background = in.readParcelable(TriggerBackground.class.getClassLoader());
+        showAsPN = in.readByte() != 0;
+        imageUrl = in.readString();
+        videoUrl = in.readString();
+        closeBehaviour = in.readParcelable(TriggerCloseBehaviour.class.getClassLoader());
+        title = in.readParcelable(TriggerText.class.getClassLoader());
+        message = in.readParcelable(TriggerText.class.getClassLoader());
+        entranceAnimation = EntranceAnimation.valueOf(in.readString());
+        exitAnimation = ExitAnimation.valueOf(in.readString());
+        type = Type.valueOf(in.readString());
+        fill = Fill.valueOf(in.readString());
+        buttons = in.createTypedArray(TriggerButton.CREATOR);
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(id);
+        dest.writeParcelable(triggerBackground, flags);
+        dest.writeParcelable(background, flags);
+        dest.writeByte((byte) (showAsPN ? 1 : 0));
+        dest.writeString(imageUrl);
+        dest.writeString(videoUrl);
+        dest.writeParcelable(closeBehaviour, flags);
+        dest.writeParcelable(title, flags);
+        dest.writeParcelable(message, flags);
+        dest.writeString(entranceAnimation.name());
+        dest.writeString(exitAnimation.name());
+        dest.writeString(type.name());
+        dest.writeString(fill.name());
+        dest.writeTypedArray(buttons, flags);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
 
     public static final Creator<TriggerData> CREATOR = new Creator<TriggerData>() {
         @Override
@@ -63,84 +113,11 @@ public class TriggerData implements Parcelable {
         }
     };
 
-    public TriggerData() {
-    }
-
-    protected TriggerData(Parcel in) {
-        id = in.readInt();
-        background = in.readParcelable(TriggerBackground.class.getClassLoader());
-        imageUrl = in.readString();
-        videoUrl = in.readString();
-        text = in.readParcelable(TriggerText.class.getClassLoader());
-        message = in.readParcelable(TriggerText.class.getClassLoader());
-        entranceAnimation = EntranceAnimation.valueOf(in.readString());
-        exitAnimation = ExitAnimation.valueOf(in.readString());
-        type = Type.valueOf(in.readString());
-        fill = Fill.valueOf(in.readString());
-        closeButtonPosition = CloseButtonPosition.valueOf(in.readString());
-        textPosition = TextPosition.valueOf(in.readString());
-        autoClose = in.readInt();
-        if (Integer.parseInt(autoClose.toString()) > 0) {
-            isAutoClose = true;
-        } else {
-            isAutoClose = false;
-        }
-    }
-
-    public TriggerData(Map<String, String> triggerData) {
-        id = Integer.parseInt(triggerData.get("id"));
-        background = new TriggerBackground(triggerData.get("backgroundType"), triggerData.get("backgroundColor"), triggerData.get("backgroundImage"), triggerData.get("backgroundBlur"));
-        imageUrl = triggerData.get("imageUrl");
-        videoUrl = triggerData.get("videoUrl");
-        text = new TriggerText(triggerData.get("textData"), triggerData.get("textColor"), triggerData.get("textSize"));
-        message = new TriggerText(triggerData.get("messageData"), triggerData.get("messageColor"), triggerData.get("messageSize"));
-        entranceAnimation = EntranceAnimation.valueOf(triggerData.get("entranceAnimation"));
-        exitAnimation = ExitAnimation.valueOf(triggerData.get("exitAnimation"));
-        type = Type.valueOf(triggerData.get("type"));
-        fill = Fill.valueOf(triggerData.get("fill"));
-        closeButtonPosition = CloseButtonPosition.valueOf(triggerData.get("closeButtonPosition"));
-        textPosition = TextPosition.valueOf(triggerData.get("textPosition"));
-        try {
-            autoClose = Integer.parseInt(triggerData.get("autoClose"));
-        } catch (Exception ignored) {
-            autoClose = Boolean.parseBoolean(triggerData.get("autoClose"));
-        }
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeInt(id);
-        dest.writeParcelable(background, flags);
-        dest.writeString(imageUrl);
-        dest.writeString(videoUrl);
-        dest.writeParcelable(text, flags);
-        dest.writeParcelable(message, flags);
-        dest.writeString(entranceAnimation.name());
-        dest.writeString(exitAnimation.name());
-        dest.writeString(type.name());
-        dest.writeString(fill.name());
-        dest.writeString(closeButtonPosition.name());
-        dest.writeString(textPosition.name());
-        try {
-            dest.writeInt((Integer) autoClose);
-        } catch (ClassCastException ignored) {
-        }
-    }
-
-    public boolean isAutoClose() {
-        return isAutoClose;
-    }
-
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -200,28 +177,12 @@ public class TriggerData implements Parcelable {
         this.exitAnimation = exitAnimation;
     }
 
-    public Object getAutoClose() {
-        return autoClose;
+    public TriggerText getTitle() {
+        return title;
     }
 
-    public void setAutoClose(Object autoClose) {
-        this.autoClose = autoClose;
-    }
-
-    public CloseButtonPosition getCloseButtonPosition() {
-        return closeButtonPosition;
-    }
-
-    public void setCloseButtonPosition(CloseButtonPosition closeButtonPosition) {
-        this.closeButtonPosition = closeButtonPosition;
-    }
-
-    public TriggerText getText() {
-        return text;
-    }
-
-    public void setText(TriggerText text) {
-        this.text = text;
+    public void setTitle(TriggerText title) {
+        this.title = title;
     }
 
     public TriggerText getMessage() {
@@ -232,11 +193,26 @@ public class TriggerData implements Parcelable {
         this.message = message;
     }
 
-    public TextPosition getTextPosition() {
-        return textPosition;
+    public TriggerBehindBackground getTriggerBackground() {
+        return triggerBackground;
     }
 
-    public void setTextPosition(TextPosition textPosition) {
-        this.textPosition = textPosition;
+    @Override
+    public String toString() {
+        return "TriggerData{" +
+                "id=" + id +
+                ", type=" + type +
+                ", fill=" + fill +
+                ", background=" + background +
+                ", showAsPN=" + showAsPN +
+                ", imageUrl='" + imageUrl + '\'' +
+                ", videoUrl='" + videoUrl + '\'' +
+                ", entranceAnimation=" + entranceAnimation +
+                ", exitAnimation=" + exitAnimation +
+                ", closeBehaviour=" + closeBehaviour +
+                ", title=" + title +
+                ", message=" + message +
+                ", buttons=" + Arrays.toString(buttons) +
+                '}';
     }
 }

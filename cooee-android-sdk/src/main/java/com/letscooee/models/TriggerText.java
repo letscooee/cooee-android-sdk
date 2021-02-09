@@ -9,9 +9,36 @@ import android.os.Parcelable;
  * @author Abhishek Taparia
  */
 public class TriggerText implements Parcelable {
-    private String data;
+    public enum Position {
+        TOP, BOTTOM, LEFT, RIGHT
+    }
+    private String text;
+    private String notificationText;
     private String color;
-    private int fontSize;
+    private int size;
+    private Position position;
+
+    protected TriggerText(Parcel in) {
+        text = in.readString();
+        notificationText = in.readString();
+        color = in.readString();
+        size = in.readInt();
+        position = Position.valueOf(in.readString());
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(text);
+        dest.writeString(notificationText);
+        dest.writeString(color);
+        dest.writeInt(size);
+        dest.writeString(position.name());
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
 
     public static final Creator<TriggerText> CREATOR = new Creator<TriggerText>() {
         @Override
@@ -25,54 +52,34 @@ public class TriggerText implements Parcelable {
         }
     };
 
-    public TriggerText() {
+    public String getText() {
+        return text;
     }
 
-    protected TriggerText(Parcel in) {
-        data = in.readString();
-        color = in.readString();
-        fontSize = in.readInt();
-    }
-
-    public TriggerText(String data, String color, String size) {
-        this.data = data;
-        this.color = color;
-        this.fontSize = Integer.parseInt(size);
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(data);
-        dest.writeString(color);
-        dest.writeInt(fontSize);
-    }
-
-    public String getData() {
-        return data;
-    }
-
-    public void setData(String data) {
-        this.data = data;
+    public String getNotificationText() {
+        return notificationText;
     }
 
     public String getColor() {
         return color;
     }
 
-    public void setColor(String color) {
-        this.color = color;
+    public int getSize() {
+        return size;
     }
 
-    public int getFontSize() {
-        return fontSize;
+    public Position getPosition() {
+        return position;
     }
 
-    public void setFontSize(int fontSize) {
-        this.fontSize = fontSize;
+    @Override
+    public String toString() {
+        return "TriggerText{" +
+                "text='" + text + '\'' +
+                ", notificationText='" + notificationText + '\'' +
+                ", color='" + color + '\'' +
+                ", size=" + size +
+                ", position='" + position + '\'' +
+                '}';
     }
 }
