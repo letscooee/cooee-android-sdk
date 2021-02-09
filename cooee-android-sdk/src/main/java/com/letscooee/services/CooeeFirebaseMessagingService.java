@@ -181,7 +181,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
         String body = "";
         if (triggerData.getMessage().getNotificationText() != null && !triggerData.getMessage().getNotificationText().isEmpty()) {
             body = triggerData.getMessage().getNotificationText();
-        } else {
+        } else if (triggerData.getMessage().getText() != null && !triggerData.getMessage().getText().isEmpty()){
             body = triggerData.getMessage().getText();
         }
         return body;
