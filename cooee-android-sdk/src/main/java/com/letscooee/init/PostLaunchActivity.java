@@ -186,13 +186,7 @@ public class PostLaunchActivity {
         eventProperties.put("CE App Version", defaultUserPropertiesCollector.getAppVersion());
         Event event = new Event("CE App Installed", eventProperties);
 
-        HttpCallsHelper.sendEvent(event, data -> {
-            if (data.get("triggerData") != null) {
-                Gson gson = new Gson();
-                TriggerData triggerData = gson.fromJson(data.get("triggerData").toString(), TriggerData.class);
-                createTrigger(context, triggerData);
-            }
-        });
+        HttpCallsHelper.sendEvent(event, data -> createTrigger(context, data));
     }
 
     /**
@@ -219,14 +213,9 @@ public class PostLaunchActivity {
         HttpCallsHelper.sendEventWithoutSDKState(event, data -> {
             if (data != null && data.get("sessionID") != null) {
                 currentSessionId = String.valueOf(data.get("sessionID"));
+                notifySDKStateDecided();
             }
-
-            notifySDKStateDecided();
-            if (data.get("triggerData") != null) {
-                Gson gson = new Gson();
-                TriggerData triggerData = gson.fromJson(data.get("triggerData").toString(), TriggerData.class);
-                createTrigger(context, triggerData);
-            }
+            createTrigger(context, data);
         });
     }
 
@@ -292,6 +281,28 @@ public class PostLaunchActivity {
         return sessionNumber;
     }
 
+    /**
+     * Create inapp engagement trigger using map object
+     *
+     * @param context context of the application
+     * @param data    map data received from backend
+     */
+    public static void createTrigger(Context context, Map<String, Object> data) {
+        if (data == null || data.get("triggerData") == null) {
+            return;
+        }
+
+        Gson gson = new Gson();
+        TriggerData triggerData = gson.fromJson(String.valueOf(data.get("triggerData")), TriggerData.class);
+        createTrigger(context, triggerData);
+    }
+
+    /**
+     * Create inapp engagement trigger
+     *
+     * @param context     context of the application
+     * @param triggerData trigger data received from PN data payload or overloaded function
+     */
     public static void createTrigger(Context context, TriggerData triggerData) {
         try {
             Intent intent = new Intent(context, EngagementTriggerActivity.class);

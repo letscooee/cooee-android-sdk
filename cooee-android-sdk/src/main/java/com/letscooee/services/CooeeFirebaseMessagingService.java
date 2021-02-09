@@ -173,7 +173,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
      */
     private NotificationCompat.Action[] createActionButtons(TriggerData triggerData, int notificationId) {
         NotificationCompat.Action[] actions = new NotificationCompat.Action[triggerData.getButtons().length];
-        int requestCode = 36644;
+        int requestCode = 36644 + notificationId;
         int i = 0;
         for (TriggerButton triggerButton : triggerData.getButtons()) {
             String title = null;

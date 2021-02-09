@@ -13,7 +13,6 @@ import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.OnLifecycleEvent;
 import androidx.lifecycle.ProcessLifecycleOwner;
 
-import com.google.gson.Gson;
 import com.letscooee.BuildConfig;
 import com.letscooee.CooeeSDK;
 import com.letscooee.models.Event;
@@ -78,13 +77,7 @@ public class AppController extends Application implements LifecycleObserver, App
             sessionProperties.put("CE Duration", String.valueOf(backgroundDuration / 1000));
 
             Event session = new Event("CE App Foreground", sessionProperties);
-            HttpCallsHelper.sendEvent(session, data -> {
-                if (data.get("triggerData") != null) {
-                    Gson gson = new Gson();
-                    TriggerData triggerData = gson.fromJson(data.get("triggerData").toString(), TriggerData.class);
-                    PostLaunchActivity.createTrigger(getApplicationContext(), triggerData);
-                }
-            });
+            HttpCallsHelper.sendEvent(session, data -> PostLaunchActivity.createTrigger(getApplicationContext(), data));
         }
     }
 

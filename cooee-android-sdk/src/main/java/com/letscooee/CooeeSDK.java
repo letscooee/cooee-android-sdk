@@ -3,13 +3,9 @@ package com.letscooee;
 import android.content.Context;
 import android.util.Log;
 
-import com.google.gson.Gson;
 import com.letscooee.init.PostLaunchActivity;
 import com.letscooee.models.Event;
-import com.letscooee.models.TriggerData;
-import com.letscooee.retrofit.APIClient;
 import com.letscooee.retrofit.HttpCallsHelper;
-import com.letscooee.retrofit.ServerAPIService;
 import com.letscooee.trigger.EngagementTriggerActivity;
 import com.letscooee.utils.CooeeSDKConstants;
 import com.letscooee.utils.InAppNotificationClickListener;
@@ -30,12 +26,11 @@ public class CooeeSDK implements EngagementTriggerActivity.InAppListener {
     private static CooeeSDK cooeeSDK = null;
 
     private final Context context;
-    private final ServerAPIService apiService;
 
     private String currentScreenName = "";
     private String uuid = "";
 
-    private WeakReference<InAppNotificationClickListener> inAppNotificationClickListenerWeakReference;
+    private WeakReference<InAppNotificationClickListener> inAppNotificationClickListener;
 
     /**
      * Private constructor for Singleton Class
@@ -45,8 +40,6 @@ public class CooeeSDK implements EngagementTriggerActivity.InAppListener {
     private CooeeSDK(Context context) {
         this.context = context;
         new PostLaunchActivity(context);
-
-        this.apiService = APIClient.getServerAPIService();
     }
 
     /**
@@ -78,13 +71,7 @@ public class CooeeSDK implements EngagementTriggerActivity.InAppListener {
 
         Event event = new Event(eventName, eventProperties);
 
-        HttpCallsHelper.sendEvent(event, data -> {
-            if (data.get("triggerData") != null) {
-                Gson gson = new Gson();
-                TriggerData triggerData = gson.fromJson(data.get("triggerData").toString(), TriggerData.class);
-                PostLaunchActivity.createTrigger(context, triggerData);
-            }
-        });
+        HttpCallsHelper.sendEvent(event, data -> PostLaunchActivity.createTrigger(context, data));
     }
 
     /**
@@ -173,13 +160,13 @@ public class CooeeSDK implements EngagementTriggerActivity.InAppListener {
     }
 
     public void setInAppNotificationButtonListener(InAppNotificationClickListener listener) {
-        inAppNotificationClickListenerWeakReference = new WeakReference<>(listener);
+        inAppNotificationClickListener = new WeakReference<>(listener);
     }
 
     @Override
     public void inAppNotificationDidClick(HashMap<String, String> payload) {
         if (payload != null) {
-            inAppNotificationClickListenerWeakReference.get().onInAppButtonClick(payload);
+            inAppNotificationClickListener.get().onInAppButtonClick(payload);
         }
     }
 }
