@@ -23,7 +23,7 @@ public class APIClient {
 
     private static String apiToken;
     private static String deviceName = "";
-    private static String userId;
+    private static String userId = "";
 
     public static ServerAPIService getServerAPIService() {
         Retrofit retrofit = getClient(BASE_URL);
@@ -41,11 +41,12 @@ public class APIClient {
 
                     boolean isPublicAPI = chain.request().url().toString().endsWith("v1/user/save");
 
-                    if (!isPublicAPI) {
+                    if (!isPublicAPI && apiToken != null) {
                         requestBuilder.addHeader("x-sdk-token", apiToken);
-                        requestBuilder.addHeader("device-name", deviceName);
-                        requestBuilder.addHeader("user-id", userId);
                     }
+
+                    requestBuilder.addHeader("device-name", deviceName);
+                    requestBuilder.addHeader("user-id", userId);
 
                     Log.d(LOG_PREFIX, "Request : " + requestBuilder.build().toString());
                     return chain.proceed(requestBuilder.build());
