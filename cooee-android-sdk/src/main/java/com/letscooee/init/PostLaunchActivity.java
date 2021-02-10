@@ -104,7 +104,7 @@ public class PostLaunchActivity {
         }
 
         APIClient.setDeviceName(Settings.Global.getString(context.getContentResolver(), "device_name"));
-        APIClient.setUserId(LocalStorageHelper.getString(context, CooeeSDKConstants.STORAGE_USER_ID,""));
+        APIClient.setUserId(LocalStorageHelper.getString(context, CooeeSDKConstants.STORAGE_USER_ID, ""));
     }
 
     /**
