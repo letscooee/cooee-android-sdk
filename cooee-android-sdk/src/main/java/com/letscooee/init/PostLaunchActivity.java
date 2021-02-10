@@ -6,6 +6,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -17,6 +18,7 @@ import com.letscooee.retrofit.HttpCallsHelper;
 import com.letscooee.retrofit.ServerAPIService;
 import com.letscooee.utils.CooeeSDKConstants;
 import com.letscooee.utils.LocalStorageHelper;
+
 import io.reactivex.rxjava3.subjects.ReplaySubject;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -101,6 +103,31 @@ public class PostLaunchActivity {
 
             successiveAppLaunch();
         }
+
+        APIClient.setDeviceName(getDeviceName());
+        APIClient.setUserId(LocalStorageHelper.getString(context, CooeeSDKConstants.STORAGE_USER_ID, ""));
+    }
+
+    /**
+     * Get device name
+     *
+     * @return device name
+     */
+    private String getDeviceName() {
+        String name = null;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            name = Settings.Global.getString(context.getContentResolver(), "device_name");
+        }
+
+        if (name == null) {
+            name = Settings.Secure.getString(context.getContentResolver(), "bluetooth_name");
+        }
+
+        if (name == null) {
+            name = Build.MODEL;
+        }
+
+        return name;
     }
 
     /**
