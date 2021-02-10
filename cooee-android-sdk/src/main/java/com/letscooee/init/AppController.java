@@ -17,9 +17,7 @@ import com.letscooee.BuildConfig;
 import com.letscooee.CooeeSDK;
 import com.letscooee.models.Event;
 import com.letscooee.models.TriggerData;
-import com.letscooee.retrofit.APIClient;
 import com.letscooee.retrofit.HttpCallsHelper;
-import com.letscooee.retrofit.ServerAPIService;
 import com.letscooee.trigger.EngagementTriggerActivity;
 import com.letscooee.utils.CooeeSDKConstants;
 import com.letscooee.utils.LocalStorageHelper;
@@ -96,8 +94,6 @@ public class AppController extends Application implements LifecycleObserver, App
 
         //Purposefully not added to another method, will be taken cared in separate-http-call merge
         PostLaunchActivity.onSDKStateDecided.subscribe((Object ignored) -> {
-            ServerAPIService apiService = APIClient.getServerAPIService();
-
             lastEnterBackground = new Date();
             String duration = (lastEnterBackground.getTime() - lastEnterForeground.getTime()) / 1000 + "";
 
@@ -147,6 +143,7 @@ public class AppController extends Application implements LifecycleObserver, App
 
         if (triggerData != null && triggerData.getId() != null) {
             PostLaunchActivity.createTrigger(getApplicationContext(), triggerData);
+            HttpCallsHelper.sendEvent(new Event("CE Notification Clicked", new HashMap<>()), null);
         }
     }
 

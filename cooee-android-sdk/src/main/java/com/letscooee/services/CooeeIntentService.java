@@ -9,7 +9,10 @@ import android.content.pm.PackageManager;
 
 import androidx.annotation.Nullable;
 
+import com.letscooee.models.Event;
 import com.letscooee.models.TriggerData;
+
+import java.util.HashMap;
 
 /**
  * @author Abhishek Taparia
@@ -50,6 +53,10 @@ public class CooeeIntentService extends IntentService {
 
                 Intent it = new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS);
                 getApplicationContext().sendBroadcast(it);
+                break;
+            }
+            case "Notification Deleted":{
+                CooeeFirebaseMessagingService.sendEvent(getApplicationContext(), new Event("CE Notification Cancelled", new HashMap<>()));
                 break;
             }
         }

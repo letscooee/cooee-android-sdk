@@ -313,7 +313,6 @@ public class PostLaunchActivity {
             context.startActivity(intent);
         } catch (Exception ex) {
             Log.d(CooeeSDKConstants.LOG_PREFIX, "Couldn't show Engagement Trigger " + ex.toString());
-            HttpCallsHelper.sendEvent(new Event("CE KPI", new HashMap<>()), null);
         }
     }
 }
