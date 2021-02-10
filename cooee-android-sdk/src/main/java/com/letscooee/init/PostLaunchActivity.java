@@ -118,11 +118,15 @@ public class PostLaunchActivity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             name = Settings.Global.getString(context.getContentResolver(), "device_name");
         }
+
         if (name == null) {
             name = Settings.Secure.getString(context.getContentResolver(), "bluetooth_name");
-        } else {
+        }
+
+        if (name == null) {
             name = Build.MODEL;
         }
+
         return name;
     }
 
