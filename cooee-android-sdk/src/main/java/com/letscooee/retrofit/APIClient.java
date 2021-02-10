@@ -22,7 +22,7 @@ public class APIClient {
     private static Retrofit retrofit = null;
 
     private static String apiToken;
-    private static String deviceName;
+    private static String deviceName = "";
     private static String userId;
 
     public static ServerAPIService getServerAPIService() {
@@ -43,8 +43,8 @@ public class APIClient {
 
                     if (!isPublicAPI) {
                         requestBuilder.addHeader("x-sdk-token", apiToken);
-                        requestBuilder.addHeader("device_name", deviceName);
-                        requestBuilder.addHeader("user_id", userId);
+                        requestBuilder.addHeader("device-name", deviceName);
+                        requestBuilder.addHeader("user-id", userId);
                     }
 
                     Log.d(LOG_PREFIX, "Request : " + requestBuilder.build().toString());
