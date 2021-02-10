@@ -1,5 +1,13 @@
 # Change Log
 
+## 0.2.0
+
+1. Internal change in trigger payload.
+2. Glassmorphism effect.
+3. Ability to provide callback to the app on trigger button clicks.
+4. Updates in the KPI from engagement triggers.
+5. Passing device name & user id in the request header.
+
 ## 0.1.1
 
 1. Storing Firebase token via a separate endpoint.
