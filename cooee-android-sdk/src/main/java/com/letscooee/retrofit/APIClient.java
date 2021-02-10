@@ -22,6 +22,8 @@ public class APIClient {
     private static Retrofit retrofit = null;
 
     private static String apiToken;
+    private static String deviceName;
+    private static String userId;
 
     public static ServerAPIService getServerAPIService() {
         Retrofit retrofit = getClient(BASE_URL);
@@ -41,6 +43,8 @@ public class APIClient {
 
                     if (!isPublicAPI) {
                         requestBuilder.addHeader("x-sdk-token", apiToken);
+                        requestBuilder.addHeader("device_name", deviceName);
+                        requestBuilder.addHeader("user_id", userId);
                     }
 
                     Log.d(LOG_PREFIX, "Request : " + requestBuilder.build().toString());
@@ -61,5 +65,13 @@ public class APIClient {
 
     public static void setAPIToken(String token) {
         apiToken = token;
+    }
+
+    public static void setDeviceName(String name) {
+        deviceName = name;
+    }
+
+    public static void setUserId(String id) {
+        userId = id;
     }
 }

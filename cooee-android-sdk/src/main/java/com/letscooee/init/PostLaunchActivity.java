@@ -6,6 +6,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -101,6 +102,9 @@ public class PostLaunchActivity {
 
             successiveAppLaunch();
         }
+
+        APIClient.setDeviceName(Settings.Global.getString(context.getContentResolver(), "device_name"));
+        APIClient.setUserId(LocalStorageHelper.getString(context, CooeeSDKConstants.STORAGE_USER_ID,""));
     }
 
     /**
