@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.2.1
+
+1. Fixed sending null value in the request headers.
+
 ## 0.2.0
 
 1. Internal change in trigger payload.
