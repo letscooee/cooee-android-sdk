@@ -1,5 +1,6 @@
 package com.letscooee.services;
 
+import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -10,6 +11,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.service.notification.StatusBarNotification;
 import android.util.Log;
 import android.widget.RemoteViews;
 
@@ -26,12 +28,18 @@ import com.google.gson.Gson;
 import com.letscooee.R;
 import com.letscooee.init.AppController;
 import com.letscooee.init.PostLaunchActivity;
+import com.letscooee.models.Event;
 import com.letscooee.models.TriggerButton;
 import com.letscooee.models.TriggerData;
+import com.letscooee.retrofit.APIClient;
 import com.letscooee.retrofit.HttpCallsHelper;
 import com.letscooee.utils.CooeeSDKConstants;
+import com.letscooee.utils.LocalStorageHelper;
 
 import java.util.Date;
+import java.util.HashMap;
+
+import io.reactivex.rxjava3.subjects.ReplaySubject;
 
 /**
  * MyFirebaseMessagingService helps connects with firebase for push notification
@@ -61,6 +69,8 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
         }
 
         if (triggerData.isShowAsPN()) {
+            sendEvent(getApplicationContext(), new Event("CE Notification Received", new HashMap<>()));
+
             showNotification(triggerData);
         } else {
             showInAppMessaging(triggerData);
@@ -142,10 +152,27 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
                         .setCustomBigContentView(largeNotification)
                         .setContentTitle(title)
                         .setContentText(body)
-                        .setContentInfo("Info")
                         .setContentIntent(appLaunchPendingIntent);
 
-                notificationManager.notify(notificationId, notificationBuilder.build());
+                Intent deleteIntent = new Intent(getApplicationContext(), CooeeIntentService.class);
+                deleteIntent.setAction("Notification Deleted");
+
+                Notification notification = notificationBuilder.build();
+                notification.deleteIntent = PendingIntent.getService(
+                        getApplicationContext(),
+                        0,
+                        deleteIntent,
+                        PendingIntent.FLAG_ONE_SHOT);
+                notificationManager.notify(notificationId, notification);
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    StatusBarNotification[] statusBarNotifications = notificationManager.getActiveNotifications();
+                    for (StatusBarNotification statusBarNotification : statusBarNotifications) {
+                        if (statusBarNotification.getId() == notificationId) {
+                            sendEvent(getApplicationContext(), new Event("CE Notification Posted", new HashMap<>()));
+                        }
+                    }
+                }
             }
 
             @Override
@@ -153,6 +180,20 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
 
             }
         });
+    }
+
+    /**
+     * Send notification kpi tracking event
+     *
+     * @param event kpi event
+     */
+    public static void sendEvent(Context context, Event event) {
+        APIClient.setAPIToken(LocalStorageHelper.getString(context, CooeeSDKConstants.STORAGE_SDK_TOKEN, ""));
+        PostLaunchActivity.onSDKStateDecided = ReplaySubject.create(1);
+        PostLaunchActivity.onSDKStateDecided.onNext("");
+        PostLaunchActivity.onSDKStateDecided.onComplete();
+
+        HttpCallsHelper.sendEvent(event, null);
     }
 
     /**
@@ -181,7 +222,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
         String body = "";
         if (triggerData.getMessage().getNotificationText() != null && !triggerData.getMessage().getNotificationText().isEmpty()) {
             body = triggerData.getMessage().getNotificationText();
-        } else if (triggerData.getMessage().getText() != null && !triggerData.getMessage().getText().isEmpty()){
+        } else if (triggerData.getMessage().getText() != null && !triggerData.getMessage().getText().isEmpty()) {
             body = triggerData.getMessage().getText();
         }
         return body;
