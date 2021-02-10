@@ -480,9 +480,9 @@ public class EngagementTriggerActivity extends AppCompatActivity {
      * @param videoView dynamic videoview
      */
     private void calculateCurrentPositionThread(VideoView videoView) {
-        ScheduledExecutorService mScheduledExecutorService;
-        mScheduledExecutorService = Executors.newScheduledThreadPool(1);
-        mScheduledExecutorService.scheduleWithFixedDelay(() -> videoView.post(() -> {
+        ScheduledExecutorService executorService;
+        executorService = Executors.newScheduledThreadPool(1);
+        executorService.scheduleWithFixedDelay(() -> videoView.post(() -> {
             watchedTill = videoView.getCurrentPosition() / 1000;
         }), 1000, 1000, TimeUnit.MILLISECONDS);
 
