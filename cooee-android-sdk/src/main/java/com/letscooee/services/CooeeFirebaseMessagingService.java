@@ -169,7 +169,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
                     StatusBarNotification[] statusBarNotifications = notificationManager.getActiveNotifications();
                     for (StatusBarNotification statusBarNotification : statusBarNotifications) {
                         if (statusBarNotification.getId() == notificationId) {
-                            sendEvent(getApplicationContext(), new Event("CE Notification Posted", new HashMap<>()));
+                            sendEvent(getApplicationContext(), new Event("CE Notification Viewed", new HashMap<>()));
                         }
                     }
                 }
@@ -189,11 +189,8 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
      */
     public static void sendEvent(Context context, Event event) {
         APIClient.setAPIToken(LocalStorageHelper.getString(context, CooeeSDKConstants.STORAGE_SDK_TOKEN, ""));
-        PostLaunchActivity.onSDKStateDecided = ReplaySubject.create(1);
-        PostLaunchActivity.onSDKStateDecided.onNext("");
-        PostLaunchActivity.onSDKStateDecided.onComplete();
 
-        HttpCallsHelper.sendEvent(event, null);
+        HttpCallsHelper.sendEventWithoutSDKState(event, null);
     }
 
     /**
