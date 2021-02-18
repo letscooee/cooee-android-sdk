@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/parent"
+    android:background="@drawable/homepage"
+    tools:context=".HomeActivity">
+
+    <!--<ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:alpha="0.1"
+        android:scaleType="fitXY"
+        android:src="@drawable/homepage"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />-->
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btnSendImageEvent"
+        style="@style/PrimaryButton"
+        android:layout_width="@dimen/length_200"
+        android:layout_height="@dimen/length_30"
+        android:layout_marginTop="@dimen/length_20"
+        android:text="Image Event"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btnSendVideoEvent"
+        style="@style/PrimaryButton"
+        android:layout_width="@dimen/length_200"
+        android:layout_height="@dimen/length_30"
+        android:layout_marginTop="@dimen/length_20"
+        android:text="Video Event"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btnSendImageEvent" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btnProfile"
+        style="@style/PrimaryButton"
+        android:layout_width="@dimen/length_200"
+        android:layout_height="@dimen/length_30"
+        android:text="Profile"
+        android:layout_marginTop="@dimen/length_20"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btnSendVideoEvent" />
+
+    <ImageView
+        android:id="@+id/ivSplash"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@android:color/black"
+        android:elevation="10dp"
+        android:src="@drawable/logo"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+</androidx.constraintlayout.widget.ConstraintLayout>
