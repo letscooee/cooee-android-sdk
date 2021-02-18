@@ -44,7 +44,7 @@ public class HomeActivity extends AppCompatActivity implements InAppNotification
         setContentView(binding.getRoot());
         context = this;
         cooeeSDK = CooeeSDK.getDefaultInstance(this);
-
+cooeeSDK.setInAppNotificationButtonListener(this);
 
         new CountDownTimer(1000, 3000) {
             public void onTick(long millisUntilFinished) {
@@ -57,12 +57,12 @@ public class HomeActivity extends AppCompatActivity implements InAppNotification
             }
         }.start();
 
-        ///Blurry.with(context).radius(25).sampling(2).onto((ConstraintLayout) binding.parent);
-        Bitmap mIcon = BitmapFactory.decodeResource(context.getResources(), R.drawable.homepage);
-        /*RoundedBitmapDrawable drawable = RoundedBitmapDrawableFactory.create(getResources(), BlurBuilder.blur(this,mIcon));
-        drawable.setCornerRadius(20);*/
+        /**
+         * blur image code
+         * */
+        /*Bitmap mIcon = BitmapFactory.decodeResource(context.getResources(), R.drawable.homepage);
         //noinspection deprecation
-        binding.parent.setBackground(new BitmapDrawable(BlurBuilder.blur(this, mIcon)));
+        binding.parent.setBackground(new BitmapDrawable(BlurBuilder.blur(this, mIcon)));*/
 
 
        /* Map<String, String> userData = new HashMap<>();
@@ -113,7 +113,7 @@ public class HomeActivity extends AppCompatActivity implements InAppNotification
                 e.printStackTrace();
             }
         });
-        Dexter.withContext(this).withPermissions(Manifest.permission.ACCESS_COARSE_LOCATION,
+        /*Dexter.withContext(this).withPermissions(Manifest.permission.ACCESS_COARSE_LOCATION,
                 Manifest.permission.ACCESS_FINE_LOCATION,
                 Manifest.permission.ACCESS_WIFI_STATE,
                 Manifest.permission.BLUETOOTH,
@@ -162,7 +162,7 @@ public class HomeActivity extends AppCompatActivity implements InAppNotification
                 }
                 permissionToken.cancelPermissionRequest();
             }
-        }).onSameThread().check();
+        }).onSameThread().check();*/
         binding.btnProfile.setOnClickListener(view -> {
             startActivity(new Intent(this, ProfileActivity.class));
         });
@@ -179,6 +179,6 @@ public class HomeActivity extends AppCompatActivity implements InAppNotification
 
     @Override
     public void onInAppButtonClick(HashMap<String, String> hashMap) {
-
+        Log.d(TAG, "onInAppButtonClick: ************************************"+ hashMap.toString());
     }
 }

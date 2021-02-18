@@ -3,8 +3,10 @@ package com.letscooee.trigger;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.media.AudioManager;
@@ -40,6 +42,7 @@ import com.letscooee.models.TriggerCloseBehaviour;
 import com.letscooee.models.TriggerData;
 import com.letscooee.models.TriggerText;
 import com.letscooee.retrofit.HttpCallsHelper;
+import com.letscooee.utils.BlurBuilder;
 
 import java.lang.ref.WeakReference;
 import java.util.Date;
@@ -424,7 +427,7 @@ public class EngagementTriggerActivity extends AppCompatActivity {
         insideMediaFrameLayout.addView(playPauseImage);
 
         RelativeLayout.LayoutParams muteButtonParams = new RelativeLayout.LayoutParams(50, 50);
-        muteButtonParams.setMargins(50, 50, 50, 50);
+        muteButtonParams.setMargins(20, 20, 20, 20);
 
         Button muteUnmuteButton = new Button(this);
         muteUnmuteButton.setLayoutParams(muteButtonParams);
@@ -454,6 +457,7 @@ public class EngagementTriggerActivity extends AppCompatActivity {
                 videoView.start();
                 playPauseImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_baseline_pause_24));
             }
+            handler = new Handler();
             handler.postDelayed(() -> playPauseImage.setVisibility(View.INVISIBLE), 2000);
         });
 
@@ -575,12 +579,19 @@ public class EngagementTriggerActivity extends AppCompatActivity {
                 .async()
                 .animate(500)
                 .onto((ViewGroup) _window.getDecorView());
+        /*View v=_window.getDecorView();
+        Bitmap bitmap = Bitmap.createBitmap(512, 1024, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        v.draw(canvas);
+        //noinspection deprecation
+        findViewById(R.id.parentRelative).setBackground(new BitmapDrawable(BlurBuilder.blur(getApplicationContext(),bitmap)));*/
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         Blurry.delete((ViewGroup) _window.getDecorView());
+        //findViewById(R.id.parentRelative).setBackground(null);
     }
 
     @Override
