@@ -438,17 +438,17 @@ public class EngagementTriggerActivity extends AppCompatActivity {
 
         Button muteUnmuteButton = new Button(this);
         muteUnmuteButton.setLayoutParams(muteButtonParams);
-        muteUnmuteButton.setBackground(ContextCompat.getDrawable(this,R.drawable.mute_background));
+        muteUnmuteButton.setBackground(ContextCompat.getDrawable(this, R.drawable.mute_background));
         muteUnmuteButton.setOnClickListener(v -> {
             isVideoUnmuted = true;
             AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 if (am.isStreamMute(AudioManager.STREAM_MUSIC)) {
                     am.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_UNMUTE, 0);
-                    muteUnmuteButton.setBackground(ContextCompat.getDrawable(this,R.drawable.unmute_background));
+                    muteUnmuteButton.setBackground(ContextCompat.getDrawable(this, R.drawable.unmute_background));
                 } else {
                     am.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_MUTE, 0);
-                    muteUnmuteButton.setBackground(ContextCompat.getDrawable(this,R.drawable.mute_background));
+                    muteUnmuteButton.setBackground(ContextCompat.getDrawable(this, R.drawable.mute_background));
                 }
             }
         });
@@ -458,10 +458,10 @@ public class EngagementTriggerActivity extends AppCompatActivity {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 if (am.isStreamMute(AudioManager.STREAM_MUSIC)) {
                     am.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_UNMUTE, 0);
-                    muteUnmuteButton.setBackground(ContextCompat.getDrawable(this,R.drawable.unmute_background));
+                    muteUnmuteButton.setBackground(ContextCompat.getDrawable(this, R.drawable.unmute_background));
                 } else {
                     am.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_MUTE, 0);
-                    muteUnmuteButton.setBackground(ContextCompat.getDrawable(this,R.drawable.mute_background));
+                    muteUnmuteButton.setBackground(ContextCompat.getDrawable(this, R.drawable.mute_background));
                 }
             }
         });
@@ -472,10 +472,10 @@ public class EngagementTriggerActivity extends AppCompatActivity {
             playPauseImage.setVisibility(View.VISIBLE);
             if (videoView.isPlaying()) {
                 videoView.pause();
-                playPauseImage.setImageDrawable(ContextCompat.getDrawable(this,R.drawable.ic_baseline_play_arrow_24));
+                playPauseImage.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_baseline_play_arrow_24));
             } else {
                 videoView.start();
-                playPauseImage.setImageDrawable(ContextCompat.getDrawable(this,R.drawable.ic_baseline_pause_24));
+                playPauseImage.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_baseline_pause_24));
             }
             handler = new Handler();
             handler.postDelayed(() -> playPauseImage.setVisibility(View.INVISIBLE), 2000);
@@ -488,7 +488,7 @@ public class EngagementTriggerActivity extends AppCompatActivity {
         });
 
         videoView.setOnCompletionListener(mp -> {
-            playPauseImage.setImageDrawable(ContextCompat.getDrawable(this,R.drawable.ic_baseline_replay_24));
+            playPauseImage.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_baseline_replay_24));
             playPauseImage.setVisibility(View.VISIBLE);
             videoSeenCounter++;
         });
@@ -518,16 +518,20 @@ public class EngagementTriggerActivity extends AppCompatActivity {
     private void closeButtonPosition() {
         closeImageButton.setVisibility(View.INVISIBLE);
         closeImageButton.setEnabled(false);
-
+        RelativeLayout relativeLayoutClose =findViewById(R.id.relativeLayoutClose);
+        ProgressBar progressBarClose = findViewById(R.id.progressBarClose);
+        progressBarClose.setProgress(100);
         if (!triggerData.getCloseBehaviour().isAuto() || triggerData.getCloseBehaviour().getTimeToClose() == 0) {
             new CountDownTimer(5000, 1000) {
 
                 public void onTick(long millisUntilFinished) {
                     textViewTimer.setText(String.valueOf((millisUntilFinished / 1000) + 1));
+                    progressBarClose.setProgress(progressBarClose.getProgress() - (100 / 5));
                 }
 
                 public void onFinish() {
                     textViewTimer.setVisibility(View.GONE);
+                    progressBarClose.setVisibility(View.GONE);
                     closeImageButton.setVisibility(View.VISIBLE);
                     closeImageButton.setEnabled(true);
                 }
@@ -544,11 +548,13 @@ public class EngagementTriggerActivity extends AppCompatActivity {
         } else if (triggerData.getCloseBehaviour().getPosition() == TriggerCloseBehaviour.Position.DOWN_LEFT) {
             layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
         }
-
         closeImageButton.setLayoutParams(layoutParams);
-        textViewTimer.setLayoutParams(layoutParams);
+        relativeLayoutClose.setLayoutParams(layoutParams);
+        /*
+        progressBarClose.setLayoutParams(layoutParams);
+        textViewTimer.setLayoutParams(layoutParams);*/
         textViewTimer.setGravity(Gravity.CENTER);
-        textViewTimer.setBackground(ContextCompat.getDrawable(this,R.drawable.counter_ring));
+        //textViewTimer.setBackground(ContextCompat.getDrawable(this,R.drawable.counter_ring));
     }
 
     private void updateExit() {

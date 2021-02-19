@@ -106,10 +106,30 @@
 
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/textViewTimer"
+        <RelativeLayout
+            android:id="@+id/relativeLayoutClose"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_margin="3dp"
+            android:layout_height="wrap_content">
+
+            <ProgressBar
+                android:id="@+id/progressBarClose"
+                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_centerInParent="true"
+                android:background="@drawable/progress_background"
+                android:indeterminate="false"
+                android:max="100"
+                android:progress="100"
+                android:progressDrawable="@drawable/circular_progress" />
+
+            <TextView
+                android:id="@+id/textViewTimer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true" />
+        </RelativeLayout>
 
     </RelativeLayout>
 
