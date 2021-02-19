@@ -109,8 +109,8 @@
         <RelativeLayout
             android:id="@+id/relativeLayoutClose"
             android:layout_width="wrap_content"
-            android:layout_margin="3dp"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_margin="3dp">
 
             <ProgressBar
                 android:id="@+id/progressBarClose"
