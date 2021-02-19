@@ -358,7 +358,7 @@ public class EngagementTriggerActivity extends AppCompatActivity {
         RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
 
         if (triggerData.getFill() == TriggerData.Fill.COVER) {
-            findViewById(R.id.contentLinearLayout).setLayoutParams(layoutParams);
+            //findViewById(R.id.contentLinearLayout).setLayoutParams(layoutParams);
             layoutParams.setMargins(0, 0, 0, 0);
         } else if (triggerData.getFill() == TriggerData.Fill.INTERSTITIAL) {
             layoutParams = new RelativeLayout.LayoutParams((int) (dm.widthPixels * 0.9), (int) (dm.heightPixels * 0.9));
