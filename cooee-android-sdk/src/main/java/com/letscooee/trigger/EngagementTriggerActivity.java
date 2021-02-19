@@ -531,7 +531,7 @@ public class EngagementTriggerActivity extends AppCompatActivity {
 
                 public void onTick(long millisUntilFinished) {
                     textViewTimer.setText(String.valueOf((millisUntilFinished / 1000) + 1));
-                    progressBarClose.setProgress(progressBarClose.getProgress() - (100 / 5));
+                    progressBarClose.setProgress(progressBarClose.getProgress() - (100 / 6));
                 }
 
                 public void onFinish() {
