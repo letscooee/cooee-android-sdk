@@ -518,9 +518,12 @@ public class EngagementTriggerActivity extends AppCompatActivity {
     private void closeButtonPosition() {
         closeImageButton.setVisibility(View.INVISIBLE);
         closeImageButton.setEnabled(false);
-        RelativeLayout relativeLayoutClose =findViewById(R.id.relativeLayoutClose);
+
+        RelativeLayout relativeLayoutClose = findViewById(R.id.relativeLayoutClose);
+
         ProgressBar progressBarClose = findViewById(R.id.progressBarClose);
         progressBarClose.setProgress(100);
+
         if (!triggerData.getCloseBehaviour().isAuto() || triggerData.getCloseBehaviour().getTimeToClose() == 0) {
             new CountDownTimer(5000, 1000) {
 
@@ -548,13 +551,10 @@ public class EngagementTriggerActivity extends AppCompatActivity {
         } else if (triggerData.getCloseBehaviour().getPosition() == TriggerCloseBehaviour.Position.DOWN_LEFT) {
             layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
         }
+
         closeImageButton.setLayoutParams(layoutParams);
         relativeLayoutClose.setLayoutParams(layoutParams);
-        /*
-        progressBarClose.setLayoutParams(layoutParams);
-        textViewTimer.setLayoutParams(layoutParams);*/
         textViewTimer.setGravity(Gravity.CENTER);
-        //textViewTimer.setBackground(ContextCompat.getDrawable(this,R.drawable.counter_ring));
     }
 
     private void updateExit() {
@@ -604,19 +604,12 @@ public class EngagementTriggerActivity extends AppCompatActivity {
                 .async()
                 .animate(500)
                 .onto((ViewGroup) _window.getDecorView());
-        /*View v=_window.getDecorView();
-        Bitmap bitmap = Bitmap.createBitmap(512, 1024, Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(bitmap);
-        v.draw(canvas);
-        //noinspection deprecation
-        findViewById(R.id.parentRelative).setBackground(new BitmapDrawable(BlurBuilder.blur(getApplicationContext(),bitmap)));*/
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         Blurry.delete((ViewGroup) _window.getDecorView());
-        //findViewById(R.id.parentRelative).setBackground(null);
     }
 
     @Override
