@@ -95,6 +95,7 @@
                 <com.google.android.flexbox.FlexboxLayout
                     android:id="@+id/actionFlexLayout"
                     android:layout_width="match_parent"
+                    android:layout_marginTop="5dp"
                     android:layout_height="match_parent"
                     app:alignContent="center"
                     app:alignItems="center"

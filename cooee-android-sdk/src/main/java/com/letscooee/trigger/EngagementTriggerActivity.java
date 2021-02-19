@@ -147,8 +147,10 @@ public class EngagementTriggerActivity extends AppCompatActivity {
         button.setText(triggerButton.getText());
         String color = triggerButton.getColor().isEmpty() ? "#0000FF" : triggerButton.getColor();
         button.setTextColor(Color.parseColor(color));
-        button.setPadding(15, 15, 15, 15);
+        button.setPadding(30, 20, 25, 25);
         button.setTypeface(Typeface.DEFAULT_BOLD);
+        button.setElevation(20);
+        button.setTranslationZ(20);
 
         GradientDrawable drawable = new GradientDrawable();
         drawable.setCornerRadius(triggerButton.getRadius());
@@ -165,7 +167,7 @@ public class EngagementTriggerActivity extends AppCompatActivity {
             if (MotionEvent.ACTION_DOWN == event.getAction()) {
                 drawable.setCornerRadius(triggerButton.getRadius());
                 drawable.setStroke(1, Color.BLACK);
-                drawable.setColor(Color.GRAY);
+                drawable.setColor(ContextCompat.getColor(this, R.color.colorPrimary));
                 button.setBackground(drawable);
             } else if (MotionEvent.ACTION_UP == event.getAction()) {
                 drawable.setCornerRadius(triggerButton.getRadius());
