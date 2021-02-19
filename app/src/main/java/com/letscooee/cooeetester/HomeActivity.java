@@ -44,7 +44,7 @@ public class HomeActivity extends AppCompatActivity implements InAppNotification
         setContentView(binding.getRoot());
         context = this;
         cooeeSDK = CooeeSDK.getDefaultInstance(this);
-cooeeSDK.setInAppNotificationButtonListener(this);
+        cooeeSDK.setInAppNotificationButtonListener(this);
 
         new CountDownTimer(1000, 3000) {
             public void onTick(long millisUntilFinished) {
@@ -179,6 +179,6 @@ cooeeSDK.setInAppNotificationButtonListener(this);
 
     @Override
     public void onInAppButtonClick(HashMap<String, String> hashMap) {
-        Log.d(TAG, "onInAppButtonClick: ************************************"+ hashMap.toString());
+        Log.d(TAG, "onInAppButtonClick: ************************************" + hashMap.toString());
     }
 }

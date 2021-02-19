@@ -1,12 +1,11 @@
 package com.letscooee.trigger;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.media.AudioManager;
@@ -25,6 +24,7 @@ import android.widget.*;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.RoundedBitmapDrawable;
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
 
@@ -42,7 +42,6 @@ import com.letscooee.models.TriggerCloseBehaviour;
 import com.letscooee.models.TriggerData;
 import com.letscooee.models.TriggerText;
 import com.letscooee.retrofit.HttpCallsHelper;
-import com.letscooee.utils.BlurBuilder;
 
 import java.lang.ref.WeakReference;
 import java.util.Date;
@@ -136,6 +135,7 @@ public class EngagementTriggerActivity extends AppCompatActivity {
      *
      * @param triggerButton trigger button data
      */
+    @SuppressLint("ClickableViewAccessibility")
     private void createButton(TriggerButton triggerButton) {
         FlexboxLayout flexboxLayout = findViewById(R.id.actionFlexLayout);
 
@@ -250,7 +250,7 @@ public class EngagementTriggerActivity extends AppCompatActivity {
             closeImageButton.setVisibility(View.GONE);
             textViewTimer.setVisibility(View.GONE);
             handler = new Handler();
-            runnable = () -> finish();
+            runnable = this::finish;
             handler.postDelayed(runnable, autoClose * 1000);
 
             closeBehaviour = "Auto";
@@ -426,36 +426,56 @@ public class EngagementTriggerActivity extends AppCompatActivity {
 
         insideMediaFrameLayout.addView(playPauseImage);
 
+        RelativeLayout.LayoutParams muteButtonBackgroundParams = new RelativeLayout.LayoutParams(90, 90);
+        muteButtonBackgroundParams.setMargins(20, 20, 0, 0);
+        RelativeLayout muteButtonBackground = new RelativeLayout(this);
+        muteButtonBackground.setLayoutParams(muteButtonBackgroundParams);
+        muteButtonBackground.setElevation(5f);
+
+
         RelativeLayout.LayoutParams muteButtonParams = new RelativeLayout.LayoutParams(50, 50);
-        muteButtonParams.setMargins(20, 20, 20, 20);
+        muteButtonParams.setMargins(0, 0, 20, 20);
 
         Button muteUnmuteButton = new Button(this);
         muteUnmuteButton.setLayoutParams(muteButtonParams);
-        muteUnmuteButton.setBackground(getDrawable(R.drawable.mute_background));
+        muteUnmuteButton.setBackground(ContextCompat.getDrawable(this,R.drawable.mute_background));
         muteUnmuteButton.setOnClickListener(v -> {
             isVideoUnmuted = true;
             AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 if (am.isStreamMute(AudioManager.STREAM_MUSIC)) {
                     am.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_UNMUTE, 0);
-                    muteUnmuteButton.setBackground(getDrawable(R.drawable.unmute_background));
+                    muteUnmuteButton.setBackground(ContextCompat.getDrawable(this,R.drawable.unmute_background));
                 } else {
                     am.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_MUTE, 0);
-                    muteUnmuteButton.setBackground(getDrawable(R.drawable.mute_background));
+                    muteUnmuteButton.setBackground(ContextCompat.getDrawable(this,R.drawable.mute_background));
                 }
             }
         });
-
-        insideMediaFrameLayout.addView(muteUnmuteButton);
+        muteButtonBackground.setOnClickListener(v -> {
+            isVideoUnmuted = true;
+            AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                if (am.isStreamMute(AudioManager.STREAM_MUSIC)) {
+                    am.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_UNMUTE, 0);
+                    muteUnmuteButton.setBackground(ContextCompat.getDrawable(this,R.drawable.unmute_background));
+                } else {
+                    am.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_MUTE, 0);
+                    muteUnmuteButton.setBackground(ContextCompat.getDrawable(this,R.drawable.mute_background));
+                }
+            }
+        });
+        muteButtonBackground.addView(muteUnmuteButton);
+        insideMediaFrameLayout.addView(muteButtonBackground);
 
         videoView.setOnClickListener(view -> {
             playPauseImage.setVisibility(View.VISIBLE);
             if (videoView.isPlaying()) {
                 videoView.pause();
-                playPauseImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_baseline_play_arrow_24));
+                playPauseImage.setImageDrawable(ContextCompat.getDrawable(this,R.drawable.ic_baseline_play_arrow_24));
             } else {
                 videoView.start();
-                playPauseImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_baseline_pause_24));
+                playPauseImage.setImageDrawable(ContextCompat.getDrawable(this,R.drawable.ic_baseline_pause_24));
             }
             handler = new Handler();
             handler.postDelayed(() -> playPauseImage.setVisibility(View.INVISIBLE), 2000);
@@ -468,7 +488,7 @@ public class EngagementTriggerActivity extends AppCompatActivity {
         });
 
         videoView.setOnCompletionListener(mp -> {
-            playPauseImage.setImageDrawable(getDrawable(R.drawable.ic_baseline_replay_24));
+            playPauseImage.setImageDrawable(ContextCompat.getDrawable(this,R.drawable.ic_baseline_replay_24));
             playPauseImage.setVisibility(View.VISIBLE);
             videoSeenCounter++;
         });
@@ -486,9 +506,8 @@ public class EngagementTriggerActivity extends AppCompatActivity {
     private void calculateCurrentPositionThread(VideoView videoView) {
         ScheduledExecutorService executorService;
         executorService = Executors.newScheduledThreadPool(1);
-        executorService.scheduleWithFixedDelay(() -> videoView.post(() -> {
-            watchedTill = videoView.getCurrentPosition() / 1000;
-        }), 1000, 1000, TimeUnit.MILLISECONDS);
+        executorService.scheduleWithFixedDelay(() -> videoView.post(() ->
+                watchedTill = videoView.getCurrentPosition() / 1000), 1000, 1000, TimeUnit.MILLISECONDS);
 
     }
 
@@ -529,7 +548,7 @@ public class EngagementTriggerActivity extends AppCompatActivity {
         closeImageButton.setLayoutParams(layoutParams);
         textViewTimer.setLayoutParams(layoutParams);
         textViewTimer.setGravity(Gravity.CENTER);
-        textViewTimer.setBackground(getDrawable(R.drawable.counter_ring));
+        textViewTimer.setBackground(ContextCompat.getDrawable(this,R.drawable.counter_ring));
     }
 
     private void updateExit() {
