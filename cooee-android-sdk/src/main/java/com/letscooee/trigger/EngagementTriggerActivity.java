@@ -603,7 +603,6 @@ public class EngagementTriggerActivity extends AppCompatActivity {
                         ? triggerData.getTriggerBackground().getBlur()
                         : 25)
                 .sampling(2)
-                .async()
                 .animate(500)
                 .onto((ViewGroup) _window.getDecorView());
     }
