@@ -1,5 +1,17 @@
 # Change Log
 
+## 0.2.2
+
+1. Testing application has been changed to include the functionality of our SDK for demo purposes. Now has multiple screens.
+2. Client's Application icon instead of our default icon in Push Notification.
+3. Updated UI/UX for Action Button.
+4. Mute button position updated (moved more towards corner) and clickable area of the button is also increased.
+5. Removed deprecated functions and used new ones.
+6. Progress bar on close button loading.
+7. Emoji text on trigger tested.
+8. Close button on top right position.
+9. Updated UI/UX for landscape mode.
+
 ## 0.2.1
 
 1. Fixed sending null value in the request headers.
