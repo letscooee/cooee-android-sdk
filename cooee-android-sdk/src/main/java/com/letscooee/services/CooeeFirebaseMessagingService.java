@@ -146,7 +146,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
                 largeNotification.setImageViewBitmap(R.id.imageViewLarge, resource);
                 notificationBuilder.setAutoCancel(true)
                         .setWhen(System.currentTimeMillis())
-                        .setSmallIcon(R.drawable.ic_launcher_foreground)
+                        .setSmallIcon(getApplicationInfo().icon)
                         .setStyle(new NotificationCompat.DecoratedCustomViewStyle())
                         .setCustomContentView(smallNotification)
                         .setCustomBigContentView(largeNotification)

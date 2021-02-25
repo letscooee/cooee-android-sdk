@@ -1,5 +1,6 @@
 package com.letscooee.trigger;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
@@ -23,6 +24,7 @@ import android.widget.*;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.RoundedBitmapDrawable;
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
 
@@ -133,6 +135,7 @@ public class EngagementTriggerActivity extends AppCompatActivity {
      *
      * @param triggerButton trigger button data
      */
+    @SuppressLint("ClickableViewAccessibility")
     private void createButton(TriggerButton triggerButton) {
         FlexboxLayout flexboxLayout = findViewById(R.id.actionFlexLayout);
 
@@ -144,8 +147,10 @@ public class EngagementTriggerActivity extends AppCompatActivity {
         button.setText(triggerButton.getText());
         String color = triggerButton.getColor().isEmpty() ? "#0000FF" : triggerButton.getColor();
         button.setTextColor(Color.parseColor(color));
-        button.setPadding(15, 15, 15, 15);
+        button.setPadding(30, 20, 25, 25);
         button.setTypeface(Typeface.DEFAULT_BOLD);
+        button.setElevation(20);
+        button.setTranslationZ(20);
 
         GradientDrawable drawable = new GradientDrawable();
         drawable.setCornerRadius(triggerButton.getRadius());
@@ -162,7 +167,7 @@ public class EngagementTriggerActivity extends AppCompatActivity {
             if (MotionEvent.ACTION_DOWN == event.getAction()) {
                 drawable.setCornerRadius(triggerButton.getRadius());
                 drawable.setStroke(1, Color.BLACK);
-                drawable.setColor(Color.GRAY);
+                drawable.setColor(ContextCompat.getColor(this, R.color.colorPrimary));
                 button.setBackground(drawable);
             } else if (MotionEvent.ACTION_UP == event.getAction()) {
                 drawable.setCornerRadius(triggerButton.getRadius());
@@ -247,7 +252,7 @@ public class EngagementTriggerActivity extends AppCompatActivity {
             closeImageButton.setVisibility(View.GONE);
             textViewTimer.setVisibility(View.GONE);
             handler = new Handler();
-            runnable = () -> finish();
+            runnable = this::finish;
             handler.postDelayed(runnable, autoClose * 1000);
 
             closeBehaviour = "Auto";
@@ -353,7 +358,7 @@ public class EngagementTriggerActivity extends AppCompatActivity {
         RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
 
         if (triggerData.getFill() == TriggerData.Fill.COVER) {
-            findViewById(R.id.contentLinearLayout).setLayoutParams(layoutParams);
+            //findViewById(R.id.contentLinearLayout).setLayoutParams(layoutParams);
             layoutParams.setMargins(0, 0, 0, 0);
         } else if (triggerData.getFill() == TriggerData.Fill.INTERSTITIAL) {
             layoutParams = new RelativeLayout.LayoutParams((int) (dm.widthPixels * 0.9), (int) (dm.heightPixels * 0.9));
@@ -423,37 +428,58 @@ public class EngagementTriggerActivity extends AppCompatActivity {
 
         insideMediaFrameLayout.addView(playPauseImage);
 
+        RelativeLayout.LayoutParams muteButtonBackgroundParams = new RelativeLayout.LayoutParams(90, 90);
+        muteButtonBackgroundParams.setMargins(20, 20, 0, 0);
+        RelativeLayout muteButtonBackground = new RelativeLayout(this);
+        muteButtonBackground.setLayoutParams(muteButtonBackgroundParams);
+        muteButtonBackground.setElevation(5f);
+
+
         RelativeLayout.LayoutParams muteButtonParams = new RelativeLayout.LayoutParams(50, 50);
-        muteButtonParams.setMargins(50, 50, 50, 50);
+        muteButtonParams.setMargins(0, 0, 20, 20);
 
         Button muteUnmuteButton = new Button(this);
         muteUnmuteButton.setLayoutParams(muteButtonParams);
-        muteUnmuteButton.setBackground(getDrawable(R.drawable.mute_background));
+        muteUnmuteButton.setBackground(ContextCompat.getDrawable(this, R.drawable.mute_background));
         muteUnmuteButton.setOnClickListener(v -> {
             isVideoUnmuted = true;
             AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 if (am.isStreamMute(AudioManager.STREAM_MUSIC)) {
                     am.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_UNMUTE, 0);
-                    muteUnmuteButton.setBackground(getDrawable(R.drawable.unmute_background));
+                    muteUnmuteButton.setBackground(ContextCompat.getDrawable(this, R.drawable.unmute_background));
                 } else {
                     am.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_MUTE, 0);
-                    muteUnmuteButton.setBackground(getDrawable(R.drawable.mute_background));
+                    muteUnmuteButton.setBackground(ContextCompat.getDrawable(this, R.drawable.mute_background));
                 }
             }
         });
-
-        insideMediaFrameLayout.addView(muteUnmuteButton);
+        muteButtonBackground.setOnClickListener(v -> {
+            isVideoUnmuted = true;
+            AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                if (am.isStreamMute(AudioManager.STREAM_MUSIC)) {
+                    am.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_UNMUTE, 0);
+                    muteUnmuteButton.setBackground(ContextCompat.getDrawable(this, R.drawable.unmute_background));
+                } else {
+                    am.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_MUTE, 0);
+                    muteUnmuteButton.setBackground(ContextCompat.getDrawable(this, R.drawable.mute_background));
+                }
+            }
+        });
+        muteButtonBackground.addView(muteUnmuteButton);
+        insideMediaFrameLayout.addView(muteButtonBackground);
 
         videoView.setOnClickListener(view -> {
             playPauseImage.setVisibility(View.VISIBLE);
             if (videoView.isPlaying()) {
                 videoView.pause();
-                playPauseImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_baseline_play_arrow_24));
+                playPauseImage.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_baseline_play_arrow_24));
             } else {
                 videoView.start();
-                playPauseImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_baseline_pause_24));
+                playPauseImage.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_baseline_pause_24));
             }
+            handler = new Handler();
             handler.postDelayed(() -> playPauseImage.setVisibility(View.INVISIBLE), 2000);
         });
 
@@ -464,7 +490,7 @@ public class EngagementTriggerActivity extends AppCompatActivity {
         });
 
         videoView.setOnCompletionListener(mp -> {
-            playPauseImage.setImageDrawable(getDrawable(R.drawable.ic_baseline_replay_24));
+            playPauseImage.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_baseline_replay_24));
             playPauseImage.setVisibility(View.VISIBLE);
             videoSeenCounter++;
         });
@@ -482,9 +508,8 @@ public class EngagementTriggerActivity extends AppCompatActivity {
     private void calculateCurrentPositionThread(VideoView videoView) {
         ScheduledExecutorService executorService;
         executorService = Executors.newScheduledThreadPool(1);
-        executorService.scheduleWithFixedDelay(() -> videoView.post(() -> {
-            watchedTill = videoView.getCurrentPosition() / 1000;
-        }), 1000, 1000, TimeUnit.MILLISECONDS);
+        executorService.scheduleWithFixedDelay(() -> videoView.post(() ->
+                watchedTill = videoView.getCurrentPosition() / 1000), 1000, 1000, TimeUnit.MILLISECONDS);
 
     }
 
@@ -496,15 +521,22 @@ public class EngagementTriggerActivity extends AppCompatActivity {
         closeImageButton.setVisibility(View.INVISIBLE);
         closeImageButton.setEnabled(false);
 
+        RelativeLayout relativeLayoutClose = findViewById(R.id.relativeLayoutClose);
+
+        ProgressBar progressBarClose = findViewById(R.id.progressBarClose);
+        progressBarClose.setProgress(100);
+
         if (!triggerData.getCloseBehaviour().isAuto() || triggerData.getCloseBehaviour().getTimeToClose() == 0) {
             new CountDownTimer(5000, 1000) {
 
                 public void onTick(long millisUntilFinished) {
                     textViewTimer.setText(String.valueOf((millisUntilFinished / 1000) + 1));
+                    progressBarClose.setProgress(progressBarClose.getProgress() - (100 / 6));
                 }
 
                 public void onFinish() {
                     textViewTimer.setVisibility(View.GONE);
+                    progressBarClose.setVisibility(View.GONE);
                     closeImageButton.setVisibility(View.VISIBLE);
                     closeImageButton.setEnabled(true);
                 }
@@ -523,9 +555,8 @@ public class EngagementTriggerActivity extends AppCompatActivity {
         }
 
         closeImageButton.setLayoutParams(layoutParams);
-        textViewTimer.setLayoutParams(layoutParams);
+        relativeLayoutClose.setLayoutParams(layoutParams);
         textViewTimer.setGravity(Gravity.CENTER);
-        textViewTimer.setBackground(getDrawable(R.drawable.counter_ring));
     }
 
     private void updateExit() {
@@ -572,7 +603,6 @@ public class EngagementTriggerActivity extends AppCompatActivity {
                         ? triggerData.getTriggerBackground().getBlur()
                         : 25)
                 .sampling(2)
-                .async()
                 .animate(500)
                 .onto((ViewGroup) _window.getDecorView());
     }
