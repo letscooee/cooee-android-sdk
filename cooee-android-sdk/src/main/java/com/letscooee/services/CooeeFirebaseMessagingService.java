@@ -25,6 +25,7 @@ import com.bumptech.glide.request.transition.Transition;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.google.gson.Gson;
+import com.letscooee.brodcast.OnPushNotificationButtonClick;
 import com.letscooee.R;
 import com.letscooee.init.AppController;
 import com.letscooee.init.PostLaunchActivity;
@@ -254,16 +255,16 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
             }
 
             if (triggerButton.isShowInPN()) {
-                Intent actionButtonIntent = new Intent(getApplicationContext(), CooeeIntentService.class);
+                Intent actionButtonIntent = new Intent(getApplicationContext(), OnPushNotificationButtonClick.class);
                 actionButtonIntent.setAction("Notification");
                 actionButtonIntent.putExtra("triggerData", triggerData);
                 actionButtonIntent.putExtra("buttonCount", i);
                 actionButtonIntent.putExtra("notificationId", notificationId);
-                PendingIntent pendingIntent = PendingIntent.getService(
+                PendingIntent pendingIntent = PendingIntent.getBroadcast(
                         getApplicationContext(),
                         requestCode++,
                         actionButtonIntent,
-                        PendingIntent.FLAG_ONE_SHOT);
+                        PendingIntent.FLAG_UPDATE_CURRENT);
                 actions[i++] = new NotificationCompat.Action(R.drawable.common_google_signin_btn_icon_dark, title, pendingIntent);
             }
         }
