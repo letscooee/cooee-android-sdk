@@ -169,4 +169,8 @@ public class CooeeSDK implements EngagementTriggerActivity.InAppListener {
             inAppNotificationClickListener.get().onInAppButtonClick(payload);
         }
     }
+
+    public void setBitmap(String base64){
+        EngagementTriggerActivity.setBitmap(base64);
+    }
 }

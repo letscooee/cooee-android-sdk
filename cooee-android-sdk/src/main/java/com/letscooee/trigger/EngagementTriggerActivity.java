@@ -4,8 +4,11 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.media.AudioManager;
@@ -13,7 +16,9 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
+import android.util.Base64;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -42,7 +47,9 @@ import com.letscooee.models.TriggerCloseBehaviour;
 import com.letscooee.models.TriggerData;
 import com.letscooee.models.TriggerText;
 import com.letscooee.retrofit.HttpCallsHelper;
+import com.letscooee.utils.BlurBuilder;
 
+import java.io.ByteArrayOutputStream;
 import java.lang.ref.WeakReference;
 import java.util.Date;
 import java.util.HashMap;
@@ -73,6 +80,14 @@ public class EngagementTriggerActivity extends AppCompatActivity {
     private int watchedTill;
     private int videoSeenCounter = 0;
     private boolean isVideoUnmuted;
+    private static Bitmap flutterBitmap;
+    private View blurredView;
+
+    public static void setBitmap(String base64) {
+        byte[] decodedString = Base64.decode(base64, Base64.DEFAULT);
+        Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+        flutterBitmap=decodedByte;
+    }
 
     public interface InAppListener {
         void inAppNotificationDidClick(HashMap<String, String> payload);
@@ -597,20 +612,32 @@ public class EngagementTriggerActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-
-        Blurry.with(getApplicationContext())
-                .radius(triggerData.getTriggerBackground().getBlur() != 0
-                        ? triggerData.getTriggerBackground().getBlur()
-                        : 25)
-                .sampling(2)
-                .animate(500)
-                .onto((ViewGroup) _window.getDecorView());
+        if (flutterBitmap == null){
+            Blurry.with(getApplicationContext())
+                    .radius(triggerData.getTriggerBackground().getBlur() != 0
+                            ? triggerData.getTriggerBackground().getBlur()
+                            : 25)
+                    .sampling(2)
+                    .animate(500)
+                    .onto((ViewGroup) _window.getDecorView());
+    }else {
+            Bitmap bitmap1 = BlurBuilder.blur(getApplicationContext(), flutterBitmap);
+            blurredView = new View(this);
+            /*ByteArrayOutputStream byteArrayOutputStream1 = new ByteArrayOutputStream();
+            bitmap1.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream1);
+            byte[] byteArray1 = byteArrayOutputStream1.toByteArray();
+            Log.d("TAG", "BitmapBlured: " + android.util.Base64.encodeToString(byteArray1, Base64.DEFAULT));*/
+            blurredView.setBackground(new BitmapDrawable(getResources(), bitmap1));
+            ((ViewGroup) _window.getDecorView()).addView(blurredView);
+        }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+        if (blurredView==null)
         Blurry.delete((ViewGroup) _window.getDecorView());
+        else ((ViewGroup) _window.getDecorView()).removeView(blurredView);
     }
 
     @Override

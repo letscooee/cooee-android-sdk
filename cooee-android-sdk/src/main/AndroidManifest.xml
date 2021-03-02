@@ -28,5 +28,6 @@
         </service>
 
         <service android:name=".services.CooeeIntentService" />
+        <receiver android:name=".brodcast.OnPushNotificationButtonClick"/>
     </application>
 </manifest>
