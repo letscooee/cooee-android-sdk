@@ -1,17 +1,11 @@
 package com.letscooee.utils;
 
-import android.util.Log;
-
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.LongSerializationPolicy;
+import com.google.gson.reflect.TypeToken;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 
 /**
  * @author Abhishek Taparia
@@ -19,11 +13,11 @@ import java.util.List;
 public class Utility {
 
     public static ArrayList<HashMap<String, String>> getArrayListFromString(String stringList) {
-        ArrayList<HashMap<String, String>> triggerHashMapList = new ArrayList<>();
+        ArrayList<HashMap<String, String>> triggerHashMapList;
 
         Gson gson = new Gson();
-        HashMap<String, String>[] hashMaps = gson.fromJson(stringList, HashMap[].class);
-        Collections.addAll(triggerHashMapList,hashMaps);
+        triggerHashMapList = gson.fromJson(stringList, new TypeToken<ArrayList<HashMap<String, String>>>() {
+        }.getType());
 
         return triggerHashMapList;
     }
@@ -37,7 +31,7 @@ public class Utility {
         ArrayList<HashMap<String, String>> activeTriggerList = new ArrayList<>();
 
         for (HashMap<String, String> map : allTriggerList) {
-            long time = (long) Double.parseDouble(String.valueOf(map.get("duration")));
+            long time = Long.parseLong(map.get("duration"));
             long currentTime = new Date().getTime();
             if (time > currentTime) {
                 activeTriggerList.add(map);

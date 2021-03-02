@@ -71,7 +71,7 @@ public class CooeeSDK implements EngagementTriggerActivity.InAppListener {
 
         Event event = new Event(eventName, eventProperties);
 
-        HttpCallsHelper.sendEvent(event, data -> PostLaunchActivity.createTrigger(context, data));
+        HttpCallsHelper.sendEvent(context, event, data -> PostLaunchActivity.createTrigger(context, data));
     }
 
     /**

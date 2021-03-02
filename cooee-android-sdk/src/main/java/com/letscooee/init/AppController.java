@@ -75,7 +75,7 @@ public class AppController extends Application implements LifecycleObserver, App
             sessionProperties.put("CE Duration", String.valueOf(backgroundDuration / 1000));
 
             Event session = new Event("CE App Foreground", sessionProperties);
-            HttpCallsHelper.sendEvent(session, data -> PostLaunchActivity.createTrigger(getApplicationContext(), data));
+            HttpCallsHelper.sendEvent(getApplicationContext(), session, data -> PostLaunchActivity.createTrigger(getApplicationContext(), data));
         }
     }
 
@@ -101,7 +101,7 @@ public class AppController extends Application implements LifecycleObserver, App
             sessionProperties.put("CE Duration", duration);
 
             Event session = new Event("CE App Background", sessionProperties);
-            HttpCallsHelper.sendEvent(session, null);
+            HttpCallsHelper.sendEvent(getApplicationContext(), session, null);
         });
     }
 
@@ -143,7 +143,7 @@ public class AppController extends Application implements LifecycleObserver, App
 
         if (triggerData != null && triggerData.getId() != null) {
             PostLaunchActivity.createTrigger(getApplicationContext(), triggerData);
-            HttpCallsHelper.sendEvent(new Event("CE Notification Clicked", new HashMap<>()), null);
+            HttpCallsHelper.sendEvent(getApplicationContext(), new Event("CE Notification Clicked", new HashMap<>()), null);
         }
     }
 

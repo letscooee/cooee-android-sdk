@@ -35,13 +35,9 @@ import com.letscooee.retrofit.APIClient;
 import com.letscooee.retrofit.HttpCallsHelper;
 import com.letscooee.utils.CooeeSDKConstants;
 import com.letscooee.utils.LocalStorageHelper;
-import com.letscooee.utils.Utility;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-
-import io.reactivex.rxjava3.subjects.ReplaySubject;
 
 /**
  * MyFirebaseMessagingService helps connects with firebase for push notification
@@ -66,7 +62,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
         Gson gson = new Gson();
         TriggerData triggerData = gson.fromJson(remoteMessage.getData().get("triggerData"), TriggerData.class);
 
-        updateTriggerInStorage(triggerData);
+        PostLaunchActivity.updateTriggerInStorage(getApplicationContext(), triggerData);
 
         if (triggerData.getId() == null) {
             return;
@@ -79,30 +75,6 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
         } else {
             showInAppMessaging(triggerData);
         }
-    }
-
-    private void updateTriggerInStorage(TriggerData triggerData) {
-        storeTriggerID(LocalStorageHelper.getString(getApplicationContext(), CooeeSDKConstants.STORAGE_ACTIVE_TRIGGERS, "")
-                , triggerData.getId()
-                , String.valueOf(new Date().getTime() + 600 * 1000));
-    }
-
-    public ArrayList<HashMap<String, String>> storeTriggerID(String hashMapsString, String id, String time) {
-        ArrayList<HashMap<String, String>> hashMaps = new ArrayList<>();
-
-        if (!hashMapsString.equals("")) {
-            hashMaps = Utility.getArrayListFromString(hashMapsString);
-        }
-
-        HashMap<String, String> hashMap = new HashMap<>();
-        hashMap.put("triggerID", id);
-        hashMap.put("duration", time);
-
-        hashMaps.add(hashMap);
-
-        LocalStorageHelper.putString(getApplicationContext(), CooeeSDKConstants.STORAGE_ACTIVE_TRIGGERS, hashMaps.toString());
-
-        return hashMaps;
     }
 
     /**
@@ -218,7 +190,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
     public static void sendEvent(Context context, Event event) {
         APIClient.setAPIToken(LocalStorageHelper.getString(context, CooeeSDKConstants.STORAGE_SDK_TOKEN, ""));
 
-        HttpCallsHelper.sendEventWithoutSDKState(event, null);
+        HttpCallsHelper.sendEventWithoutSDKState(context, event, null);
     }
 
     /**
