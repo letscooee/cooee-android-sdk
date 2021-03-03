@@ -81,7 +81,6 @@ public class EngagementTriggerActivity extends AppCompatActivity {
     private int videoSeenCounter = 0;
     private boolean isVideoUnmuted;
     private static Bitmap flutterBitmap;
-    private View blurredView;
 
     public static void setBitmap(String base64) {
         byte[] decodedString = Base64.decode(base64, Base64.DEFAULT);
@@ -621,12 +620,11 @@ public class EngagementTriggerActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        Bitmap mIcon = BitmapFactory.decodeResource(getResources(), R.drawable.blur_image);
-        mIcon = BlurBuilder.blur(this, mIcon);
-        ImageView v = findViewById(R.id.blurImage);
-        v.setImageDrawable(new BitmapDrawable(getResources(), mIcon));
-        v.setAlpha(((float) triggerData.getTriggerBackground().getBlur() / 10));
-        ((ViewGroup) _window.getDecorView()).addView(v);
+        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.blur_image);
+        bitmap = BlurBuilder.blur(this, bitmap);
+        ImageView imageView = findViewById(R.id.blurImage);
+        imageView.setImageDrawable(new BitmapDrawable(getResources(), bitmap));
+        imageView.setAlpha(((float) triggerData.getTriggerBackground().getBlur() / 10));
     }
 
     @Override
