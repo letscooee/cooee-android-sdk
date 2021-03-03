@@ -283,16 +283,16 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
             }
 
             if (triggerButton.isShowInPN()) {
-                Intent actionButtonIntent = new Intent(getApplicationContext(), OnPushNotificationButtonClick.class);
+                Intent actionButtonIntent = new Intent(getApplicationContext(), CooeeIntentService.class);
                 actionButtonIntent.setAction("Notification");
                 actionButtonIntent.putExtra("triggerData", triggerData);
                 actionButtonIntent.putExtra("buttonCount", i);
                 actionButtonIntent.putExtra("notificationId", notificationId);
-                PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                PendingIntent pendingIntent = PendingIntent.getService(
                         getApplicationContext(),
                         requestCode++,
                         actionButtonIntent,
-                        PendingIntent.FLAG_UPDATE_CURRENT);
+                        PendingIntent.FLAG_ONE_SHOT);
                 actions[i++] = new NotificationCompat.Action(R.drawable.common_google_signin_btn_icon_dark, title, pendingIntent);
             }
         }
