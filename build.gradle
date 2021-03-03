@@ -3,6 +3,7 @@ buildscript {
     repositories {
         google()
         jcenter()
+        mavenLocal()
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:4.0.1'
@@ -19,6 +20,7 @@ allprojects {
         google()
         jcenter()
         maven { url "https://oss.jfrog.org/libs-snapshot" }
+        mavenLocal()
     }
 
     version "0.2.3"

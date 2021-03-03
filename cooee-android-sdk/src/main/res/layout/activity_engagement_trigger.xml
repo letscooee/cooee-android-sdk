@@ -8,6 +8,8 @@
     android:background="@android:color/transparent"
     tools:context=".trigger.EngagementTriggerActivity">
 <ImageView
+    android:id="@+id/blurImage"
+    android:visibility="gone"
     android:layout_width="match_parent"
     android:src="@drawable/blur_image"
     android:scaleType="fitXY"

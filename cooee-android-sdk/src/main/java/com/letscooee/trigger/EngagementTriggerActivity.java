@@ -118,7 +118,7 @@ public class EngagementTriggerActivity extends AppCompatActivity {
             if (triggerData == null) {
                 finish();
             }
-
+            findViewById(R.id.blurImage).setAlpha(((float) triggerData.getTriggerBackground().getBlur() / 10));
             updateFill();
             addMediaView();
             closeButtonPosition();
@@ -618,18 +618,28 @@ public class EngagementTriggerActivity extends AppCompatActivity {
         HttpCallsHelper.sendEvent(getApplicationContext(), event, null);
     }
 
+    View v;
+
     @Override
     protected void onResume() {
         super.onResume();
+        Bitmap mIcon = BitmapFactory.decodeResource(getResources(), R.drawable.blur_image);
+        mIcon = BlurBuilder.blur(this, mIcon);
+        View v = new View(this);
+        v.setBackground(new BitmapDrawable(getResources(), mIcon));
+        v.setAlpha(((float) triggerData.getTriggerBackground().getBlur() / 10));
+        ((ViewGroup) _window.getDecorView()).addView(v);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+
     }
 
     @Override
     protected void onStop() {
+        ((ViewGroup) _window.getDecorView()).removeView(v);
         super.onStop();
     }
 
