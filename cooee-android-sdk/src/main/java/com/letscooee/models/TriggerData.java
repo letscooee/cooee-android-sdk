@@ -43,6 +43,7 @@ public class TriggerData implements Parcelable {
     private String id;
     private Type type;
     private Fill fill;
+    private long duration;
     private TriggerBehindBackground triggerBackground;
     private TriggerBackground background;
     private boolean showAsPN;
@@ -63,6 +64,7 @@ public class TriggerData implements Parcelable {
 
     protected TriggerData(Parcel in) {
         id = in.readString();
+        duration = in.readLong();
         triggerBackground = in.readParcelable(TriggerBehindBackground.class.getClassLoader());
         background = in.readParcelable(TriggerBackground.class.getClassLoader());
         showAsPN = in.readByte() != 0;
@@ -81,6 +83,7 @@ public class TriggerData implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(id);
+        dest.writeLong(duration);
         dest.writeParcelable(triggerBackground, flags);
         dest.writeParcelable(background, flags);
         dest.writeByte((byte) (showAsPN ? 1 : 0));
@@ -135,6 +138,14 @@ public class TriggerData implements Parcelable {
 
     public void setFill(Fill fill) {
         this.fill = fill;
+    }
+
+    public long getDuration() {
+        return duration;
+    }
+
+    public void setDuration(long duration) {
+        this.duration = duration;
     }
 
     public TriggerBackground getBackground() {

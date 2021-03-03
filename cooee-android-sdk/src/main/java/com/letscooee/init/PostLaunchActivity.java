@@ -18,12 +18,14 @@ import com.letscooee.retrofit.HttpCallsHelper;
 import com.letscooee.retrofit.ServerAPIService;
 import com.letscooee.utils.CooeeSDKConstants;
 import com.letscooee.utils.LocalStorageHelper;
+import com.letscooee.utils.Utility;
 
 import io.reactivex.rxjava3.subjects.ReplaySubject;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -213,7 +215,7 @@ public class PostLaunchActivity {
         eventProperties.put("CE App Version", defaultUserPropertiesCollector.getAppVersion());
         Event event = new Event("CE App Installed", eventProperties);
 
-        HttpCallsHelper.sendEvent(event, data -> createTrigger(context, data));
+        HttpCallsHelper.sendEvent(context, event, data -> createTrigger(context, data));
     }
 
     /**
@@ -237,7 +239,7 @@ public class PostLaunchActivity {
         eventProperties.put("CE Device Battery", defaultUserPropertiesCollector.getBatteryLevel());
 
         Event event = new Event("CE App Launched", eventProperties);
-        HttpCallsHelper.sendEventWithoutSDKState(event, data -> {
+        HttpCallsHelper.sendEventWithoutSDKState(context, event, data -> {
             if (data != null && data.get("sessionID") != null) {
                 currentSessionId = String.valueOf(data.get("sessionID"));
                 notifySDKStateDecided();
@@ -321,6 +323,7 @@ public class PostLaunchActivity {
 
         Gson gson = new Gson();
         TriggerData triggerData = gson.fromJson(String.valueOf(data.get("triggerData")), TriggerData.class);
+        updateTriggerInStorage(context, triggerData);
         createTrigger(context, triggerData);
     }
 
@@ -341,5 +344,45 @@ public class PostLaunchActivity {
         } catch (Exception ex) {
             Log.d(CooeeSDKConstants.LOG_PREFIX, "Couldn't show Engagement Trigger " + ex.toString());
         }
+    }
+
+    /**
+     * Update the received trigger in local storage
+     *
+     * @param context
+     * @param triggerData
+     */
+    public static void updateTriggerInStorage(Context context, TriggerData triggerData) {
+        storeTriggerID(context
+                , LocalStorageHelper.getString(context, CooeeSDKConstants.STORAGE_ACTIVE_TRIGGERS, "")
+                , triggerData.getId()
+                , String.valueOf(new Date().getTime() + triggerData.getDuration() * 1000));
+    }
+
+    /**
+     * Store trigger id and duration in local storage
+     *
+     * @param context
+     * @param hashMapsString
+     * @param id
+     * @param time
+     * @return
+     */
+    public static ArrayList<HashMap<String, String>> storeTriggerID(Context context, String hashMapsString, String id, String time) {
+        ArrayList<HashMap<String, String>> hashMaps = new ArrayList<>();
+
+        if (!hashMapsString.equals("")) {
+            hashMaps = Utility.getArrayListFromString(hashMapsString);
+        }
+
+        HashMap<String, String> hashMap = new HashMap<>();
+        hashMap.put("triggerID", id);
+        hashMap.put("duration", time);
+
+        hashMaps.add(hashMap);
+
+        LocalStorageHelper.putStringImmediately(context, CooeeSDKConstants.STORAGE_ACTIVE_TRIGGERS, hashMaps.toString());
+
+        return hashMaps;
     }
 }

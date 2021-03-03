@@ -1,17 +1,24 @@
 package com.letscooee.retrofit;
 
+import android.content.Context;
 import android.util.Log;
+
 import androidx.annotation.NonNull;
+
 import com.letscooee.init.AppController;
 import com.letscooee.init.PostLaunchActivity;
 import com.letscooee.models.Event;
 import com.letscooee.utils.Closure;
 import com.letscooee.utils.CooeeSDKConstants;
+import com.letscooee.utils.LocalStorageHelper;
+import com.letscooee.utils.Utility;
+
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,17 +31,22 @@ public final class HttpCallsHelper {
 
     static ServerAPIService serverAPIService = APIClient.getServerAPIService();
 
-    public static void sendEvent(Event event, Closure closure) {
+    public static void sendEvent(Context context, Event event, Closure closure) {
         //noinspection ResultOfMethodCallIgnored
         PostLaunchActivity.onSDKStateDecided.subscribe((Object ignored) -> {
             event.setSessionID(PostLaunchActivity.currentSessionId);
-            sendEventWithoutSDKState(event, closure);
+            sendEventWithoutSDKState(context, event, closure);
         });
     }
 
-    public static void sendEventWithoutSDKState(Event event, Closure closure) {
+    public static void sendEventWithoutSDKState(Context context, Event event, Closure closure) {
         event.setScreenName(AppController.currentScreen);
         event.setSessionNumber(PostLaunchActivity.currentSessionNumber);
+
+        ArrayList<HashMap<String, String>> activeTriggers = Utility.getActiveArrayListFromString(
+                LocalStorageHelper.getString(context, CooeeSDKConstants.STORAGE_ACTIVE_TRIGGERS, ""));
+        event.getProperties().put("activeTriggers", activeTriggers.toString());
+        LocalStorageHelper.putString(context, CooeeSDKConstants.STORAGE_ACTIVE_TRIGGERS, activeTriggers.toString());
 
         serverAPIService.sendEvent(event).enqueue(new Callback<Map<String, Object>>() {
             @Override
