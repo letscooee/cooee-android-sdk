@@ -7,14 +7,13 @@
     android:layout_height="match_parent"
     android:background="@android:color/transparent"
     tools:context=".trigger.EngagementTriggerActivity">
+
     <ImageView
         android:id="@+id/blurImage"
         android:layout_width="match_parent"
-        android:src="@drawable/blur_image"
-        android:scaleType="fitXY"
-        android:visibility="gone"
-        android:alpha="0.6"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        android:scaleType="fitXY" />
+
     <RelativeLayout
         android:id="@+id/secondParentRelative"
         android:layout_width="match_parent"
@@ -28,7 +27,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@android:color/transparent"
-            android:src="@drawable/ic_outline_cancel"
+            android:src="@drawable/ic_close_button"
             android:translationZ="1dp" />
 
         <!--<LinearLayout
@@ -36,91 +35,91 @@
             android:layout_height="match_parent"
             android:orientation="vertical">-->
 
-            <LinearLayout
-                android:id="@+id/contentLinearLayout"
-                android:layout_width="match_parent"
-                android:layout_above="@id/actionLayout"
-                android:layout_alignParentTop="true"
-                android:layout_height="wrap_content"
-                android:layout_margin="13dp"
-                android:background="@android:color/transparent"
-                android:orientation="horizontal">
-
-                <RelativeLayout
-                    android:id="@+id/textLayout"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight=".5"
-                    android:gravity="center">
-
-                    <TextView
-                        android:id="@+id/textViewTitle"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_centerHorizontal="true"
-                        android:gravity="center"
-                        android:padding="5dp"
-                        android:text="Hello title" />
-
-                    <TextView
-                        android:id="@+id/textViewContent"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_below="@+id/textViewTitle"
-                        android:layout_centerHorizontal="true"
-                        android:gravity="center"
-                        android:padding="5dp"
-                        android:text="Content" />
-
-                </RelativeLayout>
-
-                <RelativeLayout
-                    android:id="@+id/mediaRelativeLayout"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1">
-
-                    <androidx.cardview.widget.CardView
-                        android:id="@+id/mediaFrameLayout"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_centerInParent="true"
-                        android:layout_margin="3dp"
-                        app:cardCornerRadius="3dp">
-
-                        <RelativeLayout
-                            android:id="@+id/insideMediaFrameLayout"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent">
-
-                        </RelativeLayout>
-
-                    </androidx.cardview.widget.CardView>
-
-                </RelativeLayout>
-
-
-            </LinearLayout>
+        <LinearLayout
+            android:id="@+id/contentLinearLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_above="@id/actionLayout"
+            android:layout_alignParentTop="true"
+            android:layout_margin="13dp"
+            android:background="@android:color/transparent"
+            android:orientation="horizontal">
 
             <RelativeLayout
-                android:id="@+id/actionLayout"
-                android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:layout_alignParentBottom="true"
+                android:id="@+id/textLayout"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight=".5"
                 android:gravity="center">
 
-                <com.google.android.flexbox.FlexboxLayout
-                    android:id="@+id/actionFlexLayout"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    app:alignContent="center"
-                    app:alignItems="center"
-                    app:flexWrap="wrap"
-                    app:justifyContent="center">
+                <TextView
+                    android:id="@+id/textViewTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:gravity="center"
+                    android:padding="5dp"
+                    android:text="Hello title" />
 
-                </com.google.android.flexbox.FlexboxLayout>
+                <TextView
+                    android:id="@+id/textViewContent"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/textViewTitle"
+                    android:layout_centerHorizontal="true"
+                    android:gravity="center"
+                    android:padding="5dp"
+                    android:text="Content" />
 
             </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/mediaRelativeLayout"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1">
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/mediaFrameLayout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:layout_margin="3dp"
+                    app:cardCornerRadius="3dp">
+
+                    <RelativeLayout
+                        android:id="@+id/insideMediaFrameLayout"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+
+                    </RelativeLayout>
+
+                </androidx.cardview.widget.CardView>
+
+            </RelativeLayout>
+
+
+        </LinearLayout>
+
+        <RelativeLayout
+            android:id="@+id/actionLayout"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_alignParentBottom="true"
+            android:gravity="center">
+
+            <com.google.android.flexbox.FlexboxLayout
+                android:id="@+id/actionFlexLayout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:alignContent="center"
+                app:alignItems="center"
+                app:flexWrap="wrap"
+                app:justifyContent="center">
+
+            </com.google.android.flexbox.FlexboxLayout>
+
+        </RelativeLayout>
         <!--</LinearLayout>-->
 
         <RelativeLayout
