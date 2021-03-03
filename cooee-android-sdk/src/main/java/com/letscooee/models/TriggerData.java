@@ -48,6 +48,7 @@ public class TriggerData implements Parcelable {
     private TriggerBackground background;
     private boolean showAsPN;
     private String imageUrl;
+    private String layeredImageUrl;
     private String videoUrl;
     private EntranceAnimation entranceAnimation;
     private ExitAnimation exitAnimation;
@@ -69,6 +70,7 @@ public class TriggerData implements Parcelable {
         background = in.readParcelable(TriggerBackground.class.getClassLoader());
         showAsPN = in.readByte() != 0;
         imageUrl = in.readString();
+        layeredImageUrl = in.readString();
         videoUrl = in.readString();
         closeBehaviour = in.readParcelable(TriggerCloseBehaviour.class.getClassLoader());
         title = in.readParcelable(TriggerText.class.getClassLoader());
@@ -88,6 +90,7 @@ public class TriggerData implements Parcelable {
         dest.writeParcelable(background, flags);
         dest.writeByte((byte) (showAsPN ? 1 : 0));
         dest.writeString(imageUrl);
+        dest.writeString(layeredImageUrl);
         dest.writeString(videoUrl);
         dest.writeParcelable(closeBehaviour, flags);
         dest.writeParcelable(title, flags);
@@ -163,6 +166,15 @@ public class TriggerData implements Parcelable {
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
     }
+
+    public String getLayeredImageUrl() {
+        return layeredImageUrl;
+    }
+
+    public void setLayeredImageUrl(String layeredImageUrl) {
+        this.layeredImageUrl = layeredImageUrl;
+    }
+
 
     public String getVideoUrl() {
         return videoUrl;

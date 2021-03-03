@@ -420,7 +420,16 @@ public class EngagementTriggerActivity extends AppCompatActivity {
 
         Glide.with(getApplicationContext()).load(triggerData.getImageUrl()).into(imageView);
 
+        ImageView layeredImageView = new ImageView(EngagementTriggerActivity.this);
+        layeredImageView.setLayoutParams(layoutParams);
+        layeredImageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+
+        Glide.with(getApplicationContext()).load(triggerData.getImageUrl()).into(imageView);
+        Glide.with(getApplicationContext()).load(triggerData.getLayeredImageUrl()).into(layeredImageView);
+
+        layeredImageView.setLayoutParams(layoutParams);
         insideMediaFrameLayout.addView(imageView);
+        insideMediaFrameLayout.addView(layeredImageView);
     }
 
     private void createVideoView() {
@@ -612,30 +621,11 @@ public class EngagementTriggerActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (flutterBitmap == null) {
-            Blurry.with(getApplicationContext())
-                    .radius(triggerData.getTriggerBackground().getBlur() != 0
-                            ? triggerData.getTriggerBackground().getBlur()
-                            : 25)
-                    .sampling(2)
-                    .animate(500)
-                    .onto((ViewGroup) _window.getDecorView());
-        } else {
-            Bitmap bitmap1 = BlurBuilder.blur(getApplicationContext(), flutterBitmap);
-            blurredView = new View(this);
-            blurredView.setBackground(new BitmapDrawable(getResources(), bitmap1));
-            ((ViewGroup) _window.getDecorView()).addView(blurredView);
-        }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        if (blurredView == null) {
-            Blurry.delete((ViewGroup) _window.getDecorView());
-        } else {
-            ((ViewGroup) _window.getDecorView()).removeView(blurredView);
-        }
     }
 
     @Override
