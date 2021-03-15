@@ -3,6 +3,7 @@ package com.letscooee.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
 
@@ -56,6 +57,25 @@ public class TriggerData implements Parcelable {
     private TriggerText title;
     private TriggerText message;
     private TriggerButton[] buttons;
+    private boolean isCarousel;
+
+    private CarouselData[] carouselData;
+
+    public void setCarousel(boolean carousel) {
+        isCarousel = carousel;
+    }
+
+    public CarouselData[] getCarouselData() {
+        return carouselData;
+    }
+
+    public void setCarouselData(CarouselData[] carouselData) {
+        this.carouselData = carouselData;
+    }
+
+    public boolean isCarousel() {
+        return isCarousel;
+    }
 
     public TriggerData() {
     }
@@ -80,6 +100,8 @@ public class TriggerData implements Parcelable {
         type = Type.valueOf(in.readString());
         fill = Fill.valueOf(in.readString());
         buttons = in.createTypedArray(TriggerButton.CREATOR);
+        isCarousel = in.readByte() != 0;
+        carouselData = in.createTypedArray(CarouselData.CREATOR);
     }
 
     @Override
@@ -100,6 +122,8 @@ public class TriggerData implements Parcelable {
         dest.writeString(type.name());
         dest.writeString(fill.name());
         dest.writeTypedArray(buttons, flags);
+        dest.writeByte((byte) (isCarousel ? 1 : 0));
+        dest.writeTypedArray(carouselData, flags);
     }
 
     @Override

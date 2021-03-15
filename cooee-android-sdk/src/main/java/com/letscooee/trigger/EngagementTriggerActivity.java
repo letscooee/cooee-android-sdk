@@ -48,6 +48,7 @@ import com.letscooee.models.TriggerData;
 import com.letscooee.models.TriggerText;
 import com.letscooee.retrofit.HttpCallsHelper;
 import com.letscooee.utils.BlurBuilder;
+import com.letscooee.utils.OnInAppPopListener;
 
 import java.io.ByteArrayOutputStream;
 import java.lang.ref.WeakReference;
@@ -63,6 +64,7 @@ import jp.wasabeef.blurry.Blurry;
 
 public class EngagementTriggerActivity extends AppCompatActivity {
 
+    private static final String TAG = "EngagementTrigger";
     TriggerData triggerData;
     ImageButton closeImageButton;
     RelativeLayout secondParentLayout;
@@ -81,6 +83,7 @@ public class EngagementTriggerActivity extends AppCompatActivity {
     private int videoSeenCounter = 0;
     private boolean isVideoUnmuted;
     private static Bitmap flutterBitmap;
+    public static OnInAppPopListener onInAppPopListener;
 
     public static void setBitmap(String base64) {
         byte[] decodedString = Base64.decode(base64, Base64.DEFAULT);
@@ -98,18 +101,22 @@ public class EngagementTriggerActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.d(TAG, "onCreate: >>> 1");
         super.onCreate(savedInstanceState);
+        Log.d(TAG, "onCreate: >>> 2");
         setContentView(R.layout.activity_engagement_trigger);
-
+        Log.d(TAG, "onCreate: >>> 3");
         closeImageButton = findViewById(R.id.buttonClose);
         closeImageButton.setOnClickListener(view -> {
             closeBehaviour = "Close Button";
             finish();
         });
+        Log.d(TAG, "onCreate: >>> 4");
 
         secondParentLayout = findViewById(R.id.secondParentRelative);
         textViewTimer = findViewById(R.id.textViewTimer);
         inAppListenerWeakReference = new WeakReference<>(CooeeSDK.getDefaultInstance(this));
+        Log.d(TAG, "onCreate: >>> 5");
 
         try {
             triggerData = (TriggerData) Objects.requireNonNull(getIntent().getBundleExtra("bundle")).getParcelable("triggerData");
@@ -118,16 +125,41 @@ public class EngagementTriggerActivity extends AppCompatActivity {
                 finish();
             }
 
+            if (onInAppPopListener != null) {
+                Log.d(TAG, "onCreate: onInAppTriggered");
+                onInAppPopListener.onInAppTriggered();
+            }
+            Log.d(TAG, "onCreate: >>> 6");
+
             updateFill();
+            Log.d(TAG, "onCreate: >>> 7");
+
             addMediaView();
+            Log.d(TAG, "onCreate: >>> 8");
+
             closeButtonPosition();
+            Log.d(TAG, "onCreate: >>> 9");
+
             updateBackground();
+            Log.d(TAG, "onCreate: >>> 10");
+
             updateEntrance();
+            Log.d(TAG, "onCreate: >>> 11");
+
             updateClose();
+            Log.d(TAG, "onCreate: >>> 12");
+
             updateText();
+            Log.d(TAG, "onCreate: >>> 13");
+
             updateMessage();
+            Log.d(TAG, "onCreate: >>> 14");
+
             updateTextPosition();
+            Log.d(TAG, "onCreate: >>> 15");
+
             createActionButtons();
+            Log.d(TAG, "onCreate: >>> 16");
         } catch (Exception ignored) {
         }
     }
