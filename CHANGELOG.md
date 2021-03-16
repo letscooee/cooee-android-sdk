@@ -1,5 +1,10 @@
 # Change Log
 
+## 0.2.5
+
+1. Carousel Notification added.
+2. Custom sound for Notification.
+
 ## 0.2.3
 
 1. Glassmorphism effect on orientation changes
