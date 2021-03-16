@@ -14,7 +14,6 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
-import android.service.notification.StatusBarNotification;
 import android.util.Log;
 import android.view.View;
 import android.widget.RemoteViews;
@@ -29,7 +28,6 @@ import com.bumptech.glide.request.transition.Transition;
 import com.letscooee.CooeeSDK;
 import com.letscooee.R;
 import com.letscooee.models.CarouselData;
-import com.letscooee.models.Event;
 import com.letscooee.models.TriggerData;
 import com.letscooee.utils.CooeeSDKConstants;
 import com.letscooee.utils.PropertyNameException;
@@ -37,20 +35,29 @@ import com.letscooee.utils.PropertyNameException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import static com.letscooee.services.CooeeFirebaseMessagingService.sendEvent;
+/**
+ * @author Ashish Gaikwad
+ */
 
 public class OnPushNotificationButtonClick extends BroadcastReceiver {
 
     private CooeeSDK sdk;
 
+    /**
+     * onReceive will get call when broadcast will get trigger and it will hold context and intent of current instance.
+     * This will also check for which Type receiver is get triggered and will send controls accordingly.
+     */
+
     @Override
     public void onReceive(Context context, Intent intent) {
+
         sdk = CooeeSDK.getDefaultInstance(context);
+
         try {
 
             String TYPE = intent.getStringExtra("TYPE");
             if (TYPE.equals("CAROUSEL"))
-                handleCarousel(context, intent);
+                processCarouselData(context, intent);
 
 
         } catch (Exception e) {
@@ -60,33 +67,47 @@ public class OnPushNotificationButtonClick extends BroadcastReceiver {
 
     private final ArrayList<Bitmap> bitmaps = new ArrayList<>();
 
-    private void handleCarousel(Context context, Intent intent) throws PropertyNameException {
-        sdk.sendEvent("PN_Action_Click", new HashMap<>());
+    /**
+     * Will access trigger data from intent and will proceed to image loading
+     *
+     * @param context will come from onReceive method.
+     * @param intent  will come from onReceive method.
+     */
 
+    private void processCarouselData(Context context, Intent intent) throws PropertyNameException {
+        sdk.sendEvent("CE_PN_Action_Click", new HashMap<>());
 
         TriggerData triggerData = (TriggerData) intent.getExtras().getParcelable("TRIGGERDATA");
 
         assert triggerData != null;
-        loadBitmaps(triggerData.getCarouselData(), 0, triggerData, context, intent);
+        loadBitmapsForCarousel(triggerData.getCarouselData(), 0, triggerData, context, intent);
 
 
     }
 
-    private void loadBitmaps(CarouselData[] carouselData, final int i, TriggerData triggerData, Context context, Intent intent) {
-        if (i < carouselData.length) {
+    /**
+     * Load all images from carousel data by calling it self recursively.
+     *
+     * @param carouselData will be array if CarouselData
+     * @param position     will be position for array pointing.
+     * @param triggerData  will instance of TriggerData which will hold all other PN data
+     */
+
+    private void loadBitmapsForCarousel(CarouselData[] carouselData, final int position, TriggerData triggerData, Context context, Intent intent) {
+        if (position < carouselData.length) {
 
             try {
                 Glide.with(context)
-                        .asBitmap().load(carouselData[i].getImageUrl()).into(new CustomTarget<Bitmap>() {
+                        .asBitmap().load(carouselData[position].getImageUrl()).into(new CustomTarget<Bitmap>() {
                     @Override
                     public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
                         bitmaps.add(resource);
-                        loadBitmaps(triggerData.getCarouselData(), i + 1, triggerData, context, intent);
+                        loadBitmapsForCarousel(triggerData.getCarouselData(), position + 1, triggerData, context, intent);
                     }
 
                     @Override
                     public void onLoadCleared(@Nullable Drawable placeholder) {
-
+                        loadBitmapsForCarousel(triggerData.getCarouselData(), position + 1, triggerData, context, intent);
                     }
                 });
             } catch (Exception ignored) {
@@ -97,6 +118,13 @@ public class OnPushNotificationButtonClick extends BroadcastReceiver {
         }
 
     }
+
+    /**
+     * showCarouselNotification will get call after all image loading is done. It will show carousel notification
+     * and will also handle click event for scrolling.
+     *
+     * @param triggerData will instance of TriggerData which will hold all other PN data
+     */
 
     private void showCarouselNotification(Context context, TriggerData triggerData, Intent intent) {
         int notificationId = intent.getExtras().getInt("notificationId", 0);
@@ -237,6 +265,12 @@ public class OnPushNotificationButtonClick extends BroadcastReceiver {
 
     }
 
+    /**
+     * Get Notification title from trigger data
+     *
+     * @param triggerData Trigger data
+     * @return title
+     */
     private String getNotificationTitle(TriggerData triggerData) {
         String title;
         if (triggerData.getTitle().getNotificationText() != null && !triggerData.getTitle().getNotificationText().isEmpty()) {

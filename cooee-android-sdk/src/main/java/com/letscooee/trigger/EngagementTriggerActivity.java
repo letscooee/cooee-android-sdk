@@ -16,6 +16,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
+import android.text.TextUtils;
 import android.util.Base64;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -652,11 +653,22 @@ public class EngagementTriggerActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.blur_image);
+        /*Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.blur_image);
         bitmap = BlurBuilder.blur(this, bitmap);
         ImageView imageView = findViewById(R.id.blurImage);
         imageView.setImageDrawable(new BitmapDrawable(getResources(), bitmap));
-        imageView.setAlpha(((float) triggerData.getTriggerBackground().getBlur() / 10));
+        imageView.setAlpha(((float) triggerData.getTriggerBackground().getBlur() / 10));*/
+        ImageView imageView = findViewById(R.id.blurImage);
+        if (triggerData.getTriggerBackground() != null)
+            if (!TextUtils.isEmpty(triggerData.getTriggerBackground().getColor())) {
+                Bitmap bmp = Bitmap.createBitmap(500, 1024, Bitmap.Config.ARGB_8888);
+                Canvas canvas = new Canvas(bmp);
+                canvas.drawColor(Color.parseColor("#" + triggerData.getTriggerBackground().getColor()));
+
+                imageView.setImageBitmap(BlurBuilder.blur(this, bmp));
+            } else imageView.setBackgroundColor(Color.parseColor("#828282"));
+        else imageView.setBackgroundColor(Color.parseColor("#828282"));
+        imageView.setAlpha((float) triggerData.getTriggerBackground().getBlur() / 10);
     }
 
     @Override
