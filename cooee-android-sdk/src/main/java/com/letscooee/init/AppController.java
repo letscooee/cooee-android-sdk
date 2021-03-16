@@ -6,6 +6,7 @@ import android.content.pm.PackageInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.Lifecycle;

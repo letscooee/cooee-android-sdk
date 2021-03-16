@@ -354,7 +354,6 @@ public class PostLaunchActivity {
      * @return
      */
     public static ArrayList<HashMap<String, String>> storeTriggerID(Context context, String id, long time) {
-        Log.d("TAG", "storeTriggerID: " + id + ":time" + time);
         ArrayList<HashMap<String, String>> hashMaps = LocalStorageHelper.getList(context, CooeeSDKConstants.STORAGE_ACTIVE_TRIGGERS);
 
         HashMap<String, String> hashMap = new HashMap<>();
@@ -364,7 +363,6 @@ public class PostLaunchActivity {
         hashMaps.add(hashMap);
 
         LocalStorageHelper.putListImmediately(context, CooeeSDKConstants.STORAGE_ACTIVE_TRIGGERS, hashMaps);
-        Log.d("TAG", "storeTriggerID: " + LocalStorageHelper.getList(context, CooeeSDKConstants.STORAGE_ACTIVE_TRIGGERS));
 
         return hashMaps;
     }
