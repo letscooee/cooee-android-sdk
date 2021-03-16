@@ -11,7 +11,6 @@ import com.letscooee.models.Event;
 import com.letscooee.utils.Closure;
 import com.letscooee.utils.CooeeSDKConstants;
 import com.letscooee.utils.LocalStorageHelper;
-import com.letscooee.utils.Utility;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -45,6 +44,7 @@ public final class HttpCallsHelper {
         event.setSessionNumber(PostLaunchActivity.currentSessionNumber);
 
         ArrayList<HashMap<String, String>> allTriggers = LocalStorageHelper.getList(context, CooeeSDKConstants.STORAGE_ACTIVE_TRIGGERS);
+        Log.d("TAG", "sendEventWithoutSDKState: " + allTriggers);
 
         ArrayList<HashMap<String, String>> activeTriggerList = new ArrayList<>();
 

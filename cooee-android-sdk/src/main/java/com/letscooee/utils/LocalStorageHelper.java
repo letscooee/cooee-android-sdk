@@ -78,10 +78,10 @@ public final class LocalStorageHelper {
         ArrayList<HashMap<String, String>> triggerHashMapList = gson.fromJson(stringList, new TypeToken<ArrayList<HashMap<String, String>>>() {
         }.getType());
 
-        return triggerHashMapList;
+        return triggerHashMapList != null ? triggerHashMapList : new ArrayList<>();
     }
 
-    public static void putListImmediately(Context context, String key, ArrayList<HashMap<String, String>> list){
+    public static void putListImmediately(Context context, String key, ArrayList<HashMap<String, String>> list) {
         putStringImmediately(context, key, list.toString());
     }
 

@@ -18,7 +18,6 @@ import com.letscooee.retrofit.HttpCallsHelper;
 import com.letscooee.retrofit.ServerAPIService;
 import com.letscooee.utils.CooeeSDKConstants;
 import com.letscooee.utils.LocalStorageHelper;
-import com.letscooee.utils.Utility;
 
 import io.reactivex.rxjava3.subjects.ReplaySubject;
 import retrofit2.Call;
@@ -355,15 +354,17 @@ public class PostLaunchActivity {
      * @return
      */
     public static ArrayList<HashMap<String, String>> storeTriggerID(Context context, String id, long time) {
+        Log.d("TAG", "storeTriggerID: " + id + ":time" + time);
         ArrayList<HashMap<String, String>> hashMaps = LocalStorageHelper.getList(context, CooeeSDKConstants.STORAGE_ACTIVE_TRIGGERS);
 
         HashMap<String, String> hashMap = new HashMap<>();
         hashMap.put("triggerID", id);
-        hashMap.put("duration", String.valueOf(time));
+        hashMap.put("duration", String.valueOf(new Date().getTime() + time * 1000));
 
         hashMaps.add(hashMap);
 
         LocalStorageHelper.putListImmediately(context, CooeeSDKConstants.STORAGE_ACTIVE_TRIGGERS, hashMaps);
+        Log.d("TAG", "storeTriggerID: " + LocalStorageHelper.getList(context, CooeeSDKConstants.STORAGE_ACTIVE_TRIGGERS));
 
         return hashMaps;
     }
