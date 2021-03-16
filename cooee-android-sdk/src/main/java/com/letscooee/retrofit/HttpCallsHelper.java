@@ -1,17 +1,24 @@
 package com.letscooee.retrofit;
 
+import android.content.Context;
 import android.util.Log;
+
 import androidx.annotation.NonNull;
+
 import com.letscooee.init.AppController;
 import com.letscooee.init.PostLaunchActivity;
 import com.letscooee.models.Event;
 import com.letscooee.utils.Closure;
 import com.letscooee.utils.CooeeSDKConstants;
+import com.letscooee.utils.LocalStorageHelper;
+
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,17 +31,33 @@ public final class HttpCallsHelper {
 
     static ServerAPIService serverAPIService = APIClient.getServerAPIService();
 
-    public static void sendEvent(Event event, Closure closure) {
+    public static void sendEvent(Context context, Event event, Closure closure) {
         //noinspection ResultOfMethodCallIgnored
         PostLaunchActivity.onSDKStateDecided.subscribe((Object ignored) -> {
             event.setSessionID(PostLaunchActivity.currentSessionId);
-            sendEventWithoutSDKState(event, closure);
+            sendEventWithoutSDKState(context, event, closure);
         });
     }
 
-    public static void sendEventWithoutSDKState(Event event, Closure closure) {
+    public static void sendEventWithoutSDKState(Context context, Event event, Closure closure) {
         event.setScreenName(AppController.currentScreen);
         event.setSessionNumber(PostLaunchActivity.currentSessionNumber);
+
+        ArrayList<HashMap<String, String>> allTriggers = LocalStorageHelper.getList(context, CooeeSDKConstants.STORAGE_ACTIVE_TRIGGERS);
+
+        ArrayList<HashMap<String, String>> activeTriggerList = new ArrayList<>();
+
+        for (HashMap<String, String> map : allTriggers) {
+            long time = Long.parseLong(map.get("duration"));
+            long currentTime = new Date().getTime();
+            if (time > currentTime) {
+                activeTriggerList.add(map);
+            }
+        }
+
+        event.setActiveTriggers(activeTriggerList);
+
+        LocalStorageHelper.putListImmediately(context, CooeeSDKConstants.STORAGE_ACTIVE_TRIGGERS, activeTriggerList);
 
         serverAPIService.sendEvent(event).enqueue(new Callback<Map<String, Object>>() {
             @Override

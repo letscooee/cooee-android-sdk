@@ -591,7 +591,7 @@ public class EngagementTriggerActivity extends AppCompatActivity {
         super.onStart();
         startTime = new Date();
         Event event = new Event("CE Trigger Displayed", new HashMap<>());
-        HttpCallsHelper.sendEvent(event, null);
+        HttpCallsHelper.sendEvent(getApplicationContext(), event, null);
     }
 
     @Override
@@ -643,7 +643,7 @@ public class EngagementTriggerActivity extends AppCompatActivity {
         }
 
         Event event = new Event("CE Trigger Closed", kpiMap);
-        HttpCallsHelper.sendEvent(event, null);
+        HttpCallsHelper.sendEvent(getApplicationContext(), event, null);
 
         if (runnable != null) {
             handler.removeCallbacks(runnable);

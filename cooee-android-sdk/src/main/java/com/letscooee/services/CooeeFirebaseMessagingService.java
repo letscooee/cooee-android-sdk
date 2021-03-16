@@ -39,8 +39,6 @@ import com.letscooee.utils.LocalStorageHelper;
 import java.util.Date;
 import java.util.HashMap;
 
-import io.reactivex.rxjava3.subjects.ReplaySubject;
-
 /**
  * MyFirebaseMessagingService helps connects with firebase for push notification
  *
@@ -63,6 +61,8 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
 
         Gson gson = new Gson();
         TriggerData triggerData = gson.fromJson(remoteMessage.getData().get("triggerData"), TriggerData.class);
+
+        PostLaunchActivity.storeTriggerID(getApplicationContext(), triggerData.getId(), triggerData.getDuration());
 
         if (triggerData.getId() == null) {
             return;
@@ -190,7 +190,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
     public static void sendEvent(Context context, Event event) {
         APIClient.setAPIToken(LocalStorageHelper.getString(context, CooeeSDKConstants.STORAGE_SDK_TOKEN, ""));
 
-        HttpCallsHelper.sendEventWithoutSDKState(event, null);
+        HttpCallsHelper.sendEventWithoutSDKState(context, event, null);
     }
 
     /**

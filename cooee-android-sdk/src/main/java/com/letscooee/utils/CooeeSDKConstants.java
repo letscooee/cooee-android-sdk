@@ -13,6 +13,7 @@ public class CooeeSDKConstants {
     public static final String STORAGE_SDK_TOKEN = "sdk_token";
     public static final String STORAGE_SESSION_NUMBER = "session_number";
     public static final String STORAGE_USER_ID = "user_id";
+    public static final String STORAGE_ACTIVE_TRIGGERS = "active_triggers";
 
     public static final String LOG_PREFIX = "CooeeSDK";
     public static final int IDLE_TIME_IN_MS = 30 * 60 * 1000;
