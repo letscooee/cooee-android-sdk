@@ -4,8 +4,11 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.media.AudioManager;
@@ -13,7 +16,10 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
+import android.text.TextUtils;
+import android.util.Base64;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -42,7 +48,10 @@ import com.letscooee.models.TriggerCloseBehaviour;
 import com.letscooee.models.TriggerData;
 import com.letscooee.models.TriggerText;
 import com.letscooee.retrofit.HttpCallsHelper;
+import com.letscooee.utils.BlurBuilder;
+import com.letscooee.utils.OnInAppPopListener;
 
+import java.io.ByteArrayOutputStream;
 import java.lang.ref.WeakReference;
 import java.util.Date;
 import java.util.HashMap;
@@ -56,6 +65,7 @@ import jp.wasabeef.blurry.Blurry;
 
 public class EngagementTriggerActivity extends AppCompatActivity {
 
+    private static final String TAG = "EngagementTrigger";
     TriggerData triggerData;
     ImageButton closeImageButton;
     RelativeLayout secondParentLayout;
@@ -73,6 +83,14 @@ public class EngagementTriggerActivity extends AppCompatActivity {
     private int watchedTill;
     private int videoSeenCounter = 0;
     private boolean isVideoUnmuted;
+    private static Bitmap flutterBitmap;
+    public static OnInAppPopListener onInAppPopListener;
+
+    public static void setBitmap(String base64) {
+        byte[] decodedString = Base64.decode(base64, Base64.DEFAULT);
+        Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+        flutterBitmap = decodedByte;
+    }
 
     public interface InAppListener {
         void inAppNotificationDidClick(HashMap<String, String> payload);
@@ -84,18 +102,22 @@ public class EngagementTriggerActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.d(TAG, "onCreate: >>> 1");
         super.onCreate(savedInstanceState);
+        Log.d(TAG, "onCreate: >>> 2");
         setContentView(R.layout.activity_engagement_trigger);
-
+        Log.d(TAG, "onCreate: >>> 3");
         closeImageButton = findViewById(R.id.buttonClose);
         closeImageButton.setOnClickListener(view -> {
             closeBehaviour = "Close Button";
             finish();
         });
+        Log.d(TAG, "onCreate: >>> 4");
 
         secondParentLayout = findViewById(R.id.secondParentRelative);
         textViewTimer = findViewById(R.id.textViewTimer);
         inAppListenerWeakReference = new WeakReference<>(CooeeSDK.getDefaultInstance(this));
+        Log.d(TAG, "onCreate: >>> 5");
 
         try {
             triggerData = (TriggerData) Objects.requireNonNull(getIntent().getBundleExtra("bundle")).getParcelable("triggerData");
@@ -104,16 +126,41 @@ public class EngagementTriggerActivity extends AppCompatActivity {
                 finish();
             }
 
+            if (onInAppPopListener != null) {
+                Log.d(TAG, "onCreate: onInAppTriggered");
+                onInAppPopListener.onInAppTriggered();
+            }
+            Log.d(TAG, "onCreate: >>> 6");
+
             updateFill();
+            Log.d(TAG, "onCreate: >>> 7");
+
             addMediaView();
+            Log.d(TAG, "onCreate: >>> 8");
+
             closeButtonPosition();
+            Log.d(TAG, "onCreate: >>> 9");
+
             updateBackground();
+            Log.d(TAG, "onCreate: >>> 10");
+
             updateEntrance();
+            Log.d(TAG, "onCreate: >>> 11");
+
             updateClose();
+            Log.d(TAG, "onCreate: >>> 12");
+
             updateText();
+            Log.d(TAG, "onCreate: >>> 13");
+
             updateMessage();
+            Log.d(TAG, "onCreate: >>> 14");
+
             updateTextPosition();
+            Log.d(TAG, "onCreate: >>> 15");
+
             createActionButtons();
+            Log.d(TAG, "onCreate: >>> 16");
         } catch (Exception ignored) {
         }
     }
@@ -405,7 +452,16 @@ public class EngagementTriggerActivity extends AppCompatActivity {
 
         Glide.with(getApplicationContext()).load(triggerData.getImageUrl()).into(imageView);
 
+        ImageView layeredImageView = new ImageView(EngagementTriggerActivity.this);
+        layeredImageView.setLayoutParams(layoutParams);
+        layeredImageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+
+        Glide.with(getApplicationContext()).load(triggerData.getImageUrl()).into(imageView);
+        Glide.with(getApplicationContext()).load(triggerData.getLayeredImageUrl()).into(layeredImageView);
+
+        layeredImageView.setLayoutParams(layoutParams);
         insideMediaFrameLayout.addView(imageView);
+        insideMediaFrameLayout.addView(layeredImageView);
     }
 
     private void createVideoView() {
@@ -597,20 +653,26 @@ public class EngagementTriggerActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        ImageView imageView = findViewById(R.id.blurImage);
+        if (triggerData.getTriggerBackground() != null) {
+            if (!TextUtils.isEmpty(triggerData.getTriggerBackground().getColor())) {
+                Bitmap bmp = Bitmap.createBitmap(500, 1024, Bitmap.Config.ARGB_8888);
+                Canvas canvas = new Canvas(bmp);
+                canvas.drawColor(Color.parseColor("" + triggerData.getTriggerBackground().getColor()));
 
-        Blurry.with(getApplicationContext())
-                .radius(triggerData.getTriggerBackground().getBlur() != 0
-                        ? triggerData.getTriggerBackground().getBlur()
-                        : 25)
-                .sampling(2)
-                .animate(500)
-                .onto((ViewGroup) _window.getDecorView());
+                imageView.setImageBitmap(BlurBuilder.blur(this, bmp));
+            } else {
+                imageView.setBackgroundColor(Color.parseColor("#828282"));
+            }
+        } else {
+            imageView.setBackgroundColor(Color.parseColor("#828282"));
+        }
+        imageView.setAlpha((float) triggerData.getTriggerBackground().getBlur() / 10);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        Blurry.delete((ViewGroup) _window.getDecorView());
     }
 
     @Override

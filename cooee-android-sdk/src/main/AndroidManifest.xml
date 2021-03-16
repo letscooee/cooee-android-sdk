@@ -7,6 +7,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
         android:name=".init.AppController"
@@ -28,5 +29,6 @@
         </service>
 
         <service android:name=".services.CooeeIntentService" />
+        <receiver android:name=".brodcast.OnPushNotificationButtonClick"/>
     </application>
 </manifest>

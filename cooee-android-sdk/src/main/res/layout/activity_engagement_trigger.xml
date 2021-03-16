@@ -8,6 +8,12 @@
     android:background="@android:color/transparent"
     tools:context=".trigger.EngagementTriggerActivity">
 
+    <ImageView
+        android:id="@+id/blurImage"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="fitXY" />
+
     <RelativeLayout
         android:id="@+id/secondParentRelative"
         android:layout_width="match_parent"
@@ -21,7 +27,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@android:color/transparent"
-            android:src="@drawable/ic_outline_cancel"
+            android:src="@drawable/ic_close_button"
             android:translationZ="1dp" />
 
         <LinearLayout
@@ -95,8 +101,8 @@
                 <com.google.android.flexbox.FlexboxLayout
                     android:id="@+id/actionFlexLayout"
                     android:layout_width="match_parent"
-                    android:layout_marginTop="5dp"
                     android:layout_height="match_parent"
+                    android:layout_marginTop="5dp"
                     app:alignContent="center"
                     app:alignItems="center"
                     app:flexWrap="wrap"

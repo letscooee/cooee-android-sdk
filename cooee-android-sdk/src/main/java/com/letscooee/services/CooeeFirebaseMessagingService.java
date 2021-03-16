@@ -5,14 +5,23 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.TaskStackBuilder;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.media.AudioAttributes;
+import android.media.AudioManager;
+import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
+import android.os.VibrationEffect;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
+import android.view.View;
 import android.widget.RemoteViews;
 
 import androidx.annotation.NonNull;
@@ -25,9 +34,11 @@ import com.bumptech.glide.request.transition.Transition;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.google.gson.Gson;
+import com.letscooee.brodcast.OnPushNotificationButtonClick;
 import com.letscooee.R;
 import com.letscooee.init.AppController;
 import com.letscooee.init.PostLaunchActivity;
+import com.letscooee.models.CarouselData;
 import com.letscooee.models.Event;
 import com.letscooee.models.TriggerButton;
 import com.letscooee.models.TriggerData;
@@ -36,6 +47,7 @@ import com.letscooee.retrofit.HttpCallsHelper;
 import com.letscooee.utils.CooeeSDKConstants;
 import com.letscooee.utils.LocalStorageHelper;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -70,10 +82,172 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
 
         if (triggerData.isShowAsPN()) {
             sendEvent(getApplicationContext(), new Event("CE Notification Received", new HashMap<>()));
-
-            showNotification(triggerData);
+            if (triggerData.isCarousel()) {
+                loadBitmaps(triggerData.getCarouselData(), 0, triggerData);
+            } else {
+                showNotification(triggerData);
+            }
         } else {
             showInAppMessaging(triggerData);
+        }
+    }
+
+    private final ArrayList<Bitmap> bitmaps = new ArrayList<>();
+
+    private void loadBitmaps(CarouselData[] carouselData, final int i, TriggerData triggerData) {
+        if (i < carouselData.length) {
+
+            try {
+                Glide.with(getApplicationContext())
+                        .asBitmap().load(carouselData[i].getImageUrl()).into(new CustomTarget<Bitmap>() {
+                    @Override
+                    public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                        bitmaps.add(resource);
+                        loadBitmaps(triggerData.getCarouselData(), i + 1, triggerData);
+                    }
+
+                    @Override
+                    public void onLoadCleared(@Nullable Drawable placeholder) {
+
+                    }
+                });
+            } catch (Exception ignored) {
+            }
+
+        } else {
+            showCarouselNotification(triggerData);
+        }
+
+    }
+
+    private void showCarouselNotification(TriggerData triggerData) {
+        String title = getNotificationTitle(triggerData);
+        String body = getNotificationBody(triggerData);
+        CarouselData[] images = triggerData.getCarouselData();
+        if (images.length < 4) {
+            return;
+        }
+        if (title == null) {
+            return;
+        }
+        NotificationManager notificationManager = (NotificationManager) getApplicationContext()
+                .getSystemService(Context.NOTIFICATION_SERVICE);
+        Uri sound = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + getPackageName() + "/" + R.raw.notification_sound);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            AudioAttributes att = new AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+                    .build();
+
+            NotificationChannel notificationChannel = new NotificationChannel(
+                    CooeeSDKConstants.NOTIFICATION_CHANNEL_ID,
+                    CooeeSDKConstants.NOTIFICATION_CHANNEL_NAME,
+                    NotificationManager.IMPORTANCE_DEFAULT);
+            notificationChannel.enableVibration(true);
+            notificationChannel.enableLights(true);
+            notificationChannel.setSound(sound, att);
+            notificationChannel.setDescription("");
+            notificationManager.createNotificationChannel(notificationChannel);
+        }
+
+        int notificationId = (int) new Date().getTime();
+        RemoteViews smallNotification = new RemoteViews(getPackageName(), R.layout.notification_small);
+        smallNotification.setTextViewText(R.id.textViewTitle, title);
+        smallNotification.setTextViewText(R.id.textViewInfo, body);
+
+        RemoteViews views = new RemoteViews(getPackageName(), R.layout.notification_carousel);
+        views.setTextViewText(R.id.textViewTitle, title);
+        views.setTextViewText(R.id.textViewInfo, body);
+
+        Bundle bundle = new Bundle();
+        bundle.putInt("POSITION", 1);
+        bundle.putInt("NOTIFICATIONID", notificationId);
+        bundle.putParcelable("TRIGGERDATA", triggerData);
+        bundle.putString("TYPE", "CAROUSEL");
+
+        Intent rightScrollIntent = new Intent(this, OnPushNotificationButtonClick.class);
+        rightScrollIntent.putExtras(bundle);
+
+        Intent leftScrollIntent = new Intent(this, OnPushNotificationButtonClick.class);
+        leftScrollIntent.putExtras(bundle);
+
+        PendingIntent pendingIntentLeft = PendingIntent.getBroadcast(
+                getApplicationContext(),
+                1,
+                leftScrollIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+
+        PendingIntent pendingIntentRight = PendingIntent.getBroadcast(
+                getApplicationContext(),
+                0,
+                rightScrollIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+
+        if (images.length == 4) {
+            views.setViewVisibility(R.id.right, View.INVISIBLE);
+        }
+        views.setOnClickPendingIntent(R.id.left, pendingIntentLeft);
+        views.setOnClickPendingIntent(R.id.right, pendingIntentRight);
+        views.setViewVisibility(R.id.left, View.INVISIBLE);
+
+
+        for (int i = 0; i < bitmaps.size(); i++) {
+            RemoteViews image = new RemoteViews(getPackageName(), R.layout.row_notification_list);
+            image.setImageViewBitmap(R.id.caroselImage, bitmaps.get(i));
+
+            CarouselData data = triggerData.getCarouselData()[i];
+
+            PackageManager packageManager = getPackageManager();
+            Intent appLaunchIntent = packageManager.getLaunchIntentForPackage(getApplicationContext().getPackageName());
+            appLaunchIntent.putExtra("carouselData", data);
+
+            TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+            stackBuilder.addNextIntentWithParentStack(appLaunchIntent);
+
+            PendingIntent appLaunchPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+            image.setOnClickPendingIntent(R.id.caroselImage, appLaunchPendingIntent);
+
+            if (data.isShowBanner()) {
+                image.setViewVisibility(R.id.carouselProductBanner, View.VISIBLE);
+                image.setTextViewText(R.id.carouselProductBanner, data.getText());
+                image.setTextColor(R.id.carouselProductBanner, Color.parseColor("#" + data.getTextColor()));
+                image.setOnClickPendingIntent(R.id.carouselProductBanner, appLaunchPendingIntent);
+            }
+            if (data.isShowButton()) {
+                image.setViewVisibility(R.id.carouselProductButton, View.VISIBLE);
+                image.setTextViewText(R.id.carouselProductButton, data.getText());
+                image.setTextColor(R.id.carouselProductButton, Color.parseColor("#" + data.getTextColor()));
+                image.setOnClickPendingIntent(R.id.carouselProductButton, appLaunchPendingIntent);
+            }
+
+            views.addView(R.id.lvNotificationList, image);
+        }
+
+
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(
+                getApplicationContext(),
+                CooeeSDKConstants.NOTIFICATION_CHANNEL_ID);
+
+        notificationBuilder.setAutoCancel(false)
+                .setWhen(System.currentTimeMillis())
+                .setSmallIcon(getApplicationInfo().icon)
+                .setStyle(new NotificationCompat.DecoratedCustomViewStyle())
+                .setCustomContentView(smallNotification)
+                .setCustomBigContentView(views)
+                .setContentTitle(title)
+                .setSound(sound)
+                .setContentText(body);
+
+        Notification notification = notificationBuilder.build();
+
+        notificationManager.notify(notificationId, notification);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            StatusBarNotification[] statusBarNotifications = notificationManager.getActiveNotifications();
+            for (StatusBarNotification statusBarNotification : statusBarNotifications) {
+                if (statusBarNotification.getId() == notificationId) {
+                    sendEvent(getApplicationContext(), new Event("CE Notification Viewed", new HashMap<>()));
+                }
+            }
         }
     }
 

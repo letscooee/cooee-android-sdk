@@ -13,16 +13,19 @@ public class TriggerBehindBackground implements Parcelable {
 
     private Type type;
     private int blur = 25;
+    private String color = "828282";
 
     protected TriggerBehindBackground(Parcel in) {
         blur = in.readInt();
         type = Type.valueOf(in.readString());
+        color = in.readString();
     }
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(blur);
         dest.writeString(type.name());
+        dest.writeString(color);
     }
 
     @Override
@@ -48,5 +51,9 @@ public class TriggerBehindBackground implements Parcelable {
 
     public int getBlur() {
         return blur;
+    }
+
+    public String getColor() {
+        return color;
     }
 }

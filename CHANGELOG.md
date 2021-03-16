@@ -1,5 +1,11 @@
 # Change Log
 
+## 0.2.3
+
+1. Glassmorphism effect on orientation changes
+2. Added GIF layer on triggers  
+3. Active triggers tracking
+
 ## 0.2.2
 
 1. Testing application has been changed to include the functionality of our SDK for demo purposes. Now has multiple screens.
