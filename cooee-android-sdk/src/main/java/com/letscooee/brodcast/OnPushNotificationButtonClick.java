@@ -38,7 +38,6 @@ import java.util.HashMap;
 /**
  * @author Ashish Gaikwad
  */
-
 public class OnPushNotificationButtonClick extends BroadcastReceiver {
 
     private CooeeSDK sdk;
@@ -47,7 +46,6 @@ public class OnPushNotificationButtonClick extends BroadcastReceiver {
      * onReceive will get call when broadcast will get trigger and it will hold context and intent of current instance.
      * This will also check for which Type receiver is get triggered and will send controls accordingly.
      */
-
     @Override
     public void onReceive(Context context, Intent intent) {
 
@@ -73,9 +71,8 @@ public class OnPushNotificationButtonClick extends BroadcastReceiver {
      * @param context will come from onReceive method.
      * @param intent  will come from onReceive method.
      */
-
     private void processCarouselData(Context context, Intent intent) throws PropertyNameException {
-        sdk.sendEvent("CE_PN_Action_Click", new HashMap<>());
+        sdk.sendEvent("CE PN Action Click", new HashMap<>());
 
         TriggerData triggerData = (TriggerData) intent.getExtras().getParcelable("TRIGGERDATA");
 
@@ -92,7 +89,6 @@ public class OnPushNotificationButtonClick extends BroadcastReceiver {
      * @param position     will be position for array pointing.
      * @param triggerData  will instance of TriggerData which will hold all other PN data
      */
-
     private void loadBitmapsForCarousel(CarouselData[] carouselData, final int position, TriggerData triggerData, Context context, Intent intent) {
         if (position < carouselData.length) {
 
@@ -125,9 +121,8 @@ public class OnPushNotificationButtonClick extends BroadcastReceiver {
      *
      * @param triggerData will instance of TriggerData which will hold all other PN data
      */
-
     private void showCarouselNotification(Context context, TriggerData triggerData, Intent intent) {
-        int notificationId = intent.getExtras().getInt("notificationId", 0);
+        int notificationId = intent.getExtras().getInt("NOTIFICATIONID", 0);
         int POSITION = intent.getExtras().getInt("POSITION", 0);
         assert triggerData != null;
         String title = getNotificationTitle(triggerData);
@@ -177,7 +172,7 @@ public class OnPushNotificationButtonClick extends BroadcastReceiver {
 
         Bundle bundle = new Bundle();
         bundle.putInt("POSITION", POSITION + 1);
-        bundle.putInt("notificationId", notificationId);
+        bundle.putInt("NOTIFICATIONID", notificationId);
         bundle.putParcelable("TRIGGERDATA", triggerData);
         bundle.putString("TYPE", "CAROUSEL");
 
@@ -253,15 +248,6 @@ public class OnPushNotificationButtonClick extends BroadcastReceiver {
 
         Notification notification = notificationBuilder.build();
         notificationManager.notify(notificationId, notification);
-
-        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            StatusBarNotification[] statusBarNotifications = notificationManager.getActiveNotifications();
-            for (StatusBarNotification statusBarNotification : statusBarNotifications) {
-                if (statusBarNotification.getId() == notificationId) {
-                    sendEvent(context, new Event("CE Notification Viewed", new HashMap<>()));
-                }
-            }
-        }*/
 
     }
 

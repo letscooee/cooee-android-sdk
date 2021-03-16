@@ -160,7 +160,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
 
         Bundle bundle = new Bundle();
         bundle.putInt("POSITION", 1);
-        bundle.putInt("notificationId", notificationId);
+        bundle.putInt("NOTIFICATIONID", notificationId);
         bundle.putParcelable("TRIGGERDATA", triggerData);
         bundle.putString("TYPE", "CAROUSEL");
 
@@ -226,10 +226,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(
                 getApplicationContext(),
                 CooeeSDKConstants.NOTIFICATION_CHANNEL_ID);
-        //notificationBuilder = addAction(notificationBuilder, createActionButtons(triggerData, notificationId));
 
-                    /*smallNotification.setImageViewBitmap(R.id.imageViewLarge, resource);
-                    largeNotification.setImageViewBitmap(R.id.imageViewLarge, resource);*/
         notificationBuilder.setAutoCancel(false)
                 .setWhen(System.currentTimeMillis())
                 .setSmallIcon(getApplicationInfo().icon)
@@ -240,17 +237,8 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
                 .setSound(sound)
                 .setContentText(body);
 
-
-
-            /*Intent deleteIntent = new Intent(getApplicationContext(), CooeeIntentService.class);
-            deleteIntent.setAction("Notification Deleted");*/
-
         Notification notification = notificationBuilder.build();
-            /*notification.deleteIntent = PendingIntent.getService(
-                    getApplicationContext(),
-                    0,
-                    deleteIntent,
-                    PendingIntent.FLAG_ONE_SHOT);*/
+
         notificationManager.notify(notificationId, notification);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
