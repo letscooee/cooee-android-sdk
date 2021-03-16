@@ -323,7 +323,7 @@ public class PostLaunchActivity {
 
         Gson gson = new Gson();
         TriggerData triggerData = gson.fromJson(String.valueOf(data.get("triggerData")), TriggerData.class);
-        updateTriggerInStorage(context, triggerData);
+        storeTriggerID(context, triggerData.getId(), triggerData.getDuration());
         createTrigger(context, triggerData);
     }
 
@@ -347,41 +347,23 @@ public class PostLaunchActivity {
     }
 
     /**
-     * Update the received trigger in local storage
-     *
-     * @param context
-     * @param triggerData
-     */
-    public static void updateTriggerInStorage(Context context, TriggerData triggerData) {
-        storeTriggerID(context
-                , LocalStorageHelper.getString(context, CooeeSDKConstants.STORAGE_ACTIVE_TRIGGERS, "")
-                , triggerData.getId()
-                , String.valueOf(new Date().getTime() + triggerData.getDuration() * 1000));
-    }
-
-    /**
      * Store trigger id and duration in local storage
      *
      * @param context
-     * @param hashMapsString
      * @param id
      * @param time
      * @return
      */
-    public static ArrayList<HashMap<String, String>> storeTriggerID(Context context, String hashMapsString, String id, String time) {
-        ArrayList<HashMap<String, String>> hashMaps = new ArrayList<>();
-
-        if (!hashMapsString.equals("")) {
-            hashMaps = Utility.getArrayListFromString(hashMapsString);
-        }
+    public static ArrayList<HashMap<String, String>> storeTriggerID(Context context, String id, long time) {
+        ArrayList<HashMap<String, String>> hashMaps = LocalStorageHelper.getList(context, CooeeSDKConstants.STORAGE_ACTIVE_TRIGGERS);
 
         HashMap<String, String> hashMap = new HashMap<>();
         hashMap.put("triggerID", id);
-        hashMap.put("duration", time);
+        hashMap.put("duration", String.valueOf(time));
 
         hashMaps.add(hashMap);
 
-        LocalStorageHelper.putStringImmediately(context, CooeeSDKConstants.STORAGE_ACTIVE_TRIGGERS, hashMaps.toString());
+        LocalStorageHelper.putListImmediately(context, CooeeSDKConstants.STORAGE_ACTIVE_TRIGGERS, hashMaps);
 
         return hashMaps;
     }

@@ -4,6 +4,12 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+
 /**
  * LocalStorageHelper is used to store local shared preference data
  *
@@ -63,6 +69,20 @@ public final class LocalStorageHelper {
         SharedPreferences sharedPreferences = getPreferences(context);
         SharedPreferences.Editor editor = sharedPreferences.edit().putBoolean(key, value);
         return commit(editor);
+    }
+
+    public static ArrayList<HashMap<String, String>> getList(Context context, String key) {
+        String stringList = getString(context, key, "");
+
+        Gson gson = new Gson();
+        ArrayList<HashMap<String, String>> triggerHashMapList = gson.fromJson(stringList, new TypeToken<ArrayList<HashMap<String, String>>>() {
+        }.getType());
+
+        return triggerHashMapList;
+    }
+
+    public static void putListImmediately(Context context, String key, ArrayList<HashMap<String, String>> list){
+        putStringImmediately(context, key, list.toString());
     }
 
     public static void apply(SharedPreferences.Editor editor) {

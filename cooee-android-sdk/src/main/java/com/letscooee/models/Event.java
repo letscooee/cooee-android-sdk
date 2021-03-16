@@ -1,5 +1,7 @@
 package com.letscooee.models;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -14,6 +16,7 @@ public class Event {
     private String sessionID;
     private int sessionNumber;
     private String screenName;
+    private ArrayList<HashMap<String, String>> activeTriggers;
 
     public Event(String name, Map<String, String> properties) {
         this.name = name;
@@ -61,5 +64,13 @@ public class Event {
 
     public void setScreenName(String screenName) {
         this.screenName = screenName;
+    }
+
+    public ArrayList<HashMap<String, String>> getActiveTriggers() {
+        return activeTriggers;
+    }
+
+    public void setActiveTriggers(ArrayList<HashMap<String, String>> activeTriggers) {
+        this.activeTriggers = activeTriggers;
     }
 }

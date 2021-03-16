@@ -19,6 +19,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -43,10 +44,21 @@ public final class HttpCallsHelper {
         event.setScreenName(AppController.currentScreen);
         event.setSessionNumber(PostLaunchActivity.currentSessionNumber);
 
-        ArrayList<HashMap<String, String>> activeTriggers = Utility.getActiveArrayListFromString(
-                LocalStorageHelper.getString(context, CooeeSDKConstants.STORAGE_ACTIVE_TRIGGERS, ""));
-        event.getProperties().put("activeTriggers", activeTriggers.toString());
-        LocalStorageHelper.putString(context, CooeeSDKConstants.STORAGE_ACTIVE_TRIGGERS, activeTriggers.toString());
+        ArrayList<HashMap<String, String>> allTriggers = LocalStorageHelper.getList(context, CooeeSDKConstants.STORAGE_ACTIVE_TRIGGERS);
+
+        ArrayList<HashMap<String, String>> activeTriggerList = new ArrayList<>();
+
+        for (HashMap<String, String> map : allTriggers) {
+            long time = Long.parseLong(map.get("duration"));
+            long currentTime = new Date().getTime();
+            if (time > currentTime) {
+                activeTriggerList.add(map);
+            }
+        }
+
+        event.setActiveTriggers(activeTriggerList);
+
+        LocalStorageHelper.putListImmediately(context, CooeeSDKConstants.STORAGE_ACTIVE_TRIGGERS, activeTriggerList);
 
         serverAPIService.sendEvent(event).enqueue(new Callback<Map<String, Object>>() {
             @Override

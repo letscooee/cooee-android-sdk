@@ -62,7 +62,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
         Gson gson = new Gson();
         TriggerData triggerData = gson.fromJson(remoteMessage.getData().get("triggerData"), TriggerData.class);
 
-        PostLaunchActivity.updateTriggerInStorage(getApplicationContext(), triggerData);
+        PostLaunchActivity.storeTriggerID(getApplicationContext(), triggerData.getId(), triggerData.getDuration());
 
         if (triggerData.getId() == null) {
             return;
