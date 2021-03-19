@@ -143,8 +143,17 @@ public class AppController extends Application implements LifecycleObserver, App
         TriggerData triggerData = activity.getIntent().getParcelableExtra("triggerData");
 
         if (triggerData != null && triggerData.getId() != null) {
-            PostLaunchActivity.createTrigger(getApplicationContext(), triggerData);
-            HttpCallsHelper.sendEvent(getApplicationContext(), new Event("CE Notification Clicked", new HashMap<>()), null);
+            new java.util.Timer().schedule(
+                    new java.util.TimerTask() {
+                        @Override
+                        public void run() {
+                            PostLaunchActivity.createTrigger(getApplicationContext(), triggerData);
+                            HttpCallsHelper.sendEvent(getApplicationContext(), new Event("CE Notification Clicked", new HashMap<>()), null);
+                        }
+                    },
+                    4000
+            );
+
         }
     }
 

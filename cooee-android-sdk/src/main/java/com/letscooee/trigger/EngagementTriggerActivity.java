@@ -5,10 +5,8 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.media.AudioManager;
@@ -16,7 +14,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
-import android.text.TextUtils;
 import android.util.Base64;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -48,10 +45,9 @@ import com.letscooee.models.TriggerCloseBehaviour;
 import com.letscooee.models.TriggerData;
 import com.letscooee.models.TriggerText;
 import com.letscooee.retrofit.HttpCallsHelper;
-import com.letscooee.utils.BlurBuilder;
+import com.letscooee.utils.OnInAppCloseListener;
 import com.letscooee.utils.OnInAppPopListener;
 
-import java.io.ByteArrayOutputStream;
 import java.lang.ref.WeakReference;
 import java.util.Date;
 import java.util.HashMap;
@@ -85,6 +81,7 @@ public class EngagementTriggerActivity extends AppCompatActivity {
     private boolean isVideoUnmuted;
     private static Bitmap flutterBitmap;
     public static OnInAppPopListener onInAppPopListener;
+    public static OnInAppCloseListener onInAppCloseListener;
 
     public static void setBitmap(String base64) {
         byte[] decodedString = Base64.decode(base64, Base64.DEFAULT);
@@ -126,10 +123,7 @@ public class EngagementTriggerActivity extends AppCompatActivity {
                 finish();
             }
 
-            if (onInAppPopListener != null) {
-                Log.d(TAG, "onCreate: onInAppTriggered");
-                onInAppPopListener.onInAppTriggered();
-            }
+
             Log.d(TAG, "onCreate: >>> 6");
 
             updateFill();
@@ -653,7 +647,20 @@ public class EngagementTriggerActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        ImageView imageView = findViewById(R.id.blurImage);
+
+        Blurry.with(getApplicationContext())
+                .radius(triggerData.getTriggerBackground().getBlur() != 0
+                        ? triggerData.getTriggerBackground().getBlur()
+                        : 25)
+                .sampling(2)
+                .animate(500)
+                .onto((ViewGroup) _window.getDecorView());
+
+        if (onInAppPopListener != null) {
+            Log.d(TAG, "onCreate: onInAppTriggered");
+            onInAppPopListener.onInAppTriggered();
+        }
+        /*ImageView imageView = findViewById(R.id.blurImage);
         if (triggerData.getTriggerBackground() != null) {
             if (!TextUtils.isEmpty(triggerData.getTriggerBackground().getColor())) {
                 Bitmap bmp = Bitmap.createBitmap(500, 1024, Bitmap.Config.ARGB_8888);
@@ -667,12 +674,16 @@ public class EngagementTriggerActivity extends AppCompatActivity {
         } else {
             imageView.setBackgroundColor(Color.parseColor("#828282"));
         }
-        imageView.setAlpha((float) triggerData.getTriggerBackground().getBlur() / 10);
+        imageView.setAlpha((float) triggerData.getTriggerBackground().getBlur() / 10);*/
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+        Blurry.delete((ViewGroup) _window.getDecorView());
+        if (onInAppCloseListener!=null){
+            onInAppCloseListener.onInAppClosed();
+        }
     }
 
     @Override
