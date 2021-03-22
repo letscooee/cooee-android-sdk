@@ -1,0 +1,18 @@
+image: jangrewe/gitlab-ci-android
+
+before_script:
+    - export GRADLE_USER_HOME=$(pwd)/.gradle
+    - chmod +x ./gradlew
+
+stages:
+    - build
+
+bintray_upload:
+    stage: build
+    script:
+        - ./gradlew clean build bintrayUpload -PbintrayUser=${BINTRAY_USER} -PbintrayKey=${BINTRAY_PASS} -PdryRun=false
+    only:
+        - tags
+    artifacts:
+        paths:
+            - cooee-android-sdk/build/outputs/aar
