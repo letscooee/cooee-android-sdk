@@ -30,11 +30,11 @@ android {
         abortOnError false
     }
 
-    compileSdkVersion 29
+    compileSdkVersion 30
     buildToolsVersion "29.0.3"
     defaultConfig {
         minSdkVersion 21
-        targetSdkVersion 29
+        targetSdkVersion 30
         renderscriptTargetApi 29
         renderscriptSupportModeEnabled true
         versionCode project.version.toString().tokenize('.').collect{ it.padLeft(2, '0')}.join('').toInteger()

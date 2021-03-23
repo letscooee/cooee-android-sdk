@@ -8,7 +8,7 @@ import android.os.Parcelable;
  */
 public class TriggerBehindBackground implements Parcelable {
     public enum Type {
-        BLURRED
+        BLURRED, SOLID_COLOR
     }
 
     private Type type;

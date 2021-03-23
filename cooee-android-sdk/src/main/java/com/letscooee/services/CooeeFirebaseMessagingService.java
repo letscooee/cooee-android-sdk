@@ -50,6 +50,7 @@ import com.letscooee.utils.LocalStorageHelper;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * MyFirebaseMessagingService helps connects with firebase for push notification
@@ -79,9 +80,10 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
         if (triggerData.getId() == null) {
             return;
         }
-
+        Map recieved = new HashMap<String, Object>();
+        recieved.put("triggerID", triggerData.getId());
         if (triggerData.isShowAsPN()) {
-            sendEvent(getApplicationContext(), new Event("CE Notification Received", new HashMap<>()));
+            sendEvent(getApplicationContext(), new Event("CE Notification Received", recieved));
             if (triggerData.isCarousel()) {
                 loadBitmaps(triggerData.getCarouselData(), 0, triggerData);
             } else {
@@ -245,7 +247,9 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
             StatusBarNotification[] statusBarNotifications = notificationManager.getActiveNotifications();
             for (StatusBarNotification statusBarNotification : statusBarNotifications) {
                 if (statusBarNotification.getId() == notificationId) {
-                    sendEvent(getApplicationContext(), new Event("CE Notification Viewed", new HashMap<>()));
+                    Map recieved = new HashMap<String, Object>();
+                    recieved.put("triggerID", triggerData.getId());
+                    sendEvent(getApplicationContext(), new Event("CE Notification Viewed", recieved));
                 }
             }
         }
@@ -343,7 +347,9 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
                     StatusBarNotification[] statusBarNotifications = notificationManager.getActiveNotifications();
                     for (StatusBarNotification statusBarNotification : statusBarNotifications) {
                         if (statusBarNotification.getId() == notificationId) {
-                            sendEvent(getApplicationContext(), new Event("CE Notification Viewed", new HashMap<>()));
+                            Map recieved = new HashMap<String, Object>();
+                            recieved.put("triggerID", triggerData.getId());
+                            sendEvent(getApplicationContext(), new Event("CE Notification Viewed", recieved));
                         }
                     }
                 }
