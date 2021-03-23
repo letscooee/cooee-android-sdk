@@ -407,6 +407,14 @@ public class EngagementTriggerActivity extends AppCompatActivity {
                         }
                     });
         }
+        if (triggerData.getBackground().getAction()!=null){
+            secondParentLayout.setOnClickListener(v -> {
+                didClick(triggerData.getBackground().getAction());
+                closeBehaviour = "Trigger Touch";
+                finish();
+            });
+        }
+
     }
 
     /**
