@@ -34,6 +34,7 @@ import com.letscooee.utils.PropertyNameException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Ashish Gaikwad
@@ -72,9 +73,13 @@ public class OnPushNotificationButtonClick extends BroadcastReceiver {
      * @param intent  will come from onReceive method.
      */
     private void processCarouselData(Context context, Intent intent) throws PropertyNameException {
-        sdk.sendEvent("CE PN Action Click", new HashMap<>());
+
 
         TriggerData triggerData = (TriggerData) intent.getExtras().getParcelable("TRIGGERDATA");
+
+        Map recieved = new HashMap<String, Object>();
+        recieved.put("triggerID", triggerData.getId());
+        sdk.sendEvent("CE PN Action Click", recieved);
 
         assert triggerData != null;
         loadBitmapsForCarousel(triggerData.getCarouselData(), 0, triggerData, context, intent);
@@ -216,13 +221,13 @@ public class OnPushNotificationButtonClick extends BroadcastReceiver {
             if (data.isShowBanner()) {
                 image.setViewVisibility(R.id.carouselProductBanner, View.VISIBLE);
                 image.setTextViewText(R.id.carouselProductBanner, data.getText());
-                image.setTextColor(R.id.carouselProductBanner, Color.parseColor("#" + data.getTextColor()));
+                image.setTextColor(R.id.carouselProductBanner, Color.parseColor("" + data.getTextColor()));
                 image.setOnClickPendingIntent(R.id.carouselProductBanner, appLaunchPendingIntent);
             }
             if (data.isShowButton()) {
                 image.setViewVisibility(R.id.carouselProductButton, View.VISIBLE);
                 image.setTextViewText(R.id.carouselProductButton, data.getText());
-                image.setTextColor(R.id.carouselProductButton, Color.parseColor("#" + data.getTextColor()));
+                image.setTextColor(R.id.carouselProductButton, Color.parseColor("" + data.getTextColor()));
                 image.setOnClickPendingIntent(R.id.carouselProductButton, appLaunchPendingIntent);
             }
 

@@ -211,13 +211,13 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
             if (data.isShowBanner()) {
                 image.setViewVisibility(R.id.carouselProductBanner, View.VISIBLE);
                 image.setTextViewText(R.id.carouselProductBanner, data.getText());
-                image.setTextColor(R.id.carouselProductBanner, Color.parseColor("#" + data.getTextColor()));
+                image.setTextColor(R.id.carouselProductBanner, Color.parseColor("" + data.getTextColor()));
                 image.setOnClickPendingIntent(R.id.carouselProductBanner, appLaunchPendingIntent);
             }
             if (data.isShowButton()) {
                 image.setViewVisibility(R.id.carouselProductButton, View.VISIBLE);
                 image.setTextViewText(R.id.carouselProductButton, data.getText());
-                image.setTextColor(R.id.carouselProductButton, Color.parseColor("#" + data.getTextColor()));
+                image.setTextColor(R.id.carouselProductButton, Color.parseColor("" + data.getTextColor()));
                 image.setOnClickPendingIntent(R.id.carouselProductButton, appLaunchPendingIntent);
             }
 
