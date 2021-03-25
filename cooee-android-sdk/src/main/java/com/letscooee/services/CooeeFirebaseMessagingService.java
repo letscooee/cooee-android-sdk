@@ -312,7 +312,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
         largeNotification.setTextViewText(R.id.textViewInfo, body);
 
         Glide.with(getApplicationContext())
-                .asBitmap().load(triggerData.getImageUrl()).into(new CustomTarget<Bitmap>() {
+                .asBitmap().load(triggerData.getImageUrl1()).into(new CustomTarget<Bitmap>() {
             @Override
             public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
                 NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(

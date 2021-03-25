@@ -588,7 +588,30 @@ public class EngagementTriggerActivity extends AppCompatActivity {
         imageView.setLayoutParams(layoutParams);
         imageView.setScaleType(ImageView.ScaleType.FIT_XY);
 
-        Glide.with(getApplicationContext()).load(triggerData.getImageUrl()).into(imageView);
+        Glide.with(getApplicationContext()).load(triggerData.getImageUrl()).into(new CustomTarget<Drawable>() {
+            @Override
+            public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
+                if (triggerData.getFill()!= TriggerData.Fill.HALF_INTERSTITIAL) {
+                    if (resource.getIntrinsicHeight() > resource.getIntrinsicWidth()) {
+                        imageView.setScaleType(ImageView.ScaleType.FIT_XY);
+                    } else {
+                        imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                    }
+                }else{
+                    if (resource.getIntrinsicHeight() > resource.getIntrinsicWidth()) {
+                        imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                    } else {
+                        imageView.setScaleType(ImageView.ScaleType.FIT_XY);
+                    }
+                }
+                imageView.setImageDrawable(resource);
+            }
+
+            @Override
+            public void onLoadCleared(@Nullable Drawable placeholder) {
+
+            }
+        });
 
         ImageView layeredImageView = new ImageView(EngagementTriggerActivity.this);
         layeredImageView.setLayoutParams(layoutParams);

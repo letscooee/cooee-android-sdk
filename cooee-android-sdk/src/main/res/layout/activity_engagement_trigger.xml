@@ -47,8 +47,7 @@
             <RelativeLayout
                 android:id="@+id/textLayout"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
+                android:layout_height="wrap_content"
                 android:gravity="center">
 
                 <TextView
@@ -76,7 +75,7 @@
                 android:id="@+id/mediaRelativeLayout"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_weight="1.5">
+                android:layout_weight="1">
 
                 <androidx.cardview.widget.CardView
                     android:id="@+id/mediaFrameLayout"
@@ -102,16 +101,14 @@
             <RelativeLayout
                 android:id="@+id/actionLayout"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
+                android:layout_height="wrap_content"
                 android:gravity="center">
 
 
                 <com.google.android.flexbox.FlexboxLayout
                     android:id="@+id/actionFlexLayout"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_alignParentBottom="true"
+                    android:layout_height="wrap_content"
                     android:layout_marginTop="5dp"
                     app:alignContent="center"
                     app:alignItems="center"
