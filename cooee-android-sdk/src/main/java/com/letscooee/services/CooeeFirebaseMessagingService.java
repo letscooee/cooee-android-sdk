@@ -161,7 +161,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
         views.setTextViewText(R.id.textViewInfo, body);
 
         Bundle bundle = new Bundle();
-        bundle.putInt("POSITION", 1);
+        bundle.putInt("POSITION", triggerData.getCarouselOffset());
         bundle.putInt("NOTIFICATIONID", notificationId);
         bundle.putParcelable("TRIGGERDATA", triggerData);
         bundle.putString("TYPE", "CAROUSEL");

@@ -128,7 +128,7 @@ public class OnPushNotificationButtonClick extends BroadcastReceiver {
      */
     private void showCarouselNotification(Context context, TriggerData triggerData, Intent intent) {
         int notificationId = intent.getExtras().getInt("NOTIFICATIONID", 0);
-        int POSITION = intent.getExtras().getInt("POSITION", 0);
+        int POSITION = intent.getExtras().getInt("POSITION", 1);
         assert triggerData != null;
         String title = getNotificationTitle(triggerData);
         String body = getNotificationBody(triggerData);
@@ -164,7 +164,7 @@ public class OnPushNotificationButtonClick extends BroadcastReceiver {
         views.setTextViewText(R.id.textViewTitle, title);
         views.setTextViewText(R.id.textViewInfo, body);
 
-        if (POSITION == triggerData.getCarouselData().length - 3) {
+        if (POSITION + triggerData.getCarouselOffset() == triggerData.getCarouselData().length || POSITION > triggerData.getCarouselData().length || POSITION + triggerData.getCarouselOffset() > triggerData.getCarouselData().length) {
             views.setViewVisibility(R.id.right, View.INVISIBLE);
         } else {
             views.setViewVisibility(R.id.right, View.VISIBLE);
@@ -176,14 +176,14 @@ public class OnPushNotificationButtonClick extends BroadcastReceiver {
         }
 
         Bundle bundle = new Bundle();
-        bundle.putInt("POSITION", POSITION + 1);
+        bundle.putInt("POSITION", POSITION + triggerData.getCarouselOffset());
         bundle.putInt("NOTIFICATIONID", notificationId);
         bundle.putParcelable("TRIGGERDATA", triggerData);
         bundle.putString("TYPE", "CAROUSEL");
 
         Intent rightScrollIntent = new Intent(context, OnPushNotificationButtonClick.class);
         rightScrollIntent.putExtras(bundle);
-        bundle.putInt("POSITION", POSITION - 1);
+        bundle.putInt("POSITION", POSITION - triggerData.getCarouselOffset());
         Intent leftScrollIntent = new Intent(context, OnPushNotificationButtonClick.class);
         leftScrollIntent.putExtras(bundle);
 

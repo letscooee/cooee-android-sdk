@@ -14,6 +14,8 @@ import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.OnLifecycleEvent;
 import androidx.lifecycle.ProcessLifecycleOwner;
 
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.letscooee.BuildConfig;
 import com.letscooee.CooeeSDK;
 import com.letscooee.models.Event;
@@ -155,6 +157,12 @@ public class AppController extends Application implements LifecycleObserver, App
             );
 
         }
+        FirebaseMessaging.getInstance().getToken().addOnSuccessListener(new OnSuccessListener<String>() {
+            @Override
+            public void onSuccess(String token) {
+                HttpCallsHelper.setFirebaseToken(token);
+            }
+        });
     }
 
     @Override
