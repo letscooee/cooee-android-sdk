@@ -34,6 +34,7 @@ import com.letscooee.utils.PropertyNameException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Ashish Gaikwad
@@ -72,9 +73,13 @@ public class OnPushNotificationButtonClick extends BroadcastReceiver {
      * @param intent  will come from onReceive method.
      */
     private void processCarouselData(Context context, Intent intent) throws PropertyNameException {
-        sdk.sendEvent("CE PN Action Click", new HashMap<>());
+
 
         TriggerData triggerData = (TriggerData) intent.getExtras().getParcelable("TRIGGERDATA");
+
+        Map eventProps = new HashMap<String, Object>();
+        eventProps.put("triggerID", triggerData.getId());
+        sdk.sendEvent("CE PN Action Click", eventProps);
 
         assert triggerData != null;
         loadBitmapsForCarousel(triggerData.getCarouselData(), 0, triggerData, context, intent);
@@ -123,7 +128,7 @@ public class OnPushNotificationButtonClick extends BroadcastReceiver {
      */
     private void showCarouselNotification(Context context, TriggerData triggerData, Intent intent) {
         int notificationId = intent.getExtras().getInt("NOTIFICATIONID", 0);
-        int POSITION = intent.getExtras().getInt("POSITION", 0);
+        int POSITION = intent.getExtras().getInt("POSITION", 1);
         assert triggerData != null;
         String title = getNotificationTitle(triggerData);
         String body = getNotificationBody(triggerData);
@@ -159,7 +164,10 @@ public class OnPushNotificationButtonClick extends BroadcastReceiver {
         views.setTextViewText(R.id.textViewTitle, title);
         views.setTextViewText(R.id.textViewInfo, body);
 
-        if (POSITION == triggerData.getCarouselData().length - 3) {
+        int carouselOffset = triggerData.getCarouselOffset();
+        int totalImages = triggerData.getCarouselData().length;
+
+        if (POSITION + carouselOffset >= totalImages || POSITION > totalImages) {
             views.setViewVisibility(R.id.right, View.INVISIBLE);
         } else {
             views.setViewVisibility(R.id.right, View.VISIBLE);
@@ -171,14 +179,14 @@ public class OnPushNotificationButtonClick extends BroadcastReceiver {
         }
 
         Bundle bundle = new Bundle();
-        bundle.putInt("POSITION", POSITION + 1);
+        bundle.putInt("POSITION", POSITION + carouselOffset);
         bundle.putInt("NOTIFICATIONID", notificationId);
         bundle.putParcelable("TRIGGERDATA", triggerData);
         bundle.putString("TYPE", "CAROUSEL");
 
         Intent rightScrollIntent = new Intent(context, OnPushNotificationButtonClick.class);
         rightScrollIntent.putExtras(bundle);
-        bundle.putInt("POSITION", POSITION - 1);
+        bundle.putInt("POSITION", POSITION - carouselOffset);
         Intent leftScrollIntent = new Intent(context, OnPushNotificationButtonClick.class);
         leftScrollIntent.putExtras(bundle);
 
@@ -216,13 +224,13 @@ public class OnPushNotificationButtonClick extends BroadcastReceiver {
             if (data.isShowBanner()) {
                 image.setViewVisibility(R.id.carouselProductBanner, View.VISIBLE);
                 image.setTextViewText(R.id.carouselProductBanner, data.getText());
-                image.setTextColor(R.id.carouselProductBanner, Color.parseColor("#" + data.getTextColor()));
+                image.setTextColor(R.id.carouselProductBanner, Color.parseColor(data.getTextColor()));
                 image.setOnClickPendingIntent(R.id.carouselProductBanner, appLaunchPendingIntent);
             }
             if (data.isShowButton()) {
                 image.setViewVisibility(R.id.carouselProductButton, View.VISIBLE);
                 image.setTextViewText(R.id.carouselProductButton, data.getText());
-                image.setTextColor(R.id.carouselProductButton, Color.parseColor("#" + data.getTextColor()));
+                image.setTextColor(R.id.carouselProductButton, Color.parseColor(data.getTextColor()));
                 image.setOnClickPendingIntent(R.id.carouselProductButton, appLaunchPendingIntent);
             }
 

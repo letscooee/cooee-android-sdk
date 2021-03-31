@@ -22,6 +22,12 @@
         android:layout_margin="15dp"
         android:background="@android:color/transparent">
 
+        <ImageView
+            android:id="@+id/imageViewBackground"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop" />
+
         <ImageButton
             android:id="@+id/buttonClose"
             android:layout_width="wrap_content"
@@ -41,8 +47,7 @@
             <RelativeLayout
                 android:id="@+id/textLayout"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1.5"
+                android:layout_height="wrap_content"
                 android:gravity="center">
 
                 <TextView
@@ -69,7 +74,7 @@
             <RelativeLayout
                 android:id="@+id/mediaRelativeLayout"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="0dp"
                 android:layout_weight="1">
 
                 <androidx.cardview.widget.CardView
@@ -78,12 +83,14 @@
                     android:layout_height="wrap_content"
                     android:layout_centerInParent="true"
                     android:layout_margin="3dp"
+                    app:cardBackgroundColor="@color/transparent"
                     app:cardCornerRadius="3dp">
 
                     <RelativeLayout
                         android:id="@+id/insideMediaFrameLayout"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent">
+                        android:layout_height="match_parent"
+                        android:layout_gravity="center">
 
                     </RelativeLayout>
 
@@ -94,14 +101,14 @@
             <RelativeLayout
                 android:id="@+id/actionLayout"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1.5"
+                android:layout_height="wrap_content"
                 android:gravity="center">
+
 
                 <com.google.android.flexbox.FlexboxLayout
                     android:id="@+id/actionFlexLayout"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:layout_marginTop="5dp"
                     app:alignContent="center"
                     app:alignItems="center"

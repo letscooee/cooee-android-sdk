@@ -50,6 +50,7 @@ import com.letscooee.utils.LocalStorageHelper;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * MyFirebaseMessagingService helps connects with firebase for push notification
@@ -79,9 +80,10 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
         if (triggerData.getId() == null) {
             return;
         }
-
+        Map eventProps = new HashMap<String, Object>();
+        eventProps.put("triggerID", triggerData.getId());
         if (triggerData.isShowAsPN()) {
-            sendEvent(getApplicationContext(), new Event("CE Notification Received", new HashMap<>()));
+            sendEvent(getApplicationContext(), new Event("CE Notification Received", eventProps));
             if (triggerData.isCarousel()) {
                 loadBitmaps(triggerData.getCarouselData(), 0, triggerData);
             } else {
@@ -159,7 +161,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
         views.setTextViewText(R.id.textViewInfo, body);
 
         Bundle bundle = new Bundle();
-        bundle.putInt("POSITION", 1);
+        bundle.putInt("POSITION", triggerData.getCarouselOffset());
         bundle.putInt("NOTIFICATIONID", notificationId);
         bundle.putParcelable("TRIGGERDATA", triggerData);
         bundle.putString("TYPE", "CAROUSEL");
@@ -209,13 +211,13 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
             if (data.isShowBanner()) {
                 image.setViewVisibility(R.id.carouselProductBanner, View.VISIBLE);
                 image.setTextViewText(R.id.carouselProductBanner, data.getText());
-                image.setTextColor(R.id.carouselProductBanner, Color.parseColor("#" + data.getTextColor()));
+                image.setTextColor(R.id.carouselProductBanner, Color.parseColor("" + data.getTextColor()));
                 image.setOnClickPendingIntent(R.id.carouselProductBanner, appLaunchPendingIntent);
             }
             if (data.isShowButton()) {
                 image.setViewVisibility(R.id.carouselProductButton, View.VISIBLE);
                 image.setTextViewText(R.id.carouselProductButton, data.getText());
-                image.setTextColor(R.id.carouselProductButton, Color.parseColor("#" + data.getTextColor()));
+                image.setTextColor(R.id.carouselProductButton, Color.parseColor("" + data.getTextColor()));
                 image.setOnClickPendingIntent(R.id.carouselProductButton, appLaunchPendingIntent);
             }
 
@@ -245,7 +247,9 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
             StatusBarNotification[] statusBarNotifications = notificationManager.getActiveNotifications();
             for (StatusBarNotification statusBarNotification : statusBarNotifications) {
                 if (statusBarNotification.getId() == notificationId) {
-                    sendEvent(getApplicationContext(), new Event("CE Notification Viewed", new HashMap<>()));
+                    Map eventProps = new HashMap<String, Object>();
+                    eventProps.put("triggerID", triggerData.getId());
+                    sendEvent(getApplicationContext(), new Event("CE Notification Viewed", eventProps));
                 }
             }
         }
@@ -308,7 +312,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
         largeNotification.setTextViewText(R.id.textViewInfo, body);
 
         Glide.with(getApplicationContext())
-                .asBitmap().load(triggerData.getImageUrl()).into(new CustomTarget<Bitmap>() {
+                .asBitmap().load(triggerData.getImageUrl1()).into(new CustomTarget<Bitmap>() {
             @Override
             public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
                 NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(
@@ -343,7 +347,9 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
                     StatusBarNotification[] statusBarNotifications = notificationManager.getActiveNotifications();
                     for (StatusBarNotification statusBarNotification : statusBarNotifications) {
                         if (statusBarNotification.getId() == notificationId) {
-                            sendEvent(getApplicationContext(), new Event("CE Notification Viewed", new HashMap<>()));
+                            Map eventProps = new HashMap<String, Object>();
+                            eventProps.put("triggerID", triggerData.getId());
+                            sendEvent(getApplicationContext(), new Event("CE Notification Viewed", eventProps));
                         }
                     }
                 }

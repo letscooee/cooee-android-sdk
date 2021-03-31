@@ -256,13 +256,14 @@ public class PostLaunchActivity {
         String[] location = defaultUserPropertiesCollector.getLocation();
         String[] networkData = defaultUserPropertiesCollector.getNetworkData();
 
-        Map<String, String> userProperties = new HashMap<>();
+        Map<String, Object> userProperties = new HashMap<>();
         if (userProps != null) {
             userProperties = new HashMap<>(userProps);
         }
 
         userProperties.put("CE OS", "ANDROID");
         userProperties.put("CE SDK Version", BuildConfig.VERSION_NAME);
+        userProperties.put("CE SDK Version Code", BuildConfig.VERSION_CODE);
         userProperties.put("CE App Version", defaultUserPropertiesCollector.getAppVersion());
         userProperties.put("CE OS Version", Build.VERSION.RELEASE);
         userProperties.put("CE Device Manufacturer", Build.MANUFACTURER);
