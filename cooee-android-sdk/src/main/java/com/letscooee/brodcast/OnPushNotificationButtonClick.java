@@ -167,7 +167,7 @@ public class OnPushNotificationButtonClick extends BroadcastReceiver {
         int carouselOffset = triggerData.getCarouselOffset();
         int totalImages = triggerData.getCarouselData().length;
 
-        if (POSITION + carouselOffset == totalImages || POSITION > totalImages || POSITION + carouselOffset > totalImages) {
+        if (POSITION + carouselOffset >= totalImages || POSITION > totalImages) {
             views.setViewVisibility(R.id.right, View.INVISIBLE);
         } else {
             views.setViewVisibility(R.id.right, View.VISIBLE);
@@ -179,14 +179,14 @@ public class OnPushNotificationButtonClick extends BroadcastReceiver {
         }
 
         Bundle bundle = new Bundle();
-        bundle.putInt("POSITION", POSITION + triggerData.getCarouselOffset());
+        bundle.putInt("POSITION", POSITION + carouselOffset);
         bundle.putInt("NOTIFICATIONID", notificationId);
         bundle.putParcelable("TRIGGERDATA", triggerData);
         bundle.putString("TYPE", "CAROUSEL");
 
         Intent rightScrollIntent = new Intent(context, OnPushNotificationButtonClick.class);
         rightScrollIntent.putExtras(bundle);
-        bundle.putInt("POSITION", POSITION - triggerData.getCarouselOffset());
+        bundle.putInt("POSITION", POSITION - carouselOffset);
         Intent leftScrollIntent = new Intent(context, OnPushNotificationButtonClick.class);
         leftScrollIntent.putExtras(bundle);
 
