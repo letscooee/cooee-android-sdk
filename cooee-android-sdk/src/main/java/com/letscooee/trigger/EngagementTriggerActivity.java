@@ -107,22 +107,18 @@ public class EngagementTriggerActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.d(TAG, "onCreate: >>> 1");
         super.onCreate(savedInstanceState);
-        Log.d(TAG, "onCreate: >>> 2");
         setContentView(R.layout.activity_engagement_trigger);
-        Log.d(TAG, "onCreate: >>> 3");
+
         closeImageButton = findViewById(R.id.buttonClose);
         closeImageButton.setOnClickListener(view -> {
             closeBehaviour = "Close Button";
             finish();
         });
-        Log.d(TAG, "onCreate: >>> 4");
 
         secondParentLayout = findViewById(R.id.secondParentRelative);
         textViewTimer = findViewById(R.id.textViewTimer);
         inAppListenerWeakReference = new WeakReference<>(CooeeSDK.getDefaultInstance(this));
-        Log.d(TAG, "onCreate: >>> 5");
 
         try {
             triggerData = (TriggerData) Objects.requireNonNull(getIntent().getBundleExtra("bundle")).getParcelable("triggerData");
@@ -131,38 +127,16 @@ public class EngagementTriggerActivity extends AppCompatActivity {
                 finish();
             }
 
-
-            Log.d(TAG, "onCreate: >>> 6");
-
             updateFill();
-            Log.d(TAG, "onCreate: >>> 7");
-
             addMediaView();
-            Log.d(TAG, "onCreate: >>> 8");
-
             closeButtonPosition();
-            Log.d(TAG, "onCreate: >>> 9");
-
             updateBackground();
-            Log.d(TAG, "onCreate: >>> 10");
-
             updateEntrance();
-            Log.d(TAG, "onCreate: >>> 11");
-
             updateClose();
-            Log.d(TAG, "onCreate: >>> 12");
-
             updateText();
-            Log.d(TAG, "onCreate: >>> 13");
-
             updateMessage();
-            Log.d(TAG, "onCreate: >>> 14");
-
             updateTextPosition();
-            Log.d(TAG, "onCreate: >>> 15");
-
             createActionButtons();
-            Log.d(TAG, "onCreate: >>> 16");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -248,8 +222,8 @@ public class EngagementTriggerActivity extends AppCompatActivity {
 
         if (action.getUserProperty() != null) {
             Map<String, Object> userProfile = new HashMap<>();
-            Map recieved = new HashMap<String, Object>();
-            recieved.put("triggerID", triggerData.getId());
+            Map eventProps = new HashMap<String, Object>();
+            eventProps.put("triggerID", triggerData.getId());
             userProfile.put("userData", new HashMap<>());
             userProfile.put("userProperties", action.getUserProperty());
             HttpCallsHelper.sendUserProfile(userProfile, "Trigger Property", null);
@@ -383,6 +357,7 @@ public class EngagementTriggerActivity extends AppCompatActivity {
             drawable.setStroke(1, 0xFFFFFF);
             drawable.setColor(Color.parseColor("#" + y + color.substring(1)));
             secondParentLayout.setBackground(drawable);
+
         } else if (triggerData.getBackground().getType() == TriggerBackground.TriggerType.IMAGE) {
             if (triggerData.getBackground().getImage() == null || triggerData.getBackground().getImage().isEmpty()) {
                 secondParentLayout.setBackgroundColor(getResources().getColor(R.color.colorBackground));
@@ -407,7 +382,8 @@ public class EngagementTriggerActivity extends AppCompatActivity {
                         }
                     });
         }
-        if (triggerData.getBackground().getAction()!=null){
+
+        if (triggerData.getBackground().getAction() != null) {
             secondParentLayout.setOnClickListener(v -> {
                 didClick(triggerData.getBackground().getAction());
                 closeBehaviour = "Trigger Touch";
@@ -591,13 +567,13 @@ public class EngagementTriggerActivity extends AppCompatActivity {
         Glide.with(getApplicationContext()).load(triggerData.getImageUrl()).into(new CustomTarget<Drawable>() {
             @Override
             public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
-                if (triggerData.getFill()!= TriggerData.Fill.HALF_INTERSTITIAL) {
+                if (triggerData.getFill() != TriggerData.Fill.HALF_INTERSTITIAL) {
                     if (resource.getIntrinsicHeight() > resource.getIntrinsicWidth()) {
                         imageView.setScaleType(ImageView.ScaleType.FIT_XY);
                     } else {
                         imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
                     }
-                }else{
+                } else {
                     if (resource.getIntrinsicHeight() > resource.getIntrinsicWidth()) {
                         imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
                     } else {
@@ -825,10 +801,10 @@ public class EngagementTriggerActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         startTime = new Date();
-        Map recieved = new HashMap<String, Object>();
+        Map eventProps = new HashMap<String, Object>();
         if (triggerData != null)
-            recieved.put("triggerID", triggerData.getId());
-        Event event = new Event("CE Trigger Displayed", recieved);
+            eventProps.put("triggerID", triggerData.getId());
+        Event event = new Event("CE Trigger Displayed", eventProps);
         HttpCallsHelper.sendEvent(getApplicationContext(), event, null);
     }
 

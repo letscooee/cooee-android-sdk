@@ -80,10 +80,10 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
         if (triggerData.getId() == null) {
             return;
         }
-        Map recieved = new HashMap<String, Object>();
-        recieved.put("triggerID", triggerData.getId());
+        Map eventProps = new HashMap<String, Object>();
+        eventProps.put("triggerID", triggerData.getId());
         if (triggerData.isShowAsPN()) {
-            sendEvent(getApplicationContext(), new Event("CE Notification Received", recieved));
+            sendEvent(getApplicationContext(), new Event("CE Notification Received", eventProps));
             if (triggerData.isCarousel()) {
                 loadBitmaps(triggerData.getCarouselData(), 0, triggerData);
             } else {
@@ -247,9 +247,9 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
             StatusBarNotification[] statusBarNotifications = notificationManager.getActiveNotifications();
             for (StatusBarNotification statusBarNotification : statusBarNotifications) {
                 if (statusBarNotification.getId() == notificationId) {
-                    Map recieved = new HashMap<String, Object>();
-                    recieved.put("triggerID", triggerData.getId());
-                    sendEvent(getApplicationContext(), new Event("CE Notification Viewed", recieved));
+                    Map eventProps = new HashMap<String, Object>();
+                    eventProps.put("triggerID", triggerData.getId());
+                    sendEvent(getApplicationContext(), new Event("CE Notification Viewed", eventProps));
                 }
             }
         }
@@ -347,9 +347,9 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
                     StatusBarNotification[] statusBarNotifications = notificationManager.getActiveNotifications();
                     for (StatusBarNotification statusBarNotification : statusBarNotifications) {
                         if (statusBarNotification.getId() == notificationId) {
-                            Map recieved = new HashMap<String, Object>();
-                            recieved.put("triggerID", triggerData.getId());
-                            sendEvent(getApplicationContext(), new Event("CE Notification Viewed", recieved));
+                            Map eventProps = new HashMap<String, Object>();
+                            eventProps.put("triggerID", triggerData.getId());
+                            sendEvent(getApplicationContext(), new Event("CE Notification Viewed", eventProps));
                         }
                     }
                 }

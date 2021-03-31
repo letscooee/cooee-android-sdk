@@ -41,7 +41,7 @@ public class TriggerBackground implements Parcelable {
         opacity = in.readInt();
         type = TriggerType.valueOf(in.readString());
         radius = in.readInt();
-        action=in.readParcelable(TriggerButtonAction.class.getClassLoader());
+        action = in.readParcelable(TriggerButtonAction.class.getClassLoader());
     }
 
 
@@ -57,7 +57,7 @@ public class TriggerBackground implements Parcelable {
         dest.writeInt(opacity);
         dest.writeString(type.name());
         dest.writeInt(radius);
-        dest.writeParcelable(action,flags);
+        dest.writeParcelable(action, flags);
     }
 
     public TriggerType getType() {

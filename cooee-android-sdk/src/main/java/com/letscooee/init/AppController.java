@@ -29,6 +29,8 @@ import java.io.File;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * AppController Class looks upon the lifecycle of the application, check if app is in foreground or background etc.
@@ -145,18 +147,17 @@ public class AppController extends Application implements LifecycleObserver, App
         TriggerData triggerData = activity.getIntent().getParcelableExtra("triggerData");
 
         if (triggerData != null && triggerData.getId() != null) {
-            new java.util.Timer().schedule(
-                    new java.util.TimerTask() {
+            new Timer().schedule(
+                    new TimerTask() {
                         @Override
                         public void run() {
                             PostLaunchActivity.createTrigger(getApplicationContext(), triggerData);
                             HttpCallsHelper.sendEvent(getApplicationContext(), new Event("CE Notification Clicked", new HashMap<>()), null);
                         }
-                    },
-                    4000
-            );
+                    }, 4000);
 
         }
+
         FirebaseMessaging.getInstance().getToken().addOnSuccessListener(new OnSuccessListener<String>() {
             @Override
             public void onSuccess(String token) {

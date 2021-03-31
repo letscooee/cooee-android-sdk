@@ -77,9 +77,9 @@ public class OnPushNotificationButtonClick extends BroadcastReceiver {
 
         TriggerData triggerData = (TriggerData) intent.getExtras().getParcelable("TRIGGERDATA");
 
-        Map recieved = new HashMap<String, Object>();
-        recieved.put("triggerID", triggerData.getId());
-        sdk.sendEvent("CE PN Action Click", recieved);
+        Map eventProps = new HashMap<String, Object>();
+        eventProps.put("triggerID", triggerData.getId());
+        sdk.sendEvent("CE PN Action Click", eventProps);
 
         assert triggerData != null;
         loadBitmapsForCarousel(triggerData.getCarouselData(), 0, triggerData, context, intent);
@@ -164,7 +164,10 @@ public class OnPushNotificationButtonClick extends BroadcastReceiver {
         views.setTextViewText(R.id.textViewTitle, title);
         views.setTextViewText(R.id.textViewInfo, body);
 
-        if (POSITION + triggerData.getCarouselOffset() == triggerData.getCarouselData().length || POSITION > triggerData.getCarouselData().length || POSITION + triggerData.getCarouselOffset() > triggerData.getCarouselData().length) {
+        int carouselOffset = triggerData.getCarouselOffset();
+        int totalImages = triggerData.getCarouselData().length;
+
+        if (POSITION + carouselOffset == totalImages || POSITION > totalImages || POSITION + carouselOffset > totalImages) {
             views.setViewVisibility(R.id.right, View.INVISIBLE);
         } else {
             views.setViewVisibility(R.id.right, View.VISIBLE);
@@ -221,13 +224,13 @@ public class OnPushNotificationButtonClick extends BroadcastReceiver {
             if (data.isShowBanner()) {
                 image.setViewVisibility(R.id.carouselProductBanner, View.VISIBLE);
                 image.setTextViewText(R.id.carouselProductBanner, data.getText());
-                image.setTextColor(R.id.carouselProductBanner, Color.parseColor("" + data.getTextColor()));
+                image.setTextColor(R.id.carouselProductBanner, Color.parseColor(data.getTextColor()));
                 image.setOnClickPendingIntent(R.id.carouselProductBanner, appLaunchPendingIntent);
             }
             if (data.isShowButton()) {
                 image.setViewVisibility(R.id.carouselProductButton, View.VISIBLE);
                 image.setTextViewText(R.id.carouselProductButton, data.getText());
-                image.setTextColor(R.id.carouselProductButton, Color.parseColor("" + data.getTextColor()));
+                image.setTextColor(R.id.carouselProductButton, Color.parseColor(data.getTextColor()));
                 image.setOnClickPendingIntent(R.id.carouselProductButton, appLaunchPendingIntent);
             }
 
