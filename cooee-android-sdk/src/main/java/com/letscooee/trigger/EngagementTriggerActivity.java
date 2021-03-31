@@ -65,6 +65,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import io.sentry.Sentry;
 import jp.wasabeef.blurry.Blurry;
 
 public class EngagementTriggerActivity extends AppCompatActivity {
@@ -163,8 +164,13 @@ public class EngagementTriggerActivity extends AppCompatActivity {
 
             createActionButtons();
             Log.d(TAG, "onCreate: >>> 16");
+            throw new Exception("Test Crash");
         } catch (Exception e) {
-            e.printStackTrace();
+            //e.printStackTrace();
+            Log.e(TAG, "Engagement Trigger Failed: ", e);
+            Sentry.captureException(e);
+
+            //Sentry.
         }
     }
 
@@ -407,7 +413,7 @@ public class EngagementTriggerActivity extends AppCompatActivity {
                         }
                     });
         }
-        if (triggerData.getBackground().getAction()!=null){
+        if (triggerData.getBackground().getAction() != null) {
             secondParentLayout.setOnClickListener(v -> {
                 didClick(triggerData.getBackground().getAction());
                 closeBehaviour = "Trigger Touch";
@@ -591,13 +597,13 @@ public class EngagementTriggerActivity extends AppCompatActivity {
         Glide.with(getApplicationContext()).load(triggerData.getImageUrl()).into(new CustomTarget<Drawable>() {
             @Override
             public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
-                if (triggerData.getFill()!= TriggerData.Fill.HALF_INTERSTITIAL) {
+                if (triggerData.getFill() != TriggerData.Fill.HALF_INTERSTITIAL) {
                     if (resource.getIntrinsicHeight() > resource.getIntrinsicWidth()) {
                         imageView.setScaleType(ImageView.ScaleType.FIT_XY);
                     } else {
                         imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
                     }
-                }else{
+                } else {
                     if (resource.getIntrinsicHeight() > resource.getIntrinsicWidth()) {
                         imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
                     } else {
@@ -894,16 +900,16 @@ public class EngagementTriggerActivity extends AppCompatActivity {
         int duration = (int) ((new Date().getTime() - startTime.getTime()) / 1000);
         int totalWatched = videoDuration * videoSeenCounter + watchedTill;
 
-        Map<String, String> kpiMap = new HashMap<>();
-        kpiMap.put("Duration", String.valueOf(duration));
+        Map<String, Object> kpiMap = new HashMap<>();
+        kpiMap.put("Duration", duration);
         kpiMap.put("Close Behaviour", closeBehaviour);
         kpiMap.put("triggerID", triggerData.getId());
 
         if (triggerData.getType() == TriggerData.Type.VIDEO) {
-            kpiMap.put("Video Duration", String.valueOf(videoDuration));
-            kpiMap.put("Watched Till", String.valueOf(watchedTill));
-            kpiMap.put("Total Watched", String.valueOf(totalWatched));
-            kpiMap.put("Video Unmuted", String.valueOf(isVideoUnmuted));
+            kpiMap.put("Video Duration", videoDuration);
+            kpiMap.put("Watched Till", watchedTill);
+            kpiMap.put("Total Watched", totalWatched);
+            kpiMap.put("Video Unmuted", isVideoUnmuted);
 
         }
 

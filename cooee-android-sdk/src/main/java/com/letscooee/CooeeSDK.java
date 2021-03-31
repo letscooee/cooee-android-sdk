@@ -16,6 +16,10 @@ import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Map;
 
+import io.sentry.Sentry;
+import io.sentry.SentryLevel;
+import io.sentry.protocol.User;
+
 /**
  * The CooeeSDK class contains all the functions required by application to achieve the campaign tasks(Singleton Class)
  *
@@ -62,7 +66,7 @@ public class CooeeSDK implements EngagementTriggerActivity.InAppListener {
      * @param eventProperties Properties associated with the event
      * @throws PropertyNameException Custom Exception so that properties' key has no prefix as 'ce '
      */
-    public void sendEvent(String eventName, Map<String, String> eventProperties) throws PropertyNameException {
+    public void sendEvent(String eventName, Map<String, Object> eventProperties) throws PropertyNameException {
         for (String key : eventProperties.keySet()) {
             if (key.substring(0, 3).equalsIgnoreCase("ce ")) {
                 throw new PropertyNameException();
@@ -126,6 +130,17 @@ public class CooeeSDK implements EngagementTriggerActivity.InAppListener {
         HttpCallsHelper.sendUserProfile(userMap, "Manual", data -> {
             if (data.get("id") != null) {
                 LocalStorageHelper.putString(context, CooeeSDKConstants.STORAGE_USER_ID, data.get("id").toString());
+
+                User user = new User();
+                user.setId(data.get("id").toString());
+                user.setUsername(userData.get("name"));
+                user.setEmail(userData.get("email"));
+
+                Map<String, String> userDataExtra = new HashMap<>();
+                userDataExtra.put("mobile", userData.get("mobile"));
+                user.setOthers(userDataExtra);
+
+                Sentry.setUser(user);
             }
         });
     }
@@ -177,5 +192,11 @@ public class CooeeSDK implements EngagementTriggerActivity.InAppListener {
      */
     public void setBitmap(String base64) {
         EngagementTriggerActivity.setBitmap(base64);
+    }
+
+    public void sendDebugEnvironment(boolean isDebugEnvironment) {
+        if (isDebugEnvironment)
+            Sentry.setLevel(SentryLevel.DEBUG);
+
     }
 }

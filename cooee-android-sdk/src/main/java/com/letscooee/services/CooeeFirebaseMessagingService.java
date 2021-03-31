@@ -52,6 +52,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import io.sentry.Sentry;
+
 /**
  * MyFirebaseMessagingService helps connects with firebase for push notification
  *
@@ -113,7 +115,8 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
 
                     }
                 });
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                Sentry.captureException(e);
             }
 
         } else {

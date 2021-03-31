@@ -30,6 +30,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import io.sentry.Sentry;
+
 /**
  * AppController Class looks upon the lifecycle of the application, check if app is in foreground or background etc.
  *
@@ -74,8 +76,8 @@ public class AppController extends Application implements LifecycleObserver, App
             new PostLaunchActivity(getApplicationContext());
             Log.d(CooeeSDKConstants.LOG_PREFIX, "After 30 min of App Background " + "Session Concluded");
         } else {
-            Map<String, String> sessionProperties = new HashMap<>();
-            sessionProperties.put("CE Duration", String.valueOf(backgroundDuration / 1000));
+            Map<String, Object> sessionProperties = new HashMap<>();
+            sessionProperties.put("CE Duration", backgroundDuration / 1000);
 
             Event session = new Event("CE App Foreground", sessionProperties);
             HttpCallsHelper.sendEvent(getApplicationContext(), session, data -> PostLaunchActivity.createTrigger(getApplicationContext(), data));
@@ -98,9 +100,9 @@ public class AppController extends Application implements LifecycleObserver, App
         //Purposefully not added to another method, will be taken cared in separate-http-call merge
         PostLaunchActivity.onSDKStateDecided.subscribe((Object ignored) -> {
             lastEnterBackground = new Date();
-            String duration = (lastEnterBackground.getTime() - lastEnterForeground.getTime()) / 1000 + "";
+            long duration = (lastEnterBackground.getTime() - lastEnterForeground.getTime()) / 1000;
 
-            Map<String, String> sessionProperties = new HashMap<>();
+            Map<String, Object> sessionProperties = new HashMap<>();
             sessionProperties.put("CE Duration", duration);
 
             Event session = new Event("CE App Background", sessionProperties);
@@ -224,7 +226,8 @@ public class AppController extends Application implements LifecycleObserver, App
             Log.d(CooeeSDKConstants.LOG_PREFIX, "SDK deleted : " + isSDKFileDeleted);
 
         } catch (Exception e) {
-            Log.e(CooeeSDKConstants.LOG_PREFIX, "Could not delete the file locally");
+            //Log.e(CooeeSDKConstants.LOG_PREFIX, "Could not delete the file locally");
+            Sentry.captureException(e);
         }
     }
 }

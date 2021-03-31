@@ -68,6 +68,10 @@ public class HomeActivity extends AppCompatActivity implements InAppNotification
             cooeeSDK.sendEvent("onCreate", new HashMap<>());
         } catch (Exception ignored) {
         }
+        try {
+            cooeeSDK.sendDebugEnvironment(true);
+        } catch (Exception ignored) {
+        }
 
         try {
             Log.d(TAG, "************************************UUID : " + cooeeSDK.getUUID());
