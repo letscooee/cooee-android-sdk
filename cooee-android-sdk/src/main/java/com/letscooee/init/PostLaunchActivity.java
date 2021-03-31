@@ -106,14 +106,30 @@ public class PostLaunchActivity {
 
             successiveAppLaunch();
         }
+
         SentryAndroid.init(context, options -> {
             options.setRelease("com.letscooee@" + BuildConfig.VERSION_NAME + "+" + BuildConfig.VERSION_CODE);
             options.setDebug(true);
         });
-        Sentry.setTag("Client App ID", defaultUserPropertiesCollector.getAppPackage());
-        Sentry.setTag("Client App Version", defaultUserPropertiesCollector.getAppVersion());
+
+        Sentry.setTag("client.appPackage", defaultUserPropertiesCollector.getAppPackage());
+        Sentry.setTag("client.appVersion", defaultUserPropertiesCollector.getAppVersion());
+        Sentry.setTag("client.appName", getApplicationName());
+        Sentry.setTag("client.appId", getAppCredentials()[0]);
+        Sentry.setTag("buildType", "release");
         APIClient.setDeviceName(getDeviceName());
         APIClient.setUserId(LocalStorageHelper.getString(context, CooeeSDKConstants.STORAGE_USER_ID, ""));
+    }
+
+    /**
+     * Get app name
+     *
+     * @return app name
+     */
+    public String getApplicationName() {
+        ApplicationInfo applicationInfo = context.getApplicationInfo();
+        int stringId = applicationInfo.labelRes;
+        return stringId == 0 ? applicationInfo.nonLocalizedLabel.toString() : context.getString(stringId);
     }
 
     /**

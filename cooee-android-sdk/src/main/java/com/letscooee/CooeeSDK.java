@@ -1,6 +1,7 @@
 package com.letscooee;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.letscooee.init.PostLaunchActivity;
@@ -33,6 +34,7 @@ public class CooeeSDK implements EngagementTriggerActivity.InAppListener {
 
     private String currentScreenName = "";
     private String uuid = "";
+    public static boolean debugMode = false;
 
     private WeakReference<InAppNotificationClickListener> inAppNotificationClickListener;
 
@@ -44,6 +46,7 @@ public class CooeeSDK implements EngagementTriggerActivity.InAppListener {
     private CooeeSDK(Context context) {
         this.context = context;
         new PostLaunchActivity(context);
+        setSentryUser(getUUID(), new HashMap<>());
     }
 
     /**
@@ -130,19 +133,30 @@ public class CooeeSDK implements EngagementTriggerActivity.InAppListener {
         HttpCallsHelper.sendUserProfile(userMap, "Manual", data -> {
             if (data.get("id") != null) {
                 LocalStorageHelper.putString(context, CooeeSDKConstants.STORAGE_USER_ID, data.get("id").toString());
-
-                User user = new User();
-                user.setId(data.get("id").toString());
-                user.setUsername(userData.get("name"));
-                user.setEmail(userData.get("email"));
-
-                Map<String, String> userDataExtra = new HashMap<>();
-                userDataExtra.put("mobile", userData.get("mobile"));
-                user.setOthers(userDataExtra);
-
-                Sentry.setUser(user);
+                setSentryUser(data.get("id").toString(), userData);
             }
         });
+    }
+
+    private void setSentryUser(String id, Map<String, String> userData) {
+        User user = new User();
+        user.setId(id);
+
+        if (!TextUtils.isEmpty(userData.get("name"))) {
+            user.setUsername(userData.get("name"));
+        }
+
+        if (!TextUtils.isEmpty(userData.get("email"))) {
+            user.setEmail(userData.get("email"));
+        }
+
+        if (!TextUtils.isEmpty(userData.get("mobile"))) {
+            Map<String, String> userDataExtra = new HashMap<>();
+            userDataExtra.put("mobile", userData.get("mobile"));
+            user.setOthers(userDataExtra);
+        }
+
+        Sentry.setUser(user);
     }
 
     /**
@@ -195,8 +209,11 @@ public class CooeeSDK implements EngagementTriggerActivity.InAppListener {
     }
 
     public void sendDebugEnvironment(boolean isDebugEnvironment) {
-        if (isDebugEnvironment)
-            Sentry.setLevel(SentryLevel.DEBUG);
-
+        debugMode = isDebugEnvironment;
+        if (debugMode) {
+            Sentry.setTag("buildType", "debug");
+        } else {
+            Sentry.setTag("buildType", "release");
+        }
     }
 }
