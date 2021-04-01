@@ -12,6 +12,7 @@ import com.letscooee.utils.Closure;
 import com.letscooee.utils.CooeeSDKConstants;
 import com.letscooee.utils.LocalStorageHelper;
 
+import io.sentry.Sentry;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -72,6 +73,7 @@ public final class HttpCallsHelper {
             @Override
             public void onFailure(Call<Map<String, Object>> call, Throwable t) {
                 Log.e(CooeeSDKConstants.LOG_PREFIX, event.getName() + " Event Sent Error Message: " + t.toString());
+                Sentry.captureException(t);
             }
         });
     }
@@ -97,6 +99,7 @@ public final class HttpCallsHelper {
                 public void onFailure(@NonNull Call<Map<String, Object>> call, @NonNull Throwable t) {
                     // TODO Saving the request locally so that it can be sent later
                     Log.e(CooeeSDKConstants.LOG_PREFIX, msg + " User Profile Error Message : " + t.toString());
+                    Sentry.captureException(t);
                 }
             });
         });
@@ -118,6 +121,7 @@ public final class HttpCallsHelper {
                 @Override
                 public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
                     Log.e(CooeeSDKConstants.LOG_PREFIX, "Session Concluded Event Sent Error Message" + t.toString());
+                    Sentry.captureException(t);
                 }
             });
         });
@@ -138,6 +142,7 @@ public final class HttpCallsHelper {
                 @Override
                 public void onFailure(Call<ResponseBody> call, Throwable t) {
                     Log.e(CooeeSDKConstants.LOG_PREFIX, "Session Alive Response Error Message" + t.toString());
+                    Sentry.captureException(t);
                 }
             });
         });
@@ -158,6 +163,7 @@ public final class HttpCallsHelper {
                 @Override
                 public void onFailure(Call<ResponseBody> call, Throwable t) {
                     Log.e(CooeeSDKConstants.LOG_PREFIX, "Firebase Token Response Error Message" + t.toString());
+                    Sentry.captureException(t);
                 }
             });
         });

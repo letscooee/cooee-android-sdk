@@ -1,6 +1,7 @@
 package com.letscooee;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.letscooee.init.PostLaunchActivity;
@@ -15,6 +16,9 @@ import com.letscooee.utils.PropertyNameException;
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Map;
+
+import io.sentry.Sentry;
+import io.sentry.protocol.User;
 
 /**
  * The CooeeSDK class contains all the functions required by application to achieve the campaign tasks(Singleton Class)
@@ -40,6 +44,7 @@ public class CooeeSDK implements EngagementTriggerActivity.InAppListener {
     private CooeeSDK(Context context) {
         this.context = context;
         new PostLaunchActivity(context);
+        setSentryUser(getUUID(), new HashMap<>());
     }
 
     /**
@@ -62,7 +67,7 @@ public class CooeeSDK implements EngagementTriggerActivity.InAppListener {
      * @param eventProperties Properties associated with the event
      * @throws PropertyNameException Custom Exception so that properties' key has no prefix as 'ce '
      */
-    public void sendEvent(String eventName, Map<String, String> eventProperties) throws PropertyNameException {
+    public void sendEvent(String eventName, Map<String, Object> eventProperties) throws PropertyNameException {
         for (String key : eventProperties.keySet()) {
             if (key.substring(0, 3).equalsIgnoreCase("ce ")) {
                 throw new PropertyNameException();
@@ -126,8 +131,30 @@ public class CooeeSDK implements EngagementTriggerActivity.InAppListener {
         HttpCallsHelper.sendUserProfile(userMap, "Manual", data -> {
             if (data.get("id") != null) {
                 LocalStorageHelper.putString(context, CooeeSDKConstants.STORAGE_USER_ID, data.get("id").toString());
+                setSentryUser(data.get("id").toString(), userData);
             }
         });
+    }
+
+    private void setSentryUser(String id, Map<String, String> userData) {
+        User user = new User();
+        user.setId(id);
+
+        if (!TextUtils.isEmpty(userData.get("name"))) {
+            user.setUsername(userData.get("name"));
+        }
+
+        if (!TextUtils.isEmpty(userData.get("email"))) {
+            user.setEmail(userData.get("email"));
+        }
+
+        if (!TextUtils.isEmpty(userData.get("mobile"))) {
+            Map<String, String> userDataExtra = new HashMap<>();
+            userDataExtra.put("mobile", userData.get("mobile"));
+            user.setOthers(userDataExtra);
+        }
+
+        Sentry.setUser(user);
     }
 
     /**
@@ -178,4 +205,5 @@ public class CooeeSDK implements EngagementTriggerActivity.InAppListener {
     public void setBitmap(String base64) {
         EngagementTriggerActivity.setBitmap(base64);
     }
+
 }

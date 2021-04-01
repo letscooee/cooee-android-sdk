@@ -10,6 +10,8 @@ import com.google.gson.reflect.TypeToken;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import io.sentry.Sentry;
+
 /**
  * LocalStorageHelper is used to store local shared preference data
  *
@@ -90,6 +92,8 @@ public final class LocalStorageHelper {
             editor.apply();
         } catch (Throwable t) {
             Log.e(CooeeSDKConstants.LOG_PREFIX, "Failed to update in shared preferences storage");
+            Sentry.captureException(t);
+
         }
     }
 

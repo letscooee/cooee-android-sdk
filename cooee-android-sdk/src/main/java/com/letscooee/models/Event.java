@@ -12,13 +12,13 @@ import java.util.Map;
 public class Event {
 
     private String name;
-    private Map<String, String> properties;
+    private Map<String, Object> properties;
     private String sessionID;
     private int sessionNumber;
     private String screenName;
     private ArrayList<HashMap<String, String>> activeTriggers;
 
-    public Event(String name, Map<String, String> properties) {
+    public Event(String name, Map<String, Object> properties) {
         this.name = name;
         this.properties = properties;
         this.sessionID = sessionID;
@@ -34,11 +34,11 @@ public class Event {
         this.name = name;
     }
 
-    public Map<String, String> getProperties() {
+    public Map<String, Object> getProperties() {
         return properties;
     }
 
-    public void setProperties(Map<String, String> properties) {
+    public void setProperties(Map<String, Object> properties) {
         this.properties = properties;
     }
 

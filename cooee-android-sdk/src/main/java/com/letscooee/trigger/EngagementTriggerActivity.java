@@ -65,6 +65,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import io.sentry.Sentry;
 import jp.wasabeef.blurry.Blurry;
 
 public class EngagementTriggerActivity extends AppCompatActivity {
@@ -138,7 +139,9 @@ public class EngagementTriggerActivity extends AppCompatActivity {
             updateTextPosition();
             createActionButtons();
         } catch (Exception e) {
-            e.printStackTrace();
+
+            Log.e(TAG, "Engagement Trigger Failed: ", e);
+            Sentry.captureException(e);
         }
     }
 
@@ -222,8 +225,8 @@ public class EngagementTriggerActivity extends AppCompatActivity {
 
         if (action.getUserProperty() != null) {
             Map<String, Object> userProfile = new HashMap<>();
-            Map eventProps = new HashMap<String, Object>();
-            eventProps.put("triggerID", triggerData.getId());
+            Map recieved = new HashMap<String, Object>();
+            recieved.put("triggerID", triggerData.getId());
             userProfile.put("userData", new HashMap<>());
             userProfile.put("userProperties", action.getUserProperty());
             HttpCallsHelper.sendUserProfile(userProfile, "Trigger Property", null);
@@ -870,16 +873,16 @@ public class EngagementTriggerActivity extends AppCompatActivity {
         int duration = (int) ((new Date().getTime() - startTime.getTime()) / 1000);
         int totalWatched = videoDuration * videoSeenCounter + watchedTill;
 
-        Map<String, String> kpiMap = new HashMap<>();
-        kpiMap.put("Duration", String.valueOf(duration));
+        Map<String, Object> kpiMap = new HashMap<>();
+        kpiMap.put("Duration", duration);
         kpiMap.put("Close Behaviour", closeBehaviour);
         kpiMap.put("triggerID", triggerData.getId());
 
         if (triggerData.getType() == TriggerData.Type.VIDEO) {
-            kpiMap.put("Video Duration", String.valueOf(videoDuration));
-            kpiMap.put("Watched Till", String.valueOf(watchedTill));
-            kpiMap.put("Total Watched", String.valueOf(totalWatched));
-            kpiMap.put("Video Unmuted", String.valueOf(isVideoUnmuted));
+            kpiMap.put("Video Duration", videoDuration);
+            kpiMap.put("Watched Till", watchedTill);
+            kpiMap.put("Total Watched", totalWatched);
+            kpiMap.put("Video Unmuted", isVideoUnmuted);
 
         }
 
