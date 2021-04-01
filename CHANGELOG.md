@@ -1,5 +1,10 @@
 # Change Log
 
+## 0.2.6
+
+1. Sentry Added to library.
+2. Side-Pop Trigger added
+
 ## 0.2.5
 
 1. Carousel Notification added.
