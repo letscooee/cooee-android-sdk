@@ -164,13 +164,11 @@ public class EngagementTriggerActivity extends AppCompatActivity {
 
             createActionButtons();
             Log.d(TAG, "onCreate: >>> 16");
-            throw new Exception("Test Crash");
+
         } catch (Exception e) {
-            //e.printStackTrace();
+
             Log.e(TAG, "Engagement Trigger Failed: ", e);
             Sentry.captureException(e);
-
-            //Sentry.
         }
     }
 

@@ -107,16 +107,28 @@ public class PostLaunchActivity {
             successiveAppLaunch();
         }
 
-        SentryAndroid.init(context, options -> {
-            options.setRelease("com.letscooee@" + BuildConfig.VERSION_NAME + "+" + BuildConfig.VERSION_CODE);
-            options.setDebug(true);
-        });
+        if(BuildConfig.DEBUG) {
+            SentryAndroid.init(context, options -> {
+                options.setDsn("");
+                options.setRelease("com.letscooee@" + BuildConfig.VERSION_NAME + "+" + BuildConfig.VERSION_CODE);
+            });
+        }else{
+            SentryAndroid.init(context, options -> {
+                options.setDsn("https://83cd199eb9134e40803220b7cca979db@o559187.ingest.sentry.io/5693686");
+                options.setRelease("com.letscooee@" + BuildConfig.VERSION_NAME + "+" + BuildConfig.VERSION_CODE);
+
+            });
+        }
 
         Sentry.setTag("client.appPackage", defaultUserPropertiesCollector.getAppPackage());
         Sentry.setTag("client.appVersion", defaultUserPropertiesCollector.getAppVersion());
         Sentry.setTag("client.appName", getApplicationName());
         Sentry.setTag("client.appId", getAppCredentials()[0]);
-        Sentry.setTag("buildType", "release");
+        if (isDebuggable()) {
+            Sentry.setTag("buildType", "debug");
+        }else {
+            Sentry.setTag("buildType", "release");
+        }
         APIClient.setDeviceName(getDeviceName());
         APIClient.setUserId(LocalStorageHelper.getString(context, CooeeSDKConstants.STORAGE_USER_ID, ""));
     }
@@ -130,6 +142,27 @@ public class PostLaunchActivity {
         ApplicationInfo applicationInfo = context.getApplicationInfo();
         int stringId = applicationInfo.labelRes;
         return stringId == 0 ? applicationInfo.nonLocalizedLabel.toString() : context.getString(stringId);
+    }
+
+
+    /**
+     * Checks if app is in debug or in release
+     *
+     * @return true ot false
+     */
+    private boolean isDebuggable(){
+        boolean debuggable = false;
+
+        PackageManager pm = context.getPackageManager();
+        try
+        {
+            ApplicationInfo appinfo = pm.getApplicationInfo(context.getPackageName(), 0);
+            debuggable = (0 != (appinfo.flags & ApplicationInfo.FLAG_DEBUGGABLE));
+        }catch(PackageManager.NameNotFoundException e){
+            /*debuggable variable will remain false*/
+        }
+
+        return debuggable;
     }
 
     /**

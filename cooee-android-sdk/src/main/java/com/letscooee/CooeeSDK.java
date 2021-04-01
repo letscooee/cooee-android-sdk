@@ -34,7 +34,6 @@ public class CooeeSDK implements EngagementTriggerActivity.InAppListener {
 
     private String currentScreenName = "";
     private String uuid = "";
-    public static boolean debugMode = false;
 
     private WeakReference<InAppNotificationClickListener> inAppNotificationClickListener;
 
@@ -208,12 +207,4 @@ public class CooeeSDK implements EngagementTriggerActivity.InAppListener {
         EngagementTriggerActivity.setBitmap(base64);
     }
 
-    public void sendDebugEnvironment(boolean isDebugEnvironment) {
-        debugMode = isDebugEnvironment;
-        if (debugMode) {
-            Sentry.setTag("buildType", "debug");
-        } else {
-            Sentry.setTag("buildType", "release");
-        }
-    }
 }
