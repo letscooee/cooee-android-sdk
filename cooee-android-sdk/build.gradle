@@ -37,7 +37,7 @@ android {
         targetSdkVersion 30
         renderscriptTargetApi 29
         renderscriptSupportModeEnabled true
-        versionCode project.version.toString().tokenize('.').collect{ it.padLeft(2, '0')}.join('').toInteger()
+        versionCode project.version.toString().tokenize('.').collect { it.padLeft(2, '0') }.join('').toInteger()
         versionName project.version.toString()
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
@@ -77,9 +77,9 @@ dependencies {
     api "androidx.cardview:cardview:1.0.0"
     api 'jp.wasabeef:blurry:4.0.0'
     api 'com.google.android:flexbox:2.0.1'
+    api 'io.sentry:sentry-android:4.3.0'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.11.0'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
-    api 'io.sentry:sentry-android:4.3.0'
 }
