@@ -36,6 +36,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import io.sentry.Sentry;
+
 /**
  * @author Ashish Gaikwad
  */
@@ -60,7 +62,7 @@ public class OnPushNotificationButtonClick extends BroadcastReceiver {
 
 
         } catch (Exception e) {
-            e.printStackTrace();
+            Sentry.captureException(e);
         }
     }
 
@@ -111,7 +113,8 @@ public class OnPushNotificationButtonClick extends BroadcastReceiver {
                         loadBitmapsForCarousel(triggerData.getCarouselData(), position + 1, triggerData, context, intent);
                     }
                 });
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                Sentry.captureException(e);
             }
 
         } else {

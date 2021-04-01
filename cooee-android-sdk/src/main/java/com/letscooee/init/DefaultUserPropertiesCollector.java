@@ -19,7 +19,9 @@ import android.os.Environment;
 import android.os.StatFs;
 import android.telephony.TelephonyManager;
 import android.util.DisplayMetrics;
+
 import androidx.core.app.ActivityCompat;
+
 import com.google.android.gms.location.LocationRequest;
 
 import java.io.File;
@@ -28,6 +30,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+
+import io.sentry.Sentry;
 
 import static android.content.Context.ACTIVITY_SERVICE;
 
@@ -50,7 +54,7 @@ class DefaultUserPropertiesCollector {
      * @return String[] {latitude, longitude}
      */
     @SuppressLint("MissingPermission")
-    public String[] getLocation() {
+    public double[] getLocation() {
         LocationRequest locationRequest = new LocationRequest();
         locationRequest.setInterval(10000);
         locationRequest.setFastestInterval(3000);
@@ -59,7 +63,7 @@ class DefaultUserPropertiesCollector {
         LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
         if (ActivityCompat.checkSelfPermission(this.context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(this.context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return new String[]{null, null};
+            return new double[]{0, 0};
         }
 
         assert locationManager != null;
@@ -70,9 +74,9 @@ class DefaultUserPropertiesCollector {
         }
 
         if (location == null) {
-            return new String[]{null, null};
+            return new double[]{0, 0};
         }
-        return new String[]{location.getLatitude() + "", location.getLongitude() + ""};
+        return new double[]{location.getLatitude(), location.getLongitude()};
     }
 
     /**
@@ -132,9 +136,9 @@ class DefaultUserPropertiesCollector {
     /**
      * @return "Y" when the bluetooth is on, otherwise "N".
      */
-    public String isBluetoothOn() {
+    public boolean isBluetoothOn() {
         BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        return (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) ? "N" : "Y";
+        return mBluetoothAdapter != null && mBluetoothAdapter.isEnabled();
     }
 
     /**
@@ -148,7 +152,8 @@ class DefaultUserPropertiesCollector {
         try {
             packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
         } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
+            Sentry.captureException(e);
         }
 
         assert packageInfo != null;
@@ -156,18 +161,37 @@ class DefaultUserPropertiesCollector {
     }
 
     /**
+     * Get host application package name
+     *
+     * @return app package name
+     */
+    public String getAppPackage() {
+        PackageInfo packageInfo = null;
+
+        try {
+            packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
+        } catch (PackageManager.NameNotFoundException e) {
+            //e.printStackTrace();
+            Sentry.captureException(e);
+        }
+
+        assert packageInfo != null;
+        return packageInfo.packageName;
+    }
+
+    /**
      * Check if the device is connected to Wifi or not.
      *
      * @return "Y" if connected otherwise "N".
      */
-    public String isConnectedToWifi() {
+    public boolean isConnectedToWifi() {
         ConnectivityManager connManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
 
         assert connManager != null;
         NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
 
         assert mWifi != null;
-        return mWifi.isConnected() ? "Y" : "N";
+        return mWifi.isConnected();
     }
 
     /**
@@ -175,12 +199,12 @@ class DefaultUserPropertiesCollector {
      *
      * @return available storage in megabytes(MB)
      */
-    public String getAvailableInternalMemorySize() {
+    public long getAvailableInternalMemorySize() {
         File path = Environment.getDataDirectory();
         StatFs stat = new StatFs(path.getPath());
         long blockSize = stat.getBlockSizeLong();
         long availableBlocks = stat.getAvailableBlocksLong();
-        return String.valueOf((availableBlocks * blockSize) / 0x100000L);
+        return (availableBlocks * blockSize) / 0x100000L;
     }
 
     /**
@@ -188,12 +212,12 @@ class DefaultUserPropertiesCollector {
      *
      * @return total storage in megabytes(MB)
      */
-    public String getTotalInternalMemorySize() {
+    public long getTotalInternalMemorySize() {
         File path = Environment.getDataDirectory();
         StatFs stat = new StatFs(path.getPath());
         long blockSize = stat.getBlockSizeLong();
         long totalBlocks = stat.getBlockCountLong();
-        return String.valueOf((totalBlocks * blockSize) / 0x100000L);
+        return (totalBlocks * blockSize) / 0x100000L;
     }
 
     /**
@@ -201,13 +225,13 @@ class DefaultUserPropertiesCollector {
      *
      * @return total RAM size in megabytes(MB)
      */
-    public String getTotalRAMMemorySize() {
+    public double getTotalRAMMemorySize() {
         ActivityManager.MemoryInfo mi = new ActivityManager.MemoryInfo();
         ActivityManager activityManager = (ActivityManager) context.getSystemService(ACTIVITY_SERVICE);
         assert activityManager != null;
         activityManager.getMemoryInfo(mi);
         double availableMegs = (double) mi.totalMem / 0x100000L;
-        return String.valueOf(availableMegs);
+        return availableMegs;
     }
 
     /**
@@ -215,13 +239,13 @@ class DefaultUserPropertiesCollector {
      *
      * @return available RAM size in megabytes(MB)
      */
-    public String getAvailableRAMMemorySize() {
+    public double getAvailableRAMMemorySize() {
         ActivityManager.MemoryInfo mi = new ActivityManager.MemoryInfo();
         ActivityManager activityManager = (ActivityManager) context.getSystemService(ACTIVITY_SERVICE);
         assert activityManager != null;
         activityManager.getMemoryInfo(mi);
         double availableMegs = (double) mi.availMem / 0x100000L;
-        return String.valueOf(availableMegs);
+        return availableMegs;
     }
 
     /**
@@ -245,7 +269,8 @@ class DefaultUserPropertiesCollector {
             inputStream.close();
 
         } catch (Exception ex) {
-            ex.printStackTrace();
+            //ex.printStackTrace();
+            Sentry.captureException(ex);
         }
 
         return output.toString();
@@ -266,13 +291,13 @@ class DefaultUserPropertiesCollector {
      *
      * @return battery percent(eg - 89,94)
      */
-    public String getBatteryLevel() {
+    public int getBatteryLevel() {
         BatteryManager batteryManager = (BatteryManager) context.getSystemService(Context.BATTERY_SERVICE);
-        String batteryLevel = "";
+        int batteryLevel = 0;
 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
             assert batteryManager != null;
-            batteryLevel = batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY) + "";
+            batteryLevel = batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY);
         }
         return batteryLevel;
     }
@@ -353,7 +378,8 @@ class DefaultUserPropertiesCollector {
         try {
             appInfo = pm.getApplicationInfo(context.getPackageName(), 0);
         } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
+            Sentry.captureException(e);
         }
 
         if (appInfo != null) {

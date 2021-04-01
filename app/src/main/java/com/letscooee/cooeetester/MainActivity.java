@@ -32,7 +32,7 @@ import java.util.Map;
 public class MainActivity extends AppCompatActivity implements InAppNotificationClickListener {
 
     private Button buttonVideo, buttonImage;
-    private String location[];
+    //private String location[];
     private CooeeSDK mySdk;
 
     @Override
@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity implements InAppNotification
         buttonImage.setOnClickListener(view -> {
             // sending event to the server
             try {
-                Map<String, String> eventProp = new HashMap<>();
+                Map<String, Object> eventProp = new HashMap<>();
                 eventProp.put("key1", "value1");
                 mySdk.sendEvent("image", eventProp);
             } catch (PropertyNameException e) {
@@ -113,7 +113,7 @@ public class MainActivity extends AppCompatActivity implements InAppNotification
 
     @Override
     public void onInAppButtonClick(HashMap<String, String> payload) {
-        if (payload != null){
+        if (payload != null) {
             Log.d("Data from inApp", payload.toString());
 //            startActivity(new Intent(MainActivity.this, SignUpActivity.class));
         }

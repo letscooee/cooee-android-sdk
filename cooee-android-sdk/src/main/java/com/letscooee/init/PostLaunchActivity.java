@@ -20,6 +20,8 @@ import com.letscooee.utils.CooeeSDKConstants;
 import com.letscooee.utils.LocalStorageHelper;
 
 import io.reactivex.rxjava3.subjects.ReplaySubject;
+import io.sentry.Sentry;
+import io.sentry.android.core.SentryAndroid;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -105,8 +107,59 @@ public class PostLaunchActivity {
             successiveAppLaunch();
         }
 
+
+        SentryAndroid.init(context, options -> {
+            if (BuildConfig.DEBUG) {
+                options.setDsn("");
+            } else {
+                options.setDsn("https://83cd199eb9134e40803220b7cca979db@o559187.ingest.sentry.io/5693686");
+            }
+
+            options.setRelease("com.letscooee@" + BuildConfig.VERSION_NAME + "+" + BuildConfig.VERSION_CODE);
+        });
+
+        Sentry.setTag("client.appPackage", defaultUserPropertiesCollector.getAppPackage());
+        Sentry.setTag("client.appVersion", defaultUserPropertiesCollector.getAppVersion());
+        Sentry.setTag("client.appName", getApplicationName());
+        Sentry.setTag("client.appId", getAppCredentials()[0]);
+        if (isDebuggable()) {
+            Sentry.setTag("buildType", "debug");
+        } else {
+            Sentry.setTag("buildType", "release");
+        }
         APIClient.setDeviceName(getDeviceName());
         APIClient.setUserId(LocalStorageHelper.getString(context, CooeeSDKConstants.STORAGE_USER_ID, ""));
+    }
+
+    /**
+     * Get app name
+     *
+     * @return app name
+     */
+    public String getApplicationName() {
+        ApplicationInfo applicationInfo = context.getApplicationInfo();
+        int stringId = applicationInfo.labelRes;
+        return stringId == 0 ? applicationInfo.nonLocalizedLabel.toString() : context.getString(stringId);
+    }
+
+
+    /**
+     * Checks if app is in debug or in release
+     *
+     * @return true ot false
+     */
+    private boolean isDebuggable() {
+        boolean debuggable = false;
+
+        PackageManager pm = context.getPackageManager();
+        try {
+            ApplicationInfo appinfo = pm.getApplicationInfo(context.getPackageName(), 0);
+            debuggable = (0 != (appinfo.flags & ApplicationInfo.FLAG_DEBUGGABLE));
+        } catch (PackageManager.NameNotFoundException e) {
+            /*debuggable variable will remain false*/
+        }
+
+        return debuggable;
     }
 
     /**
@@ -174,7 +227,8 @@ public class PostLaunchActivity {
         try {
             app = this.context.getPackageManager().getApplicationInfo(this.context.getPackageName(), PackageManager.GET_META_DATA);
         } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
+            Sentry.captureException(e);
             return new String[]{null, null};
         }
 
@@ -204,12 +258,12 @@ public class PostLaunchActivity {
      * Runs when app is opened for the first time after sdkToken is received from server asynchronously
      */
     private void appFirstOpen() {
-        Map<String, String> userProperties = new HashMap<>();
-        userProperties.put("CE First Launch Time", new Date().toString());
+        Map<String, Object> userProperties = new HashMap<>();
+        userProperties.put("CE First Launch Time", new Date());
         userProperties.put("CE Installed Time", defaultUserPropertiesCollector.getInstalledTime());
         sendUserProperties(userProperties);
 
-        Map<String, String> eventProperties = new HashMap<>();
+        Map<String, Object> eventProperties = new HashMap<>();
         eventProperties.put("CE Source", "SYSTEM");
         eventProperties.put("CE App Version", defaultUserPropertiesCollector.getAppVersion());
         Event event = new Event("CE App Installed", eventProperties);
@@ -221,12 +275,12 @@ public class PostLaunchActivity {
      * Runs every time when app is opened for a new session
      */
     private void successiveAppLaunch() {
-        Map<String, String> userProperties = new HashMap<>();
+        Map<String, Object> userProperties = new HashMap<>();
         userProperties.put("CE Session Count", currentSessionNumber + "");
         sendUserProperties(userProperties);
 
         String[] networkData = defaultUserPropertiesCollector.getNetworkData();
-        Map<String, String> eventProperties = new HashMap<>();
+        Map<String, Object> eventProperties = new HashMap<>();
         eventProperties.put("CE Source", "SYSTEM");
         eventProperties.put("CE App Version", defaultUserPropertiesCollector.getAppVersion());
         eventProperties.put("CE SDK Version", BuildConfig.VERSION_NAME);
@@ -252,8 +306,8 @@ public class PostLaunchActivity {
      *
      * @param userProps additional user properties
      */
-    private void sendUserProperties(Map<String, String> userProps) {
-        String[] location = defaultUserPropertiesCollector.getLocation();
+    private void sendUserProperties(Map<String, Object> userProps) {
+        double[] location = defaultUserPropertiesCollector.getLocation();
         String[] networkData = defaultUserPropertiesCollector.getNetworkData();
 
         Map<String, Object> userProperties = new HashMap<>();
@@ -283,7 +337,7 @@ public class PostLaunchActivity {
         userProperties.put("CE Screen Resolution", defaultUserPropertiesCollector.getScreenResolution());
         userProperties.put("CE DPI", defaultUserPropertiesCollector.getDpi());
         userProperties.put("CE Device Locale", defaultUserPropertiesCollector.getLocale());
-        userProperties.put("CE Last Launch Time", new Date().toString());
+        userProperties.put("CE Last Launch Time", new Date());
         Map<String, Object> userMap = new HashMap<>();
         userMap.put("userProperties", userProperties);
         userMap.put("userData", new HashMap<>());
@@ -343,6 +397,7 @@ public class PostLaunchActivity {
             context.startActivity(intent);
         } catch (Exception ex) {
             Log.d(CooeeSDKConstants.LOG_PREFIX, "Couldn't show Engagement Trigger " + ex.toString());
+            Sentry.captureException(ex);
         }
     }
 

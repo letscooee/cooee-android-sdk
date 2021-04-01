@@ -14,6 +14,8 @@ import com.letscooee.models.TriggerData;
 
 import java.util.HashMap;
 
+import io.sentry.Sentry;
+
 /**
  * @author Abhishek Taparia
  */
@@ -47,7 +49,8 @@ public class CooeeIntentService extends IntentService {
 
                 try {
                     appLaunchPendingIntent.send();
-                } catch (PendingIntent.CanceledException ignored) {
+                } catch (PendingIntent.CanceledException e) {
+                    Sentry.captureException(e);
                 }
 
 
@@ -55,7 +58,7 @@ public class CooeeIntentService extends IntentService {
                 getApplicationContext().sendBroadcast(it);
                 break;
             }
-            case "Notification Deleted":{
+            case "Notification Deleted": {
                 CooeeFirebaseMessagingService.sendEvent(getApplicationContext(), new Event("CE Notification Cancelled", new HashMap<>()));
                 break;
             }
