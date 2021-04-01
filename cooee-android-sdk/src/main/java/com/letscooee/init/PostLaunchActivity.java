@@ -107,18 +107,16 @@ public class PostLaunchActivity {
             successiveAppLaunch();
         }
 
-        if(BuildConfig.DEBUG) {
-            SentryAndroid.init(context, options -> {
-                options.setDsn("");
-                options.setRelease("com.letscooee@" + BuildConfig.VERSION_NAME + "+" + BuildConfig.VERSION_CODE);
-            });
-        }else{
-            SentryAndroid.init(context, options -> {
-                options.setDsn("https://83cd199eb9134e40803220b7cca979db@o559187.ingest.sentry.io/5693686");
-                options.setRelease("com.letscooee@" + BuildConfig.VERSION_NAME + "+" + BuildConfig.VERSION_CODE);
 
+            SentryAndroid.init(context, options -> {
+                if (BuildConfig.DEBUG) {
+                options.setDsn("");
+                } else {
+                    options.setDsn("https://83cd199eb9134e40803220b7cca979db@o559187.ingest.sentry.io/5693686");
+                }
+
+                options.setRelease("com.letscooee@" + BuildConfig.VERSION_NAME + "+" + BuildConfig.VERSION_CODE);
             });
-        }
 
         Sentry.setTag("client.appPackage", defaultUserPropertiesCollector.getAppPackage());
         Sentry.setTag("client.appVersion", defaultUserPropertiesCollector.getAppVersion());
@@ -126,7 +124,7 @@ public class PostLaunchActivity {
         Sentry.setTag("client.appId", getAppCredentials()[0]);
         if (isDebuggable()) {
             Sentry.setTag("buildType", "debug");
-        }else {
+        } else {
             Sentry.setTag("buildType", "release");
         }
         APIClient.setDeviceName(getDeviceName());
@@ -150,15 +148,14 @@ public class PostLaunchActivity {
      *
      * @return true ot false
      */
-    private boolean isDebuggable(){
+    private boolean isDebuggable() {
         boolean debuggable = false;
 
         PackageManager pm = context.getPackageManager();
-        try
-        {
+        try {
             ApplicationInfo appinfo = pm.getApplicationInfo(context.getPackageName(), 0);
             debuggable = (0 != (appinfo.flags & ApplicationInfo.FLAG_DEBUGGABLE));
-        }catch(PackageManager.NameNotFoundException e){
+        } catch (PackageManager.NameNotFoundException e) {
             /*debuggable variable will remain false*/
         }
 
