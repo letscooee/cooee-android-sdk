@@ -2,6 +2,7 @@ package com.letscooee.init;
 
 import android.app.Activity;
 import android.app.Application;
+import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.os.Bundle;
 import android.os.Handler;
@@ -110,6 +111,31 @@ public class AppController extends Application implements LifecycleObserver, App
             Event session = new Event("CE App Background", sessionProperties);
             HttpCallsHelper.sendEvent(getApplicationContext(), session, null);
         });
+        //getApplicationContext().startService(new Intent(getApplicationContext(), GlobalTouchService.class));
+        formatAndSendTouchData(getApplicationContext());
+    }
+
+    /**
+     * Will process map present in local storage and will send to server
+     *
+     * @param context application context
+     * */
+    private void formatAndSendTouchData(Context context) {
+        Map map=LocalStorageHelper.getTouchMap(context,CooeeSDKConstants.TOUCH_MAP);
+        if (map!=null){
+            Map proccessedData=new HashMap<String, Integer>();
+            for(Object key : map.keySet()){
+                Map<String, Double> data= (Map<String, Double> ) map.get(key);
+                String newKey= data.get("x") +","+data.get("y");
+                if (proccessedData.containsKey(newKey)){
+                    proccessedData.put(newKey,((int) proccessedData.get(newKey))+1);
+                }else{
+                    proccessedData.put(newKey,1);
+                }
+
+            }
+            Log.i(CooeeSDKConstants.LOG_PREFIX, "formatAndSendTouchData: "+proccessedData.toString());
+        }
     }
 
     private void keepSessionAlive() {
@@ -146,6 +172,7 @@ public class AppController extends Application implements LifecycleObserver, App
             EngagementTriggerActivity.setWindow(activity.getWindow());
         }
 
+        PostLaunchActivity.setHeatMapRecorder(activity);
         TriggerData triggerData = activity.getIntent().getParcelableExtra("triggerData");
 
         if (triggerData != null && triggerData.getId() != null) {
