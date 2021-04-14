@@ -50,7 +50,7 @@ public class CooeeWindowCallback implements Window.Callback{
     @Override
     public boolean dispatchTouchEvent(MotionEvent event) {
         float xCoordinate=event.getX();
-        float yCoordinate=event.getX();
+        float yCoordinate=event.getY();
 
         Map map=new HashMap<String,Object>();
         map.put("x", xCoordinate);
