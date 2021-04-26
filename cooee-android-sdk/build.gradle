@@ -1,51 +1,31 @@
-apply plugin: 'com.novoda.bintray-release'
+apply plugin: 'maven-publish'
 apply plugin: 'com.android.library'
 apply plugin: 'com.google.gms.google-services'
-apply plugin: 'maven-publish'
-
-publish {
-
-    String groupProjectID = project.group.toString()
-    String artifactProjectID = "cooee-android-sdk"
-    String publishVersionID = project.version.toString()
-
-    userOrg = "wizpanda"
-    repoName = "maven"
-    groupId = groupProjectID
-    artifactId = artifactProjectID
-    publishVersion = publishVersionID
-    desc = "Cooee SDK for data gathering/processing"
-    website = "https://github.com/letscooee/cooee-android-sdk"
-
-
+String groupProjectID = project.group.toString()
+String artifactProjectID = "cooee-android-sdk"
+String publishVersionID = project.version.toString()
+project.afterEvaluate {
     publishing {
         publications {
-            cooeeBintray(MavenPublication) {
+            aar(MavenPublication) {
                 groupId groupProjectID
                 artifactId artifactProjectID
                 version publishVersionID
-
-                project.afterEvaluate {
-                    artifact bundleReleaseAar
-
-                    pom.withXml {
-                        def dependencies = asNode().appendNode("dependencies")
-                        configurations.getByName("releaseCompileClasspath").getResolvedConfiguration().getFirstLevelModuleDependencies().each {
-                            def dependency = dependencies.appendNode("dependency")
-                            dependency.appendNode("groupId", it.moduleGroup)
-                            dependency.appendNode("artifactId", it.moduleName)
-                            dependency.appendNode("version", it.moduleVersion)
-                        }
+                artifact("$buildDir/outputs/aar/${project.getName()}-release.aar")
+                pom.withXml {
+                    def dependencies = asNode().appendNode("dependencies")
+                    configurations.getByName("releaseCompileClasspath").getResolvedConfiguration().getFirstLevelModuleDependencies().each {
+                        def dependency = dependencies.appendNode("dependency")
+                        dependency.appendNode("groupId", it.moduleGroup)
+                        dependency.appendNode("artifactId", it.moduleName)
+                        dependency.appendNode("version", it.moduleVersion)
                     }
                 }
-
-
             }
         }
     }
-
-    publications = ["cooeeBintray"]
 }
+
 
 android {
     lintOptions {

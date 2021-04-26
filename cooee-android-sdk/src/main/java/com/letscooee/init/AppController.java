@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.TextUtils;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -17,6 +18,7 @@ import androidx.lifecycle.ProcessLifecycleOwner;
 
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.gson.Gson;
 import com.letscooee.BuildConfig;
 import com.letscooee.CooeeSDK;
 import com.letscooee.models.Event;
@@ -123,18 +125,18 @@ public class AppController extends Application implements LifecycleObserver, App
     private void formatAndSendTouchData(Context context) {
         Map map=LocalStorageHelper.getTouchMap(context,CooeeSDKConstants.TOUCH_MAP);
         if (map!=null){
-            Map proccessedData=new HashMap<String, Integer>();
+            Map processedData=new HashMap<String, Integer>();
             for(Object key : map.keySet()){
                 Map<String, Double> data= (Map<String, Double> ) map.get(key);
                 String newKey= data.get("x") +","+data.get("y");
-                if (proccessedData.containsKey(newKey)){
-                    proccessedData.put(newKey,((int) proccessedData.get(newKey))+1);
+                if (processedData.containsKey(newKey)){
+                    processedData.put(newKey,((int) processedData.get(newKey))+1);
                 }else{
-                    proccessedData.put(newKey,1);
+                    processedData.put(newKey,1);
                 }
 
             }
-            Log.i(CooeeSDKConstants.LOG_PREFIX, "formatAndSendTouchData: "+proccessedData.toString());
+            //Log.i(CooeeSDKConstants.LOG_PREFIX, "formatAndSendTouchData: "+proccessedData.toString());
         }
     }
 
@@ -203,6 +205,15 @@ public class AppController extends Application implements LifecycleObserver, App
 
     @Override
     public void onActivityResumed(@NonNull Activity activity) {
+        if (!activity.getClass().getName().contains("EngagementTriggerActivity"))
+        if (EngagementTriggerActivity.onInAppPopListener!=null){
+            if (!EngagementTriggerActivity.isManualClose){
+                String triggerString=LocalStorageHelper.getString(activity,"trigger",null);
+                if (!TextUtils.isEmpty(triggerString)){
+                    PostLaunchActivity.createTrigger(activity,new Gson().fromJson(triggerString,TriggerData.class));
+                }
+            }
+        }
     }
 
     @Override
@@ -254,7 +265,7 @@ public class AppController extends Application implements LifecycleObserver, App
             Log.d(CooeeSDKConstants.LOG_PREFIX, "SDK deleted : " + isSDKFileDeleted);
 
         } catch (Exception e) {
-            //Log.e(CooeeSDKConstants.LOG_PREFIX, "Could not delete the file locally");
+            Log.e(CooeeSDKConstants.LOG_PREFIX, "Could not delete the file locally");
             Sentry.captureException(e);
         }
     }
