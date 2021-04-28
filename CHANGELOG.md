@@ -1,5 +1,11 @@
 # Change Log
 
+## 0.2.7
+
+1. Added heatmap tracking.
+2. A supportive fix for Glassmophism effect in Flutter.
+3. Change in activity lifecycle
+
 ## 0.2.6
 
 1. Sentry Added to library.
