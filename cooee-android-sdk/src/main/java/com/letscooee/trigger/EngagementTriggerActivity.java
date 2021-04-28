@@ -93,7 +93,7 @@ public class EngagementTriggerActivity extends AppCompatActivity {
     private static Bitmap flutterBitmap;
     public static OnInAppPopListener onInAppPopListener;
     public static OnInAppCloseListener onInAppCloseListener;
-    public static boolean isManualClose=true;
+    public static boolean isManualClose = true;
 
     public static void setBitmap(String base64) {
         byte[] decodedString = Base64.decode(base64, Base64.DEFAULT);
@@ -117,7 +117,7 @@ public class EngagementTriggerActivity extends AppCompatActivity {
         closeImageButton = findViewById(R.id.buttonClose);
         closeImageButton.setOnClickListener(view -> {
             closeBehaviour = "Close Button";
-            isManualClose=true;
+            isManualClose = true;
             finish();
         });
 
@@ -197,7 +197,7 @@ public class EngagementTriggerActivity extends AppCompatActivity {
         button.setOnClickListener(view -> {
             didClick(triggerButton.getAction());
             closeBehaviour = "Action Button";
-            isManualClose=true;
+            isManualClose = true;
             finish();
         });
 
@@ -395,7 +395,7 @@ public class EngagementTriggerActivity extends AppCompatActivity {
             secondParentLayout.setOnClickListener(v -> {
                 didClick(triggerData.getBackground().getAction());
                 closeBehaviour = "Trigger Touch";
-                isManualClose=true;
+                isManualClose = true;
                 finish();
             });
         }
@@ -532,7 +532,7 @@ public class EngagementTriggerActivity extends AppCompatActivity {
             secondParentLayout.setOnClickListener(v -> {
                 didClick(triggerData.getSidePopSetting().getAction());
                 closeBehaviour = "Action Button";
-                isManualClose=true;
+                isManualClose = true;
                 finish();
             });
         }
@@ -821,8 +821,8 @@ public class EngagementTriggerActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        isManualClose=false;
-        LocalStorageHelper.putString(this,"trigger","");
+        isManualClose = false;
+        LocalStorageHelper.putString(this, "trigger", "");
         if (triggerData.getTriggerBackground().getType() == TriggerBehindBackground.Type.BLURRED) {
             Blurry.with(getApplicationContext())
                     .radius(triggerData.getTriggerBackground().getBlur() != 0
@@ -860,8 +860,8 @@ public class EngagementTriggerActivity extends AppCompatActivity {
         Blurry.delete((ViewGroup) _window.getDecorView());
         if (onInAppCloseListener != null) {
             onInAppCloseListener.onInAppClosed();
-            if (!isManualClose){
-                LocalStorageHelper.putString(this,"trigger",new Gson().toJson(triggerData));
+            if (!isManualClose) {
+                LocalStorageHelper.putString(this, "trigger", new Gson().toJson(triggerData));
                 finish();
             }
 

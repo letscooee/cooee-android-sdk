@@ -1,6 +1,5 @@
 package com.letscooee.utils;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
@@ -112,18 +111,18 @@ public final class LocalStorageHelper {
 
     public static void putTouchMapString(Context context, String key, String string) {
         SharedPreferences sharedPreferences = getPreferences(context);
-        Map map= getTouchMap(context,key);
-        if (map==null){
-            map= new HashMap<Long,Object>();
+        Map map = getTouchMap(context, key);
+        if (map == null) {
+            map = new HashMap<Long, Object>();
         }
-        map.put(new Date().getTime()+"",string);
+        map.put(new Date().getTime() + "", string);
         SharedPreferences.Editor editor = sharedPreferences.edit().putString(key, map.toString());
         commit(editor);
     }
 
-    public static Map<Object,Object> getTouchMap(Context context,String key){
+    public static Map<Object, Object> getTouchMap(Context context, String key) {
         SharedPreferences sharedPreferences = getPreferences(context);
-        Map map= new Gson().fromJson(sharedPreferences.getString(key,null),Map.class);
-        return  map;
+        Map map = new Gson().fromJson(sharedPreferences.getString(key, null), Map.class);
+        return map;
     }
 }

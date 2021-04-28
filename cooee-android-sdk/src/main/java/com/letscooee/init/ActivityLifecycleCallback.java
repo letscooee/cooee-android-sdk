@@ -37,6 +37,12 @@ import java.util.TimerTask;
 
 import io.sentry.Sentry;
 
+/**
+ * @author Ashish Gaikwad crated on 27/Apr/2021
+ * @version 0.1
+ * <p>
+ * Track the activity lifecycler and perdorm related operations
+ */
 public class ActivityLifecycleCallback {
     public static String currentScreen;
     public static boolean isBackground;
@@ -47,6 +53,11 @@ public class ActivityLifecycleCallback {
     private Handler handler = new Handler();
     private Runnable runnable;
 
+    /**
+     * Used to register activity lifecycle
+     *
+     * @param application will be instance of application
+     */
     public void register(Application application) {
 
         application.registerActivityLifecycleCallbacks(new Application.ActivityLifecycleCallbacks() {
@@ -212,15 +223,15 @@ public class ActivityLifecycleCallback {
                 }
 
             }
-            JSONArray touchData=new JSONArray();
-            for(Object key : processedData.keySet()){
+            JSONArray touchData = new JSONArray();
+            for (Object key : processedData.keySet()) {
                 try {
                     JSONObject singlePoint = new JSONObject();
                     singlePoint.put("x", Double.valueOf(key.toString().split(",")[0]));
                     singlePoint.put("y", Double.valueOf(key.toString().split(",")[1]));
-                    singlePoint.put("heatCount",processedData.get(key));
+                    singlePoint.put("heatCount", processedData.get(key));
                     touchData.put(singlePoint);
-                }catch (Exception e){
+                } catch (Exception e) {
                     Sentry.captureException(e);
                 }
             }
@@ -228,6 +239,9 @@ public class ActivityLifecycleCallback {
         }
     }
 
+    /**
+     * send server check message every 5 min that session is still alive
+     */
     private void keepSessionAlive() {
         //send server check message every 5 min that session is still alive
         handler.postDelayed(runnable = new Runnable() {

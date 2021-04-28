@@ -135,7 +135,7 @@ public class PostLaunchActivity {
     }
 
     public static void setHeatMapRecorder(Activity activity) {
-        if (activity!=null && activity.getWindow().getDecorView()!=null){
+        if (activity != null && activity.getWindow().getDecorView() != null) {
             /*activity.getWindow().getDecorView().setOnTouchListener(new View.OnTouchListener() {
                 @Override
                 public boolean onTouch(View v, MotionEvent event) {
@@ -151,7 +151,7 @@ public class PostLaunchActivity {
             });*/
             final Window window = activity.getWindow();
             final Window.Callback localCallback = window.getCallback();
-            window.setCallback(new CooeeWindowCallback(localCallback,activity));
+            window.setCallback(new CooeeWindowCallback(localCallback, activity));
         }
     }
 
