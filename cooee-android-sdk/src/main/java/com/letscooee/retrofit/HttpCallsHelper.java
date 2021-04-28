@@ -5,23 +5,23 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import com.letscooee.init.AppController;
+import com.letscooee.init.ActivityLifecycleCallback;
 import com.letscooee.init.PostLaunchActivity;
 import com.letscooee.models.Event;
 import com.letscooee.utils.Closure;
 import com.letscooee.utils.CooeeSDKConstants;
 import com.letscooee.utils.LocalStorageHelper;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
 import io.sentry.Sentry;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * HttpCallsHelper will be used to create http calls to the server
@@ -41,7 +41,7 @@ public final class HttpCallsHelper {
     }
 
     public static void sendEventWithoutSDKState(Context context, Event event, Closure closure) {
-        event.setScreenName(AppController.currentScreen);
+        event.setScreenName(ActivityLifecycleCallback.getCurrentScreen());
         event.setSessionNumber(PostLaunchActivity.currentSessionNumber);
 
         ArrayList<HashMap<String, String>> allTriggers = LocalStorageHelper.getList(context, CooeeSDKConstants.STORAGE_ACTIVE_TRIGGERS);

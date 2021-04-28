@@ -10,15 +10,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.media.AudioAttributes;
-import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.VibrationEffect;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
 import android.view.View;
@@ -34,9 +31,9 @@ import com.bumptech.glide.request.transition.Transition;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.google.gson.Gson;
-import com.letscooee.brodcast.OnPushNotificationButtonClick;
 import com.letscooee.R;
-import com.letscooee.init.AppController;
+import com.letscooee.brodcast.OnPushNotificationButtonClick;
+import com.letscooee.init.ActivityLifecycleCallback;
 import com.letscooee.init.PostLaunchActivity;
 import com.letscooee.models.CarouselData;
 import com.letscooee.models.Event;
@@ -265,7 +262,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
      */
     private void showInAppMessaging(TriggerData triggerData) {
         // Don't show inapp notification if app is in background
-        if (!AppController.isBackground) {
+        if (!ActivityLifecycleCallback.isIsBackground()) {
             PostLaunchActivity.createTrigger(getApplicationContext(), triggerData);
         }
     }

@@ -1,5 +1,6 @@
 package com.letscooee.init;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
@@ -8,6 +9,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
+import android.view.Window;
 
 import com.google.gson.Gson;
 import com.letscooee.BuildConfig;
@@ -18,6 +20,7 @@ import com.letscooee.retrofit.HttpCallsHelper;
 import com.letscooee.retrofit.ServerAPIService;
 import com.letscooee.utils.CooeeSDKConstants;
 import com.letscooee.utils.LocalStorageHelper;
+import com.letscooee.utils.CooeeWindowCallback;
 
 import io.reactivex.rxjava3.subjects.ReplaySubject;
 import io.sentry.Sentry;
@@ -129,6 +132,27 @@ public class PostLaunchActivity {
         }
         APIClient.setDeviceName(getDeviceName());
         APIClient.setUserId(LocalStorageHelper.getString(context, CooeeSDKConstants.STORAGE_USER_ID, ""));
+    }
+
+    public static void setHeatMapRecorder(Activity activity) {
+        if (activity != null && activity.getWindow().getDecorView() != null) {
+            /*activity.getWindow().getDecorView().setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    float xCoordinate=event.getX();
+                    float yCoordinate=event.getX();
+
+                    Map map=new HashMap<String,Object>();
+                    map.put("x", xCoordinate);
+                    map.put("y", yCoordinate);
+                    Log.i(CooeeSDKConstants.LOG_PREFIX, "onTouch: "+map.toString());
+                    return true;
+                }
+            });*/
+            final Window window = activity.getWindow();
+            final Window.Callback localCallback = window.getCallback();
+            window.setCallback(new CooeeWindowCallback(localCallback, activity));
+        }
     }
 
     /**

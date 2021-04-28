@@ -47,6 +47,7 @@ publish {
     publications = ["cooeeBintray"]
 }
 
+
 android {
     lintOptions {
         abortOnError false
