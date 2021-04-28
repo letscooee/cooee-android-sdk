@@ -41,7 +41,7 @@ public final class HttpCallsHelper {
     }
 
     public static void sendEventWithoutSDKState(Context context, Event event, Closure closure) {
-        event.setScreenName(ActivityLifecycleCallback.currentScreen);
+        event.setScreenName(ActivityLifecycleCallback.getCurrentScreen());
         event.setSessionNumber(PostLaunchActivity.currentSessionNumber);
 
         ArrayList<HashMap<String, String>> allTriggers = LocalStorageHelper.getList(context, CooeeSDKConstants.STORAGE_ACTIVE_TRIGGERS);

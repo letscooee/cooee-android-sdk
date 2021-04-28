@@ -262,7 +262,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
      */
     private void showInAppMessaging(TriggerData triggerData) {
         // Don't show inapp notification if app is in background
-        if (!ActivityLifecycleCallback.isBackground) {
+        if (!ActivityLifecycleCallback.isIsBackground()) {
             PostLaunchActivity.createTrigger(getApplicationContext(), triggerData);
         }
     }

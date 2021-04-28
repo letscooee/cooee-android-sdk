@@ -44,8 +44,8 @@ import io.sentry.Sentry;
  * Track the activity lifecycler and perdorm related operations
  */
 public class ActivityLifecycleCallback {
-    public static String currentScreen;
-    public static boolean isBackground;
+    private static String currentScreen;
+    private static boolean isBackground;
     private String packageName;
     private Date lastEnterForeground;
     private Date lastEnterBackground;
@@ -251,5 +251,13 @@ public class ActivityLifecycleCallback {
                 Log.d(CooeeSDKConstants.LOG_PREFIX, "Sent keep alive call");
             }
         }, CooeeSDKConstants.KEEP_ALIVE_TIME_IN_MS);
+    }
+
+    public static String getCurrentScreen() {
+        return currentScreen;
+    }
+
+    public static boolean isIsBackground() {
+        return isBackground;
     }
 }
