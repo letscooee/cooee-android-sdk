@@ -4,23 +4,23 @@
 
 1. Migration to jitpack.
 2. update you `project level build.gradle` 
-```diff
+<code>
 allprojects {
     repositories {
-        - maven { url "https://dl.bintray.com/wizpanda/maven" }
-        + maven { url 'https://jitpack.io' }
+        <del>maven { url "https://dl.bintray.com/wizpanda/maven" }</del>
+        maven { url 'https://jitpack.io' }
     }
 }
-```
+</code>
 3. And in your `app level build.gradle`
-```diff
+<code>
 allprojects {
     dependencies {
-        - implementation 'com.letscooee:cooee-android-sdk:x.x.x'
-        + implementation 'com.github.letscooee:cooee-android-sdk:x.x.x'
+        <del>implementation 'com.letscooee:cooee-android-sdk:x.x.x'<del>
+        implementation 'com.github.letscooee:cooee-android-sdk:x.x.x'
     }
 }
-```
+</code>
 
 ## 0.2.6
 
