@@ -1,5 +1,27 @@
 # Change Log
 
+## 0.2.8
+
+1. Migration to jitpack.
+2. update you `project level build.gradle` 
+```diff
+allprojects {
+    repositories {
+-       maven { url "https://dl.bintray.com/wizpanda/maven" }
++       maven { url 'https://jitpack.io' }
+    }
+}
+```
+3. And in your `app level build.gradle`
+```diff
+allprojects {
+    dependencies {
+-       implementation 'com.letscooee:cooee-android-sdk:x.x.x'
++       implementation 'com.github.letscooee:cooee-android-sdk:x.x.x'
+    }
+}
+```
+
 ## 0.2.7
 
 1. Added heatmap tracking.

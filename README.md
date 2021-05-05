@@ -1,6 +1,6 @@
 # Cooee Android SDK
 
-[![GitHub version](https://badge.fury.io/gh/letscooee%2Fcooee-android-sdk.svg)](https://badge.fury.io/gh/letscooee%2Fcooee-android-sdk)
+[![](https://jitpack.io/v/letscooee/cooee-android-sdk.svg)](https://jitpack.io/#letscooee/cooee-android-sdk)
 
 ## What is Cooee?
 
@@ -42,7 +42,7 @@ Add following in project level `build.gradle`:
 ```groovy
 allprojects {
     repositories {
-        maven { url "https://dl.bintray.com/wizpanda/maven" }
+        maven { url 'https://jitpack.io' }
     }
 }
 ```
@@ -61,7 +61,7 @@ android {
 }
 
 dependencies {
-    implementation 'com.letscooee:cooee-android-sdk:x.x.x'
+    implementation 'com.github.letscooee:cooee-android-sdk:x.x.x'
 }
 ```
 
