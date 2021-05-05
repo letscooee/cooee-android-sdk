@@ -4,7 +4,7 @@
 
 1. Migration to jitpack.
 2. update you `project level build.gradle` 
-```groovy
+```diff
 allprojects {
     repositories {
         - maven { url "https://dl.bintray.com/wizpanda/maven" }
@@ -13,7 +13,7 @@ allprojects {
 }
 ```
 3. And in your `app level build.gradle`
-```groovy
+```diff
 allprojects {
     dependencies {
         - implementation 'com.letscooee:cooee-android-sdk:x.x.x'
