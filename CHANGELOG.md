@@ -7,8 +7,8 @@
 ```groovy
 allprojects {
     repositories {
-        -maven { url "https://dl.bintray.com/wizpanda/maven" }
-        +maven { url 'https://jitpack.io' }
+        - maven { url "https://dl.bintray.com/wizpanda/maven" }
+        + maven { url 'https://jitpack.io' }
     }
 }
 ```
@@ -16,8 +16,8 @@ allprojects {
 ```groovy
 allprojects {
     dependencies {
-        -implementation 'com.letscooee:cooee-android-sdk:x.x.x'
-        +implementation 'com.github.letscooee:cooee-android-sdk:x.x.x'
+        - implementation 'com.letscooee:cooee-android-sdk:x.x.x'
+        + implementation 'com.github.letscooee:cooee-android-sdk:x.x.x'
     }
 }
 ```
