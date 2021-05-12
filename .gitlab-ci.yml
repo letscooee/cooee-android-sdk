@@ -5,10 +5,10 @@ before_script:
     - chmod +x ./gradlew
 
 stages:
-    - build
+    - deploy
 
-bintray_upload:
-    stage: build
+Publish to JFrog:
+    stage: deploy
     script:
         - ./gradlew clean cooee-android-sdk:artifactoryPublish -PartifactoryUser=${ARTIFACTORY_USER} -PartifactoryPassword=${ARTIFACTORY_PASS}
     only:
