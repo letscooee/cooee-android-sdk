@@ -13,7 +13,7 @@ This release does not bring any code changes. It only changes the artifactory/ma
 allprojects {
     repositories {
 -       maven { url "https://dl.bintray.com/wizpanda/maven" }
-+       maven { url 'https://letscooee.jfrog.io/artifactory' }
++       maven { url 'https://letscooee.jfrog.io/artifactory/default-maven-local' }
     }
 }
 ```

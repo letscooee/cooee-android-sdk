@@ -42,7 +42,7 @@ Add following in project level `build.gradle`:
 ```groovy
 allprojects {
     repositories {
-        maven { url "https://letscooee.jfrog.io/artifactory" }
+        maven { url "https://letscooee.jfrog.io/artifactory/default-maven-local" }
     }
 }
 ```
