@@ -19,10 +19,12 @@ buildscript {
 allprojects {
     repositories {
         google()
+        jcenter()
         mavenLocal()
+        mavenCentral()
     }
 
-    version "0.2.7"
+    version "0.2.8"
     group "com.letscooee"
 }
 
