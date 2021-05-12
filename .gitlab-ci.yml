@@ -10,7 +10,7 @@ stages:
 bintray_upload:
     stage: build
     script:
-        - ./gradlew clean build bintrayUpload -PbintrayUser=${BINTRAY_USER} -PbintrayKey=${BINTRAY_PASS} -PdryRun=false
+        - ./gradlew clean cooee-android-sdk:artifactoryPublish -PartifactoryUser=${ARTIFACTORY_USER} -PartifactoryPassword=${ARTIFACTORY_PASS}
     only:
         - tags
     artifacts:
