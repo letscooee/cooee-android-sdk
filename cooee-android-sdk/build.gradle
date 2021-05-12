@@ -14,6 +14,18 @@ publishing {
             artifactId = project.getName()      // "cooee-android-sdk"
             version = project.version.toString()
 
+            // Customizing the POM file
+            pom {
+                name = 'Cooee Android SDK'
+                description = 'Hyper-personalised Mobile App Re-Engagement via Machine Learning'
+                url = 'https://github.com/letscooee/cooee-android-sdk'
+                scm {
+                    connection = 'scm:git:git://github.com/letscooee/cooee-android-sdk.git'
+                    developerConnection = 'scm:git:ssh://github.com:letscooee/cooee-android-sdk.git'
+                    url = 'https://github.com/letscooee/cooee-android-sdk/tree/master'
+                }
+            }
+
             project.afterEvaluate {
                 artifact bundleReleaseAar
 
