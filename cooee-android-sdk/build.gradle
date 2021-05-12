@@ -13,8 +13,21 @@ publishing {
             groupId = project.group.toString()  // com.letscooee
             artifactId = project.getName()      // "cooee-android-sdk"
             version = project.version.toString()
-            // Tell maven to prepare the generated "*.aar" file for publishing
-            artifact("$buildDir/outputs/aar/${project.getName()}-release.aar")
+
+            project.afterEvaluate {
+                artifact bundleReleaseAar
+
+                pom.withXml {
+                    // Make sure we copy dependencies to pom.xml
+                    def dependencies = asNode().appendNode("dependencies")
+                    configurations.getByName("releaseCompileClasspath").getResolvedConfiguration().getFirstLevelModuleDependencies().each {
+                        def dependency = dependencies.appendNode("dependency")
+                        dependency.appendNode("groupId", it.moduleGroup)
+                        dependency.appendNode("artifactId", it.moduleName)
+                        dependency.appendNode("version", it.moduleVersion)
+                    }
+                }
+            }
         }
     }
 }
