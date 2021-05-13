@@ -1,11 +1,11 @@
 # Change Log
 
-## 0.2.9
+## v0.2.9
 
-1. Fix exception in Android 11 because [new restricted permission]https://developer.android.com/about/versions/11/behavior-changes-11#apn-database-restrictions)
+1. Fix exception in Android 11 because [new restricted permission](https://developer.android.com/about/versions/11/behavior-changes-11#apn-database-restrictions)
 of Telephony manager APN database #COOEE-127
 
-## 0.2.8
+## v0.2.8
 
 This release does not bring any code changes. It only changes the artifactory/maven location of publishing. We have now moved from
  Bintray to JFrog because Bintray has been shutdown. Read more https://jfrog.com/blog/into-the-sunset-bintray-jcenter-gocenter-and-chartcenter/.
@@ -23,29 +23,29 @@ allprojects {
 }
 ```
 
-## 0.2.7
+## v0.2.7
 
 1. Added heatmap tracking.
 2. A supportive fix for Glassmorphism effect in Flutter.
 3. Change in activity lifecycle
 
-## 0.2.6
+## v0.2.6
 
 1. Sentry Added to library.
 2. Side-Pop Trigger added
 
-## 0.2.5
+## v0.2.5
 
 1. Carousel Notification added.
 2. Custom sound for Notification.
 
-## 0.2.3
+## v0.2.3
 
 1. Glassmorphism effect on orientation changes
 2. Added GIF layer on triggers  
 3. Active triggers tracking
 
-## 0.2.2
+## v0.2.2
 
 1. Testing application has been changed to include the functionality of our SDK for demo purposes. Now has multiple screens.
 2. Client's Application icon instead of our default icon in Push Notification.
@@ -57,11 +57,11 @@ allprojects {
 8. Close button on top right position.
 9. Updated UI/UX for landscape mode.
 
-## 0.2.1
+## v0.2.1
 
 1. Fixed sending null value in the request headers.
 
-## 0.2.0
+## v0.2.0
 
 1. Internal change in trigger payload.
 2. Glassmorphism effect.
@@ -69,27 +69,27 @@ allprojects {
 4. Updates in the KPI from engagement triggers.
 5. Passing device name & user id in the request header.
 
-## 0.1.1
+## v0.1.1
 
 1. Storing Firebase token via a separate endpoint.
 2. Keep alive code is now working.
 3. Storing user's id in the cache.
 
-## 0.1.0
+## v0.1.0
 
 1. Support of tracking sessions.
 2. Support of linking events with screen names.
 3. Showing engagement triggers.
 
-## 0.0.3
+## v0.0.3
 
 1. Fixed creating duplicate event `CE App Installed` instead of `CE App Launched`.
 2. Various code cleanup and optimization.
 
-## 0.0.2
+## v0.0.2
 
 1. Removed unused `android:networkSecurityConfig`.
 
-## 0.0.1
+## v0.0.1
 
 First working SDK to collect user properties & events.
