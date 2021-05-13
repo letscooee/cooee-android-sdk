@@ -21,6 +21,7 @@ import com.letscooee.retrofit.ServerAPIService;
 import com.letscooee.utils.CooeeSDKConstants;
 import com.letscooee.utils.LocalStorageHelper;
 import com.letscooee.utils.CooeeWindowCallback;
+//import com.unity3d.player.UnityPlayerActivity;
 
 import io.reactivex.rxjava3.subjects.ReplaySubject;
 import io.sentry.Sentry;
@@ -153,6 +154,14 @@ public class PostLaunchActivity {
             final Window.Callback localCallback = window.getCallback();
             window.setCallback(new CooeeWindowCallback(localCallback, activity));
         }
+    }
+
+    public static void createAR(Context context, TriggerData triggerData) {
+        /*Intent intent = new Intent(context, UnityPlayerActivity.class);
+        intent.putExtra("arguments", triggerData.getArName());
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+        );
+        context.startActivity(intent);*/
     }
 
     /**

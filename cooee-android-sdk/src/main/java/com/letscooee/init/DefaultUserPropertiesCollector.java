@@ -88,9 +88,15 @@ class DefaultUserPropertiesCollector {
         String[] networkData = new String[2];
         TelephonyManager manager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
         assert manager != null;
-        int networkType = manager.getNetworkType();
-        networkData[0] = !manager.getNetworkOperatorName().isEmpty() ? manager.getNetworkOperatorName() : "Unknown";
-        networkData[1] = getNetworkName(networkType);
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+            networkData[0] = !manager.getNetworkOperatorName().isEmpty() ? manager.getNetworkOperatorName() : "Unknown";
+            networkData[1] = "unknown";
+
+        }else {
+            int networkType = manager.getNetworkType();
+            networkData[0] = !manager.getNetworkOperatorName().isEmpty() ? manager.getNetworkOperatorName() : "Unknown";
+            networkData[1] = getNetworkName(networkType);
+        }
         return networkData;
     }
 

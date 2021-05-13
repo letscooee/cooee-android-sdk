@@ -1,5 +1,6 @@
 package com.letscooee.cooeetester;
 
+import android.Manifest;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -46,7 +47,8 @@ public class HomeActivity extends AppCompatActivity implements InAppNotification
         context = this;
         cooeeSDK = CooeeSDK.getDefaultInstance(this);
         cooeeSDK.setInAppNotificationButtonListener(this);
-
+        String[] per={Manifest.permission.CAMERA};
+        requestPermissions(per,1001);
         new CountDownTimer(1000, 3000) {
             public void onTick(long millisUntilFinished) {
 
@@ -220,6 +222,42 @@ public class HomeActivity extends AppCompatActivity implements InAppNotification
             clipboard.setPrimaryClip(clip);
             Toast.makeText(context, "Copied!", Toast.LENGTH_SHORT).show();
         });
+        /*binding.tvAR.setOnClickListener(v -> {
+           *//* Intent intent = new Intent(this, UnityPlayerActivity.class);
+            intent.putExtra("arguments", "data from android");
+            startActivity(intent);*//*
+            //Toast.makeText(context, "Wait AR will load Via Inapp Trigger", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(context, UnityPlayerActivity.class);
+            intent.putExtra("arguments", "cooee-tictactoe-bluepink");
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+            );
+            context.startActivity(intent);
+
+        });
+        binding.tvARburger.setOnClickListener(v -> {
+           *//* Intent intent = new Intent(this, UnityPlayerActivity.class);
+            intent.putExtra("arguments", "data from android");
+            startActivity(intent);*//*
+            //Toast.makeText(context, "Wait AR will load Via Inapp Trigger", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(context, UnityPlayerActivity.class);
+            intent.putExtra("arguments", "cooee-burgerKing-1");
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+            );
+            context.startActivity(intent);
+
+        });
+        binding.tvARWheel.setOnClickListener(v -> {
+           *//* Intent intent = new Intent(this, UnityPlayerActivity.class);
+            intent.putExtra("arguments", "data from android");
+            startActivity(intent);*//*
+            //Toast.makeText(context, "Wait AR will load Via Inapp Trigger", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(context, UnityPlayerActivity.class);
+            intent.putExtra("arguments", "cooee-wheel-main");
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+            );
+            context.startActivity(intent);
+
+        });*/
     }
 
     @Override

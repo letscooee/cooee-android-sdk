@@ -18,7 +18,7 @@ public class TriggerData implements Parcelable {
     }
 
     public enum Fill {
-        COVER, INTERSTITIAL, HALF_INTERSTITIAL, HEADER, FOOTER, SIDE_POP
+        COVER, INTERSTITIAL, HALF_INTERSTITIAL, HEADER, FOOTER, SIDE_POP, AR
     }
 
     public enum EntranceAnimation {
@@ -64,6 +64,7 @@ public class TriggerData implements Parcelable {
     private boolean showImageShadow;
     private String imageUrl1;
     private int carouselOffset = 1;
+    private String arName;
 
     public SidePopSetting getSidePopSetting() {
         return sidePopSetting;
@@ -119,6 +120,7 @@ public class TriggerData implements Parcelable {
         showImageShadow = in.readByte() != 0;
         imageUrl1 = in.readString();
         carouselOffset = in.readInt();
+        arName=in.readString();
     }
 
     @Override
@@ -146,6 +148,11 @@ public class TriggerData implements Parcelable {
         dest.writeByte((byte) (showImageShadow ? 1 : 0));
         dest.writeString(imageUrl1);
         dest.writeInt(carouselOffset);
+        dest.writeString(arName);
+    }
+
+    public String getArName() {
+        return arName;
     }
 
     @Override
