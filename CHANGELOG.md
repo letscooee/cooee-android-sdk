@@ -1,5 +1,10 @@
 # Change Log
 
+## 0.2.9
+
+1. Fix exception in Android 11 because [new restricted permission]https://developer.android.com/about/versions/11/behavior-changes-11#apn-database-restrictions)
+of Telephony manager APN database #COOEE-127
+
 ## 0.2.8
 
 This release does not bring any code changes. It only changes the artifactory/maven location of publishing. We have now moved from
