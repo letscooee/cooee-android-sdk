@@ -742,25 +742,30 @@ public class EngagementTriggerActivity extends AppCompatActivity {
                 : Color.parseColor(triggerData.getCloseBehaviour().getCloseButtonColor());
         closeImageButton.setColorFilter(closeButtonColor, android.graphics.PorterDuff.Mode.SRC_IN);
 
-        if (!triggerData.getCloseBehaviour().isAuto() || triggerData.getCloseBehaviour().getTimeToClose() != 0) {
-            closeImageButton.setVisibility(View.INVISIBLE);
-            closeImageButton.setEnabled(false);
-            new CountDownTimer(triggerData.getCloseBehaviour().getTimeToClose() * 1000, 1000) {
+        if (triggerData.getCloseBehaviour().isShow()) {
+            if (!triggerData.getCloseBehaviour().isAuto() || triggerData.getCloseBehaviour().getTimeToClose() != 0) {
+                closeImageButton.setVisibility(View.INVISIBLE);
+                closeImageButton.setEnabled(false);
+                new CountDownTimer(triggerData.getCloseBehaviour().getTimeToClose() * 1000, 1000) {
 
-                public void onTick(long millisUntilFinished) {
-                    textViewTimer.setText(String.valueOf((millisUntilFinished / 1000) + 1));
-                    progressBarClose.setProgress(progressBarClose.getProgress() - (100 / triggerData.getCloseBehaviour().getTimeToClose() + 1));
-                }
+                    public void onTick(long millisUntilFinished) {
+                        textViewTimer.setText(String.valueOf((millisUntilFinished / 1000) + 1));
+                        progressBarClose.setProgress(progressBarClose.getProgress() - (100 / triggerData.getCloseBehaviour().getTimeToClose() + 1));
+                    }
 
-                public void onFinish() {
-                    textViewTimer.setVisibility(View.GONE);
-                    progressBarClose.setVisibility(View.GONE);
-                    closeImageButton.setVisibility(View.VISIBLE);
-                    closeImageButton.setEnabled(true);
-                }
-            }.start();
+                    public void onFinish() {
+                        textViewTimer.setVisibility(View.GONE);
+                        progressBarClose.setVisibility(View.GONE);
+                        closeImageButton.setVisibility(View.VISIBLE);
+                        closeImageButton.setEnabled(true);
+                    }
+                }.start();
+            } else {
+                textViewTimer.setVisibility(View.GONE);
+                progressBarClose.setVisibility(View.GONE);
+            }
         } else {
-            textViewTimer.setVisibility(View.GONE);
+            closeImageButton.setVisibility(View.GONE);
             progressBarClose.setVisibility(View.GONE);
         }
 

@@ -17,6 +17,7 @@ public class TriggerCloseBehaviour implements Parcelable {
     private String closeButtonColor;
     private String countDownTextColor;
     private String progressBarColor;
+    private boolean show;
 
 
     protected TriggerCloseBehaviour(Parcel in) {
@@ -26,6 +27,7 @@ public class TriggerCloseBehaviour implements Parcelable {
         countDownTextColor = in.readString();
         progressBarColor = in.readString();
         position = Position.valueOf(in.readString());
+        show = in.readByte() != 0;
     }
 
     @Override
@@ -36,6 +38,7 @@ public class TriggerCloseBehaviour implements Parcelable {
         dest.writeString(countDownTextColor);
         dest.writeString(progressBarColor);
         dest.writeString(position.name());
+        dest.writeByte((byte) (show ? 1 : 0));
     }
 
     @Override
@@ -77,6 +80,10 @@ public class TriggerCloseBehaviour implements Parcelable {
 
     public String getProgressBarColor() {
         return progressBarColor;
+    }
+
+    public boolean isShow() {
+        return show;
     }
 
     @Override
