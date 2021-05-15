@@ -290,7 +290,7 @@ public class EngagementTriggerActivity extends AppCompatActivity {
      * eg. if it should be auto close or close button is provided
      */
     private void updateClose() {
-        if (triggerData.getCloseBehaviour().isAuto() || triggerData.getCloseBehaviour().getTimeToClose() == 0) {
+        if (triggerData.getCloseBehaviour().isAuto()) {
             int autoClose = triggerData.getCloseBehaviour().getTimeToClose();
             closeImageButton.setVisibility(View.GONE);
             textViewTimer.setVisibility(View.GONE);
