@@ -296,7 +296,10 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
         int notificationId = (int) new Date().getTime();
         PackageManager packageManager = getPackageManager();
         Intent appLaunchIntent = packageManager.getLaunchIntentForPackage(getApplicationContext().getPackageName());
-        appLaunchIntent.putExtra("triggerData", triggerData);
+
+        Bundle bundle = new Bundle();
+        bundle.putParcelable("triggerData",triggerData);
+        appLaunchIntent.putExtra("dataBundle", bundle);
 
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
         stackBuilder.addNextIntentWithParentStack(appLaunchIntent);
