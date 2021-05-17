@@ -742,7 +742,7 @@ public class EngagementTriggerActivity extends AppCompatActivity {
                 : Color.parseColor(triggerData.getCloseBehaviour().getCloseButtonColor());
         closeImageButton.setColorFilter(closeButtonColor, android.graphics.PorterDuff.Mode.SRC_IN);
 
-        if (triggerData.getCloseBehaviour().isShow()) {
+        if (triggerData.getCloseBehaviour().shouldShowButton()) {
             if (!triggerData.getCloseBehaviour().isAuto() || triggerData.getCloseBehaviour().getTimeToClose() != 0) {
                 closeImageButton.setVisibility(View.INVISIBLE);
                 closeImageButton.setEnabled(false);

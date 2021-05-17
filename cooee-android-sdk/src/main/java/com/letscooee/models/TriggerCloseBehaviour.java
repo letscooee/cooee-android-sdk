@@ -82,7 +82,7 @@ public class TriggerCloseBehaviour implements Parcelable {
         return progressBarColor;
     }
 
-    public boolean isShow() {
+    public boolean shouldShowButton() {
         return show;
     }
 
