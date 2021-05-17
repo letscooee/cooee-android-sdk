@@ -40,6 +40,7 @@
             android:id="@+id/contentLinearLayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:padding="7dp"
             android:layout_margin="13dp"
             android:background="@android:color/transparent"
             android:orientation="vertical">
