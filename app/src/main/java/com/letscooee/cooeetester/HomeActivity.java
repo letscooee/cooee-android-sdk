@@ -233,7 +233,7 @@ public class HomeActivity extends AppCompatActivity implements InAppNotification
     }
 
     @Override
-    public void onInAppButtonClick(HashMap<String, String> hashMap) {
+    public void onInAppButtonClick(HashMap<String, Object> hashMap) {
         Log.d(TAG, "onInAppButtonClick: ************************************" + hashMap.toString());
     }
 }

@@ -102,7 +102,7 @@ public class EngagementTriggerActivity extends AppCompatActivity {
     }
 
     public interface InAppListener {
-        void inAppNotificationDidClick(HashMap<String, String> payload);
+        void inAppNotificationDidClick(HashMap<String, Object> payload);
     }
 
     public static void setWindow(Window window) {
