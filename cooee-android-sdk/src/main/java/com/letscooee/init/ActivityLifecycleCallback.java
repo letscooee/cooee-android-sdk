@@ -72,10 +72,10 @@ public class ActivityLifecycleCallback {
                 }
 
                 PostLaunchActivity.setHeatMapRecorder(activity);
-                Bundle bundle = activity.getIntent().getBundleExtra("dataBundle");
+                Bundle bundle = activity.getIntent().getBundleExtra(CooeeSDKConstants.INTENT_BUNDLE_KEY);
 
                 if (bundle != null) {
-                    TriggerData triggerData = bundle.getParcelable("triggerData");
+                    TriggerData triggerData = bundle.getParcelable(CooeeSDKConstants.INTENT_TRIGGER_DATA_KEY);
 
                     if (triggerData != null && triggerData.getId() != null) {
                         new Timer().schedule(

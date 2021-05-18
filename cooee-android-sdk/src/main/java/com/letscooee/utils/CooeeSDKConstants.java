@@ -22,4 +22,7 @@ public class CooeeSDKConstants {
     public static final String NOTIFICATION_CHANNEL_ID = "COOEE_DEFAULT_CHANNEL";
     public static final String NOTIFICATION_CHANNEL_NAME = "DEFAULT";
     public static final String TOUCH_MAP = "TOUCHMAP";
+
+    public static final String INTENT_BUNDLE_KEY = "cooeeIntentBundle";
+    public static final String INTENT_TRIGGER_DATA_KEY = "cooeeTriggerData";
 }
