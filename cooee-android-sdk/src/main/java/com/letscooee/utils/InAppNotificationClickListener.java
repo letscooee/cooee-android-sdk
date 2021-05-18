@@ -10,5 +10,5 @@ public interface InAppNotificationClickListener {
     /**
      * Callback to return a Key Value payload associated with inApp widget click.
      */
-    void onInAppButtonClick(HashMap<String, String> payload);
+    void onInAppButtonClick(HashMap<String, Object> payload);
 }

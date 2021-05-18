@@ -112,7 +112,7 @@ public class MainActivity extends AppCompatActivity implements InAppNotification
     }
 
     @Override
-    public void onInAppButtonClick(HashMap<String, String> payload) {
+    public void onInAppButtonClick(HashMap<String, Object> payload) {
         if (payload != null) {
             Log.d("Data from inApp", payload.toString());
 //            startActivity(new Intent(MainActivity.this, SignUpActivity.class));

@@ -191,7 +191,7 @@ public class CooeeSDK implements EngagementTriggerActivity.InAppListener {
     }
 
     @Override
-    public void inAppNotificationDidClick(HashMap<String, String> payload) {
+    public void inAppNotificationDidClick(HashMap<String, Object> payload) {
         if (payload != null) {
             inAppNotificationClickListener.get().onInAppButtonClick(payload);
         }
