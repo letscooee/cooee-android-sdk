@@ -72,18 +72,21 @@ public class ActivityLifecycleCallback {
                 }
 
                 PostLaunchActivity.setHeatMapRecorder(activity);
-                TriggerData triggerData = activity.getIntent().getParcelableExtra("triggerData");
+                Bundle bundle = activity.getIntent().getBundleExtra(CooeeSDKConstants.INTENT_BUNDLE_KEY);
 
-                if (triggerData != null && triggerData.getId() != null) {
-                    new Timer().schedule(
-                            new TimerTask() {
-                                @Override
-                                public void run() {
-                                    PostLaunchActivity.createTrigger(application.getApplicationContext(), triggerData);
-                                    HttpCallsHelper.sendEvent(application.getApplicationContext(), new Event("CE Notification Clicked", new HashMap<>()), null);
-                                }
-                            }, 4000);
+                if (bundle != null) {
+                    TriggerData triggerData = bundle.getParcelable(CooeeSDKConstants.INTENT_TRIGGER_DATA_KEY);
 
+                    if (triggerData != null && triggerData.getId() != null) {
+                        new Timer().schedule(
+                                new TimerTask() {
+                                    @Override
+                                    public void run() {
+                                        PostLaunchActivity.createTrigger(application.getApplicationContext(), triggerData);
+                                        HttpCallsHelper.sendEvent(application.getApplicationContext(), new Event("CE Notification Clicked", new HashMap<>()), null);
+                                    }
+                                }, 4000);
+                    }
                 }
 
                 FirebaseMessaging.getInstance().getToken().addOnSuccessListener(new OnSuccessListener<String>() {
