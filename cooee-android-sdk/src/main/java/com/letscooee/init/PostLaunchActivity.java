@@ -81,6 +81,7 @@ public class PostLaunchActivity {
                         String sdkToken = response.body().getSdkToken();
                         Log.i(CooeeSDKConstants.LOG_PREFIX, "Token : " + sdkToken);
                         currentSessionId = response.body().getSessionID();
+                        LocalStorageHelper.putString(context, "CURRENT_SESSION", currentSessionId);
 
                         LocalStorageHelper.putString(context, CooeeSDKConstants.STORAGE_SDK_TOKEN, sdkToken);
                         LocalStorageHelper.putString(context, CooeeSDKConstants.STORAGE_USER_ID, response.body().getId());
@@ -265,9 +266,10 @@ public class PostLaunchActivity {
         eventProperties.put("CE Device Battery", defaultUserPropertiesCollector.getBatteryLevel());
 
         Event event = new Event("CE App Launched", eventProperties);
-        HttpCallsHelper.sendEventWithoutSDKState(context, event, data -> {
+        HttpCallsHelper.sendEventWithoutSDKState(context, event, null, data -> {
             if (data != null && data.get("sessionID") != null) {
                 currentSessionId = String.valueOf(data.get("sessionID"));
+                LocalStorageHelper.putString(context, "CURRENT_SESSION", currentSessionId);
                 notifySDKStateDecided();
             }
             createTrigger(context, data);
@@ -315,7 +317,7 @@ public class PostLaunchActivity {
         userMap.put("userProperties", userProperties);
         userMap.put("userData", new HashMap<>());
 
-        HttpCallsHelper.sendUserProfile(userMap, "SDK", data -> {
+        HttpCallsHelper.sendUserProfile(context, userMap, "SDK", data -> {
             if (data.get("id") != null) {
                 Log.d(CooeeSDKConstants.LOG_PREFIX, data.get("id").toString());
                 LocalStorageHelper.putString(context, CooeeSDKConstants.STORAGE_USER_ID, data.get("id").toString());

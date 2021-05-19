@@ -128,7 +128,7 @@ public class CooeeSDK implements EngagementTriggerActivity.InAppListener {
             userMap.put("userProperties", userProperties);
         }
 
-        HttpCallsHelper.sendUserProfile(userMap, "Manual", data -> {
+        HttpCallsHelper.sendUserProfile(context,userMap, "Manual", data -> {
             if (data.get("id") != null) {
                 LocalStorageHelper.putString(context, CooeeSDKConstants.STORAGE_USER_ID, data.get("id").toString());
                 setSentryUser(data.get("id").toString(), userData);

@@ -371,7 +371,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
     public static void sendEvent(Context context, Event event) {
         APIClient.setAPIToken(LocalStorageHelper.getString(context, CooeeSDKConstants.STORAGE_SDK_TOKEN, ""));
 
-        HttpCallsHelper.sendEventWithoutSDKState(context, event, null);
+        HttpCallsHelper.sendEventWithoutSDKState(context, event, null, null);
     }
 
     /**
@@ -412,7 +412,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
      * @param token received from Firebase
      */
     private void sendTokenToServer(String token) {
-        HttpCallsHelper.setFirebaseToken(token);
+        HttpCallsHelper.setFirebaseToken(token, this);
     }
 
     /**

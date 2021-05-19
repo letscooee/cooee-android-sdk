@@ -234,7 +234,7 @@ public class EngagementTriggerActivity extends AppCompatActivity {
             recieved.put("triggerID", triggerData.getId());
             userProfile.put("userData", new HashMap<>());
             userProfile.put("userProperties", action.getUserProperty());
-            HttpCallsHelper.sendUserProfile(userProfile, "Trigger Property", null);
+            HttpCallsHelper.sendUserProfile(this,userProfile, "Trigger Property", null);
         }
     }
 

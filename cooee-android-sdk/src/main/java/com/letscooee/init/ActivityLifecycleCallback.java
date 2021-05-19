@@ -19,10 +19,12 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.gson.Gson;
 import com.letscooee.CooeeSDK;
+import com.letscooee.brodcast.CooeeJobSchedulerBroadcast;
 import com.letscooee.models.Event;
 import com.letscooee.models.TriggerData;
 import com.letscooee.retrofit.HttpCallsHelper;
 import com.letscooee.trigger.CooeeEmptyActivity;
+import com.letscooee.schedular.jobschedular.CooeeScheduleJob;
 import com.letscooee.trigger.EngagementTriggerActivity;
 import com.letscooee.utils.CooeeSDKConstants;
 import com.letscooee.utils.LocalStorageHelper;
@@ -63,10 +65,11 @@ public class ActivityLifecycleCallback {
      * @param application will be instance of application
      */
     public void register(Application application) {
-
         context = application.getApplicationContext();
 
         SentryHelper.getInstance(context);
+        checkAndStartJob(application.getApplicationContext());
+
         application.registerActivityLifecycleCallbacks(new Application.ActivityLifecycleCallbacks() {
             @Override
             public void onActivityCreated(@NonNull Activity activity, @Nullable Bundle savedInstanceState) {
@@ -83,7 +86,7 @@ public class ActivityLifecycleCallback {
                 FirebaseMessaging.getInstance().getToken().addOnSuccessListener(new OnSuccessListener<String>() {
                     @Override
                     public void onSuccess(String token) {
-                        HttpCallsHelper.setFirebaseToken(token);
+                        HttpCallsHelper.setFirebaseToken(token, application.getApplicationContext());
                     }
                 });
             }
@@ -133,7 +136,7 @@ public class ActivityLifecycleCallback {
 
                 isBackground = false;
 
-                keepSessionAlive();
+                keepSessionAlive(application.getApplicationContext());
 
                 lastEnterForeground = new Date();
 
@@ -150,7 +153,7 @@ public class ActivityLifecycleCallback {
                     Map<String, String> sessionProperties = new HashMap<>();
                     sessionProperties.put("CE Duration", duration + "");
 
-                    HttpCallsHelper.sendSessionConcludedEvent(duration);
+                    HttpCallsHelper.sendSessionConcludedEvent(duration, application.getApplicationContext());
 
                     new PostLaunchActivity(context);
                     Log.d(CooeeSDKConstants.LOG_PREFIX, "After 30 min of App Background " + "Session Concluded");
@@ -251,6 +254,18 @@ public class ActivityLifecycleCallback {
     }
 
     /**
+     * This method will check if job is currently present or not with system
+     * If job is not present it will add job in a queue
+     *
+     * @param context will be application context
+     */
+    private void checkAndStartJob(Context context) {
+        if (!CooeeJobSchedulerBroadcast.isJobServiceOn(context)) {
+            CooeeScheduleJob.scheduleJob(context);
+        }
+    }
+
+    /**
      * Will process map present in local storage and will send to server
      *
      * @param context application context
@@ -288,13 +303,15 @@ public class ActivityLifecycleCallback {
 
     /**
      * send server check message every 5 min that session is still alive
+     *
+     * @param applicationContext
      */
-    private void keepSessionAlive() {
+    private void keepSessionAlive(Context applicationContext) {
         //send server check message every 5 min that session is still alive
         handler.postDelayed(runnable = new Runnable() {
             public void run() {
                 handler.postDelayed(runnable, CooeeSDKConstants.KEEP_ALIVE_TIME_IN_MS);
-                HttpCallsHelper.keepAlive();
+                HttpCallsHelper.keepAlive(applicationContext);
                 Log.d(CooeeSDKConstants.LOG_PREFIX, "Sent keep alive call");
             }
         }, CooeeSDKConstants.KEEP_ALIVE_TIME_IN_MS);

@@ -126,6 +126,8 @@ dependencies {
     api 'jp.wasabeef:blurry:4.0.0'
     api 'com.google.android.flexbox:flexbox:3.0.0'
     api 'io.sentry:sentry-android:4.3.0'
+    api "androidx.room:room-runtime:2.3.0"
+    annotationProcessor "androidx.room:room-compiler:2.3.0"
     annotationProcessor 'com.github.bumptech.glide:compiler:4.11.0'
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
