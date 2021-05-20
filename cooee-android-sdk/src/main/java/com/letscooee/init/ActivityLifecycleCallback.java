@@ -105,6 +105,10 @@ public class ActivityLifecycleCallback {
                     }
                 }
 
+                if (activity.getClass().getName().contains("CooeeActivity")) {
+                    activity.finish();
+                }
+
                 if (!activity.getClass().getName().contains("EngagementTriggerActivity")) {
                     if (EngagementTriggerActivity.onInAppPopListener != null) {
                         if (!EngagementTriggerActivity.isManualClose) {
