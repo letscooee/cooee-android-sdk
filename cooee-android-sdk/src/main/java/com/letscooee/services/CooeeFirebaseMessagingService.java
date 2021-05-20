@@ -372,6 +372,8 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
     public static void sendEvent(Context context, Event event) {
         APIClient.setAPIToken(LocalStorageHelper.getString(context, CooeeSDKConstants.STORAGE_SDK_TOKEN, ""));
 
+        event.setSessionID(PostLaunchActivity.currentSessionId);
+
         CooeeDatabase database = CooeeDatabase.getInstance(context);
         HttpCallsHelper.sendEventWithoutSDKState(context, event, database, null);
     }
