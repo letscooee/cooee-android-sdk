@@ -72,22 +72,6 @@ public class ActivityLifecycleCallback {
                 }
 
                 PostLaunchActivity.setHeatMapRecorder(activity);
-                Bundle bundle = activity.getIntent().getBundleExtra(CooeeSDKConstants.INTENT_BUNDLE_KEY);
-
-                if (bundle != null) {
-                    TriggerData triggerData = bundle.getParcelable(CooeeSDKConstants.INTENT_TRIGGER_DATA_KEY);
-
-                    if (triggerData != null && triggerData.getId() != null) {
-                        new Timer().schedule(
-                                new TimerTask() {
-                                    @Override
-                                    public void run() {
-                                        PostLaunchActivity.createTrigger(application.getApplicationContext(), triggerData);
-                                        HttpCallsHelper.sendEvent(application.getApplicationContext(), new Event("CE Notification Clicked", new HashMap<>()), null);
-                                    }
-                                }, 4000);
-                    }
-                }
 
                 FirebaseMessaging.getInstance().getToken().addOnSuccessListener(new OnSuccessListener<String>() {
                     @Override
@@ -105,7 +89,23 @@ public class ActivityLifecycleCallback {
 
             @Override
             public void onActivityResumed(@NonNull Activity activity) {
-                if (!activity.getClass().getName().contains("EngagementTriggerActivity"))
+                Bundle bundle = activity.getIntent().getBundleExtra(CooeeSDKConstants.INTENT_BUNDLE_KEY);
+
+                if (bundle != null) {
+                    TriggerData triggerData = bundle.getParcelable(CooeeSDKConstants.INTENT_TRIGGER_DATA_KEY);
+                    if (triggerData != null && triggerData.getId() != null) {
+                        new Timer().schedule(
+                                new TimerTask() {
+                                    @Override
+                                    public void run() {
+                                        PostLaunchActivity.createTrigger(application.getApplicationContext(), triggerData);
+                                        HttpCallsHelper.sendEvent(application.getApplicationContext(), new Event("CE Notification Clicked", new HashMap<>()), null);
+                                    }
+                                }, 4000);
+                    }
+                }
+
+                if (!activity.getClass().getName().contains("EngagementTriggerActivity")) {
                     if (EngagementTriggerActivity.onInAppPopListener != null) {
                         if (!EngagementTriggerActivity.isManualClose) {
                             String triggerString = LocalStorageHelper.getString(activity, "trigger", null);
@@ -114,6 +114,7 @@ public class ActivityLifecycleCallback {
                             }
                         }
                     }
+                }
             }
 
             @Override

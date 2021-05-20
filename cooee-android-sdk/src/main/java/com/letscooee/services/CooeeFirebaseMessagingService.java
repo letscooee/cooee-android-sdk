@@ -41,6 +41,7 @@ import com.letscooee.models.TriggerButton;
 import com.letscooee.models.TriggerData;
 import com.letscooee.retrofit.APIClient;
 import com.letscooee.retrofit.HttpCallsHelper;
+import com.letscooee.trigger.CooeeActivity;
 import com.letscooee.utils.CooeeSDKConstants;
 import com.letscooee.utils.LocalStorageHelper;
 
@@ -293,18 +294,15 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
             notificationManager.createNotificationChannel(notificationChannel);
         }
 
-        int notificationId = (int) new Date().getTime();
-        PackageManager packageManager = getPackageManager();
-        Intent appLaunchIntent = packageManager.getLaunchIntentForPackage(getApplicationContext().getPackageName());
+        int notificationId = (int) System.currentTimeMillis();
+        Intent appLaunchIntent = new Intent(this, CooeeActivity.class);
 
         Bundle bundle = new Bundle();
         bundle.putParcelable(CooeeSDKConstants.INTENT_TRIGGER_DATA_KEY, triggerData);
         appLaunchIntent.putExtra(CooeeSDKConstants.INTENT_BUNDLE_KEY, bundle);
+        appLaunchIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
-        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-        stackBuilder.addNextIntentWithParentStack(appLaunchIntent);
-
-        PendingIntent appLaunchPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent appLaunchPendingIntent = PendingIntent.getActivity(this, triggerData.getId().hashCode(), appLaunchIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         RemoteViews smallNotification = new RemoteViews(getPackageName(), R.layout.notification_small);
         smallNotification.setTextViewText(R.id.textViewTitle, title);
