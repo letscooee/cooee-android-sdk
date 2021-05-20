@@ -3,6 +3,7 @@ package com.letscooee.room.postoperations.dao;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
+import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 import androidx.room.Update;
 
@@ -34,6 +35,9 @@ public interface PendingTaskDAO {
     @Delete
     void delete(PendingTask task);
 
-    @Update
-    void update(PendingTask task);
+    @Query("update PendingTask set attempts = :count and  last_attempted = :time where id = :id")
+    void update(int id, int count, long time);
+
+    @Update(onConflict = OnConflictStrategy.REPLACE)
+    void updateByObject(PendingTask pendingTask);
 }

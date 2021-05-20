@@ -69,7 +69,7 @@ public final class HttpCallsHelper {
         event.setOccurred(currentDate);
         LocalStorageHelper.putListImmediately(context, CooeeSDKConstants.STORAGE_ACTIVE_TRIGGERS, activeTriggerList);
 
-        if (TextUtils.isEmpty(event.getSessionID()) && (!event.getName().equalsIgnoreCase("CE Notification Received") || !event.getName().equalsIgnoreCase("CE Notification Viewed"))) {
+        if (TextUtils.isEmpty(event.getSessionID()) && !(event.getName().equalsIgnoreCase("CE Notification Received") || event.getName().equalsIgnoreCase("CE Notification Viewed"))) {
             pushEvent(event, closure, null, null);
         } else {
 
@@ -96,7 +96,11 @@ public final class HttpCallsHelper {
                 }
 
                 if (appDatabase != null) {
-                    appDatabase.pendingTaskDAO().delete(task);
+                    if (response.isSuccessful()) {
+                        appDatabase.pendingTaskDAO().delete(task);
+                    } else {
+                        updateData(appDatabase, task, currentTime);
+                    }
                 }
             }
 
@@ -105,9 +109,8 @@ public final class HttpCallsHelper {
                 Log.e(CooeeSDKConstants.LOG_PREFIX, event.getName() + " Event Sent Error Message: " + t.toString());
 
                 if (task != null) {
-                    task.lastAttempted = currentTime.getTime();
-                    task.attempts = task.attempts + 1;
-                    appDatabase.pendingTaskDAO().update(task);
+                    int count = task.attempts + 1;
+                    appDatabase.pendingTaskDAO().update(task.id, count, currentTime.getTime());
                 }
                 //Sentry.captureException(t);
             }
@@ -136,7 +139,12 @@ public final class HttpCallsHelper {
             @Override
             public void onResponse(@NonNull Call<Map<String, Object>> call, @NonNull Response<Map<String, Object>> response) {
                 Log.i(CooeeSDKConstants.LOG_PREFIX, msg + " User Profile Response Code : " + response.code());
-                appDatabase.pendingTaskDAO().delete(task);
+                if (response.isSuccessful()) {
+                    appDatabase.pendingTaskDAO().delete(task);
+                } else {
+                    updateData(appDatabase, task, currentTime);
+                }
+
                 if (closure == null) {          // space change
                     return;
                 }
@@ -150,9 +158,8 @@ public final class HttpCallsHelper {
             public void onFailure(@NonNull Call<Map<String, Object>> call, @NonNull Throwable t) {
                 // TODO Saving the request locally so that it can be sent later
                 Log.e(CooeeSDKConstants.LOG_PREFIX, msg + " User Profile Error Message : " + t.toString());
-                task.lastAttempted = currentTime.getTime();
-                task.attempts = task.attempts + 1;
-                appDatabase.pendingTaskDAO().update(task);
+                int count = task.attempts + 1;
+                appDatabase.pendingTaskDAO().update(task.id, count, currentTime.getTime());
                 //Sentry.captureException(t);
             }
         });
@@ -183,15 +190,18 @@ public final class HttpCallsHelper {
             @Override
             public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
                 Log.i(CooeeSDKConstants.LOG_PREFIX, "Session Concluded Event Sent Code : " + response.code());
-                appDatabase.pendingTaskDAO().delete(task);
+                if (response.isSuccessful()) {
+                    appDatabase.pendingTaskDAO().delete(task);
+                } else {
+                    updateData(appDatabase, task, currentTime);
+                }
             }
 
             @Override
             public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
                 Log.e(CooeeSDKConstants.LOG_PREFIX, "Session Concluded Event Sent Error Message" + t.toString());
-                task.attempts = task.attempts + 1;
-                task.lastAttempted = currentTime.getTime();
-                appDatabase.pendingTaskDAO().update(task);
+                int count = task.attempts + 1;
+                appDatabase.pendingTaskDAO().update(task.id, count, currentTime.getTime());
                 //Sentry.captureException(t);
             }
         });
@@ -220,16 +230,19 @@ public final class HttpCallsHelper {
             @Override
             public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
                 Log.i(CooeeSDKConstants.LOG_PREFIX, "Session Alive Response Code : " + response.code());
-                appDatabase.pendingTaskDAO().delete(task);
+                if (response.isSuccessful()) {
+                    appDatabase.pendingTaskDAO().delete(task);
+                } else {
+                    updateData(appDatabase, task, currentTime);
+                }
             }
 
             @Override
             public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
                 Log.e(CooeeSDKConstants.LOG_PREFIX, "Session Alive Response Error Message" + t.toString());
                 //Sentry.captureException(t);
-                task.lastAttempted = currentTime.getTime();
-                task.attempts = task.attempts + 1;
-                appDatabase.pendingTaskDAO().update(task);
+                int count = task.attempts + 1;
+                appDatabase.pendingTaskDAO().update(task.id, count, currentTime.getTime());
             }
         });
     }
@@ -259,17 +272,26 @@ public final class HttpCallsHelper {
             @Override
             public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
                 Log.i(CooeeSDKConstants.LOG_PREFIX, "Firebase Token Response Code : " + response.code());
-                appDatabase.pendingTaskDAO().delete(task);
+                if (response.isSuccessful()) {
+                    appDatabase.pendingTaskDAO().delete(task);
+                } else {
+                    updateData(appDatabase, task, currentTime);
+                }
             }
 
             @Override
             public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
                 Log.e(CooeeSDKConstants.LOG_PREFIX, "Firebase Token Response Error Message" + t.toString());
                 //Sentry.captureException(t);
-                task.lastAttempted = currentTime.getTime();
-                task.attempts = task.attempts + 1;
-                appDatabase.pendingTaskDAO().update(task);
+                updateData(appDatabase, task, currentTime);
             }
         });
+    }
+
+    private static void updateData(CooeeDatabase appDatabase, PendingTask task, Date currentTime) {
+        int count = task.attempts + 1;
+        task.attempts = count;
+        task.lastAttempted = currentTime.getTime();
+        appDatabase.pendingTaskDAO().updateByObject(task);
     }
 }

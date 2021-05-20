@@ -42,6 +42,7 @@ import com.letscooee.models.TriggerData;
 import com.letscooee.retrofit.APIClient;
 import com.letscooee.retrofit.HttpCallsHelper;
 import com.letscooee.trigger.CooeeEmptyActivity;
+import com.letscooee.room.CooeeDatabase;
 import com.letscooee.utils.CooeeSDKConstants;
 import com.letscooee.utils.LocalStorageHelper;
 
@@ -371,7 +372,8 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
     public static void sendEvent(Context context, Event event) {
         APIClient.setAPIToken(LocalStorageHelper.getString(context, CooeeSDKConstants.STORAGE_SDK_TOKEN, ""));
 
-        HttpCallsHelper.sendEventWithoutSDKState(context, event, null, null);
+        CooeeDatabase database = CooeeDatabase.getInstance(context);
+        HttpCallsHelper.sendEventWithoutSDKState(context, event, database, null);
     }
 
     /**
