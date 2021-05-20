@@ -41,7 +41,7 @@ import com.letscooee.models.TriggerButton;
 import com.letscooee.models.TriggerData;
 import com.letscooee.retrofit.APIClient;
 import com.letscooee.retrofit.HttpCallsHelper;
-import com.letscooee.trigger.CooeeActivity;
+import com.letscooee.trigger.CooeeEmptyActivity;
 import com.letscooee.utils.CooeeSDKConstants;
 import com.letscooee.utils.LocalStorageHelper;
 
@@ -295,7 +295,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
         }
 
         int notificationId = (int) System.currentTimeMillis();
-        Intent appLaunchIntent = new Intent(this, CooeeActivity.class);
+        Intent appLaunchIntent = new Intent(this, CooeeEmptyActivity.class);
 
         Bundle bundle = new Bundle();
         bundle.putParcelable(CooeeSDKConstants.INTENT_TRIGGER_DATA_KEY, triggerData);

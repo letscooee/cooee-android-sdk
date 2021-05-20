@@ -22,6 +22,7 @@ import com.letscooee.CooeeSDK;
 import com.letscooee.models.Event;
 import com.letscooee.models.TriggerData;
 import com.letscooee.retrofit.HttpCallsHelper;
+import com.letscooee.trigger.CooeeEmptyActivity;
 import com.letscooee.trigger.EngagementTriggerActivity;
 import com.letscooee.utils.CooeeSDKConstants;
 import com.letscooee.utils.LocalStorageHelper;
@@ -89,36 +90,13 @@ public class ActivityLifecycleCallback {
 
             @Override
             public void onActivityResumed(@NonNull Activity activity) {
-                Bundle bundle = activity.getIntent().getBundleExtra(CooeeSDKConstants.INTENT_BUNDLE_KEY);
+                handleTriggerDataFromActivity(activity);
 
-                if (bundle != null) {
-                    TriggerData triggerData = bundle.getParcelable(CooeeSDKConstants.INTENT_TRIGGER_DATA_KEY);
-                    if (triggerData != null && triggerData.getId() != null) {
-                        new Timer().schedule(
-                                new TimerTask() {
-                                    @Override
-                                    public void run() {
-                                        PostLaunchActivity.createTrigger(application.getApplicationContext(), triggerData);
-                                        HttpCallsHelper.sendEvent(application.getApplicationContext(), new Event("CE Notification Clicked", new HashMap<>()), null);
-                                    }
-                                }, 4000);
-                    }
-                }
-
-                if (activity.getClass().getName().contains("CooeeActivity")) {
+                if (activity instanceof CooeeEmptyActivity) {
                     activity.finish();
                 }
 
-                if (!activity.getClass().getName().contains("EngagementTriggerActivity")) {
-                    if (EngagementTriggerActivity.onInAppPopListener != null) {
-                        if (!EngagementTriggerActivity.isManualClose) {
-                            String triggerString = LocalStorageHelper.getString(activity, "trigger", null);
-                            if (!TextUtils.isEmpty(triggerString)) {
-                                PostLaunchActivity.createTrigger(activity, new Gson().fromJson(triggerString, TriggerData.class));
-                            }
-                        }
-                    }
-                }
+                handleGlassmorphismAfterLaunch(activity);
             }
 
             @Override
@@ -209,6 +187,63 @@ public class ActivityLifecycleCallback {
         });
 
 
+    }
+
+    /**
+     * Handles the creation of triggers
+     *
+     * @param activity
+     */
+    private void handleTriggerDataFromActivity(Activity activity) {
+        Bundle bundle = activity.getIntent().getBundleExtra(CooeeSDKConstants.INTENT_BUNDLE_KEY);
+
+        // Should not go ahead if bundle is null
+        if (bundle == null) {
+            return;
+        }
+
+        TriggerData triggerData = bundle.getParcelable(CooeeSDKConstants.INTENT_TRIGGER_DATA_KEY);
+
+        // Should not go ahead if triggerData is null or triggerData's id is null
+        if (triggerData == null || triggerData.getId() == null) {
+            return;
+        }
+
+        new Timer().schedule(
+                new TimerTask() {
+                    @Override
+                    public void run() {
+                        PostLaunchActivity.createTrigger(activity.getApplicationContext(), triggerData);
+                        HttpCallsHelper.sendEvent(activity.getApplicationContext(), new Event("CE Notification Clicked", new HashMap<>()), null);
+                    }
+                }, 4000);
+    }
+
+    /**
+     * This block handle the glassmorphism effect for the triggers
+     *
+     * @param activity
+     */
+    private void handleGlassmorphismAfterLaunch(Activity activity) {
+        // Do not entertain if activity is instance of EngagementTriggerActivity
+        if (activity instanceof EngagementTriggerActivity) {
+            return;
+        }
+
+        // Do not entertain if onInAppPopListener in not initialized
+        if (EngagementTriggerActivity.onInAppPopListener == null) {
+            return;
+        }
+
+        // Do not entertain if EngagementTriggerActivity's isManualClose set true
+        if (EngagementTriggerActivity.isManualClose) {
+            return;
+        }
+
+        String triggerString = LocalStorageHelper.getString(activity, "trigger", null);
+        if (!TextUtils.isEmpty(triggerString)) {
+            PostLaunchActivity.createTrigger(activity, new Gson().fromJson(triggerString, TriggerData.class));
+        }
     }
 
     /**

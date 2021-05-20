@@ -7,9 +7,15 @@ import android.os.Bundle;
 import androidx.annotation.Nullable;
 
 /**
+ * This is an empty activity specifically created to handle the rendering of
+ * EngagementTriggerActivity with trigger data in intent extras. The empty activity
+ * then starts the launch activity of the application in its onResumed method.
+ *
  * @author Abhishek Taparia
+ * @version 0.2.10
+ * @see <a href="https://letscooee.atlassian.net/browse/COOEE-136">https://letscooee.atlassian.net/browse/COOEE-136</a>
  */
-public class CooeeActivity extends Activity {
+public class CooeeEmptyActivity extends Activity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,16 +49,23 @@ public class CooeeActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        Intent appLaunchIntent = getPackageManager().getLaunchIntentForPackage(getApplicationContext().getPackageName());
-        appLaunchIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        startActivity(appLaunchIntent);
+        launchAppActivity();
     }
 
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        if (intent!=null){
+        if (intent != null) {
             setIntent(intent);
         }
+    }
+
+    /**
+     * Launches launcher activity of the application
+     */
+    private void launchAppActivity() {
+        Intent appLaunchIntent = getPackageManager().getLaunchIntentForPackage(getApplicationContext().getPackageName());
+        appLaunchIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        startActivity(appLaunchIntent);
     }
 }
