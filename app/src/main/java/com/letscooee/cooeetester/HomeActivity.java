@@ -45,7 +45,7 @@ public class HomeActivity extends AppCompatActivity implements InAppNotification
         super.onCreate(savedInstanceState);
         try {
             int x = 10 / 0;
-        }catch (Exception e){
+        } catch (Exception e) {
             Sentry.captureException(e);
         }
         binding = ActivityHomeBinding.inflate(getLayoutInflater());
