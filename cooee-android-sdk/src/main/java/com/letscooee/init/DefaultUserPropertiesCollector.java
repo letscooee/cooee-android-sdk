@@ -19,10 +19,9 @@ import android.os.Environment;
 import android.os.StatFs;
 import android.telephony.TelephonyManager;
 import android.util.DisplayMetrics;
-
 import androidx.core.app.ActivityCompat;
-
 import com.google.android.gms.location.LocationRequest;
+import com.letscooee.utils.SentryHelper;
 
 import java.io.File;
 import java.io.InputStream;
@@ -30,8 +29,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-
-import io.sentry.Sentry;
 
 import static android.content.Context.ACTIVITY_SERVICE;
 
@@ -43,9 +40,11 @@ import static android.content.Context.ACTIVITY_SERVICE;
 public class DefaultUserPropertiesCollector {
 
     private final Context context;
+    private final SentryHelper sentryHelper;
 
     public DefaultUserPropertiesCollector(Context context) {
         this.context = context;
+        this.sentryHelper = SentryHelper.getInstance(context);
     }
 
     /**
@@ -157,31 +156,11 @@ public class DefaultUserPropertiesCollector {
         try {
             packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
         } catch (PackageManager.NameNotFoundException e) {
-            //e.printStackTrace();
-            Sentry.captureException(e);
+            sentryHelper.captureException(e);
         }
 
         assert packageInfo != null;
         return packageInfo.versionName;
-    }
-
-    /**
-     * Get host application package name
-     *
-     * @return app package name
-     */
-    public String getAppPackage() {
-        PackageInfo packageInfo = null;
-
-        try {
-            packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
-        } catch (PackageManager.NameNotFoundException e) {
-            //e.printStackTrace();
-            Sentry.captureException(e);
-        }
-
-        assert packageInfo != null;
-        return packageInfo.packageName;
     }
 
     /**
@@ -274,8 +253,7 @@ public class DefaultUserPropertiesCollector {
             inputStream.close();
 
         } catch (Exception ex) {
-            //ex.printStackTrace();
-            Sentry.captureException(ex);
+            sentryHelper.captureException(ex);
         }
 
         return output.toString();
@@ -383,8 +361,7 @@ public class DefaultUserPropertiesCollector {
         try {
             appInfo = pm.getApplicationInfo(context.getPackageName(), 0);
         } catch (PackageManager.NameNotFoundException e) {
-            //e.printStackTrace();
-            Sentry.captureException(e);
+            sentryHelper.captureException(e);
         }
 
         if (appInfo != null) {
