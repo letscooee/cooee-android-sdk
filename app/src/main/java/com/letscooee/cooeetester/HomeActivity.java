@@ -31,6 +31,8 @@ import com.letscooee.utils.PropertyNameException;
 import java.util.Date;
 import java.util.HashMap;
 
+import io.sentry.Sentry;
+
 public class HomeActivity extends AppCompatActivity implements InAppNotificationClickListener {
     private CooeeSDK cooeeSDK;
     private final String TAG = "HomeActivity";
@@ -41,6 +43,7 @@ public class HomeActivity extends AppCompatActivity implements InAppNotification
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         binding = ActivityHomeBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         context = this;
@@ -78,9 +81,8 @@ public class HomeActivity extends AppCompatActivity implements InAppNotification
             try {
                 cooeeSDK.sendEvent("image", new HashMap<>());
                 Log.d(TAG, "****************************Image Event Sent");
-            } catch (PropertyNameException e) {
+            } catch (Exception e) {
                 Log.e(TAG, "******************************Failed Image Event", e);
-                e.printStackTrace();
             }
         });
 

@@ -19,10 +19,9 @@ import android.os.Environment;
 import android.os.StatFs;
 import android.telephony.TelephonyManager;
 import android.util.DisplayMetrics;
-
 import androidx.core.app.ActivityCompat;
-
 import com.google.android.gms.location.LocationRequest;
+import com.letscooee.utils.SentryHelper;
 
 import java.io.File;
 import java.io.InputStream;
@@ -31,8 +30,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-import io.sentry.Sentry;
-
 import static android.content.Context.ACTIVITY_SERVICE;
 
 /**
@@ -40,12 +37,14 @@ import static android.content.Context.ACTIVITY_SERVICE;
  *
  * @author Abhishek Taparia
  */
-class DefaultUserPropertiesCollector {
+public class DefaultUserPropertiesCollector {
 
     private final Context context;
+    private final SentryHelper sentryHelper;
 
     public DefaultUserPropertiesCollector(Context context) {
         this.context = context;
+        this.sentryHelper = SentryHelper.getInstance(context);
     }
 
     /**
@@ -91,7 +90,7 @@ class DefaultUserPropertiesCollector {
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
             networkData[0] = !manager.getNetworkOperatorName().isEmpty() ? manager.getNetworkOperatorName() : "Unknown";
             networkData[1] = "PNGRNT";
-        }else {
+        } else {
             int networkType = manager.getNetworkType();
             networkData[0] = !manager.getNetworkOperatorName().isEmpty() ? manager.getNetworkOperatorName() : "Unknown";
             networkData[1] = getNetworkName(networkType);
@@ -157,31 +156,11 @@ class DefaultUserPropertiesCollector {
         try {
             packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
         } catch (PackageManager.NameNotFoundException e) {
-            //e.printStackTrace();
-            Sentry.captureException(e);
+            sentryHelper.captureException(e);
         }
 
         assert packageInfo != null;
         return packageInfo.versionName;
-    }
-
-    /**
-     * Get host application package name
-     *
-     * @return app package name
-     */
-    public String getAppPackage() {
-        PackageInfo packageInfo = null;
-
-        try {
-            packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
-        } catch (PackageManager.NameNotFoundException e) {
-            //e.printStackTrace();
-            Sentry.captureException(e);
-        }
-
-        assert packageInfo != null;
-        return packageInfo.packageName;
     }
 
     /**
@@ -274,8 +253,7 @@ class DefaultUserPropertiesCollector {
             inputStream.close();
 
         } catch (Exception ex) {
-            //ex.printStackTrace();
-            Sentry.captureException(ex);
+            sentryHelper.captureException(ex);
         }
 
         return output.toString();
@@ -383,8 +361,7 @@ class DefaultUserPropertiesCollector {
         try {
             appInfo = pm.getApplicationInfo(context.getPackageName(), 0);
         } catch (PackageManager.NameNotFoundException e) {
-            //e.printStackTrace();
-            Sentry.captureException(e);
+            sentryHelper.captureException(e);
         }
 
         if (appInfo != null) {

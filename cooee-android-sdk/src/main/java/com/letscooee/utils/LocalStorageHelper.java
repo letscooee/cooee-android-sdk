@@ -2,8 +2,6 @@ package com.letscooee.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.util.Log;
-
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -11,8 +9,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-
-import io.sentry.Sentry;
 
 /**
  * LocalStorageHelper is used to store local shared preference data
@@ -90,13 +86,7 @@ public final class LocalStorageHelper {
     }
 
     public static void apply(SharedPreferences.Editor editor) {
-        try {
-            editor.apply();
-        } catch (Throwable t) {
-            Log.e(CooeeSDKConstants.LOG_PREFIX, "Failed to update in shared preferences storage");
-            Sentry.captureException(t);
-
-        }
+        editor.apply();
     }
 
     public static boolean commit(SharedPreferences.Editor editor) {

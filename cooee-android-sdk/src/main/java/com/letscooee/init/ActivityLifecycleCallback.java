@@ -26,6 +26,7 @@ import com.letscooee.trigger.CooeeEmptyActivity;
 import com.letscooee.trigger.EngagementTriggerActivity;
 import com.letscooee.utils.CooeeSDKConstants;
 import com.letscooee.utils.LocalStorageHelper;
+import com.letscooee.utils.SentryHelper;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -39,10 +40,10 @@ import java.util.TimerTask;
 import io.sentry.Sentry;
 
 /**
+ * Track the activity lifecycle and perform related operations
+ *
  * @author Ashish Gaikwad crated on 27/Apr/2021
- * @version 0.1
- * <p>
- * Track the activity lifecycler and perdorm related operations
+ * @version 0.2
  */
 public class ActivityLifecycleCallback {
     private static String currentScreen;
@@ -54,6 +55,8 @@ public class ActivityLifecycleCallback {
     private Handler handler = new Handler();
     private Runnable runnable;
 
+    private Context context;
+
     /**
      * Used to register activity lifecycle
      *
@@ -61,6 +64,9 @@ public class ActivityLifecycleCallback {
      */
     public void register(Application application) {
 
+        context = application.getApplicationContext();
+
+        SentryHelper.getInstance(context);
         application.registerActivityLifecycleCallbacks(new Application.ActivityLifecycleCallbacks() {
             @Override
             public void onActivityCreated(@NonNull Activity activity, @Nullable Bundle savedInstanceState) {
@@ -84,7 +90,7 @@ public class ActivityLifecycleCallback {
 
             @Override
             public void onActivityStarted(@NonNull Activity activity) {
-                String manualScreenName = CooeeSDK.getDefaultInstance(application.getApplicationContext()).getCurrentScreenName();
+                String manualScreenName = CooeeSDK.getDefaultInstance(context).getCurrentScreenName();
                 currentScreen = (manualScreenName != null && !manualScreenName.isEmpty()) ? manualScreenName : activity.getLocalClassName();
             }
 
@@ -146,14 +152,14 @@ public class ActivityLifecycleCallback {
 
                     HttpCallsHelper.sendSessionConcludedEvent(duration);
 
-                    new PostLaunchActivity(application.getApplicationContext());
+                    new PostLaunchActivity(context);
                     Log.d(CooeeSDKConstants.LOG_PREFIX, "After 30 min of App Background " + "Session Concluded");
                 } else {
                     Map<String, Object> sessionProperties = new HashMap<>();
                     sessionProperties.put("CE Duration", backgroundDuration / 1000);
 
                     Event session = new Event("CE App Foreground", sessionProperties);
-                    HttpCallsHelper.sendEvent(application.getApplicationContext(), session, data -> PostLaunchActivity.createTrigger(application.getApplicationContext(), data));
+                    HttpCallsHelper.sendEvent(context, session, data -> PostLaunchActivity.createTrigger(application.getApplicationContext(), data));
                 }
             }
 
@@ -166,7 +172,7 @@ public class ActivityLifecycleCallback {
                 //stop sending check message of session alive on app background
                 handler.removeCallbacks(runnable);
 
-                if (application.getApplicationContext() == null) {
+                if (context == null) {
                     return;
                 }
 
@@ -179,14 +185,12 @@ public class ActivityLifecycleCallback {
                     sessionProperties.put("CE Duration", duration);
 
                     Event session = new Event("CE App Background", sessionProperties);
-                    HttpCallsHelper.sendEvent(application.getApplicationContext(), session, null);
+                    HttpCallsHelper.sendEvent(context, session, null);
                 });
                 //getApplicationContext().startService(new Intent(getApplicationContext(), GlobalTouchService.class));
-                formatAndSendTouchData(application.getApplicationContext());
+                formatAndSendTouchData(context);
             }
         });
-
-
     }
 
     /**
@@ -213,8 +217,8 @@ public class ActivityLifecycleCallback {
                 new TimerTask() {
                     @Override
                     public void run() {
-                        PostLaunchActivity.createTrigger(activity.getApplicationContext(), triggerData);
-                        HttpCallsHelper.sendEvent(activity.getApplicationContext(), new Event("CE Notification Clicked", new HashMap<>()), null);
+                        PostLaunchActivity.createTrigger(context, triggerData);
+                        HttpCallsHelper.sendEvent(context, new Event("CE Notification Clicked", new HashMap<>()), null);
                     }
                 }, 4000);
     }
@@ -303,4 +307,6 @@ public class ActivityLifecycleCallback {
     public static boolean isIsBackground() {
         return isBackground;
     }
+
+
 }
