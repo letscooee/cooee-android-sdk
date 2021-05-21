@@ -3,8 +3,6 @@ package com.letscooee.init;
 import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
@@ -20,7 +18,6 @@ import androidx.lifecycle.ProcessLifecycleOwner;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.gson.Gson;
-import com.letscooee.BuildConfig;
 import com.letscooee.CooeeSDK;
 import com.letscooee.models.Event;
 import com.letscooee.models.TriggerData;
@@ -29,22 +26,18 @@ import com.letscooee.trigger.CooeeEmptyActivity;
 import com.letscooee.trigger.EngagementTriggerActivity;
 import com.letscooee.utils.CooeeSDKConstants;
 import com.letscooee.utils.LocalStorageHelper;
+import com.letscooee.utils.SentryHelper;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import io.sentry.Sentry;
-import io.sentry.SentryEvent;
-import io.sentry.android.core.SentryAndroid;
 
 /**
  * Track the activity lifecycle and perform related operations
@@ -61,7 +54,7 @@ public class ActivityLifecycleCallback {
 
     private Handler handler = new Handler();
     private Runnable runnable;
-    private DefaultUserPropertiesCollector defaultUserPropertiesCollector;
+
     private Context context;
 
     /**
@@ -72,9 +65,8 @@ public class ActivityLifecycleCallback {
     public void register(Application application) {
 
         context = application.getApplicationContext();
-        defaultUserPropertiesCollector = new DefaultUserPropertiesCollector(context);
 
-        initializeSentry(context);
+        SentryHelper.getInstance(context);
         application.registerActivityLifecycleCallbacks(new Application.ActivityLifecycleCallbacks() {
             @Override
             public void onActivityCreated(@NonNull Activity activity, @Nullable Bundle savedInstanceState) {
@@ -202,77 +194,6 @@ public class ActivityLifecycleCallback {
     }
 
     /**
-     * Initialize Sentry with Manual initialization
-     *
-     * @param context will be application context
-     */
-    private void initializeSentry(Context context) {
-        SentryAndroid.init(context, options -> {
-            if (BuildConfig.DEBUG) {
-                options.setDsn("");
-            } else {
-                options.setDsn("https://83cd199eb9134e40803220b7cca979db@o559187.ingest.sentry.io/5693686");
-            }
-
-            options.setRelease("com.letscooee@" + BuildConfig.VERSION_NAME + "+" + BuildConfig.VERSION_CODE);
-            options.setBeforeSend((event, hint) -> {
-
-                if (isNotCooeeException(event)) {
-                    return null;
-                }
-
-                if (BuildConfig.DEBUG) {
-                    return null;
-                }
-
-                return event;
-            });
-        });
-
-        setupSentryTags();
-    }
-
-    /**
-     * Adds Manual tags to Sentry
-     */
-    private void setupSentryTags() {
-        Sentry.setTag("client.appPackage", defaultUserPropertiesCollector.getAppPackage());
-        Sentry.setTag("client.appVersion", defaultUserPropertiesCollector.getAppVersion());
-        Sentry.setTag("client.appName", getApplicationName());
-        Sentry.setTag("client.appId", getAppCredentials()[0]);
-        if (isDebuggable()) {
-            Sentry.setTag("buildType", "debug");
-        } else {
-            Sentry.setTag("buildType", "release");
-        }
-    }
-
-    /**
-     * Filters the exceptions before sending
-     *
-     * @param event will be SentryEvent
-     */
-    private boolean isNotCooeeException(SentryEvent event) {
-        StringWriter sw = new StringWriter();
-        PrintWriter pw = new PrintWriter(sw);
-        Objects.requireNonNull(event.getThrowable()).printStackTrace(pw);
-        String sStackTrace = sw.toString();
-        Log.d(CooeeSDKConstants.LOG_PREFIX, "initializeSentry: " + sStackTrace);
-
-        return !sStackTrace.toLowerCase().contains("cooee");
-    }
-
-
-    /*private void filterException(SentryEvent event) {
-        for (SentryException exception : event.getExceptions()) {
-            assert exception.getStacktrace().getFrames() != null;
-            if (!exception.getStacktrace().getFrames().get(0).getModule().toLowerCase().contains("com.letscooee")) {
-                event.getExceptions().remove(exception);
-            }
-        }
-    }*/
-
-    /**
      * Handles the creation of triggers
      *
      * @param activity
@@ -387,56 +308,5 @@ public class ActivityLifecycleCallback {
         return isBackground;
     }
 
-    /**
-     * Get app name
-     *
-     * @return app name
-     */
-    public String getApplicationName() {
-        ApplicationInfo applicationInfo = context.getApplicationInfo();
-        int stringId = applicationInfo.labelRes;
-        return stringId == 0 ? applicationInfo.nonLocalizedLabel.toString() : context.getString(stringId);
-    }
 
-
-    /**
-     * Checks if app is in debug or in release
-     *
-     * @return true ot false
-     */
-    private boolean isDebuggable() {
-        boolean debuggable = false;
-
-        PackageManager pm = context.getPackageManager();
-        try {
-            ApplicationInfo appinfo = pm.getApplicationInfo(context.getPackageName(), 0);
-            debuggable = (0 != (appinfo.flags & ApplicationInfo.FLAG_DEBUGGABLE));
-        } catch (PackageManager.NameNotFoundException e) {
-            /*debuggable variable will remain false*/
-        }
-
-        return debuggable;
-    }
-
-    /**
-     * Get app credentials if passed as metadata from host application's manifest file
-     *
-     * @return String[]{appId,appSecret}
-     */
-    private String[] getAppCredentials() {
-        ApplicationInfo app;
-
-        try {
-            app = this.context.getPackageManager().getApplicationInfo(this.context.getPackageName(), PackageManager.GET_META_DATA);
-        } catch (PackageManager.NameNotFoundException e) {
-            //e.printStackTrace();
-            Sentry.captureException(e);
-            return new String[]{null, null};
-        }
-
-        Bundle bundle = app.metaData;
-        String appId = bundle.getString("COOEE_APP_ID");
-        String appSecret = bundle.getString("COOEE_APP_SECRET");
-        return new String[]{appId, appSecret};
-    }
 }

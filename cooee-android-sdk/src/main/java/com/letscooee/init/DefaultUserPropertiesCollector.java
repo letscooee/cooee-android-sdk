@@ -40,7 +40,7 @@ import static android.content.Context.ACTIVITY_SERVICE;
  *
  * @author Abhishek Taparia
  */
-class DefaultUserPropertiesCollector {
+public class DefaultUserPropertiesCollector {
 
     private final Context context;
 
@@ -91,7 +91,7 @@ class DefaultUserPropertiesCollector {
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
             networkData[0] = !manager.getNetworkOperatorName().isEmpty() ? manager.getNetworkOperatorName() : "Unknown";
             networkData[1] = "PNGRNT";
-        }else {
+        } else {
             int networkType = manager.getNetworkType();
             networkData[0] = !manager.getNetworkOperatorName().isEmpty() ? manager.getNetworkOperatorName() : "Unknown";
             networkData[1] = getNetworkName(networkType);
