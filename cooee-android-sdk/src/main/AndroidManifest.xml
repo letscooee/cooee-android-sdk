@@ -12,9 +12,12 @@
     <application
         android:name=".init.AppController"
         android:usesCleartextTraffic="true">
+
         <meta-data
-            android:name="io.sentry.dsn"
-            android:value="https://83cd199eb9134e40803220b7cca979db@o559187.ingest.sentry.io/5693686" />
+            android:name="io.sentry.auto-init"
+            android:value="false" />
+
+        <!--Will keep it for few months to check of ANR is getting produced by our SDK-->
         <meta-data
             android:name="io.sentry.anr.enable"
             android:value="true" />
