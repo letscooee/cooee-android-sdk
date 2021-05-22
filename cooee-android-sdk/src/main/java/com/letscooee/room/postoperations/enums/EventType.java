@@ -2,7 +2,7 @@ package com.letscooee.room.postoperations.enums;
 
 /**
  * @author Ashish Gaikwad on 19/5/21
- * @version 0.1
+ * @version 0.2.10
  */
 public enum EventType {
     EVENT, PROPERTY, PROFILE, SESSION_CONCLUDED,

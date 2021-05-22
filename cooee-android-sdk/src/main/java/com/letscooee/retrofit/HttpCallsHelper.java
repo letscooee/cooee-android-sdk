@@ -1,7 +1,6 @@
 package com.letscooee.retrofit;
 
 import android.content.Context;
-import android.text.TextUtils;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -16,6 +15,7 @@ import com.letscooee.room.postoperations.enums.EventType;
 import com.letscooee.utils.Closure;
 import com.letscooee.utils.CooeeSDKConstants;
 import com.letscooee.utils.LocalStorageHelper;
+import com.letscooee.utils.SessionManager;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -40,11 +40,12 @@ public final class HttpCallsHelper {
 
     public static void sendEvent(Context context, Event event, Closure closure) {
         CooeeDatabase db = CooeeDatabase.getInstance(context);
-        //noinspection ResultOfMethodCallIgnored
-        PostLaunchActivity.onSDKStateDecided.subscribe((Object ignored) -> {
-            event.setSessionID(PostLaunchActivity.currentSessionId);
-            sendEventWithoutSDKState(context, event, db, closure);
-        });
+
+        SessionManager sessionManager = SessionManager.getInstance(context);
+        event.setSessionID(sessionManager.getCurrentSessionId());
+
+        sendEventWithoutSDKState(context, event, db, closure);
+
     }
 
     public static void sendEventWithoutSDKState(Context context, Event event, CooeeDatabase db, Closure closure) {
@@ -69,18 +70,13 @@ public final class HttpCallsHelper {
         event.setOccurred(currentDate);
         LocalStorageHelper.putListImmediately(context, CooeeSDKConstants.STORAGE_ACTIVE_TRIGGERS, activeTriggerList);
 
-        if (TextUtils.isEmpty(event.getSessionID()) && !(event.getName().equalsIgnoreCase("CE Notification Received") || event.getName().equalsIgnoreCase("CE Notification Viewed"))) {
-            pushEvent(event, closure, null, null);
-        } else {
+        PendingTask task = new PendingTask();
+        task.attempts = 0;
+        task.data = gson.toJson(event);
+        task.type = EventType.EVENT;
+        task.dateCreated = currentDate.getTime();
+        db.pendingTaskDAO().insertAll(task);
 
-
-            PendingTask task = new PendingTask();
-            task.attempts = 0;
-            task.data = gson.toJson(event);
-            task.type = EventType.EVENT;
-            task.dateCreated = currentDate.getTime();
-            db.pendingTaskDAO().insertAll(task);
-        }
 
     }
 
@@ -121,16 +117,17 @@ public final class HttpCallsHelper {
         Date currentTime = new Date();
         CooeeDatabase db = CooeeDatabase.getInstance(context);
         userMap.put("occurred", currentTime);
-        PostLaunchActivity.onSDKStateDecided.subscribe((Object ignored) -> {
-            userMap.put("sessionID", PostLaunchActivity.currentSessionId);
 
-            PendingTask task = new PendingTask();
-            task.attempts = 0;
-            task.data = gson.toJson(userMap);
-            task.type = EventType.PROFILE;
-            task.dateCreated = currentTime.getTime();
-            db.pendingTaskDAO().insertAll(task);
-        });
+        SessionManager sessionManager = SessionManager.getInstance(context);
+        userMap.put("sessionID", sessionManager.getCurrentSessionId());
+
+        PendingTask task = new PendingTask();
+        task.attempts = 0;
+        task.data = gson.toJson(userMap);
+        task.type = EventType.PROFILE;
+        task.dateCreated = currentTime.getTime();
+        db.pendingTaskDAO().insertAll(task);
+
     }
 
     public static void pushUserProfile(Map<String, Object> userMap, String msg, Closure closure, CooeeDatabase appDatabase, PendingTask task) {
@@ -156,7 +153,6 @@ public final class HttpCallsHelper {
             }
 
             public void onFailure(@NonNull Call<Map<String, Object>> call, @NonNull Throwable t) {
-                // TODO Saving the request locally so that it can be sent later
                 Log.e(CooeeSDKConstants.LOG_PREFIX, msg + " User Profile Error Message : " + t.toString());
                 int count = task.attempts + 1;
                 appDatabase.pendingTaskDAO().update(task.id, count, currentTime.getTime());
@@ -166,22 +162,24 @@ public final class HttpCallsHelper {
     }
 
     public static void sendSessionConcludedEvent(int duration, Context context) {
-        Log.d("COOEE", "********* session concluded");
         Date currentTime = new Date();
         CooeeDatabase db = CooeeDatabase.getInstance(context);
-        //noinspection ResultOfMethodCallIgnored
-        PostLaunchActivity.onSDKStateDecided.subscribe((Object ignored) -> {
-            Map<String, Object> sessionConcludedRequest = new HashMap<>();
-            sessionConcludedRequest.put("sessionID", PostLaunchActivity.currentSessionId);
-            sessionConcludedRequest.put("duration", duration);
 
-            PendingTask task = new PendingTask();
-            task.attempts = 0;
-            task.data = gson.toJson(sessionConcludedRequest);
-            task.type = EventType.SESSION_CONCLUDED;
-            task.dateCreated = currentTime.getTime();
-            db.pendingTaskDAO().insertAll(task);
-        });
+        SessionManager sessionManager = SessionManager.getInstance(context);
+
+        Map<String, Object> sessionConcludedRequest = new HashMap<>();
+        sessionConcludedRequest.put("sessionID", sessionManager.getCurrentSessionId());
+        sessionConcludedRequest.put("duration", duration);
+        sessionConcludedRequest.put("occurred", currentTime);
+
+        PendingTask task = new PendingTask();
+        task.attempts = 0;
+        task.data = gson.toJson(sessionConcludedRequest);
+        task.type = EventType.SESSION_CONCLUDED;
+        task.dateCreated = currentTime.getTime();
+        db.pendingTaskDAO().insertAll(task);
+        sessionManager.destroySession();
+
     }
 
     public static void pushSessionConcluded(Map<String, Object> sessionConcludedRequest, CooeeDatabase appDatabase, PendingTask task) {
@@ -210,21 +208,22 @@ public final class HttpCallsHelper {
     public static void keepAlive(Context context) {
         Date currentTime = new Date();
         CooeeDatabase db = CooeeDatabase.getInstance(context);
-        //noinspection ResultOfMethodCallIgnored
-        PostLaunchActivity.onSDKStateDecided.subscribe((Object ignored) -> {
-            Map<String, String> keepAliveRequest = new HashMap<>();
-            keepAliveRequest.put("sessionID", PostLaunchActivity.currentSessionId);
+        SessionManager sessionManager = SessionManager.getInstance(context);
 
-            PendingTask task = new PendingTask();
-            task.attempts = 0;
-            task.data = gson.toJson(keepAliveRequest);
-            task.type = EventType.KEEP_ALIVE;
-            task.dateCreated = currentTime.getTime();
-            db.pendingTaskDAO().insertAll(task);
-        });
+        Map<String, Object> keepAliveRequest = new HashMap<>();
+        keepAliveRequest.put("sessionID", sessionManager.getCurrentSessionId());
+        keepAliveRequest.put("occurred", currentTime);
+
+        PendingTask task = new PendingTask();
+        task.attempts = 0;
+        task.data = gson.toJson(keepAliveRequest);
+        task.type = EventType.KEEP_ALIVE;
+        task.dateCreated = currentTime.getTime();
+        db.pendingTaskDAO().insertAll(task);
+
     }
 
-    public static void pushKeepAlive(Map<String, String> keepAliveRequest, CooeeDatabase appDatabase, PendingTask task) {
+    public static void pushKeepAlive(Map<String, Object> keepAliveRequest, CooeeDatabase appDatabase, PendingTask task) {
         Date currentTime = new Date();
         serverAPIService.keepAlive(keepAliveRequest).enqueue(new Callback<ResponseBody>() {
             @Override
@@ -250,23 +249,23 @@ public final class HttpCallsHelper {
     public static void setFirebaseToken(String firebaseToken, Context context) {
         Date currentTime = new Date();
         CooeeDatabase db = CooeeDatabase.getInstance(context);
-        PostLaunchActivity.onSDKStateDecided.subscribe((Object ignored) -> {
-            Map<String, String> tokenRequest = new HashMap<>();
-            tokenRequest.put("sessionID", PostLaunchActivity.currentSessionId);
-            tokenRequest.put("firebaseToken", firebaseToken);
+        SessionManager sessionManager = SessionManager.getInstance(context);
 
+        Map<String, Object> tokenRequest = new HashMap<>();
+        tokenRequest.put("sessionID", sessionManager.getCurrentSessionId());
+        tokenRequest.put("firebaseToken", firebaseToken);
+        tokenRequest.put("occurred", currentTime);
 
-            PendingTask task = new PendingTask();
-            task.attempts = 0;
-            task.data = gson.toJson(tokenRequest);
-            task.type = EventType.FB_TOKEN;
-            task.dateCreated = currentTime.getTime();
-            db.pendingTaskDAO().insertAll(task);
+        PendingTask task = new PendingTask();
+        task.attempts = 0;
+        task.data = gson.toJson(tokenRequest);
+        task.type = EventType.FB_TOKEN;
+        task.dateCreated = currentTime.getTime();
+        db.pendingTaskDAO().insertAll(task);
 
-        });
     }
 
-    public static void pushFirebaseToken(Map<String, String> tokenRequest, CooeeDatabase appDatabase, PendingTask task) {
+    public static void pushFirebaseToken(Map<String, Object> tokenRequest, CooeeDatabase appDatabase, PendingTask task) {
         Date currentTime = new Date();
         serverAPIService.setFirebaseToken(tokenRequest).enqueue(new Callback<ResponseBody>() {
             @Override

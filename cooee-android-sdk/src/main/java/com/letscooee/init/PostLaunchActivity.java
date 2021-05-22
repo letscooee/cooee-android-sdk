@@ -3,8 +3,6 @@ package com.letscooee.init;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -13,26 +11,23 @@ import android.view.Window;
 
 import com.google.gson.Gson;
 import com.letscooee.BuildConfig;
-import com.letscooee.trigger.EngagementTriggerActivity;
-import com.letscooee.models.*;
+import com.letscooee.models.Event;
+import com.letscooee.models.TriggerData;
 import com.letscooee.retrofit.APIClient;
 import com.letscooee.retrofit.HttpCallsHelper;
-import com.letscooee.retrofit.ServerAPIService;
+import com.letscooee.retrofit.RegisterUser;
+import com.letscooee.trigger.EngagementTriggerActivity;
 import com.letscooee.utils.CooeeSDKConstants;
-import com.letscooee.utils.LocalStorageHelper;
 import com.letscooee.utils.CooeeWindowCallback;
-
-import io.reactivex.rxjava3.subjects.ReplaySubject;
-import io.sentry.Sentry;
-import io.sentry.android.core.SentryAndroid;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
+import com.letscooee.utils.LocalStorageHelper;
+import com.letscooee.utils.SessionManager;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+
+import io.sentry.Sentry;
 
 /**
  * PostLaunchActivity initialized when app is launched
@@ -43,12 +38,13 @@ public class PostLaunchActivity {
 
     private Context context;
     private DefaultUserPropertiesCollector defaultUserPropertiesCollector;
-    private ServerAPIService apiService;
 
-    public static ReplaySubject<Object> onSDKStateDecided;
+    //public static ReplaySubject<Object> onSDKStateDecided;
     public static Date currentSessionStartTime;
     public static String currentSessionId = "";
     public static int currentSessionNumber;
+    private RegisterUser registerUser;
+    private SessionManager sessionManager;
 
     /**
      * Public Constructor
@@ -63,51 +59,18 @@ public class PostLaunchActivity {
         this.context = context;
 
         this.defaultUserPropertiesCollector = new DefaultUserPropertiesCollector(context);
-        this.apiService = APIClient.getServerAPIService();
-
+        this.sessionManager = SessionManager.getInstance(context);
         sessionCreation();
+        this.registerUser = RegisterUser.getInstance(context);
+
+        if (!registerUser.hasToken()) {
+            registerUser.registerUser();
+        }
+
 
         if (isAppFirstTimeLaunch()) {
-            AuthenticationRequestBody authenticationRequestBody = getAuthenticationRequestBody();
-            apiService.registerUser(authenticationRequestBody).enqueue(new Callback<SDKAuthentication>() {
-                @Override
-                public void onResponse(Call<SDKAuthentication> call, Response<SDKAuthentication> response) {
-
-                    if (response == null) {
-                        LocalStorageHelper.putBoolean(context, CooeeSDKConstants.STORAGE_FIRST_TIME_LAUNCH, true);
-
-                    } else if (response.isSuccessful()) {
-                        assert response.body() != null;
-                        String sdkToken = response.body().getSdkToken();
-                        Log.i(CooeeSDKConstants.LOG_PREFIX, "Token : " + sdkToken);
-                        currentSessionId = response.body().getSessionID();
-                        LocalStorageHelper.putString(context, "CURRENT_SESSION", currentSessionId);
-
-                        LocalStorageHelper.putString(context, CooeeSDKConstants.STORAGE_SDK_TOKEN, sdkToken);
-                        LocalStorageHelper.putString(context, CooeeSDKConstants.STORAGE_USER_ID, response.body().getId());
-
-                        APIClient.setAPIToken(sdkToken);
-                        notifySDKStateDecided();
-                        appFirstOpen();
-                    }
-                }
-
-                @Override
-                public void onFailure(Call<SDKAuthentication> call, Throwable t) {
-                    LocalStorageHelper.putBoolean(context, CooeeSDKConstants.STORAGE_FIRST_TIME_LAUNCH, true);
-                }
-            });
+            appFirstOpen();
         } else {
-            String apiToken = LocalStorageHelper.getString(context, CooeeSDKConstants.STORAGE_SDK_TOKEN, "");
-            if (apiToken.isEmpty()) {
-                LocalStorageHelper.putBoolean(context, CooeeSDKConstants.STORAGE_FIRST_TIME_LAUNCH, true);
-                return;
-            }
-
-            Log.i(CooeeSDKConstants.LOG_PREFIX, "Token : " + apiToken);
-
-            APIClient.setAPIToken(apiToken);
-
             successiveAppLaunch();
         }
 
@@ -117,19 +80,6 @@ public class PostLaunchActivity {
 
     public static void setHeatMapRecorder(Activity activity) {
         if (activity != null && activity.getWindow().getDecorView() != null) {
-            /*activity.getWindow().getDecorView().setOnTouchListener(new View.OnTouchListener() {
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                    float xCoordinate=event.getX();
-                    float yCoordinate=event.getX();
-
-                    Map map=new HashMap<String,Object>();
-                    map.put("x", xCoordinate);
-                    map.put("y", yCoordinate);
-                    Log.i(CooeeSDKConstants.LOG_PREFIX, "onTouch: "+map.toString());
-                    return true;
-                }
-            });*/
             final Window window = activity.getWindow();
             final Window.Callback localCallback = window.getCallback();
             window.setCallback(new CooeeWindowCallback(localCallback, activity));
@@ -162,19 +112,10 @@ public class PostLaunchActivity {
      * Initialize onSDKStateDecided to get token and create new session
      */
     private void sessionCreation() {
-        onSDKStateDecided = ReplaySubject.create(1);
-
-        currentSessionNumber = getSessionNumber();
+        currentSessionNumber = sessionManager.getCurrentSessionNumber();
         currentSessionStartTime = new Date();
     }
 
-    /**
-     * Notify SDK token state for ReplaySubject
-     */
-    private void notifySDKStateDecided() {
-        onSDKStateDecided.onNext("");  // cannot send null here
-        onSDKStateDecided.onComplete();
-    }
 
     /**
      * Check if app is launched for first time
@@ -190,43 +131,6 @@ public class PostLaunchActivity {
         }
     }
 
-    /**
-     * Get app credentials if passed as metadata from host application's manifest file
-     *
-     * @return String[]{appId,appSecret}
-     */
-    private String[] getAppCredentials() {
-        ApplicationInfo app;
-
-        try {
-            app = this.context.getPackageManager().getApplicationInfo(this.context.getPackageName(), PackageManager.GET_META_DATA);
-        } catch (PackageManager.NameNotFoundException e) {
-            //e.printStackTrace();
-            Sentry.captureException(e);
-            return new String[]{null, null};
-        }
-
-        Bundle bundle = app.metaData;
-        String appId = bundle.getString("COOEE_APP_ID");
-        String appSecret = bundle.getString("COOEE_APP_SECRET");
-        return new String[]{appId, appSecret};
-    }
-
-    /**
-     * returns  AuthenticationRequestBody to be used in observer
-     *
-     * @return AuthenticationRequestBody
-     */
-    private AuthenticationRequestBody getAuthenticationRequestBody() {
-        String[] appCredentials = getAppCredentials();
-        return new AuthenticationRequestBody(
-                appCredentials[0],
-                appCredentials[1],
-                new DeviceData("ANDROID",
-                        BuildConfig.VERSION_NAME + "",
-                        defaultUserPropertiesCollector.getAppVersion(),
-                        Build.VERSION.RELEASE));
-    }
 
     /**
      * Runs when app is opened for the first time after sdkToken is received from server asynchronously
@@ -266,14 +170,7 @@ public class PostLaunchActivity {
         eventProperties.put("CE Device Battery", defaultUserPropertiesCollector.getBatteryLevel());
 
         Event event = new Event("CE App Launched", eventProperties);
-        HttpCallsHelper.sendEventWithoutSDKState(context, event, null, data -> {
-            if (data != null && data.get("sessionID") != null) {
-                currentSessionId = String.valueOf(data.get("sessionID"));
-                LocalStorageHelper.putString(context, "CURRENT_SESSION", currentSessionId);
-                notifySDKStateDecided();
-            }
-            createTrigger(context, data);
-        });
+        HttpCallsHelper.sendEventWithoutSDKState(context, event, null, null);
     }
 
     /**
@@ -317,12 +214,7 @@ public class PostLaunchActivity {
         userMap.put("userProperties", userProperties);
         userMap.put("userData", new HashMap<>());
 
-        HttpCallsHelper.sendUserProfile(context, userMap, "SDK", data -> {
-            if (data.get("id") != null) {
-                Log.d(CooeeSDKConstants.LOG_PREFIX, data.get("id").toString());
-                LocalStorageHelper.putString(context, CooeeSDKConstants.STORAGE_USER_ID, data.get("id").toString());
-            }
-        });
+        HttpCallsHelper.sendUserProfile(context, userMap, "SDK", null);
     }
 
     /**

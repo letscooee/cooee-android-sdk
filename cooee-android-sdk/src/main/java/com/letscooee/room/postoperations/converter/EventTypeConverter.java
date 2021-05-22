@@ -5,10 +5,10 @@ import androidx.room.TypeConverter;
 import com.letscooee.room.postoperations.enums.EventType;
 
 /**
- * @author Ashish Gaikwad on 19/5/21
- * @version 0.1
- * <p>
  * Manage conversion of enum
+ *
+ * @author Ashish Gaikwad on 19/5/21
+ * @version 0.2.10
  */
 public class EventTypeConverter {
     @TypeConverter

@@ -10,10 +10,10 @@ import com.letscooee.room.postoperations.dao.PendingTaskDAO;
 import com.letscooee.room.postoperations.entity.PendingTask;
 
 /**
- * @author Ashish Gaikwad on 19/5/21
- * @version 0.1
- * <p>
  * Create a instance of the database
+ *
+ * @author Ashish Gaikwad on 19/5/21
+ * @version 0.2.10
  */
 @Database(entities = {PendingTask.class}, exportSchema = false, version = 1)
 public abstract class CooeeDatabase extends RoomDatabase {

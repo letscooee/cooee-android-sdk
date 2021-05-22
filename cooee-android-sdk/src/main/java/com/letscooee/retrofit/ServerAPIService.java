@@ -31,8 +31,8 @@ public interface ServerAPIService {
     Call<Map<String, Object>> updateProfile(@Body Map<String, Object> objectMap);
 
     @POST("/v1/session/keepAlive")
-    Call<ResponseBody> keepAlive(@Body Map<String, String> keepAliveRequest);
+    Call<ResponseBody> keepAlive(@Body Map<String, Object> keepAliveRequest);
 
     @POST("/v1/user/setFirebaseToken")
-    Call<ResponseBody> setFirebaseToken(@Body Map<String, String> tokenRequest);
+    Call<ResponseBody> setFirebaseToken(@Body Map<String, Object> tokenRequest);
 }

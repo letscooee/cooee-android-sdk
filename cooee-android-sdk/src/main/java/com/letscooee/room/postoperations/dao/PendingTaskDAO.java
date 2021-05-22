@@ -12,10 +12,10 @@ import com.letscooee.room.postoperations.entity.PendingTask;
 import java.util.List;
 
 /**
+ * DAO to fetch data from PendingTask table
+ *
  * @author Ashish Gaikwad on 19/5/21
  * @version 0.1
- * <p>
- * DAO to fetch data from PendingTask table
  */
 @Dao
 public interface PendingTaskDAO {

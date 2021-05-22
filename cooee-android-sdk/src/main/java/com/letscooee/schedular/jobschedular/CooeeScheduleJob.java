@@ -10,10 +10,10 @@ import com.letscooee.schedular.job.CooeePendingTaskJob;
 import static com.letscooee.utils.CooeeSDKConstants.JOB_ID;
 
 /**
+ * Schedules a [@link CooeeJobService]
+ *
  * @author Ashish Gaikwad on 19/5/21
- * @version 0.1
- * <p>
- * Schedules a JobService
+ * @version 0.2.10
  */
 public class CooeeScheduleJob {
 

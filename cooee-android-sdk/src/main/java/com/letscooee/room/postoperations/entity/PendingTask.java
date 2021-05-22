@@ -10,10 +10,10 @@ import com.letscooee.room.postoperations.enums.EventType;
 
 
 /**
- * @author Ashish Gaikwad on 19/5/21
- * @version 0.1
- * <p>
  * Database Entity
+ *
+ * @author Ashish Gaikwad on 19/5/21
+ * @version 0.2.10
  */
 @Entity
 public class PendingTask {

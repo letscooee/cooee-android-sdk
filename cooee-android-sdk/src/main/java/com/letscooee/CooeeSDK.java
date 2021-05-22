@@ -7,6 +7,7 @@ import android.util.Log;
 import com.letscooee.init.PostLaunchActivity;
 import com.letscooee.models.Event;
 import com.letscooee.retrofit.HttpCallsHelper;
+import com.letscooee.retrofit.RegisterUser;
 import com.letscooee.trigger.EngagementTriggerActivity;
 import com.letscooee.utils.CooeeSDKConstants;
 import com.letscooee.utils.InAppNotificationClickListener;
@@ -14,6 +15,8 @@ import com.letscooee.utils.LocalStorageHelper;
 import com.letscooee.utils.PropertyNameException;
 
 import java.lang.ref.WeakReference;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -57,7 +60,29 @@ public class CooeeSDK implements EngagementTriggerActivity.InAppListener {
         if (cooeeSDK == null) {
             cooeeSDK = new CooeeSDK(context);
         }
+        checkSDKToken(context);
         return cooeeSDK;
+    }
+
+    /**
+     * Check if sdkToken is available or not. If sdkToken is not available will make call for sdkToken
+     */
+    private static void checkSDKToken(Context context) {
+        RegisterUser registerUser = RegisterUser.getInstance(context);
+        long lastCheck = LocalStorageHelper.getLong(context, CooeeSDKConstants.FIRST_LAUNCH_CALL_TIME, 0);
+
+        if (registerUser.hasToken()) {
+            if (lastCheck != 0) {
+                Calendar calender = Calendar.getInstance();
+                calender.setTimeInMillis(lastCheck);
+                calender.add(Calendar.MINUTE, 1);
+                if (new Date().after(calender.getTime())) {
+                    registerUser.registerUser();
+                }
+            } else {
+                registerUser.registerUser();
+            }
+        }
     }
 
     /**
@@ -128,7 +153,7 @@ public class CooeeSDK implements EngagementTriggerActivity.InAppListener {
             userMap.put("userProperties", userProperties);
         }
 
-        HttpCallsHelper.sendUserProfile(context,userMap, "Manual", data -> {
+        HttpCallsHelper.sendUserProfile(context, userMap, "Manual", data -> {
             if (data.get("id") != null) {
                 LocalStorageHelper.putString(context, CooeeSDKConstants.STORAGE_USER_ID, data.get("id").toString());
                 setSentryUser(data.get("id").toString(), userData);

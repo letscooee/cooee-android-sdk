@@ -23,8 +23,8 @@ import com.letscooee.brodcast.CooeeJobSchedulerBroadcast;
 import com.letscooee.models.Event;
 import com.letscooee.models.TriggerData;
 import com.letscooee.retrofit.HttpCallsHelper;
-import com.letscooee.trigger.CooeeEmptyActivity;
 import com.letscooee.schedular.jobschedular.CooeeScheduleJob;
+import com.letscooee.trigger.CooeeEmptyActivity;
 import com.letscooee.trigger.EngagementTriggerActivity;
 import com.letscooee.utils.CooeeSDKConstants;
 import com.letscooee.utils.LocalStorageHelper;
@@ -45,7 +45,7 @@ import io.sentry.Sentry;
  * Track the activity lifecycle and perform related operations
  *
  * @author Ashish Gaikwad crated on 27/Apr/2021
- * @version 0.2
+ * @version 0.2.9
  */
 public class ActivityLifecycleCallback {
     private static String currentScreen;
@@ -180,16 +180,16 @@ public class ActivityLifecycleCallback {
                 }
 
                 //Purposefully not added to another method, will be taken cared in separate-http-call merge
-                PostLaunchActivity.onSDKStateDecided.subscribe((Object ignored) -> {
-                    lastEnterBackground = new Date();
-                    long duration = (lastEnterBackground.getTime() - lastEnterForeground.getTime()) / 1000;
 
-                    Map<String, Object> sessionProperties = new HashMap<>();
-                    sessionProperties.put("CE Duration", duration);
+                lastEnterBackground = new Date();
+                long duration = (lastEnterBackground.getTime() - lastEnterForeground.getTime()) / 1000;
 
-                    Event session = new Event("CE App Background", sessionProperties);
-                    HttpCallsHelper.sendEvent(context, session, null);
-                });
+                Map<String, Object> sessionProperties = new HashMap<>();
+                sessionProperties.put("CE Duration", duration);
+
+                Event session = new Event("CE App Background", sessionProperties);
+                HttpCallsHelper.sendEvent(context, session, null);
+
                 //getApplicationContext().startService(new Intent(getApplicationContext(), GlobalTouchService.class));
                 formatAndSendTouchData(context);
             }
