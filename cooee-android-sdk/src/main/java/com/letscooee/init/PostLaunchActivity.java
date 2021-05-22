@@ -16,6 +16,7 @@ import com.letscooee.models.TriggerData;
 import com.letscooee.retrofit.APIClient;
 import com.letscooee.retrofit.HttpCallsHelper;
 import com.letscooee.retrofit.RegisterUser;
+import com.letscooee.room.CooeeDatabase;
 import com.letscooee.trigger.EngagementTriggerActivity;
 import com.letscooee.utils.CooeeSDKConstants;
 import com.letscooee.utils.CooeeWindowCallback;
@@ -170,7 +171,8 @@ public class PostLaunchActivity {
         eventProperties.put("CE Device Battery", defaultUserPropertiesCollector.getBatteryLevel());
 
         Event event = new Event("CE App Launched", eventProperties);
-        HttpCallsHelper.sendEventWithoutSDKState(context, event, null, null);
+        CooeeDatabase cooeeDatabase=CooeeDatabase.getInstance(context);
+        HttpCallsHelper.sendEventWithoutSDKState(context, event, cooeeDatabase, null);
     }
 
     /**
