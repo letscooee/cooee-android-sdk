@@ -64,7 +64,7 @@ public class PostLaunchActivity {
         sessionCreation();
         this.registerUser = RegisterUser.getInstance(context);
 
-        if (!registerUser.hasToken()) {
+        if (registerUser.hasToken()) {
             registerUser.registerUser();
         }
 

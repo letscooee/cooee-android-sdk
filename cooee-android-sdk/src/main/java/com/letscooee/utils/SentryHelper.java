@@ -179,7 +179,7 @@ public class SentryHelper {
      *
      * @return true ot false
      */
-    private boolean isAppInDebugMode() {
+    public boolean isAppInDebugMode() {
         boolean debuggable = false;
 
         PackageManager pm = context.getPackageManager();

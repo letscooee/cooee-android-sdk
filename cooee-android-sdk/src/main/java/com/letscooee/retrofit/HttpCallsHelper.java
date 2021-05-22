@@ -6,6 +6,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import com.google.gson.Gson;
+import com.letscooee.BuildConfig;
 import com.letscooee.init.ActivityLifecycleCallback;
 import com.letscooee.init.PostLaunchActivity;
 import com.letscooee.models.Event;
@@ -15,6 +16,7 @@ import com.letscooee.room.postoperations.enums.EventType;
 import com.letscooee.utils.Closure;
 import com.letscooee.utils.CooeeSDKConstants;
 import com.letscooee.utils.LocalStorageHelper;
+import com.letscooee.utils.SentryHelper;
 import com.letscooee.utils.SessionManager;
 
 import java.util.ArrayList;
@@ -65,6 +67,14 @@ public final class HttpCallsHelper {
         }
 
         event.setActiveTriggers(activeTriggerList);
+        Map<String, Object> properties = event.getProperties();
+        if (SentryHelper.getInstance(context).isAppInDebugMode()) {
+            properties.put("appDebug", 1);
+        }
+        if (BuildConfig.DEBUG) {
+            properties.put("sdkDebug", 1);
+        }
+        event.setProperties(properties);
 
         Date currentDate = new Date();
         event.setOccurred(currentDate);
@@ -121,6 +131,13 @@ public final class HttpCallsHelper {
         SessionManager sessionManager = SessionManager.getInstance(context);
         userMap.put("sessionID", sessionManager.getCurrentSessionId());
 
+        if (SentryHelper.getInstance(context).isAppInDebugMode()) {
+            userMap.put("appDebug", 1);
+        }
+        if (BuildConfig.DEBUG) {
+            userMap.put("sdkDebug", 1);
+        }
+
         PendingTask task = new PendingTask();
         task.attempts = 0;
         task.data = gson.toJson(userMap);
@@ -172,6 +189,13 @@ public final class HttpCallsHelper {
         sessionConcludedRequest.put("duration", duration);
         sessionConcludedRequest.put("occurred", currentTime);
 
+        if (SentryHelper.getInstance(context).isAppInDebugMode()) {
+            sessionConcludedRequest.put("appDebug", 1);
+        }
+        if (BuildConfig.DEBUG) {
+            sessionConcludedRequest.put("sdkDebug", 1);
+        }
+
         PendingTask task = new PendingTask();
         task.attempts = 0;
         task.data = gson.toJson(sessionConcludedRequest);
@@ -214,6 +238,13 @@ public final class HttpCallsHelper {
         keepAliveRequest.put("sessionID", sessionManager.getCurrentSessionId());
         keepAliveRequest.put("occurred", currentTime);
 
+        if (SentryHelper.getInstance(context).isAppInDebugMode()) {
+            keepAliveRequest.put("appDebug", 1);
+        }
+        if (BuildConfig.DEBUG) {
+            keepAliveRequest.put("sdkDebug", 1);
+        }
+
         PendingTask task = new PendingTask();
         task.attempts = 0;
         task.data = gson.toJson(keepAliveRequest);
@@ -255,6 +286,13 @@ public final class HttpCallsHelper {
         tokenRequest.put("sessionID", sessionManager.getCurrentSessionId());
         tokenRequest.put("firebaseToken", firebaseToken);
         tokenRequest.put("occurred", currentTime);
+
+        if (SentryHelper.getInstance(context).isAppInDebugMode()) {
+            tokenRequest.put("appDebug", 1);
+        }
+        if (BuildConfig.DEBUG) {
+            tokenRequest.put("sdkDebug", 1);
+        }
 
         PendingTask task = new PendingTask();
         task.attempts = 0;
