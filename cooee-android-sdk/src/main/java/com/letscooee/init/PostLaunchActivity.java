@@ -8,27 +8,25 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.Window;
-
 import com.google.gson.Gson;
 import com.letscooee.BuildConfig;
 import com.letscooee.models.Event;
 import com.letscooee.models.TriggerData;
 import com.letscooee.retrofit.APIClient;
 import com.letscooee.retrofit.HttpCallsHelper;
-import com.letscooee.retrofit.RegisterUser;
+import com.letscooee.retrofit.UserAuthService;
 import com.letscooee.room.CooeeDatabase;
 import com.letscooee.trigger.EngagementTriggerActivity;
 import com.letscooee.utils.CooeeSDKConstants;
 import com.letscooee.utils.CooeeWindowCallback;
 import com.letscooee.utils.LocalStorageHelper;
 import com.letscooee.utils.SessionManager;
+import io.sentry.Sentry;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-
-import io.sentry.Sentry;
 
 /**
  * PostLaunchActivity initialized when app is launched
@@ -44,7 +42,7 @@ public class PostLaunchActivity {
     public static Date currentSessionStartTime;
     public static String currentSessionId = "";
     public static int currentSessionNumber;
-    private RegisterUser registerUser;
+    private UserAuthService userAuthService;
     private SessionManager sessionManager;
 
     /**
@@ -62,12 +60,11 @@ public class PostLaunchActivity {
         this.defaultUserPropertiesCollector = new DefaultUserPropertiesCollector(context);
         this.sessionManager = SessionManager.getInstance(context);
         sessionCreation();
-        this.registerUser = RegisterUser.getInstance(context);
+        this.userAuthService = UserAuthService.getInstance(context);
 
-        if (registerUser.hasToken()) {
-            registerUser.registerUser();
+        if (!userAuthService.hasToken()) {
+            userAuthService.acquireSDKToken();
         }
-
 
         if (isAppFirstTimeLaunch()) {
             appFirstOpen();
@@ -171,7 +168,7 @@ public class PostLaunchActivity {
         eventProperties.put("CE Device Battery", defaultUserPropertiesCollector.getBatteryLevel());
 
         Event event = new Event("CE App Launched", eventProperties);
-        CooeeDatabase cooeeDatabase=CooeeDatabase.getInstance(context);
+        CooeeDatabase cooeeDatabase = CooeeDatabase.getInstance(context);
         HttpCallsHelper.sendEventWithoutSDKState(context, event, cooeeDatabase, null);
     }
 

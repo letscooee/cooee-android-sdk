@@ -28,6 +28,5 @@ public class CooeeSDKConstants {
 
     public static final int JOB_ID = 2663;
 
-    public static final String CURRENT_SESSION = "current_session";
     public static final String FIRST_LAUNCH_CALL_TIME = "first_launch_time";
 }

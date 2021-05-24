@@ -2,7 +2,7 @@ package com.letscooee.retrofit;
 
 import com.letscooee.models.AuthenticationRequestBody;
 import com.letscooee.models.Event;
-import com.letscooee.models.SDKAuthentication;
+import com.letscooee.models.UserAuthResponse;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -15,11 +15,12 @@ import java.util.Map;
  * The ServerAPIService interface helps APIClient class in sending requests
  *
  * @author Abhishek Taparia
+ * @version 0.0.1
  */
 public interface ServerAPIService {
 
     @POST("/v1/user/save")
-    Call<SDKAuthentication> registerUser(@Body AuthenticationRequestBody authenticationRequestBody);
+    Call<UserAuthResponse> registerUser(@Body AuthenticationRequestBody authenticationRequestBody);
 
     @POST("/v1/event/track")
     Call<Map<String, Object>> sendEvent(@Body Event event);
