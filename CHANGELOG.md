@@ -1,5 +1,21 @@
 # Change Log
 
+## v0.2.10
+
+### Feature
+
+1. Configurable close button, timer and progress bar.
+
+### Bug Fixes
+
+1. In-app triggers rendering for some devices (Samsung) fixed.
+2. Some server calls were resulting in 406.
+3. Send CTA data in `Map<String, Object>` format.
+4. Prevent push notification to restart the app.
+5. Initialize Sentry early with global tags to get tags as early as possible.
+6. Create Sentry filter to segregate exception from app and SDK.
+7. Handle `JsonSyntaxException` for activeTrigger. 
+
 ## v0.2.9
 
 1. Fix exception in Android 11 because [new restricted permission](https://developer.android.com/about/versions/11/behavior-changes-11#apn-database-restrictions)
