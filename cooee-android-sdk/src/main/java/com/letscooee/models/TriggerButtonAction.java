@@ -9,7 +9,7 @@ import java.util.Map;
 /**
  * @author Abhishek Taparia
  */
-public class TriggerButtonAction implements Parcelable{
+public class TriggerButtonAction implements Parcelable {
     private HashMap<String, Object> userProperty;
     private HashMap<String, Object> kv;
 
