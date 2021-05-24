@@ -33,7 +33,7 @@ public class SignUpActivity extends AppCompatActivity {
             userProperties.put("name1", "v1");
             userProperties.put("name2", "v2");
             userProperties.put("name3", "v3");
-            Map<String, String> userData = new HashMap<>();
+            Map<String, Object> userData = new HashMap<>();
             userData.put("name", editTextName.getText().toString());
             userData.put("mobile", editTextMobile.getText().toString());
             userData.put("email", editTextEmail.getText().toString());

@@ -9,12 +9,12 @@ import java.util.Map;
 /**
  * @author Abhishek Taparia
  */
-public class TriggerButtonAction implements Parcelable{
-    private HashMap<String, String> userProperty;
+public class TriggerButtonAction implements Parcelable {
+    private HashMap<String, Object> userProperty;
     private HashMap<String, Object> kv;
 
     protected TriggerButtonAction(Parcel in) {
-        this.userProperty = (HashMap<String, String>) in.readSerializable();
+        this.userProperty = (HashMap<String, Object>) in.readSerializable();
         this.kv = (HashMap<String, Object>) in.readSerializable();
     }
 
@@ -41,7 +41,7 @@ public class TriggerButtonAction implements Parcelable{
         }
     };
 
-    public HashMap<String, String> getUserProperty() {
+    public HashMap<String, Object> getUserProperty() {
         return userProperty;
     }
 

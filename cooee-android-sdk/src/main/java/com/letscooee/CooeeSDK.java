@@ -85,7 +85,7 @@ public class CooeeSDK implements EngagementTriggerActivity.InAppListener {
      * @param userData The common user data like name, email.
      * @throws PropertyNameException Custom Exception so that properties' key has no prefix as 'ce '
      */
-    public void updateUserData(Map<String, String> userData) throws PropertyNameException {
+    public void updateUserData(Map<String, Object> userData) throws PropertyNameException {
         updateUserProfile(userData, null);
     }
 
@@ -95,7 +95,7 @@ public class CooeeSDK implements EngagementTriggerActivity.InAppListener {
      * @param userProperties The additional user properties.
      * @throws PropertyNameException Custom Exception so that properties' key has no prefix as 'ce '
      */
-    public void updateUserProperties(Map<String, String> userProperties) throws PropertyNameException {
+    public void updateUserProperties(Map<String, Object> userProperties) throws PropertyNameException {
         updateUserProfile(null, userProperties);
     }
 
@@ -106,7 +106,7 @@ public class CooeeSDK implements EngagementTriggerActivity.InAppListener {
      * @param userProperties The additional user properties.
      * @throws PropertyNameException Custom Exception so that properties' key has no prefix as 'ce '
      */
-    public void updateUserProfile(Map<String, String> userData, Map<String, String> userProperties) throws PropertyNameException {
+    public void updateUserProfile(Map<String, Object> userData, Map<String, Object> userProperties) throws PropertyNameException {
         if (userProperties != null) {
             for (String key : userProperties.keySet()) {
                 if (key.substring(0, 3).equalsIgnoreCase("ce ")) {
@@ -136,21 +136,21 @@ public class CooeeSDK implements EngagementTriggerActivity.InAppListener {
         });
     }
 
-    private void setSentryUser(String id, Map<String, String> userData) {
+    private void setSentryUser(String id, Map<String, Object> userData) {
         User user = new User();
         user.setId(id);
 
-        if (!TextUtils.isEmpty(userData.get("name"))) {
-            user.setUsername(userData.get("name"));
+        if (userData.get("name") != null && !TextUtils.isEmpty(userData.get("name").toString())) {
+            user.setUsername(userData.get("name").toString());
         }
 
-        if (!TextUtils.isEmpty(userData.get("email"))) {
-            user.setEmail(userData.get("email"));
+        if (userData.get("email") != null && !TextUtils.isEmpty(userData.get("email").toString())) {
+            user.setEmail(userData.get("email").toString());
         }
 
-        if (!TextUtils.isEmpty(userData.get("mobile"))) {
+        if (userData.get("mobile") != null && !TextUtils.isEmpty(userData.get("mobile").toString())) {
             Map<String, String> userDataExtra = new HashMap<>();
-            userDataExtra.put("mobile", userData.get("mobile"));
+            userDataExtra.put("mobile", userData.get("mobile").toString());
             user.setOthers(userDataExtra);
         }
 
