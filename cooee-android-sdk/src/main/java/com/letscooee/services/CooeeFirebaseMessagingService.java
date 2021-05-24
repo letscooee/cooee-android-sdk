@@ -87,11 +87,12 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
             return;
         }
 
-        PostLaunchActivity.storeTriggerID(getApplicationContext(), triggerData.getId(), triggerData.getDuration());
-
         if (triggerData.getId() == null) {
             return;
         }
+
+        PostLaunchActivity.storeTriggerID(getApplicationContext(), triggerData.getId(), triggerData.getDuration());
+
         Map eventProps = new HashMap<String, Object>();
         eventProps.put("triggerID", triggerData.getId());
         if (triggerData.isShowAsPN()) {
