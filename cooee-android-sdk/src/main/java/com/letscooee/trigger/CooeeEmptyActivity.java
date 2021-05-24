@@ -15,7 +15,8 @@ import androidx.annotation.Nullable;
  * @version 0.2.10
  * @see <a href="https://letscooee.atlassian.net/browse/COOEE-136">https://letscooee.atlassian.net/browse/COOEE-136</a>
  */
-public class CooeeEmptyActivity extends Activity {
+public class CooeeEmptyActivity extends Activity implements PreventBlurActivity {
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

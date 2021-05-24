@@ -4,12 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.PorterDuff;
-import android.graphics.Typeface;
+import android.graphics.*;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.media.AudioManager;
@@ -22,13 +17,8 @@ import android.util.Base64;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
-import android.view.Gravity;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.Window;
+import android.view.*;
 import android.widget.*;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -36,7 +26,6 @@ import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.RoundedBitmapDrawable;
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
-
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
@@ -44,20 +33,14 @@ import com.google.android.flexbox.FlexboxLayout;
 import com.google.gson.Gson;
 import com.letscooee.CooeeSDK;
 import com.letscooee.R;
-import com.letscooee.models.Event;
-import com.letscooee.models.SidePopSetting;
-import com.letscooee.models.TriggerBackground;
-import com.letscooee.models.TriggerBehindBackground;
-import com.letscooee.models.TriggerButton;
-import com.letscooee.models.TriggerButtonAction;
-import com.letscooee.models.TriggerCloseBehaviour;
-import com.letscooee.models.TriggerData;
-import com.letscooee.models.TriggerText;
+import com.letscooee.models.*;
 import com.letscooee.retrofit.HttpCallsHelper;
 import com.letscooee.utils.BlurBuilder;
 import com.letscooee.utils.LocalStorageHelper;
 import com.letscooee.utils.OnInAppCloseListener;
 import com.letscooee.utils.OnInAppPopListener;
+import io.sentry.Sentry;
+import jp.wasabeef.blurry.Blurry;
 
 import java.lang.ref.WeakReference;
 import java.util.Date;
@@ -68,10 +51,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import io.sentry.Sentry;
-import jp.wasabeef.blurry.Blurry;
-
-public class EngagementTriggerActivity extends AppCompatActivity {
+public class EngagementTriggerActivity extends AppCompatActivity implements PreventBlurActivity {
 
     private static final String TAG = "EngagementTrigger";
     TriggerData triggerData;
@@ -108,18 +88,16 @@ public class EngagementTriggerActivity extends AppCompatActivity {
 
     /**
      * To make the Glassmorphosis effect working, we need to capture the {@link Window} from last active/visible {@link Activity}.
+     *
      * @param activity The current opened/visible activity.
      */
     public static void captureWindowForBlurryEffect(Activity activity) {
-        String className = activity.getClass().getName();
-
-        // Exclude activity from this plugin but make sure to allow activities from plugins or installing app
-        if (className.startsWith("com.letscooee.cooeetester") ||
-                className.startsWith("com.letscooee.cooee_plugin_example") ||
-                !className.startsWith("com.letscooee")
-        ) {
-            _window = activity.getWindow();
+        // Exclude activities from this plugin or which includes PreventBlurActivity
+        if (activity instanceof PreventBlurActivity) {
+            return;
         }
+
+        _window = activity.getWindow();
     }
 
     @Override
