@@ -3,12 +3,15 @@ package com.letscooee.utils;
 import android.content.Context;
 import android.content.SharedPreferences;
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+
+import io.sentry.Sentry;
 
 /**
  * LocalStorageHelper is used to store local shared preference data
@@ -72,13 +75,21 @@ public final class LocalStorageHelper {
     }
 
     public static ArrayList<HashMap<String, String>> getList(Context context, String key) {
-        String stringList = getString(context, key, "");
+        try {
+            String stringList = getString(context, key, "");
 
-        Gson gson = new Gson();
-        ArrayList<HashMap<String, String>> triggerHashMapList = gson.fromJson(stringList, new TypeToken<ArrayList<HashMap<String, String>>>() {
-        }.getType());
+            Gson gson = new Gson();
+            ArrayList<HashMap<String, String>> triggerHashMapList = gson.fromJson(
+                    stringList,
+                    new TypeToken<ArrayList<HashMap<String, String>>>() {}.getType()
+            );
 
-        return triggerHashMapList != null ? triggerHashMapList : new ArrayList<>();
+            return triggerHashMapList != null ? triggerHashMapList : new ArrayList<>();
+        } catch (JsonSyntaxException exception) {
+            Sentry.captureException(exception);
+            remove(context, CooeeSDKConstants.STORAGE_ACTIVE_TRIGGERS);
+            return new ArrayList<>();
+        }
     }
 
     public static void putListImmediately(Context context, String key, ArrayList<HashMap<String, String>> list) {
