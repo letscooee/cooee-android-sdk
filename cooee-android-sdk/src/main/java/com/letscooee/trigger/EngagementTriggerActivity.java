@@ -1,6 +1,7 @@
 package com.letscooee.trigger;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
@@ -105,8 +106,20 @@ public class EngagementTriggerActivity extends AppCompatActivity {
         void inAppNotificationDidClick(HashMap<String, Object> payload);
     }
 
-    public static void setWindow(Window window) {
-        _window = window;
+    /**
+     * To make the Glassmorphosis effect working, we need to capture the {@link Window} from last active/visible {@link Activity}.
+     * @param activity The current opened/visible activity.
+     */
+    public static void captureWindowForBlurryEffect(Activity activity) {
+        String className = activity.getClass().getName();
+
+        // Exclude activity from this plugin but make sure to allow activities from plugins or installing app
+        if (className.startsWith("com.letscooee.cooeetester") ||
+                className.startsWith("com.letscooee.cooee_plugin_example") ||
+                !className.startsWith("com.letscooee")
+        ) {
+            _window = activity.getWindow();
+        }
     }
 
     @Override

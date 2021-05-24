@@ -7,14 +7,12 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.OnLifecycleEvent;
 import androidx.lifecycle.ProcessLifecycleOwner;
-
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.gson.Gson;
@@ -27,28 +25,22 @@ import com.letscooee.trigger.EngagementTriggerActivity;
 import com.letscooee.utils.CooeeSDKConstants;
 import com.letscooee.utils.LocalStorageHelper;
 import com.letscooee.utils.SentryHelper;
-
+import io.sentry.Sentry;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
-
-import io.sentry.Sentry;
+import java.util.*;
 
 /**
  * Track the activity lifecycle and perform related operations
  *
  * @author Ashish Gaikwad crated on 27/Apr/2021
- * @version 0.2
+ * @version 0.0.2
  */
 public class ActivityLifecycleCallback {
+
     private static String currentScreen;
     private static boolean isBackground;
-    private String packageName;
     private Date lastEnterForeground;
     private Date lastEnterBackground;
 
@@ -70,14 +62,9 @@ public class ActivityLifecycleCallback {
         application.registerActivityLifecycleCallbacks(new Application.ActivityLifecycleCallbacks() {
             @Override
             public void onActivityCreated(@NonNull Activity activity, @Nullable Bundle savedInstanceState) {
-                packageName = activity.getClass().getPackage().getName();
                 currentScreen = activity.getLocalClassName();
 
-                // Updating current activity's window for glassmorphism effect
-                if (!activity.getLocalClassName().endsWith("EngagementTriggerActivity")) {
-                    EngagementTriggerActivity.setWindow(activity.getWindow());
-                }
-
+                EngagementTriggerActivity.captureWindowForBlurryEffect(activity);
                 PostLaunchActivity.setHeatMapRecorder(activity);
 
                 FirebaseMessaging.getInstance().getToken().addOnSuccessListener(new OnSuccessListener<String>() {
