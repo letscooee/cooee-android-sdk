@@ -93,7 +93,7 @@ public final class LocalStorageHelper {
         } catch (JsonSyntaxException exception) {
             Sentry.captureException(exception);
 
-            // remove all activeTriggers when wrong format of triggerId is saved in shared preferences
+            // Remove all activeTriggers when wrong format of triggerId is saved in shared preferences
             remove(context, CooeeSDKConstants.STORAGE_ACTIVE_TRIGGERS);
             return new ArrayList<>();
         }

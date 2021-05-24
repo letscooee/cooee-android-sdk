@@ -26,7 +26,6 @@ import com.bumptech.glide.request.transition.Transition;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.google.gson.Gson;
-import com.google.gson.JsonParseException;
 import com.google.gson.JsonSyntaxException;
 import com.letscooee.R;
 import com.letscooee.brodcast.OnPushNotificationButtonClick;
@@ -93,8 +92,9 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
 
         PostLaunchActivity.storeTriggerID(getApplicationContext(), triggerData.getId(), triggerData.getDuration());
 
-        Map eventProps = new HashMap<String, Object>();
+        Map<String, Object> eventProps = new HashMap<>();
         eventProps.put("triggerID", triggerData.getId());
+
         if (triggerData.isShowAsPN()) {
             sendEvent(getApplicationContext(), new Event("CE Notification Received", eventProps));
             if (triggerData.isCarousel()) {
@@ -238,7 +238,6 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
             views.addView(R.id.lvNotificationList, image);
         }
 
-
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(
                 getApplicationContext(),
                 CooeeSDKConstants.NOTIFICATION_CHANNEL_ID);
@@ -261,7 +260,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
             StatusBarNotification[] statusBarNotifications = notificationManager.getActiveNotifications();
             for (StatusBarNotification statusBarNotification : statusBarNotifications) {
                 if (statusBarNotification.getId() == notificationId) {
-                    Map eventProps = new HashMap<String, Object>();
+                    Map<String, Object> eventProps = new HashMap<>();
                     eventProps.put("triggerID", triggerData.getId());
                     sendEvent(getApplicationContext(), new Event("CE Notification Viewed", eventProps));
                 }
@@ -361,7 +360,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
                     StatusBarNotification[] statusBarNotifications = notificationManager.getActiveNotifications();
                     for (StatusBarNotification statusBarNotification : statusBarNotifications) {
                         if (statusBarNotification.getId() == notificationId) {
-                            Map eventProps = new HashMap<String, Object>();
+                            Map<String, Object> eventProps = new HashMap<>();
                             eventProps.put("triggerID", triggerData.getId());
                             sendEvent(getApplicationContext(), new Event("CE Notification Viewed", eventProps));
                         }
