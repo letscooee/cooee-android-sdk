@@ -91,7 +91,7 @@ public class EngagementTriggerActivity extends AppCompatActivity implements Prev
      *
      * @param activity The current opened/visible activity.
      */
-    public static void captureWindowForBlurryEffect(Activity activity) {
+    public static void captureWindowForBlurryEffect(@NonNull Activity activity) {
         // Exclude activities from this plugin or which includes PreventBlurActivity
         if (activity instanceof PreventBlurActivity) {
             return;
