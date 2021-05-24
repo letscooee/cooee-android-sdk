@@ -35,7 +35,7 @@ import java.util.*;
  * Track the activity lifecycle and perform related operations
  *
  * @author Ashish Gaikwad crated on 27/Apr/2021
- * @version 0.0.2
+ * @version 0.2.9
  */
 public class ActivityLifecycleCallback {
 

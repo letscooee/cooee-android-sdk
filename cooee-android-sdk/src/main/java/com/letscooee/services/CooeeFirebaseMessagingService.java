@@ -68,7 +68,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
         }
 
         String rawTriggerData = remoteMessage.getData().get("triggerData");
-        if (rawTriggerData == null || TextUtils.isEmpty(rawTriggerData)) {
+        if (TextUtils.isEmpty(rawTriggerData)) {
             Log.d(CooeeSDKConstants.LOG_PREFIX, "No triggerData found on the notification payload");
             return;
         }
