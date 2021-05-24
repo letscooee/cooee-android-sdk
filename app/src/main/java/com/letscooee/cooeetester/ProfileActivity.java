@@ -41,7 +41,7 @@ public class ProfileActivity extends AppCompatActivity {
                 Toast.makeText(this, "Mobile can not be empty", Toast.LENGTH_SHORT).show();
                 return;
             }
-            Map<String, String> userData = new HashMap<>();
+            Map<String, Object> userData = new HashMap<>();
             userData.put("name", binding.edtPersonName.getText().toString());
             userData.put("mobile", binding.edtMobile.getText().toString());
             userData.put("email", binding.edtEmail.getText().toString());
