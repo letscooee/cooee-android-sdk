@@ -2,7 +2,11 @@ package com.letscooee.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+
+import androidx.annotation.RestrictTo;
+
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 
 import java.util.ArrayList;
@@ -10,11 +14,14 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import io.sentry.Sentry;
+
 /**
  * LocalStorageHelper is used to store local shared preference data
  *
  * @author Abhishek Taparia
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public final class LocalStorageHelper {
 
     private static final String SHARED_PREFERENCE_NAME = "cooee_sdk";
@@ -75,14 +82,27 @@ public final class LocalStorageHelper {
         String stringList = getString(context, key, "");
 
         Gson gson = new Gson();
-        ArrayList<HashMap<String, String>> triggerHashMapList = gson.fromJson(stringList, new TypeToken<ArrayList<HashMap<String, String>>>() {
-        }.getType());
+        ArrayList<HashMap<String, String>> triggerHashMapList = null;
+
+        try {
+            triggerHashMapList = gson.fromJson(
+                    stringList,
+                    new TypeToken<ArrayList<HashMap<String, String>>>() {
+                    }.getType()
+            );
+        } catch (JsonSyntaxException exception) {
+            Sentry.captureException(exception);
+
+            // remove all activeTriggers when wrong format of triggerId is saved in shared preferences
+            remove(context, CooeeSDKConstants.STORAGE_ACTIVE_TRIGGERS);
+            return new ArrayList<>();
+        }
 
         return triggerHashMapList != null ? triggerHashMapList : new ArrayList<>();
     }
 
     public static void putListImmediately(Context context, String key, ArrayList<HashMap<String, String>> list) {
-        putStringImmediately(context, key, list.toString());
+        putStringImmediately(context, key, new Gson().toJson(list));
     }
 
     public static void apply(SharedPreferences.Editor editor) {
