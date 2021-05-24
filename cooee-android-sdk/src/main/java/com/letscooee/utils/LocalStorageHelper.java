@@ -2,6 +2,7 @@ package com.letscooee.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
@@ -81,7 +82,8 @@ public final class LocalStorageHelper {
             Gson gson = new Gson();
             ArrayList<HashMap<String, String>> triggerHashMapList = gson.fromJson(
                     stringList,
-                    new TypeToken<ArrayList<HashMap<String, String>>>() {}.getType()
+                    new TypeToken<ArrayList<HashMap<String, String>>>() {
+                    }.getType()
             );
 
             return triggerHashMapList != null ? triggerHashMapList : new ArrayList<>();
