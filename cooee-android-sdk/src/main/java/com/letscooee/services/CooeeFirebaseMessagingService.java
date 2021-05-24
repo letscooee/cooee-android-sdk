@@ -1,10 +1,6 @@
 package com.letscooee.services;
 
-import android.app.Notification;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.app.TaskStackBuilder;
+import android.app.*;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -17,20 +13,21 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.service.notification.StatusBarNotification;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.RemoteViews;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
-
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.google.gson.Gson;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonSyntaxException;
 import com.letscooee.R;
 import com.letscooee.brodcast.OnPushNotificationButtonClick;
 import com.letscooee.init.ActivityLifecycleCallback;
@@ -44,13 +41,12 @@ import com.letscooee.retrofit.HttpCallsHelper;
 import com.letscooee.trigger.CooeeEmptyActivity;
 import com.letscooee.utils.CooeeSDKConstants;
 import com.letscooee.utils.LocalStorageHelper;
+import io.sentry.Sentry;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-
-import io.sentry.Sentry;
 
 /**
  * MyFirebaseMessagingService helps connects with firebase for push notification
@@ -72,8 +68,24 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
             return;
         }
 
-        Gson gson = new Gson();
-        TriggerData triggerData = gson.fromJson(remoteMessage.getData().get("triggerData"), TriggerData.class);
+        String rawTriggerData = remoteMessage.getData().get("triggerData");
+        if (rawTriggerData == null || TextUtils.isEmpty(rawTriggerData)) {
+            Log.d(CooeeSDKConstants.LOG_PREFIX, "No triggerData found on the notification payload");
+            return;
+        }
+
+        TriggerData triggerData;
+
+        try {
+            triggerData = new Gson().fromJson(rawTriggerData, TriggerData.class);
+
+        } catch (JsonSyntaxException e) {
+            Log.e(CooeeSDKConstants.LOG_PREFIX, "Unable to parse the trigger data", e);
+            // TODO Change this to use SentryHelper once these code are moved to a separate class
+            Sentry.captureException(e);
+
+            return;
+        }
 
         PostLaunchActivity.storeTriggerID(getApplicationContext(), triggerData.getId(), triggerData.getDuration());
 
