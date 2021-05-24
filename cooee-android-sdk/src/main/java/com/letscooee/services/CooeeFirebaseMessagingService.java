@@ -68,7 +68,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
     @Override
     public void onMessageReceived(@NonNull RemoteMessage remoteMessage) {
         super.onMessageReceived(remoteMessage);
-        if (remoteMessage.getData().size() <= 0) {
+        if (remoteMessage.getData().size() == 0) {
             return;
         }
 
