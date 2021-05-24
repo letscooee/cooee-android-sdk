@@ -1,6 +1,7 @@
 package com.letscooee.retrofit;
 
 import android.util.Log;
+import androidx.annotation.RestrictTo;
 import com.letscooee.BuildConfig;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -15,7 +16,9 @@ import static com.letscooee.utils.CooeeSDKConstants.LOG_PREFIX;
  * The APIClient class will help in sending request to server
  *
  * @author Abhishek Taparia
+ * @version 0.0.1
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class APIClient {
 
     private static final String BASE_URL = BuildConfig.SERVER_URL;

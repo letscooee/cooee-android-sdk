@@ -40,7 +40,16 @@
         </service>
 
         <service android:name=".services.CooeeIntentService" />
+        <service
+            android:name=".schedular.job.CooeePendingTaskJob"
+            android:exported="false"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
 
         <receiver android:name=".brodcast.OnPushNotificationButtonClick" />
+        <receiver android:name=".brodcast.CooeeJobSchedulerBroadcast">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
     </application>
 </manifest>

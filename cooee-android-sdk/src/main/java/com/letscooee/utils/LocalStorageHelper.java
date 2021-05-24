@@ -135,4 +135,14 @@ public final class LocalStorageHelper {
         Map map = new Gson().fromJson(sharedPreferences.getString(key, null), Map.class);
         return map;
     }
+
+    public static void putLong(Context context, String key, long value) {
+        SharedPreferences sharedPreferences = getPreferences(context);
+        SharedPreferences.Editor editor = sharedPreferences.edit().putLong(key, value);
+        apply(editor);
+    }
+
+    public static long getLong(Context context, String key, long defaultValue) {
+        return getPreferences(context).getLong(key, defaultValue);
+    }
 }

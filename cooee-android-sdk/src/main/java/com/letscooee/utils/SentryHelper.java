@@ -179,7 +179,7 @@ public class SentryHelper {
      *
      * @return true ot false
      */
-    private boolean isAppInDebugMode() {
+    public boolean isAppInDebugMode() {
         boolean debuggable = false;
 
         PackageManager pm = context.getPackageManager();
@@ -230,7 +230,7 @@ public class SentryHelper {
      * @param message Any custom message to send.
      */
     public void captureMessage(String message) {
-        Log.d(CooeeSDKConstants.LOG_PREFIX, message);
+        Log.e(CooeeSDKConstants.LOG_PREFIX, message);
         Sentry.captureMessage(CooeeSDKConstants.LOG_PREFIX + ": " + message);
     }
 
