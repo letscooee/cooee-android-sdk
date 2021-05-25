@@ -7,12 +7,14 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.OnLifecycleEvent;
 import androidx.lifecycle.ProcessLifecycleOwner;
+
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.gson.Gson;
@@ -25,7 +27,9 @@ import com.letscooee.trigger.EngagementTriggerActivity;
 import com.letscooee.utils.CooeeSDKConstants;
 import com.letscooee.utils.LocalStorageHelper;
 import com.letscooee.utils.SentryHelper;
+
 import io.sentry.Sentry;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -58,7 +62,13 @@ public class ActivityLifecycleCallback {
 
         context = application.getApplicationContext();
 
-        SentryHelper.getInstance(context);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                SentryHelper.getInstance(context);
+            }
+        });
+
         application.registerActivityLifecycleCallbacks(new Application.ActivityLifecycleCallbacks() {
             @Override
             public void onActivityCreated(@NonNull Activity activity, @Nullable Bundle savedInstanceState) {
@@ -207,7 +217,7 @@ public class ActivityLifecycleCallback {
                         PostLaunchActivity.createTrigger(context, triggerData);
                         HttpCallsHelper.sendEvent(context, new Event("CE Notification Clicked", new HashMap<>()), null);
                     }
-                }, 4000);
+                }, 6000);
     }
 
     /**
