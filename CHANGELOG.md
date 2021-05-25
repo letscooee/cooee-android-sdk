@@ -1,5 +1,18 @@
 # Change Log
 
+## v0.2.11
+
+### Improvements
+
+1. User properties can now be sent as `<String, Object>`.
+2. Improving app load time by initialising Sentry in a separate thread.
+3. Increase app launch delay to 6 seconds (temporary).
+
+### Bug Fixes
+
+1. Handling edge cases while rendering push notifications.
+2. Fixed Glassmorphosis effect.
+
 ## v0.2.10
 
 ### Feature
