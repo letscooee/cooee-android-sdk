@@ -71,14 +71,6 @@ public class PostLaunchActivity {
         APIClient.setUserId(LocalStorageHelper.getString(context, CooeeSDKConstants.STORAGE_USER_ID, ""));
     }
 
-    public static void setHeatMapRecorder(Activity activity) {
-        if (activity != null && activity.getWindow().getDecorView() != null) {
-            final Window window = activity.getWindow();
-            final Window.Callback localCallback = window.getCallback();
-            window.setCallback(new CooeeWindowCallback(localCallback, activity));
-        }
-    }
-
     /**
      * Get device name
      *

@@ -159,8 +159,6 @@ public class ActivityLifecycleCallback {
 
                 Event session = new Event("CE App Background", sessionProperties);
                 HttpCallsHelper.sendEvent(context, session, null);
-
-                formatAndSendTouchData(context);
             }
         });
     }
@@ -231,42 +229,6 @@ public class ActivityLifecycleCallback {
     private void checkAndStartJob(Context context) {
         if (!CooeeJobSchedulerBroadcast.isJobServiceOn(context)) {
             CooeeScheduleJob.scheduleJob(context);
-        }
-    }
-
-    /**
-     * Will process map present in local storage and will send to server
-     *
-     * @param context application context
-     */
-    private void formatAndSendTouchData(Context context) {
-        Map map = LocalStorageHelper.getTouchMap(context, CooeeSDKConstants.TOUCH_MAP);
-        Map processedData = new HashMap<String, Integer>();
-        if (map != null) {
-
-            for (Object key : map.keySet()) {
-                Map<String, Double> data = (Map<String, Double>) map.get(key);
-                String newKey = data.get("x") + "," + data.get("y");
-                if (processedData.containsKey(newKey)) {
-                    processedData.put(newKey, ((int) processedData.get(newKey)) + 1);
-                } else {
-                    processedData.put(newKey, 1);
-                }
-
-            }
-            JSONArray touchData = new JSONArray();
-            for (Object key : processedData.keySet()) {
-                try {
-                    JSONObject singlePoint = new JSONObject();
-                    singlePoint.put("x", Double.valueOf(key.toString().split(",")[0]));
-                    singlePoint.put("y", Double.valueOf(key.toString().split(",")[1]));
-                    singlePoint.put("heatCount", processedData.get(key));
-                    touchData.put(singlePoint);
-                } catch (Exception e) {
-                    Sentry.captureException(e);
-                }
-            }
-            //Log.i(CooeeSDKConstants.LOG_PREFIX, "formatAndSendTouchData: "+touchData.toString());
         }
     }
 
