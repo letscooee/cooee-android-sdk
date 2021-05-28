@@ -2,32 +2,24 @@ package com.letscooee.retrofit;
 
 import android.content.Context;
 import android.util.Log;
-
 import androidx.annotation.NonNull;
-
 import com.google.gson.Gson;
 import com.letscooee.BuildConfig;
-import com.letscooee.init.ActivityLifecycleCallback;
 import com.letscooee.init.PostLaunchActivity;
 import com.letscooee.models.Event;
 import com.letscooee.room.CooeeDatabase;
 import com.letscooee.room.postoperations.entity.PendingTask;
 import com.letscooee.room.postoperations.enums.EventType;
-import com.letscooee.utils.Closure;
-import com.letscooee.utils.CooeeSDKConstants;
-import com.letscooee.utils.LocalStorageHelper;
-import com.letscooee.utils.SentryHelper;
-import com.letscooee.utils.SessionManager;
+import com.letscooee.utils.*;
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-
-import okhttp3.ResponseBody;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 /**
  * HttpCallsHelper will be used to create http calls to the server
@@ -39,19 +31,14 @@ public final class HttpCallsHelper {
     static ServerAPIService serverAPIService = APIClient.getServerAPIService();
     static Gson gson = new Gson();
 
-
     public static void sendEvent(Context context, Event event, Closure closure) {
         CooeeDatabase db = CooeeDatabase.getInstance(context);
 
         SessionManager sessionManager = SessionManager.getInstance(context);
-        event.setSessionID(sessionManager.getCurrentSessionId());
+        event.setSessionID(sessionManager.getCurrentSessionID());
 
-        sendEventWithoutSDKState(context, event, db, closure);
-
-    }
-
-    public static void sendEventWithoutSDKState(Context context, Event event, CooeeDatabase db, Closure closure) {
-        event.setScreenName(ActivityLifecycleCallback.getCurrentScreen());
+        RuntimeData runtimeData = RuntimeData.getInstance(context);
+        event.setScreenName(runtimeData.getCurrentScreenName());
         event.setSessionNumber(PostLaunchActivity.currentSessionNumber);
 
         ArrayList<HashMap<String, String>> allTriggers = LocalStorageHelper.getList(context, CooeeSDKConstants.STORAGE_ACTIVE_TRIGGERS);
@@ -86,8 +73,6 @@ public final class HttpCallsHelper {
         task.type = EventType.EVENT;
         task.dateCreated = currentDate.getTime();
         db.pendingTaskDAO().insertAll(task);
-
-
     }
 
     public static void pushEvent(Event event, Closure closure, CooeeDatabase appDatabase, PendingTask task) {
@@ -129,7 +114,7 @@ public final class HttpCallsHelper {
         userMap.put("occurred", currentTime);
 
         SessionManager sessionManager = SessionManager.getInstance(context);
-        userMap.put("sessionID", sessionManager.getCurrentSessionId());
+        userMap.put("sessionID", sessionManager.getCurrentSessionID());
 
         if (SentryHelper.getInstance(context).isAppInDebugMode()) {
             userMap.put("appDebug", 1);
@@ -178,14 +163,14 @@ public final class HttpCallsHelper {
         });
     }
 
-    public static void sendSessionConcludedEvent(int duration, Context context) {
+    public static void sendSessionConcludedEvent(long duration, Context context) {
         Date currentTime = new Date();
         CooeeDatabase db = CooeeDatabase.getInstance(context);
 
         SessionManager sessionManager = SessionManager.getInstance(context);
 
         Map<String, Object> sessionConcludedRequest = new HashMap<>();
-        sessionConcludedRequest.put("sessionID", sessionManager.getCurrentSessionId());
+        sessionConcludedRequest.put("sessionID", sessionManager.getCurrentSessionID());
         sessionConcludedRequest.put("duration", duration);
         sessionConcludedRequest.put("occurred", currentTime);
 
@@ -235,7 +220,7 @@ public final class HttpCallsHelper {
         SessionManager sessionManager = SessionManager.getInstance(context);
 
         Map<String, Object> keepAliveRequest = new HashMap<>();
-        keepAliveRequest.put("sessionID", sessionManager.getCurrentSessionId());
+        keepAliveRequest.put("sessionID", sessionManager.getCurrentSessionID());
         keepAliveRequest.put("occurred", currentTime);
 
         if (SentryHelper.getInstance(context).isAppInDebugMode()) {
@@ -283,7 +268,7 @@ public final class HttpCallsHelper {
         SessionManager sessionManager = SessionManager.getInstance(context);
 
         Map<String, Object> tokenRequest = new HashMap<>();
-        tokenRequest.put("sessionID", sessionManager.getCurrentSessionId());
+        tokenRequest.put("sessionID", sessionManager.getCurrentSessionID());
         tokenRequest.put("firebaseToken", firebaseToken);
         tokenRequest.put("occurred", currentTime);
 
@@ -326,8 +311,7 @@ public final class HttpCallsHelper {
     }
 
     private static void updateData(CooeeDatabase appDatabase, PendingTask task, Date currentTime) {
-        int count = task.attempts + 1;
-        task.attempts = count;
+        task.attempts = task.attempts + 1;
         task.lastAttempted = currentTime.getTime();
         appDatabase.pendingTaskDAO().updateByObject(task);
     }

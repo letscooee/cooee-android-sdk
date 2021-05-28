@@ -35,6 +35,9 @@ public class UserAuthService {
     private final ServerAPIService apiService;
     private final DefaultUserPropertiesCollector defaultUserPropertiesCollector;
 
+    private String sdkToken;
+    private String userID;
+
     private UserAuthService(Context context) {
         this.context = context.getApplicationContext();
         this.defaultUserPropertiesCollector = new DefaultUserPropertiesCollector(context);
@@ -45,6 +48,28 @@ public class UserAuthService {
     public boolean hasToken() {
         String sdkToken = LocalStorageHelper.getString(context, CooeeSDKConstants.STORAGE_SDK_TOKEN, null);
         return TextUtils.isEmpty(sdkToken);
+    }
+
+    public String getUserID() {
+        return this.userID;
+    }
+
+    /**
+     * This method will pull user data (like SDK token & user ID) from the local storage (shared preference)
+     * and populates it for further user.
+     */
+    public void populateUserDataFromStorage() {
+        sdkToken = LocalStorageHelper.getString(context, CooeeSDKConstants.STORAGE_SDK_TOKEN, null);
+        if (TextUtils.isEmpty(sdkToken)) {
+            Log.d(CooeeSDKConstants.LOG_PREFIX, "No SDK token found in preference");
+        }
+
+        userID = LocalStorageHelper.getString(context, CooeeSDKConstants.STORAGE_USER_ID, null);
+        if (TextUtils.isEmpty(userID)) {
+            Log.d(CooeeSDKConstants.LOG_PREFIX, "No user ID found in preference");
+        }
+
+        this.updateAPIClient();
     }
 
     /**
@@ -74,7 +99,7 @@ public class UserAuthService {
             public void onResponse(@NonNull Call<UserAuthResponse> call, @NonNull Response<UserAuthResponse> response) {
                 if (response.isSuccessful()) {
                     assert response.body() != null;
-                    UserAuthService.this.saveTokenInPreferences(response.body());
+                    UserAuthService.this.saveUserDataInStorage(response.body());
                 } else {
                     // When this occur??
                     UserAuthService.this.sentryHelper.captureMessage("Unable to acquire token- " + response.code());
@@ -88,17 +113,21 @@ public class UserAuthService {
         });
     }
 
-    private void saveTokenInPreferences(UserAuthResponse userAuthResponse) {
-        String sdkToken = userAuthResponse.getSdkToken();
-        String userID = userAuthResponse.getId();
+    private void saveUserDataInStorage(UserAuthResponse userAuthResponse) {
+        this.sdkToken = userAuthResponse.getSdkToken();
+        this.userID = userAuthResponse.getId();
 
+        this.updateAPIClient();
+
+        LocalStorageHelper.putString(context, CooeeSDKConstants.STORAGE_SDK_TOKEN, sdkToken);
+        LocalStorageHelper.putString(context, CooeeSDKConstants.STORAGE_USER_ID, userID);
+    }
+
+    private void updateAPIClient() {
         if (BuildConfig.DEBUG) {
             Log.i(CooeeSDKConstants.LOG_PREFIX, "SDK Token: " + sdkToken);
             Log.i(CooeeSDKConstants.LOG_PREFIX, "User ID: " + userID);
         }
-
-        LocalStorageHelper.putString(context, CooeeSDKConstants.STORAGE_SDK_TOKEN, sdkToken);
-        LocalStorageHelper.putString(context, CooeeSDKConstants.STORAGE_USER_ID, userID);
 
         APIClient.setAPIToken(sdkToken);
         APIClient.setUserId(userID);

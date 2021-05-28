@@ -12,7 +12,7 @@ public class AppController extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        new ActivityLifecycleCallback().register(this);
+        new ActivityLifecycleCallback(this).register();
     }
 
 }

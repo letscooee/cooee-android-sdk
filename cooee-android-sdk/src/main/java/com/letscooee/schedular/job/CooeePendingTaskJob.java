@@ -45,15 +45,11 @@ public class CooeePendingTaskJob extends JobService {
             SessionManager sessionManager = SessionManager.getInstance(getApplicationContext());
 
             String sdkToken = LocalStorageHelper.getString(getApplicationContext(), CooeeSDKConstants.STORAGE_SDK_TOKEN, null);
-            String sessionId = sessionManager.getCurrentSessionId();
+            String sessionId = sessionManager.getCurrentSessionID();
 
             if (!TextUtils.isEmpty(sdkToken)) {
-
                 if (taskList != null && !taskList.isEmpty()) {
-
-
                     APIClient.setAPIToken(sdkToken);
-
                     readTaskAndHandle(taskList, sessionId, appDatabase);
                 }
 

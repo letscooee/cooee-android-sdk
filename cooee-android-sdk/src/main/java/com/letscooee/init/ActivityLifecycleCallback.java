@@ -16,7 +16,6 @@ import androidx.lifecycle.ProcessLifecycleOwner;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.gson.Gson;
-import com.letscooee.CooeeSDK;
 import com.letscooee.brodcast.CooeeJobSchedulerBroadcast;
 import com.letscooee.models.Event;
 import com.letscooee.models.TriggerData;
@@ -24,40 +23,42 @@ import com.letscooee.retrofit.HttpCallsHelper;
 import com.letscooee.schedular.jobschedular.CooeeScheduleJob;
 import com.letscooee.trigger.CooeeEmptyActivity;
 import com.letscooee.trigger.EngagementTriggerActivity;
-import com.letscooee.utils.CooeeSDKConstants;
-import com.letscooee.utils.LocalStorageHelper;
-import com.letscooee.utils.SentryHelper;
+import com.letscooee.utils.*;
 import io.sentry.Sentry;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
- * Track the activity lifecycle and perform related operations
+ * Register operations on different lifecycle callbacks of all Activities.
  *
- * @author Ashish Gaikwad crated on 27/Apr/2021
+ * @author Ashish Gaikwad
  * @version 0.2.9
  */
 public class ActivityLifecycleCallback {
 
-    private static String currentScreen;
-    private static boolean isBackground;
-    private Date lastEnterForeground;
-    private Date lastEnterBackground;
-
     private Handler handler = new Handler();
     private Runnable runnable;
 
-    private Context context;
+    private final Context context;
+    private final Application application;
+    private final SessionManager sessionManager;
+
+    ActivityLifecycleCallback(Application application) {
+        this.application = application;
+        this.context = application.getApplicationContext();
+        this.sessionManager = SessionManager.getInstance(context);
+    }
 
     /**
      * Used to register activity lifecycle
-     *
-     * @param application will be instance of application
      */
-    public void register(Application application) {
-        context = application.getApplicationContext();
+    public void register() {
+        RuntimeData runtimeData = RuntimeData.getInstance(this.context);
 
         SentryHelper.getInstance(context);
         checkAndStartJob(application.getApplicationContext());
@@ -65,10 +66,7 @@ public class ActivityLifecycleCallback {
         application.registerActivityLifecycleCallbacks(new Application.ActivityLifecycleCallbacks() {
             @Override
             public void onActivityCreated(@NonNull Activity activity, @Nullable Bundle savedInstanceState) {
-                currentScreen = activity.getLocalClassName();
-
                 EngagementTriggerActivity.captureWindowForBlurryEffect(activity);
-                PostLaunchActivity.setHeatMapRecorder(activity);
 
                 FirebaseMessaging.getInstance().getToken().addOnSuccessListener(new OnSuccessListener<String>() {
                     @Override
@@ -80,8 +78,6 @@ public class ActivityLifecycleCallback {
 
             @Override
             public void onActivityStarted(@NonNull Activity activity) {
-                String manualScreenName = CooeeSDK.getDefaultInstance(context).getCurrentScreenName();
-                currentScreen = (manualScreenName != null && !manualScreenName.isEmpty()) ? manualScreenName : activity.getLocalClassName();
             }
 
             @Override
@@ -119,26 +115,18 @@ public class ActivityLifecycleCallback {
         ProcessLifecycleOwner.get().getLifecycle().addObserver(new LifecycleObserver() {
             @OnLifecycleEvent(Lifecycle.Event.ON_START)
             public void onEnterForeground() {
-                Log.d(CooeeSDKConstants.LOG_PREFIX, "AppController : Foreground");
+                runtimeData.setInForeground();
 
-                isBackground = false;
+                keepSessionAlive(context);
 
-                keepSessionAlive(application.getApplicationContext());
-
-                lastEnterForeground = new Date();
-
-                // return if this method runs when app is just installed/launched
-                if (lastEnterBackground == null) {
+                if (runtimeData.isFirstForeground()) {
                     return;
                 }
 
-                long backgroundDuration = new Date().getTime() - lastEnterBackground.getTime();
+                long backgroundDuration = runtimeData.getTimeInBackgroundInSeconds();
 
-                //Indentation to be solved
-                if (backgroundDuration > CooeeSDKConstants.IDLE_TIME_IN_MS) {
-                    int duration = (int) (lastEnterBackground.getTime() - PostLaunchActivity.currentSessionStartTime.getTime()) / 1000;
-                    Map<String, String> sessionProperties = new HashMap<>();
-                    sessionProperties.put("CE Duration", duration + "");
+                if (backgroundDuration > CooeeSDKConstants.IDLE_TIME_IN_SECONDS) {
+                    long duration = sessionManager.getTotalSessionDurationInSeconds();
 
                     HttpCallsHelper.sendSessionConcludedEvent(duration, application.getApplicationContext());
 
@@ -155,9 +143,7 @@ public class ActivityLifecycleCallback {
 
             @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
             public void onEnterBackground() {
-                Log.d(CooeeSDKConstants.LOG_PREFIX, "AppController : Background");
-
-                isBackground = true;
+                runtimeData.setInBackground();
 
                 //stop sending check message of session alive on app background
                 handler.removeCallbacks(runnable);
@@ -166,10 +152,7 @@ public class ActivityLifecycleCallback {
                     return;
                 }
 
-                //Purposefully not added to another method, will be taken cared in separate-http-call merge
-
-                lastEnterBackground = new Date();
-                long duration = (lastEnterBackground.getTime() - lastEnterForeground.getTime()) / 1000;
+                long duration = runtimeData.getTimeInForegroundInSeconds();
 
                 Map<String, Object> sessionProperties = new HashMap<>();
                 sessionProperties.put("CE Duration", duration);
@@ -177,7 +160,6 @@ public class ActivityLifecycleCallback {
                 Event session = new Event("CE App Background", sessionProperties);
                 HttpCallsHelper.sendEvent(context, session, null);
 
-                //getApplicationContext().startService(new Intent(getApplicationContext(), GlobalTouchService.class));
                 formatAndSendTouchData(context);
             }
         });
@@ -303,14 +285,4 @@ public class ActivityLifecycleCallback {
             }
         }, CooeeSDKConstants.KEEP_ALIVE_TIME_IN_MS);
     }
-
-    public static String getCurrentScreen() {
-        return currentScreen;
-    }
-
-    public static boolean isIsBackground() {
-        return isBackground;
-    }
-
-
 }

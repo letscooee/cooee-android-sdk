@@ -29,7 +29,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.letscooee.R;
 import com.letscooee.brodcast.OnPushNotificationButtonClick;
-import com.letscooee.init.ActivityLifecycleCallback;
 import com.letscooee.init.PostLaunchActivity;
 import com.letscooee.models.CarouselData;
 import com.letscooee.models.Event;
@@ -38,7 +37,6 @@ import com.letscooee.models.TriggerData;
 import com.letscooee.retrofit.APIClient;
 import com.letscooee.retrofit.HttpCallsHelper;
 import com.letscooee.trigger.CooeeEmptyActivity;
-import com.letscooee.room.CooeeDatabase;
 import com.letscooee.utils.CooeeSDKConstants;
 import com.letscooee.utils.LocalStorageHelper;
 import io.sentry.Sentry;
@@ -275,10 +273,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
      * @param triggerData received from data payload
      */
     private void showInAppMessaging(TriggerData triggerData) {
-        // Don't show inapp notification if app is in background
-        if (!ActivityLifecycleCallback.isIsBackground()) {
-            PostLaunchActivity.createTrigger(getApplicationContext(), triggerData);
-        }
+        PostLaunchActivity.createTrigger(getApplicationContext(), triggerData);
     }
 
     /**
@@ -384,10 +379,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
     public static void sendEvent(Context context, Event event) {
         APIClient.setAPIToken(LocalStorageHelper.getString(context, CooeeSDKConstants.STORAGE_SDK_TOKEN, ""));
 
-        event.setSessionID(PostLaunchActivity.currentSessionId);
-
-        CooeeDatabase database = CooeeDatabase.getInstance(context);
-        HttpCallsHelper.sendEventWithoutSDKState(context, event, database, null);
+        HttpCallsHelper.sendEvent(context, event, null);
     }
 
     /**

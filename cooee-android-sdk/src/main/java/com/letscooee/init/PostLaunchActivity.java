@@ -1,13 +1,12 @@
 package com.letscooee.init;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
-import android.view.Window;
+import androidx.annotation.RestrictTo;
 import com.google.gson.Gson;
 import com.letscooee.BuildConfig;
 import com.letscooee.models.Event;
@@ -15,13 +14,13 @@ import com.letscooee.models.TriggerData;
 import com.letscooee.retrofit.APIClient;
 import com.letscooee.retrofit.HttpCallsHelper;
 import com.letscooee.retrofit.UserAuthService;
-import com.letscooee.room.CooeeDatabase;
 import com.letscooee.trigger.EngagementTriggerActivity;
 import com.letscooee.utils.CooeeSDKConstants;
-import com.letscooee.utils.CooeeWindowCallback;
 import com.letscooee.utils.LocalStorageHelper;
+import com.letscooee.utils.RuntimeData;
 import com.letscooee.utils.SessionManager;
 import io.sentry.Sentry;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -32,33 +31,29 @@ import java.util.Map;
  * PostLaunchActivity initialized when app is launched
  *
  * @author Abhishek Taparia
+ * @version 0.0.2
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class PostLaunchActivity {
 
-    private Context context;
-    private DefaultUserPropertiesCollector defaultUserPropertiesCollector;
+    private final Context context;
+    private final DefaultUserPropertiesCollector defaultUserPropertiesCollector;
 
-    //public static ReplaySubject<Object> onSDKStateDecided;
-    public static Date currentSessionStartTime;
-    public static String currentSessionId = "";
     public static int currentSessionNumber;
-    private UserAuthService userAuthService;
-    private SessionManager sessionManager;
+    private final UserAuthService userAuthService;
+    private final SessionManager sessionManager;
 
     /**
      * Public Constructor
      *
      * @param context application context
      */
-    public PostLaunchActivity(Context context) {
-        if (context == null) {
-            return;
-        }
-
+    public PostLaunchActivity(@NotNull Context context) {
         this.context = context;
 
         this.defaultUserPropertiesCollector = new DefaultUserPropertiesCollector(context);
         this.sessionManager = SessionManager.getInstance(context);
+
         sessionCreation();
         this.userAuthService = UserAuthService.getInstance(context);
 
@@ -67,9 +62,9 @@ public class PostLaunchActivity {
         }
 
         if (isAppFirstTimeLaunch()) {
-            appFirstOpen();
+            sendFirstLaunchEvent();
         } else {
-            successiveAppLaunch();
+            sendSuccessiveLaunchEvent();
         }
 
         APIClient.setDeviceName(getDeviceName());
@@ -111,7 +106,6 @@ public class PostLaunchActivity {
      */
     private void sessionCreation() {
         currentSessionNumber = sessionManager.getCurrentSessionNumber();
-        currentSessionStartTime = new Date();
     }
 
 
@@ -129,11 +123,10 @@ public class PostLaunchActivity {
         }
     }
 
-
     /**
      * Runs when app is opened for the first time after sdkToken is received from server asynchronously
      */
-    private void appFirstOpen() {
+    private void sendFirstLaunchEvent() {
         Map<String, Object> userProperties = new HashMap<>();
         userProperties.put("CE First Launch Time", new Date());
         userProperties.put("CE Installed Time", defaultUserPropertiesCollector.getInstalledTime());
@@ -150,7 +143,7 @@ public class PostLaunchActivity {
     /**
      * Runs every time when app is opened for a new session
      */
-    private void successiveAppLaunch() {
+    private void sendSuccessiveLaunchEvent() {
         Map<String, Object> userProperties = new HashMap<>();
         userProperties.put("CE Session Count", currentSessionNumber + "");
         sendUserProperties(userProperties);
@@ -168,8 +161,7 @@ public class PostLaunchActivity {
         eventProperties.put("CE Device Battery", defaultUserPropertiesCollector.getBatteryLevel());
 
         Event event = new Event("CE App Launched", eventProperties);
-        CooeeDatabase cooeeDatabase = CooeeDatabase.getInstance(context);
-        HttpCallsHelper.sendEventWithoutSDKState(context, event, cooeeDatabase, null);
+        HttpCallsHelper.sendEvent(context, event, null);
     }
 
     /**
@@ -217,20 +209,6 @@ public class PostLaunchActivity {
     }
 
     /**
-     * Create or get next session number from shared preference.
-     *
-     * @return next session number
-     */
-    private int getSessionNumber() {
-        int sessionNumber = LocalStorageHelper.getInt(context, CooeeSDKConstants.STORAGE_SESSION_NUMBER, 0);
-        sessionNumber += 1;
-
-        LocalStorageHelper.putInt(context, CooeeSDKConstants.STORAGE_SESSION_NUMBER, sessionNumber);
-
-        return sessionNumber;
-    }
-
-    /**
      * Create inapp engagement trigger using map object
      *
      * @param context context of the application
@@ -254,6 +232,11 @@ public class PostLaunchActivity {
      * @param triggerData trigger data received from PN data payload or overloaded function
      */
     public static void createTrigger(Context context, TriggerData triggerData) {
+        RuntimeData runtimeData = RuntimeData.getInstance(context);
+        if (runtimeData.isInBackground()) {
+            return;
+        }
+
         try {
             Intent intent = new Intent(context, EngagementTriggerActivity.class);
             Bundle sendBundle = new Bundle();

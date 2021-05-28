@@ -2,26 +2,21 @@ package com.letscooee;
 
 import android.content.Context;
 import android.text.TextUtils;
-import android.util.Log;
-
 import com.letscooee.init.PostLaunchActivity;
 import com.letscooee.models.Event;
 import com.letscooee.retrofit.HttpCallsHelper;
-import com.letscooee.retrofit.RegisterUser;
+import com.letscooee.retrofit.UserAuthService;
 import com.letscooee.trigger.EngagementTriggerActivity;
-import com.letscooee.utils.CooeeSDKConstants;
-import com.letscooee.utils.InAppNotificationClickListener;
-import com.letscooee.utils.LocalStorageHelper;
-import com.letscooee.utils.PropertyNameException;
+import com.letscooee.utils.*;
+import io.sentry.Sentry;
+import io.sentry.protocol.User;
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.ref.WeakReference;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-
-import io.sentry.Sentry;
-import io.sentry.protocol.User;
 
 /**
  * The CooeeSDK class contains all the functions required by application to achieve the campaign tasks(Singleton Class)
@@ -30,12 +25,13 @@ import io.sentry.protocol.User;
  */
 public class CooeeSDK implements EngagementTriggerActivity.InAppListener {
 
-    private static CooeeSDK cooeeSDK = null;
+    private static CooeeSDK cooeeSDK;
 
     private final Context context;
-
-    private String currentScreenName = "";
-    private String uuid = "";
+    private final RuntimeData runtimeData;
+    private final SentryHelper sentryHelper;
+    private final SessionManager sessionManager;
+    private final UserAuthService userAuthService;
 
     private WeakReference<InAppNotificationClickListener> inAppNotificationClickListener;
 
@@ -44,8 +40,13 @@ public class CooeeSDK implements EngagementTriggerActivity.InAppListener {
      *
      * @param context application context
      */
-    private CooeeSDK(Context context) {
-        this.context = context;
+    private CooeeSDK(@NotNull Context context) {
+        this.context = context.getApplicationContext();
+        this.sessionManager = SessionManager.getInstance(context);
+        this.runtimeData = RuntimeData.getInstance(context);
+        this.sentryHelper = SentryHelper.getInstance(context);
+        this.userAuthService = UserAuthService.getInstance(context);
+
         new PostLaunchActivity(context);
         setSentryUser(getUUID(), new HashMap<>());
     }
@@ -68,19 +69,19 @@ public class CooeeSDK implements EngagementTriggerActivity.InAppListener {
      * Check if sdkToken is available or not. If sdkToken is not available will make call for sdkToken
      */
     private static void checkSDKToken(Context context) {
-        RegisterUser registerUser = RegisterUser.getInstance(context);
+        UserAuthService userAuthService = UserAuthService.getInstance(context);
         long lastCheck = LocalStorageHelper.getLong(context, CooeeSDKConstants.FIRST_LAUNCH_CALL_TIME, 0);
 
-        if (registerUser.hasToken()) {
+        if (userAuthService.hasToken()) {
             if (lastCheck != 0) {
                 Calendar calender = Calendar.getInstance();
                 calender.setTimeInMillis(lastCheck);
                 calender.add(Calendar.MINUTE, 1);
                 if (new Date().after(calender.getTime())) {
-                    registerUser.registerUser();
+                    userAuthService.acquireSDKToken();
                 }
             } else {
-                registerUser.registerUser();
+                userAuthService.acquireSDKToken();
             }
         }
     }
@@ -183,16 +184,12 @@ public class CooeeSDK implements EngagementTriggerActivity.InAppListener {
     }
 
     /**
-     * Manually update screen name
+     * Set current screen name where user navigated.
      *
-     * @param screenName Screen name given by user
+     * @param screenName Name of the screen. Like Login, Cart, Wishlist etc.
      */
     public void setCurrentScreen(String screenName) {
-        if (screenName == null || (!this.currentScreenName.isEmpty() && this.currentScreenName.equals(screenName))) {
-            return;
-        }
-        Log.d(CooeeSDKConstants.LOG_PREFIX, "Updated screen : " + screenName);
-        this.currentScreenName = screenName;
+        this.runtimeData.setCurrentScreenName(screenName);
     }
 
     /**
@@ -200,15 +197,18 @@ public class CooeeSDK implements EngagementTriggerActivity.InAppListener {
      *
      * @return current screen name
      */
+    @Deprecated
     public String getCurrentScreenName() {
-        return this.currentScreenName;
+        return this.runtimeData.getCurrentScreenName();
     }
 
+    @Deprecated
     public String getUUID() {
-        if (uuid.isEmpty()) {
-            uuid = LocalStorageHelper.getString(context, CooeeSDKConstants.STORAGE_USER_ID, "");
-        }
-        return uuid;
+        return this.getUserID();
+    }
+
+    public String getUserID() {
+        return this.userAuthService.getUserID();
     }
 
     public void setInAppNotificationButtonListener(InAppNotificationClickListener listener) {
