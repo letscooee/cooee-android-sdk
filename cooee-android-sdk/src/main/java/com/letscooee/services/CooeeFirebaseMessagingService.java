@@ -29,7 +29,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.letscooee.R;
 import com.letscooee.brodcast.OnPushNotificationButtonClick;
-import com.letscooee.init.PostLaunchActivity;
+import com.letscooee.user.NewSessionExecutor;
 import com.letscooee.models.CarouselData;
 import com.letscooee.models.Event;
 import com.letscooee.models.TriggerButton;
@@ -89,7 +89,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
             return;
         }
 
-        PostLaunchActivity.storeTriggerID(getApplicationContext(), triggerData.getId(), triggerData.getDuration());
+        NewSessionExecutor.storeTriggerID(getApplicationContext(), triggerData.getId(), triggerData.getDuration());
 
         Map<String, Object> eventProps = new HashMap<>();
         eventProps.put("triggerID", triggerData.getId());
@@ -273,7 +273,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
      * @param triggerData received from data payload
      */
     private void showInAppMessaging(TriggerData triggerData) {
-        PostLaunchActivity.createTrigger(getApplicationContext(), triggerData);
+        NewSessionExecutor.createTrigger(getApplicationContext(), triggerData);
     }
 
     /**

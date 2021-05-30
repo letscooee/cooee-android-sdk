@@ -1,16 +1,16 @@
-package com.letscooee.utils;
+package com.letscooee.network;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
 /**
+ * Checks for the internet availability.
+ *
  * @author Ashish Gaikwad on 18/5/21
  * @version 0.1
- * <p>
- * Checks for the internet availability
  */
-public class CooeeConnectivityManager {
+public class ConnectionManager {
 
     /**
      * isNetworkAvailable Will used to check if device is connected to internet and will return result in boolean

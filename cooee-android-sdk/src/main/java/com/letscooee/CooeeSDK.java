@@ -2,11 +2,12 @@ package com.letscooee;
 
 import android.content.Context;
 import android.text.TextUtils;
-import com.letscooee.init.PostLaunchActivity;
+import com.letscooee.user.NewSessionExecutor;
 import com.letscooee.models.Event;
 import com.letscooee.retrofit.HttpCallsHelper;
 import com.letscooee.retrofit.UserAuthService;
-import com.letscooee.trigger.EngagementTriggerActivity;
+import com.letscooee.trigger.inapp.InAppTriggerActivity;
+import com.letscooee.user.SessionManager;
 import com.letscooee.utils.*;
 import io.sentry.Sentry;
 import io.sentry.protocol.User;
@@ -23,7 +24,7 @@ import java.util.Map;
  *
  * @author Abhishek Taparia
  */
-public class CooeeSDK implements EngagementTriggerActivity.InAppListener {
+public class CooeeSDK implements InAppTriggerActivity.InAppListener {
 
     private static CooeeSDK cooeeSDK;
 
@@ -47,7 +48,7 @@ public class CooeeSDK implements EngagementTriggerActivity.InAppListener {
         this.sentryHelper = SentryHelper.getInstance(context);
         this.userAuthService = UserAuthService.getInstance(context);
 
-        new PostLaunchActivity(context);
+        new NewSessionExecutor(context);
         setSentryUser(getUUID(), new HashMap<>());
     }
 
@@ -102,7 +103,7 @@ public class CooeeSDK implements EngagementTriggerActivity.InAppListener {
 
         Event event = new Event(eventName, eventProperties);
 
-        HttpCallsHelper.sendEvent(context, event, data -> PostLaunchActivity.createTrigger(context, data));
+        HttpCallsHelper.sendEvent(context, event, data -> NewSessionExecutor.createTrigger(context, data));
     }
 
     /**
@@ -228,7 +229,7 @@ public class CooeeSDK implements EngagementTriggerActivity.InAppListener {
      * @param base64 will contain bitmap in base64 format
      */
     public void setBitmap(String base64) {
-        EngagementTriggerActivity.setBitmap(base64);
+        InAppTriggerActivity.setBitmap(base64);
     }
 
 }

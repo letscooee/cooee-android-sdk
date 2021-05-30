@@ -22,11 +22,10 @@ import com.letscooee.models.TriggerData;
 import com.letscooee.retrofit.HttpCallsHelper;
 import com.letscooee.schedular.jobschedular.CooeeScheduleJob;
 import com.letscooee.trigger.CooeeEmptyActivity;
-import com.letscooee.trigger.EngagementTriggerActivity;
+import com.letscooee.trigger.inapp.InAppTriggerActivity;
+import com.letscooee.user.NewSessionExecutor;
+import com.letscooee.user.SessionManager;
 import com.letscooee.utils.*;
-import io.sentry.Sentry;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -66,7 +65,7 @@ public class ActivityLifecycleCallback {
         application.registerActivityLifecycleCallbacks(new Application.ActivityLifecycleCallbacks() {
             @Override
             public void onActivityCreated(@NonNull Activity activity, @Nullable Bundle savedInstanceState) {
-                EngagementTriggerActivity.captureWindowForBlurryEffect(activity);
+                InAppTriggerActivity.captureWindowForBlurryEffect(activity);
 
                 FirebaseMessaging.getInstance().getToken().addOnSuccessListener(new OnSuccessListener<String>() {
                     @Override
@@ -130,14 +129,14 @@ public class ActivityLifecycleCallback {
 
                     HttpCallsHelper.sendSessionConcludedEvent(duration, application.getApplicationContext());
 
-                    new PostLaunchActivity(context);
+                    new NewSessionExecutor(context);
                     Log.d(CooeeSDKConstants.LOG_PREFIX, "After 30 min of App Background " + "Session Concluded");
                 } else {
                     Map<String, Object> sessionProperties = new HashMap<>();
                     sessionProperties.put("CE Duration", backgroundDuration / 1000);
 
                     Event session = new Event("CE App Foreground", sessionProperties);
-                    HttpCallsHelper.sendEvent(context, session, data -> PostLaunchActivity.createTrigger(application.getApplicationContext(), data));
+                    HttpCallsHelper.sendEvent(context, session, data -> NewSessionExecutor.createTrigger(application.getApplicationContext(), data));
                 }
             }
 
@@ -187,7 +186,7 @@ public class ActivityLifecycleCallback {
                 new TimerTask() {
                     @Override
                     public void run() {
-                        PostLaunchActivity.createTrigger(context, triggerData);
+                        NewSessionExecutor.createTrigger(context, triggerData);
                         HttpCallsHelper.sendEvent(context, new Event("CE Notification Clicked", new HashMap<>()), null);
                     }
                 }, 4000);
@@ -199,24 +198,24 @@ public class ActivityLifecycleCallback {
      * @param activity
      */
     private void handleGlassmorphismAfterLaunch(Activity activity) {
-        // Do not entertain if activity is instance of EngagementTriggerActivity
-        if (activity instanceof EngagementTriggerActivity) {
+        // Do not entertain if activity is instance of InAppTriggerActivity
+        if (activity instanceof InAppTriggerActivity) {
             return;
         }
 
         // Do not entertain if onInAppPopListener in not initialized
-        if (EngagementTriggerActivity.onInAppPopListener == null) {
+        if (InAppTriggerActivity.onInAppPopListener == null) {
             return;
         }
 
-        // Do not entertain if EngagementTriggerActivity's isManualClose set true
-        if (EngagementTriggerActivity.isManualClose) {
+        // Do not entertain if InAppTriggerActivity's isManualClose set true
+        if (InAppTriggerActivity.isManualClose) {
             return;
         }
 
         String triggerString = LocalStorageHelper.getString(activity, "trigger", null);
         if (!TextUtils.isEmpty(triggerString)) {
-            PostLaunchActivity.createTrigger(activity, new Gson().fromJson(triggerString, TriggerData.class));
+            NewSessionExecutor.createTrigger(activity, new Gson().fromJson(triggerString, TriggerData.class));
         }
     }
 

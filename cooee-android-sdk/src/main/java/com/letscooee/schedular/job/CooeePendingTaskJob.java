@@ -13,10 +13,10 @@ import com.letscooee.room.CooeeDatabase;
 import com.letscooee.room.postoperations.entity.PendingTask;
 import com.letscooee.room.postoperations.enums.EventType;
 import com.letscooee.schedular.jobschedular.CooeeScheduleJob;
-import com.letscooee.utils.CooeeConnectivityManager;
+import com.letscooee.network.ConnectionManager;
 import com.letscooee.utils.CooeeSDKConstants;
 import com.letscooee.utils.LocalStorageHelper;
-import com.letscooee.utils.SessionManager;
+import com.letscooee.user.SessionManager;
 
 import java.util.Calendar;
 import java.util.List;
@@ -34,7 +34,7 @@ public class CooeePendingTaskJob extends JobService {
     @Override
     public boolean onStartJob(JobParameters params) {
 
-        if (CooeeConnectivityManager.isNetworkAvailable(getApplicationContext())) {
+        if (ConnectionManager.isNetworkAvailable(getApplicationContext())) {
 
             CooeeDatabase appDatabase = CooeeDatabase.getInstance(getApplicationContext());
 

@@ -5,11 +5,12 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import com.google.gson.Gson;
 import com.letscooee.BuildConfig;
-import com.letscooee.init.PostLaunchActivity;
+import com.letscooee.user.NewSessionExecutor;
 import com.letscooee.models.Event;
 import com.letscooee.room.CooeeDatabase;
 import com.letscooee.room.postoperations.entity.PendingTask;
 import com.letscooee.room.postoperations.enums.EventType;
+import com.letscooee.user.SessionManager;
 import com.letscooee.utils.*;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -39,7 +40,7 @@ public final class HttpCallsHelper {
 
         RuntimeData runtimeData = RuntimeData.getInstance(context);
         event.setScreenName(runtimeData.getCurrentScreenName());
-        event.setSessionNumber(PostLaunchActivity.currentSessionNumber);
+        event.setSessionNumber(NewSessionExecutor.currentSessionNumber);
 
         ArrayList<HashMap<String, String>> allTriggers = LocalStorageHelper.getList(context, CooeeSDKConstants.STORAGE_ACTIVE_TRIGGERS);
 

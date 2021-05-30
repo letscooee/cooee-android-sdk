@@ -23,10 +23,10 @@
             android:value="true" />
 
         <activity
-            android:name=".trigger.FeedbackActivity"
+            android:name=".trigger.inapp.FeedbackActivity"
             android:theme="@style/AppTheme.PopUp" />
         <activity
-            android:name=".trigger.EngagementTriggerActivity"
+            android:name=".trigger.inapp.InAppTriggerActivity"
             android:configChanges="orientation|keyboardHidden"
             android:theme="@style/AppTheme.PopUp" />
         <activity android:name=".trigger.CooeeEmptyActivity" />

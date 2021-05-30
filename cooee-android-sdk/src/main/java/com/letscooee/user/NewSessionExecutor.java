@@ -1,4 +1,4 @@
-package com.letscooee.init;
+package com.letscooee.user;
 
 import android.content.Context;
 import android.content.Intent;
@@ -9,16 +9,17 @@ import android.util.Log;
 import androidx.annotation.RestrictTo;
 import com.google.gson.Gson;
 import com.letscooee.BuildConfig;
+import com.letscooee.init.DefaultUserPropertiesCollector;
 import com.letscooee.models.Event;
 import com.letscooee.models.TriggerData;
 import com.letscooee.retrofit.APIClient;
 import com.letscooee.retrofit.HttpCallsHelper;
 import com.letscooee.retrofit.UserAuthService;
-import com.letscooee.trigger.EngagementTriggerActivity;
+import com.letscooee.trigger.inapp.InAppTriggerActivity;
 import com.letscooee.utils.CooeeSDKConstants;
 import com.letscooee.utils.LocalStorageHelper;
 import com.letscooee.utils.RuntimeData;
-import com.letscooee.utils.SessionManager;
+import com.letscooee.user.SessionManager;
 import io.sentry.Sentry;
 import org.jetbrains.annotations.NotNull;
 
@@ -34,7 +35,7 @@ import java.util.Map;
  * @version 0.0.2
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public class PostLaunchActivity {
+public class NewSessionExecutor {
 
     private final Context context;
     private final DefaultUserPropertiesCollector defaultUserPropertiesCollector;
@@ -48,7 +49,7 @@ public class PostLaunchActivity {
      *
      * @param context application context
      */
-    public PostLaunchActivity(@NotNull Context context) {
+    public NewSessionExecutor(@NotNull Context context) {
         this.context = context;
 
         this.defaultUserPropertiesCollector = new DefaultUserPropertiesCollector(context);
@@ -230,7 +231,7 @@ public class PostLaunchActivity {
         }
 
         try {
-            Intent intent = new Intent(context, EngagementTriggerActivity.class);
+            Intent intent = new Intent(context, InAppTriggerActivity.class);
             Bundle sendBundle = new Bundle();
             sendBundle.putParcelable("triggerData", triggerData);
             intent.putExtra("bundle", sendBundle);
