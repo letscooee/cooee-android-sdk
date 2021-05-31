@@ -2,12 +2,11 @@ package com.letscooee;
 
 import android.content.Context;
 import android.text.TextUtils;
-import com.letscooee.user.NewSessionExecutor;
 import com.letscooee.models.Event;
 import com.letscooee.retrofit.HttpCallsHelper;
 import com.letscooee.retrofit.UserAuthService;
 import com.letscooee.trigger.inapp.InAppTriggerActivity;
-import com.letscooee.user.SessionManager;
+import com.letscooee.user.NewSessionExecutor;
 import com.letscooee.utils.*;
 import io.sentry.Sentry;
 import io.sentry.protocol.User;
@@ -31,7 +30,6 @@ public class CooeeSDK implements InAppTriggerActivity.InAppListener {
     private final Context context;
     private final RuntimeData runtimeData;
     private final SentryHelper sentryHelper;
-    private final SessionManager sessionManager;
     private final UserAuthService userAuthService;
 
     private WeakReference<InAppNotificationClickListener> inAppNotificationClickListener;
@@ -43,13 +41,11 @@ public class CooeeSDK implements InAppTriggerActivity.InAppListener {
      */
     private CooeeSDK(@NotNull Context context) {
         this.context = context.getApplicationContext();
-        this.sessionManager = SessionManager.getInstance(context);
         this.runtimeData = RuntimeData.getInstance(context);
         this.sentryHelper = SentryHelper.getInstance(context);
         this.userAuthService = UserAuthService.getInstance(context);
 
-        new NewSessionExecutor(context);
-        setSentryUser(getUUID(), new HashMap<>());
+        new NewSessionExecutor(context).execute();
     }
 
     /**
@@ -103,7 +99,7 @@ public class CooeeSDK implements InAppTriggerActivity.InAppListener {
 
         Event event = new Event(eventName, eventProperties);
 
-        HttpCallsHelper.sendEvent(context, event, data -> NewSessionExecutor.createTrigger(context, data));
+        HttpCallsHelper.sendEvent(context, event, null);
     }
 
     /**
@@ -167,17 +163,20 @@ public class CooeeSDK implements InAppTriggerActivity.InAppListener {
         User user = new User();
         user.setId(id);
 
-        if (userData.get("name") != null && !TextUtils.isEmpty(userData.get("name").toString())) {
-            user.setUsername(userData.get("name").toString());
+        Object name = userData.get("name");
+        if (name != null && !TextUtils.isEmpty(name.toString())) {
+            user.setUsername(name.toString());
         }
 
-        if (userData.get("email") != null && !TextUtils.isEmpty(userData.get("email").toString())) {
-            user.setEmail(userData.get("email").toString());
+        Object email = userData.get("email");
+        if (email != null && !TextUtils.isEmpty(email.toString())) {
+            user.setEmail(email.toString());
         }
 
-        if (userData.get("mobile") != null && !TextUtils.isEmpty(userData.get("mobile").toString())) {
+        Object mobile = userData.get("mobile");
+        if (mobile != null && !TextUtils.isEmpty(mobile.toString())) {
             Map<String, String> userDataExtra = new HashMap<>();
-            userDataExtra.put("mobile", userData.get("mobile").toString());
+            userDataExtra.put("mobile", mobile.toString());
             user.setOthers(userDataExtra);
         }
 

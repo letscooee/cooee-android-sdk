@@ -80,11 +80,11 @@ public class SessionManager {
     }
 
     public Integer getCurrentSessionNumber() {
-        return LocalStorageHelper.getInt(context, CooeeSDKConstants.STORAGE_SESSION_NUMBER, 0);
+        return this.currentSessionNumber;
     }
 
     private void bumpSessionNumber() {
-        currentSessionNumber = getCurrentSessionNumber();
+        currentSessionNumber = LocalStorageHelper.getInt(context, CooeeSDKConstants.STORAGE_SESSION_NUMBER, 0);
         currentSessionNumber += 1;
 
         LocalStorageHelper.putInt(context, CooeeSDKConstants.STORAGE_SESSION_NUMBER, currentSessionNumber);

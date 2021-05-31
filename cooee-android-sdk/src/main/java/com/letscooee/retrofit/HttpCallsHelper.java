@@ -5,11 +5,11 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import com.google.gson.Gson;
 import com.letscooee.BuildConfig;
-import com.letscooee.user.NewSessionExecutor;
 import com.letscooee.models.Event;
 import com.letscooee.room.CooeeDatabase;
 import com.letscooee.room.postoperations.entity.PendingTask;
 import com.letscooee.room.postoperations.enums.EventType;
+import com.letscooee.trigger.EngagementTriggerHelper;
 import com.letscooee.user.SessionManager;
 import com.letscooee.utils.*;
 import okhttp3.ResponseBody;
@@ -36,11 +36,11 @@ public final class HttpCallsHelper {
         CooeeDatabase db = CooeeDatabase.getInstance(context);
 
         SessionManager sessionManager = SessionManager.getInstance(context);
-        event.setSessionID(sessionManager.getCurrentSessionID());
-
         RuntimeData runtimeData = RuntimeData.getInstance(context);
+
+        event.setSessionID(sessionManager.getCurrentSessionID());
         event.setScreenName(runtimeData.getCurrentScreenName());
-        event.setSessionNumber(NewSessionExecutor.currentSessionNumber);
+        event.setSessionNumber(sessionManager.getCurrentSessionNumber());
 
         ArrayList<HashMap<String, String>> allTriggers = LocalStorageHelper.getList(context, CooeeSDKConstants.STORAGE_ACTIVE_TRIGGERS);
 
@@ -74,17 +74,25 @@ public final class HttpCallsHelper {
         task.type = EventType.EVENT;
         task.dateCreated = currentDate.getTime();
         db.pendingTaskDAO().insertAll(task);
+
+        pushEvent(context, event, closure, null, null);
     }
 
-    public static void pushEvent(Event event, Closure closure, CooeeDatabase appDatabase, PendingTask task) {
+    public static void pushEvent(Context context, Event event, Closure closure, CooeeDatabase appDatabase, PendingTask task) {
         Date currentTime = new Date();
         serverAPIService.sendEvent(event).enqueue(new Callback<Map<String, Object>>() {
             @Override
             public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {
                 Log.i(CooeeSDKConstants.LOG_PREFIX, event.getName() + " Event Sent Code: " + response.code());
 
-                if (closure != null) {
-                    closure.call(response.body());
+                if (response.isSuccessful()) {
+                    HashMap<String, Object> responseData = (HashMap<String, Object>) response.body();
+
+                    if (closure != null) {
+                        closure.call(responseData);
+                    }
+
+                    EngagementTriggerHelper.renderInAppTriggerFromResponse(context, responseData);
                 }
 
                 if (appDatabase != null) {

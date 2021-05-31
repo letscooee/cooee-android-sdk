@@ -5,7 +5,6 @@ import android.app.Application;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
-import android.text.TextUtils;
 import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -15,17 +14,20 @@ import androidx.lifecycle.OnLifecycleEvent;
 import androidx.lifecycle.ProcessLifecycleOwner;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.messaging.FirebaseMessaging;
-import com.google.gson.Gson;
 import com.letscooee.brodcast.CooeeJobSchedulerBroadcast;
 import com.letscooee.models.Event;
 import com.letscooee.models.TriggerData;
 import com.letscooee.retrofit.HttpCallsHelper;
 import com.letscooee.schedular.jobschedular.CooeeScheduleJob;
 import com.letscooee.trigger.CooeeEmptyActivity;
+import com.letscooee.trigger.EngagementTriggerHelper;
 import com.letscooee.trigger.inapp.InAppTriggerActivity;
 import com.letscooee.user.NewSessionExecutor;
 import com.letscooee.user.SessionManager;
-import com.letscooee.utils.*;
+import com.letscooee.utils.CooeeSDKConstants;
+import com.letscooee.utils.LocalStorageHelper;
+import com.letscooee.utils.RuntimeData;
+import com.letscooee.utils.SentryHelper;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -129,14 +131,14 @@ public class ActivityLifecycleCallback {
 
                     HttpCallsHelper.sendSessionConcludedEvent(duration, application.getApplicationContext());
 
-                    new NewSessionExecutor(context);
+                    new NewSessionExecutor(context).execute();
                     Log.d(CooeeSDKConstants.LOG_PREFIX, "After 30 min of App Background " + "Session Concluded");
                 } else {
-                    Map<String, Object> sessionProperties = new HashMap<>();
-                    sessionProperties.put("CE Duration", backgroundDuration / 1000);
+                    Map<String, Object> eventProps = new HashMap<>();
+                    eventProps.put("CE Duration", backgroundDuration / 1000);
+                    Event session = new Event("CE App Foreground", eventProps);
 
-                    Event session = new Event("CE App Foreground", sessionProperties);
-                    HttpCallsHelper.sendEvent(context, session, data -> NewSessionExecutor.createTrigger(application.getApplicationContext(), data));
+                    HttpCallsHelper.sendEvent(context, session, null);
                 }
             }
 
@@ -186,7 +188,7 @@ public class ActivityLifecycleCallback {
                 new TimerTask() {
                     @Override
                     public void run() {
-                        NewSessionExecutor.createTrigger(context, triggerData);
+                        EngagementTriggerHelper.renderInAppTrigger(context, triggerData);
                         HttpCallsHelper.sendEvent(context, new Event("CE Notification Clicked", new HashMap<>()), null);
                     }
                 }, 4000);
@@ -195,7 +197,7 @@ public class ActivityLifecycleCallback {
     /**
      * This block handle the glassmorphism effect for the triggers
      *
-     * @param activity
+     * @param activity The currently created activity.
      */
     private void handleGlassmorphismAfterLaunch(Activity activity) {
         // Do not entertain if activity is instance of InAppTriggerActivity
@@ -213,10 +215,9 @@ public class ActivityLifecycleCallback {
             return;
         }
 
+        // TODO Why are we pulling from local storage
         String triggerString = LocalStorageHelper.getString(activity, "trigger", null);
-        if (!TextUtils.isEmpty(triggerString)) {
-            NewSessionExecutor.createTrigger(activity, new Gson().fromJson(triggerString, TriggerData.class));
-        }
+        EngagementTriggerHelper.renderInAppTriggerFromJSONString(activity, triggerString);
     }
 
     /**

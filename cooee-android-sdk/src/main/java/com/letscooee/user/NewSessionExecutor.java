@@ -1,29 +1,16 @@
 package com.letscooee.user;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Build;
-import android.os.Bundle;
-import android.provider.Settings;
-import android.util.Log;
 import androidx.annotation.RestrictTo;
-import com.google.gson.Gson;
 import com.letscooee.BuildConfig;
 import com.letscooee.init.DefaultUserPropertiesCollector;
 import com.letscooee.models.Event;
-import com.letscooee.models.TriggerData;
-import com.letscooee.retrofit.APIClient;
 import com.letscooee.retrofit.HttpCallsHelper;
-import com.letscooee.retrofit.UserAuthService;
-import com.letscooee.trigger.inapp.InAppTriggerActivity;
 import com.letscooee.utils.CooeeSDKConstants;
 import com.letscooee.utils.LocalStorageHelper;
-import com.letscooee.utils.RuntimeData;
-import com.letscooee.user.SessionManager;
-import io.sentry.Sentry;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -40,8 +27,6 @@ public class NewSessionExecutor {
     private final Context context;
     private final DefaultUserPropertiesCollector defaultUserPropertiesCollector;
 
-    public static int currentSessionNumber;
-    private final UserAuthService userAuthService;
     private final SessionManager sessionManager;
 
     /**
@@ -51,56 +36,17 @@ public class NewSessionExecutor {
      */
     public NewSessionExecutor(@NotNull Context context) {
         this.context = context;
-
         this.defaultUserPropertiesCollector = new DefaultUserPropertiesCollector(context);
         this.sessionManager = SessionManager.getInstance(context);
+    }
 
-        sessionCreation();
-        this.userAuthService = UserAuthService.getInstance(context);
-
-        if (!userAuthService.hasToken()) {
-            userAuthService.acquireSDKToken();
-        }
-
+    public void execute() {
         if (isAppFirstTimeLaunch()) {
             sendFirstLaunchEvent();
         } else {
             sendSuccessiveLaunchEvent();
         }
-
-        APIClient.setDeviceName(getDeviceName());
-        APIClient.setUserId(LocalStorageHelper.getString(context, CooeeSDKConstants.STORAGE_USER_ID, ""));
     }
-
-    /**
-     * Get device name
-     *
-     * @return device name
-     */
-    private String getDeviceName() {
-        String name = null;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            name = Settings.Global.getString(context.getContentResolver(), "device_name");
-        }
-
-        if (name == null) {
-            name = Settings.Secure.getString(context.getContentResolver(), "bluetooth_name");
-        }
-
-        if (name == null) {
-            name = Build.MODEL;
-        }
-
-        return name;
-    }
-
-    /**
-     * Initialize onSDKStateDecided to get token and create new session
-     */
-    private void sessionCreation() {
-        currentSessionNumber = sessionManager.getCurrentSessionNumber();
-    }
-
 
     /**
      * Check if app is launched for first time
@@ -123,14 +69,14 @@ public class NewSessionExecutor {
         Map<String, Object> userProperties = new HashMap<>();
         userProperties.put("CE First Launch Time", new Date());
         userProperties.put("CE Installed Time", defaultUserPropertiesCollector.getInstalledTime());
-        sendUserProperties(userProperties);
+        sendDefaultUserProperties(userProperties);
 
         Map<String, Object> eventProperties = new HashMap<>();
         eventProperties.put("CE Source", "SYSTEM");
         eventProperties.put("CE App Version", defaultUserPropertiesCollector.getAppVersion());
         Event event = new Event("CE App Installed", eventProperties);
 
-        HttpCallsHelper.sendEvent(context, event, data -> createTrigger(context, data));
+        HttpCallsHelper.sendEvent(context, event, null);
     }
 
     /**
@@ -138,8 +84,8 @@ public class NewSessionExecutor {
      */
     private void sendSuccessiveLaunchEvent() {
         Map<String, Object> userProperties = new HashMap<>();
-        userProperties.put("CE Session Count", currentSessionNumber + "");
-        sendUserProperties(userProperties);
+        userProperties.put("CE Session Count", sessionManager.getCurrentSessionNumber());
+        sendDefaultUserProperties(userProperties);
 
         String[] networkData = defaultUserPropertiesCollector.getNetworkData();
         Map<String, Object> eventProperties = new HashMap<>();
@@ -162,13 +108,15 @@ public class NewSessionExecutor {
      *
      * @param userProps additional user properties
      */
-    private void sendUserProperties(Map<String, Object> userProps) {
+    private void sendDefaultUserProperties(Map<String, Object> userProps) {
         double[] location = defaultUserPropertiesCollector.getLocation();
         String[] networkData = defaultUserPropertiesCollector.getNetworkData();
 
-        Map<String, Object> userProperties = new HashMap<>();
+        Map<String, Object> userProperties;
         if (userProps != null) {
             userProperties = new HashMap<>(userProps);
+        } else {
+            userProperties = new HashMap<>();
         }
 
         userProperties.put("CE OS", "ANDROID");
@@ -194,74 +142,11 @@ public class NewSessionExecutor {
         userProperties.put("CE DPI", defaultUserPropertiesCollector.getDpi());
         userProperties.put("CE Device Locale", defaultUserPropertiesCollector.getLocale());
         userProperties.put("CE Last Launch Time", new Date());
+
         Map<String, Object> userMap = new HashMap<>();
         userMap.put("userProperties", userProperties);
         userMap.put("userData", new HashMap<>());
 
         HttpCallsHelper.sendUserProfile(context, userMap, "SDK", null);
-    }
-
-    /**
-     * Create inapp engagement trigger using map object
-     *
-     * @param context context of the application
-     * @param data    map data received from backend
-     */
-    public static void createTrigger(Context context, Map<String, Object> data) {
-        if (data == null || data.get("triggerData") == null) {
-            return;
-        }
-
-        Gson gson = new Gson();
-        TriggerData triggerData = gson.fromJson(String.valueOf(data.get("triggerData")), TriggerData.class);
-        storeTriggerID(context, triggerData.getId(), triggerData.getDuration());
-        createTrigger(context, triggerData);
-    }
-
-    /**
-     * Create inapp engagement trigger
-     *
-     * @param context     context of the application
-     * @param triggerData trigger data received from PN data payload or overloaded function
-     */
-    public static void createTrigger(Context context, TriggerData triggerData) {
-        RuntimeData runtimeData = RuntimeData.getInstance(context);
-        if (runtimeData.isInBackground()) {
-            return;
-        }
-
-        try {
-            Intent intent = new Intent(context, InAppTriggerActivity.class);
-            Bundle sendBundle = new Bundle();
-            sendBundle.putParcelable("triggerData", triggerData);
-            intent.putExtra("bundle", sendBundle);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            context.startActivity(intent);
-        } catch (Exception ex) {
-            Log.d(CooeeSDKConstants.LOG_PREFIX, "Couldn't show Engagement Trigger " + ex.toString());
-            Sentry.captureException(ex);
-        }
-    }
-
-    /**
-     * Store trigger id and duration in local storage
-     *
-     * @param context
-     * @param id
-     * @param time
-     * @return
-     */
-    public static ArrayList<HashMap<String, String>> storeTriggerID(Context context, String id, long time) {
-        ArrayList<HashMap<String, String>> hashMaps = LocalStorageHelper.getList(context, CooeeSDKConstants.STORAGE_ACTIVE_TRIGGERS);
-
-        HashMap<String, String> hashMap = new HashMap<>();
-        hashMap.put("triggerID", id);
-        hashMap.put("duration", String.valueOf(new Date().getTime() + time * 1000));
-
-        hashMaps.add(hashMap);
-
-        LocalStorageHelper.putListImmediately(context, CooeeSDKConstants.STORAGE_ACTIVE_TRIGGERS, hashMaps);
-
-        return hashMaps;
     }
 }

@@ -72,7 +72,7 @@ public class CooeePendingTaskJob extends JobService {
                 if (TextUtils.isEmpty(event.getSessionID())) {
                     event.setSessionID(sessionId);
                 }
-                HttpCallsHelper.pushEvent(event, null, appDatabase, pendingTask);
+                HttpCallsHelper.pushEvent(getApplicationContext(), event, null, appDatabase, pendingTask);
 
             } else if (pendingTask.type == EventType.PROFILE) {
 

@@ -9,11 +9,13 @@ public class CooeeSDKConstants {
 
     public static final int REQUEST_LOCATION = 1;
 
+    // region All Shared Preference related keys
     public static final String STORAGE_FIRST_TIME_LAUNCH = "is_first_launch";
     public static final String STORAGE_SDK_TOKEN = "sdk_token";
     public static final String STORAGE_SESSION_NUMBER = "session_number";
     public static final String STORAGE_USER_ID = "user_id";
     public static final String STORAGE_ACTIVE_TRIGGERS = "active_triggers";
+    // endregion
 
     public static final String LOG_PREFIX = "CooeeSDK";
     public static final int IDLE_TIME_IN_SECONDS = 30 * 60;

@@ -29,7 +29,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.letscooee.R;
 import com.letscooee.brodcast.OnPushNotificationButtonClick;
-import com.letscooee.user.NewSessionExecutor;
 import com.letscooee.models.CarouselData;
 import com.letscooee.models.Event;
 import com.letscooee.models.TriggerButton;
@@ -37,6 +36,7 @@ import com.letscooee.models.TriggerData;
 import com.letscooee.retrofit.APIClient;
 import com.letscooee.retrofit.HttpCallsHelper;
 import com.letscooee.trigger.CooeeEmptyActivity;
+import com.letscooee.trigger.EngagementTriggerHelper;
 import com.letscooee.utils.CooeeSDKConstants;
 import com.letscooee.utils.LocalStorageHelper;
 import io.sentry.Sentry;
@@ -89,7 +89,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
             return;
         }
 
-        NewSessionExecutor.storeTriggerID(getApplicationContext(), triggerData.getId(), triggerData.getDuration());
+        EngagementTriggerHelper.storeActiveTriggerDetails(getApplicationContext(), triggerData.getId(), triggerData.getDuration());
 
         Map<String, Object> eventProps = new HashMap<>();
         eventProps.put("triggerID", triggerData.getId());
@@ -273,7 +273,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
      * @param triggerData received from data payload
      */
     private void showInAppMessaging(TriggerData triggerData) {
-        NewSessionExecutor.createTrigger(getApplicationContext(), triggerData);
+        EngagementTriggerHelper.renderInAppTrigger(getApplicationContext(), triggerData);
     }
 
     /**
