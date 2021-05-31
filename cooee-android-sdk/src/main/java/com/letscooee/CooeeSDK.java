@@ -1,15 +1,12 @@
 package com.letscooee;
 
 import android.content.Context;
-import android.text.TextUtils;
 import com.letscooee.models.Event;
 import com.letscooee.retrofit.HttpCallsHelper;
 import com.letscooee.retrofit.UserAuthService;
 import com.letscooee.trigger.inapp.InAppTriggerActivity;
 import com.letscooee.user.NewSessionExecutor;
 import com.letscooee.utils.*;
-import io.sentry.Sentry;
-import io.sentry.protocol.User;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.ref.WeakReference;
@@ -151,36 +148,12 @@ public class CooeeSDK implements InAppTriggerActivity.InAppListener {
             userMap.put("userProperties", userProperties);
         }
 
+        this.sentryHelper.setUserInfo(userData);
         HttpCallsHelper.sendUserProfile(context, userMap, "Manual", data -> {
             if (data.get("id") != null) {
                 LocalStorageHelper.putString(context, CooeeSDKConstants.STORAGE_USER_ID, data.get("id").toString());
-                setSentryUser(data.get("id").toString(), userData);
             }
         });
-    }
-
-    private void setSentryUser(String id, Map<String, Object> userData) {
-        User user = new User();
-        user.setId(id);
-
-        Object name = userData.get("name");
-        if (name != null && !TextUtils.isEmpty(name.toString())) {
-            user.setUsername(name.toString());
-        }
-
-        Object email = userData.get("email");
-        if (email != null && !TextUtils.isEmpty(email.toString())) {
-            user.setEmail(email.toString());
-        }
-
-        Object mobile = userData.get("mobile");
-        if (mobile != null && !TextUtils.isEmpty(mobile.toString())) {
-            Map<String, String> userDataExtra = new HashMap<>();
-            userDataExtra.put("mobile", mobile.toString());
-            user.setOthers(userDataExtra);
-        }
-
-        Sentry.setUser(user);
     }
 
     /**

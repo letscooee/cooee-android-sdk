@@ -1,5 +1,6 @@
 package com.letscooee.retrofit;
 
+import android.text.TextUtils;
 import android.util.Log;
 import androidx.annotation.RestrictTo;
 import com.letscooee.BuildConfig;
@@ -68,7 +69,7 @@ public class APIClient {
     }
 
     public static void setAPIToken(String token) {
-        apiToken = token;
+        apiToken = TextUtils.isEmpty(token) ? "" : token;
     }
 
     public static void setDeviceName(String name) {
@@ -76,6 +77,6 @@ public class APIClient {
     }
 
     public static void setUserId(String id) {
-        userId = id;
+        userId = TextUtils.isEmpty(id) ? "" : id;
     }
 }

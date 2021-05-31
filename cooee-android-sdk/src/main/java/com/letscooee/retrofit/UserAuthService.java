@@ -131,6 +131,7 @@ public class UserAuthService {
 
         APIClient.setAPIToken(sdkToken);
         APIClient.setUserId(userID);
+        this.sentryHelper.setUserId(userID);
     }
 
     /**

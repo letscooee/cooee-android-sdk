@@ -6,6 +6,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import androidx.annotation.RestrictTo;
 import com.letscooee.BuildConfig;
@@ -14,9 +15,12 @@ import io.sentry.SentryEvent;
 import io.sentry.SentryOptions;
 import io.sentry.android.core.SentryAndroid;
 import io.sentry.protocol.SentryId;
+import io.sentry.protocol.User;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -34,6 +38,7 @@ public class SentryHelper {
     private static SentryHelper sentryHelper;
 
     private final Context context;
+    private final User sentryUser = new User();
 
     private Boolean enabled;
 
@@ -63,6 +68,8 @@ public class SentryHelper {
         if (!enabled) {
             return;
         }
+
+        Sentry.setUser(sentryUser);
 
         SentryAndroid.init(context, options -> {
             options.setDsn(COOEE_DSN);
@@ -248,5 +255,44 @@ public class SentryHelper {
 
         SentryId id = Sentry.captureException(throwable);
         Log.d(CooeeSDKConstants.LOG_PREFIX, "Sentry id of the exception: " + id.toString());
+    }
+
+    /**
+     * Set Cooee's User id to Sentry's {@link User} so that this information can be shown in
+     * the Sentry dashboard as well.
+     *
+     * @param id Identify of the Cooee's User.
+     */
+    public void setUserId(String id) {
+        sentryUser.setId(id);
+    }
+
+    /**
+     * Set additional Cooee's User information to Sentry's {@link User} so that this information can be shown in
+     * the Sentry dashboard as well. Sentry is already GDPR compliant.
+     *
+     * @param userData Additional user data which may contain <code>mobile</code>, <code>name</code> or <code>mobile</code>.
+     */
+    public void setUserInfo(Map<String, Object> userData) {
+        if (userData == null) {
+            return;
+        }
+
+        Object name = userData.get("name");
+        if (name != null && !TextUtils.isEmpty(name.toString())) {
+            sentryUser.setUsername(name.toString());
+        }
+
+        Object email = userData.get("email");
+        if (email != null && !TextUtils.isEmpty(email.toString())) {
+            sentryUser.setEmail(email.toString());
+        }
+
+        Object mobile = userData.get("mobile");
+        if (mobile != null && !TextUtils.isEmpty(mobile.toString())) {
+            Map<String, String> userDataExtra = new HashMap<>();
+            userDataExtra.put("mobile", mobile.toString());
+            sentryUser.setOthers(userDataExtra);
+        }
     }
 }
