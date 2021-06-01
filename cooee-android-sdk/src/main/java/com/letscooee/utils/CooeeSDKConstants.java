@@ -15,6 +15,7 @@ public class CooeeSDKConstants {
     public static final String STORAGE_SESSION_NUMBER = "session_number";
     public static final String STORAGE_USER_ID = "user_id";
     public static final String STORAGE_ACTIVE_TRIGGERS = "active_triggers";
+    public static final String STORAGE_LAST_TOKEN_ATTEMPT = "last_token_check_attempt";
     // endregion
 
     public static final String LOG_PREFIX = "CooeeSDK";
@@ -29,6 +30,4 @@ public class CooeeSDKConstants {
     public static final String INTENT_TRIGGER_DATA_KEY = "cooeeTriggerData";
 
     public static final int JOB_ID = 2663;
-
-    public static final String FIRST_LAUNCH_CALL_TIME = "first_launch_time";
 }

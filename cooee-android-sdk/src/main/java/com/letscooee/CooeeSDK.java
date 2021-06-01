@@ -4,14 +4,13 @@ import android.content.Context;
 import com.letscooee.models.Event;
 import com.letscooee.retrofit.HttpCallsHelper;
 import com.letscooee.retrofit.UserAuthService;
+import com.letscooee.task.CooeeExecutors;
 import com.letscooee.trigger.inapp.InAppTriggerActivity;
 import com.letscooee.user.NewSessionExecutor;
 import com.letscooee.utils.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.ref.WeakReference;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -42,7 +41,12 @@ public class CooeeSDK implements InAppTriggerActivity.InAppListener {
         this.sentryHelper = SentryHelper.getInstance(context);
         this.userAuthService = UserAuthService.getInstance(context);
 
-        new NewSessionExecutor(context).execute();
+        CooeeExecutors.getInstance().singleThreadExecutor().execute(() -> {
+            this.userAuthService.populateUserDataFromStorage();
+            this.userAuthService.acquireSDKToken();
+
+            new NewSessionExecutor(this.context).execute();
+        });
     }
 
     /**
@@ -55,29 +59,8 @@ public class CooeeSDK implements InAppTriggerActivity.InAppListener {
         if (cooeeSDK == null) {
             cooeeSDK = new CooeeSDK(context);
         }
-        checkSDKToken(context);
+
         return cooeeSDK;
-    }
-
-    /**
-     * Check if sdkToken is available or not. If sdkToken is not available will make call for sdkToken
-     */
-    private static void checkSDKToken(Context context) {
-        UserAuthService userAuthService = UserAuthService.getInstance(context);
-        long lastCheck = LocalStorageHelper.getLong(context, CooeeSDKConstants.FIRST_LAUNCH_CALL_TIME, 0);
-
-        if (userAuthService.hasToken()) {
-            if (lastCheck != 0) {
-                Calendar calender = Calendar.getInstance();
-                calender.setTimeInMillis(lastCheck);
-                calender.add(Calendar.MINUTE, 1);
-                if (new Date().after(calender.getTime())) {
-                    userAuthService.acquireSDKToken();
-                }
-            } else {
-                userAuthService.acquireSDKToken();
-            }
-        }
     }
 
     /**

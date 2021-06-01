@@ -19,6 +19,9 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import java.util.Calendar;
+import java.util.Date;
+
 /**
  * Utility class to register user with server and to provide related data
  *
@@ -56,7 +59,7 @@ public class UserAuthService {
 
     /**
      * This method will pull user data (like SDK token & user ID) from the local storage (shared preference)
-     * and populates it for further user.
+     * and populates it for further use.
      */
     public void populateUserDataFromStorage() {
         sdkToken = LocalStorageHelper.getString(context, CooeeSDKConstants.STORAGE_SDK_TOKEN, null);
@@ -87,12 +90,36 @@ public class UserAuthService {
     }
 
     /**
+     * Method will ensure that the SDK has acquired the token. If on the first time, token can't be pulled
+     * from the server, calling this method will reattempt the same maximum within 1 minute.
+     */
+    public synchronized void acquireSDKToken() {
+        if (this.hasToken()) {
+            return;
+        }
+
+        long lastCheckTime = LocalStorageHelper.getLong(context, CooeeSDKConstants.STORAGE_LAST_TOKEN_ATTEMPT, 0);
+
+        // We are attempting first time
+        if (lastCheckTime == 0) {
+            this.getSDKTokenFromServer();
+        } else {
+            Calendar calender = Calendar.getInstance();
+            calender.setTimeInMillis(lastCheckTime);
+            calender.add(Calendar.MINUTE, 1);
+
+            // If the last attempt was
+            if (new Date().after(calender.getTime())) {
+                this.getSDKTokenFromServer();
+            }
+        }
+    }
+
+    /**
      * Make user registration with server (if not already) and acquire a SDK token which will be later used to authenticate
      * other endpoints.
      */
-    public void acquireSDKToken() {
-        // LocalStorageHelper.putLong(context, CooeeSDKConstants.FIRST_LAUNCH_CALL_TIME, new Date().getTime());
-
+    private void getSDKTokenFromServer() {
         AuthenticationRequestBody requestBody = getAuthenticationRequestBody();
         apiService.registerUser(requestBody).enqueue(new Callback<UserAuthResponse>() {
             @Override
@@ -101,7 +128,7 @@ public class UserAuthService {
                     assert response.body() != null;
                     UserAuthService.this.saveUserDataInStorage(response.body());
                 } else {
-                    // When this occur??
+                    // TODO: 01/06/21 When this occur??
                     UserAuthService.this.sentryHelper.captureMessage("Unable to acquire token- " + response.code());
                 }
             }
@@ -111,6 +138,8 @@ public class UserAuthService {
                 Log.e(CooeeSDKConstants.LOG_PREFIX, "Unable to acquire token", t);
             }
         });
+
+        LocalStorageHelper.putLong(context, CooeeSDKConstants.STORAGE_LAST_TOKEN_ATTEMPT, new Date().getTime());
     }
 
     private void saveUserDataInStorage(UserAuthResponse userAuthResponse) {
