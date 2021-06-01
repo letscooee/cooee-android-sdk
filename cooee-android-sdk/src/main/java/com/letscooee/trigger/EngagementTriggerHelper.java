@@ -58,10 +58,16 @@ public class EngagementTriggerHelper {
      * @param data    Data received from the backend
      */
     public static void renderInAppTriggerFromResponse(Context context, Map<String, Object> data) {
-        if (data == null || data.get("triggerData") == null) {
+        if (data == null) {
             return;
         }
 
+        Object triggerData = data.get("triggerData");
+        if (triggerData == null) {
+            return;
+        }
+
+        renderInAppTriggerFromJSONString(context, triggerData.toString());
     }
 
     public static void renderInAppTriggerFromJSONString(Context context, String rawTriggerData) {
