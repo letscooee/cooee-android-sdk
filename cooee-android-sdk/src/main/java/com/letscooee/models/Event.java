@@ -73,12 +73,4 @@ public class Event {
     public void setActiveTriggers(ArrayList<HashMap<String, String>> activeTriggers) {
         this.activeTriggers = activeTriggers;
     }
-
-    public Date getOccurred() {
-        return occurred;
-    }
-
-    public void setOccurred(Date occurred) {
-        this.occurred = occurred;
-    }
 }

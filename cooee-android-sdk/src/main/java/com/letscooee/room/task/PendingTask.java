@@ -1,19 +1,15 @@
-package com.letscooee.room.postoperations.entity;
+package com.letscooee.room.task;
 
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 import androidx.room.TypeConverters;
 
-import com.letscooee.room.postoperations.converter.EventTypeConverter;
-import com.letscooee.room.postoperations.enums.EventType;
-
-
 /**
- * Database Entity
+ * Database entity to hold pending tasks which need to be reattempted.
  *
  * @author Ashish Gaikwad on 19/5/21
- * @version 0.2.10
+ * @version 0.3.0
  */
 @Entity
 public class PendingTask {
@@ -34,8 +30,6 @@ public class PendingTask {
     public long lastAttempted;
 
     @ColumnInfo(name = "type")
-    @TypeConverters(EventTypeConverter.class)
-    public EventType type;
-
-
+    @TypeConverters(PendingTaskTypeConverter.class)
+    public PendingTaskType type;
 }

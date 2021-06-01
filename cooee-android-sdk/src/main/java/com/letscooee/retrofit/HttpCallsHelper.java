@@ -7,17 +7,20 @@ import com.google.gson.Gson;
 import com.letscooee.BuildConfig;
 import com.letscooee.models.Event;
 import com.letscooee.room.CooeeDatabase;
-import com.letscooee.room.postoperations.entity.PendingTask;
-import com.letscooee.room.postoperations.enums.EventType;
+import com.letscooee.room.task.PendingTask;
+import com.letscooee.room.task.PendingTaskService;
+import com.letscooee.room.task.PendingTaskType;
 import com.letscooee.trigger.EngagementTriggerHelper;
 import com.letscooee.user.SessionManager;
-import com.letscooee.utils.*;
+import com.letscooee.utils.Closure;
+import com.letscooee.utils.CooeeSDKConstants;
+import com.letscooee.utils.RuntimeData;
+import com.letscooee.utils.SentryHelper;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -33,8 +36,8 @@ public final class HttpCallsHelper {
     static Gson gson = new Gson();
 
     public static void sendEvent(Context context, Event event, Closure closure) {
-        CooeeDatabase db = CooeeDatabase.getInstance(context);
 
+        PendingTaskService pendingTaskService = PendingTaskService.getInstance(context);
         SessionManager sessionManager = SessionManager.getInstance(context);
         RuntimeData runtimeData = RuntimeData.getInstance(context);
 
@@ -51,19 +54,8 @@ public final class HttpCallsHelper {
         if (BuildConfig.DEBUG) {
             properties.put("sdkDebug", 1);
         }
-        event.setProperties(properties);
 
-        Date currentDate = new Date();
-        event.setOccurred(currentDate);
-        LocalStorageHelper.putListImmediately(context, CooeeSDKConstants.STORAGE_ACTIVE_TRIGGERS, activeTriggerList);
-
-        PendingTask task = new PendingTask();
-        task.attempts = 0;
-        task.data = gson.toJson(event);
-        task.type = EventType.EVENT;
-        task.dateCreated = currentDate.getTime();
-        db.pendingTaskDAO().insertAll(task);
-
+        pendingTaskService.newTask(event);
         pushEvent(context, event, closure, null, null);
     }
 
@@ -114,20 +106,12 @@ public final class HttpCallsHelper {
         SessionManager sessionManager = SessionManager.getInstance(context);
         userMap.put("sessionID", sessionManager.getCurrentSessionID());
 
-        if (SentryHelper.getInstance(context).isAppInDebugMode()) {
-            userMap.put("appDebug", 1);
-        }
-        if (BuildConfig.DEBUG) {
-            userMap.put("sdkDebug", 1);
-        }
-
         PendingTask task = new PendingTask();
         task.attempts = 0;
         task.data = gson.toJson(userMap);
-        task.type = EventType.PROFILE;
+        task.type = PendingTaskType.API_PUSH_PROFILE;
         task.dateCreated = currentTime.getTime();
         db.pendingTaskDAO().insertAll(task);
-
     }
 
     public static void pushUserProfile(Map<String, Object> userMap, String msg, Closure closure, CooeeDatabase appDatabase, PendingTask task) {
@@ -182,7 +166,7 @@ public final class HttpCallsHelper {
         PendingTask task = new PendingTask();
         task.attempts = 0;
         task.data = gson.toJson(sessionConcludedRequest);
-        task.type = EventType.SESSION_CONCLUDED;
+        task.type = PendingTaskType.API_SESSION_CONCLUDE;
         task.dateCreated = currentTime.getTime();
         db.pendingTaskDAO().insertAll(task);
         sessionManager.destroySession();
@@ -191,6 +175,7 @@ public final class HttpCallsHelper {
 
     public static void pushSessionConcluded(Map<String, Object> sessionConcludedRequest, CooeeDatabase appDatabase, PendingTask task) {
         Date currentTime = new Date();
+
         serverAPIService.concludeSession(sessionConcludedRequest).enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
@@ -213,49 +198,20 @@ public final class HttpCallsHelper {
     }
 
     public static void keepAlive(Context context) {
-        Date currentTime = new Date();
-        CooeeDatabase db = CooeeDatabase.getInstance(context);
         SessionManager sessionManager = SessionManager.getInstance(context);
 
         Map<String, Object> keepAliveRequest = new HashMap<>();
         keepAliveRequest.put("sessionID", sessionManager.getCurrentSessionID());
-        keepAliveRequest.put("occurred", currentTime);
 
-        if (SentryHelper.getInstance(context).isAppInDebugMode()) {
-            keepAliveRequest.put("appDebug", 1);
-        }
-        if (BuildConfig.DEBUG) {
-            keepAliveRequest.put("sdkDebug", 1);
-        }
-
-        PendingTask task = new PendingTask();
-        task.attempts = 0;
-        task.data = gson.toJson(keepAliveRequest);
-        task.type = EventType.KEEP_ALIVE;
-        task.dateCreated = currentTime.getTime();
-        db.pendingTaskDAO().insertAll(task);
-
-    }
-
-    public static void pushKeepAlive(Map<String, Object> keepAliveRequest, CooeeDatabase appDatabase, PendingTask task) {
-        Date currentTime = new Date();
         serverAPIService.keepAlive(keepAliveRequest).enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
-                Log.i(CooeeSDKConstants.LOG_PREFIX, "Session Alive Response Code : " + response.code());
-                if (response.isSuccessful()) {
-                    appDatabase.pendingTaskDAO().delete(task);
-                } else {
-                    updateData(appDatabase, task, currentTime);
-                }
+                Log.i(CooeeSDKConstants.LOG_PREFIX, "Session Alive Response Code: " + response.code());
             }
 
             @Override
             public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
                 Log.e(CooeeSDKConstants.LOG_PREFIX, "Session Alive Response Error Message" + t.toString());
-                //Sentry.captureException(t);
-                int count = task.attempts + 1;
-                appDatabase.pendingTaskDAO().update(task.id, count, currentTime.getTime());
             }
         });
     }
@@ -280,7 +236,7 @@ public final class HttpCallsHelper {
         PendingTask task = new PendingTask();
         task.attempts = 0;
         task.data = gson.toJson(tokenRequest);
-        task.type = EventType.FB_TOKEN;
+        task.type = PendingTaskType.API_SEND_FB_TOKEN;
         task.dateCreated = currentTime.getTime();
         db.pendingTaskDAO().insertAll(task);
 

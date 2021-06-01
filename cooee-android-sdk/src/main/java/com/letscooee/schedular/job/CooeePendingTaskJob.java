@@ -10,8 +10,8 @@ import com.letscooee.models.Event;
 import com.letscooee.retrofit.APIClient;
 import com.letscooee.retrofit.HttpCallsHelper;
 import com.letscooee.room.CooeeDatabase;
-import com.letscooee.room.postoperations.entity.PendingTask;
-import com.letscooee.room.postoperations.enums.EventType;
+import com.letscooee.room.task.PendingTask;
+import com.letscooee.room.task.PendingTaskType;
 import com.letscooee.schedular.jobschedular.CooeeScheduleJob;
 import com.letscooee.network.ConnectionManager;
 import com.letscooee.utils.CooeeSDKConstants;
@@ -66,7 +66,7 @@ public class CooeePendingTaskJob extends JobService {
      */
     private void readTaskAndHandle(List<PendingTask> taskList, String sessionId, CooeeDatabase appDatabase) {
         for (PendingTask pendingTask : taskList) {
-            if (pendingTask.type == EventType.EVENT) {
+            if (pendingTask.type == PendingTaskType.API_PUSH_EVENT) {
 
                 Event event = gson.fromJson(pendingTask.data, Event.class);
                 if (TextUtils.isEmpty(event.getSessionID())) {
@@ -74,25 +74,19 @@ public class CooeePendingTaskJob extends JobService {
                 }
                 HttpCallsHelper.pushEvent(getApplicationContext(), event, null, appDatabase, pendingTask);
 
-            } else if (pendingTask.type == EventType.PROFILE) {
+            } else if (pendingTask.type == PendingTaskType.API_PUSH_PROFILE) {
 
                 Map<String, Object> userMap = convertToMapAndCheckSessionID(pendingTask.data, sessionId);
 
                 HttpCallsHelper.pushUserProfile(userMap, "", null, appDatabase, pendingTask);
 
-            } else if (pendingTask.type == EventType.SESSION_CONCLUDED) {
+            } else if (pendingTask.type == PendingTaskType.API_SESSION_CONCLUDE) {
 
                 Map<String, Object> sessionConcludedRequest = convertToMapAndCheckSessionID(pendingTask.data, sessionId);
 
                 HttpCallsHelper.pushSessionConcluded(sessionConcludedRequest, appDatabase, pendingTask);
 
-            } else if (pendingTask.type == EventType.KEEP_ALIVE) {
-
-                Map<String, Object> keepAliveRequest = convertToMapAndCheckSessionID(pendingTask.data, sessionId);
-
-                HttpCallsHelper.pushKeepAlive(keepAliveRequest, appDatabase, pendingTask);
-
-            } else if (pendingTask.type == EventType.FB_TOKEN) {
+            } else if (pendingTask.type == PendingTaskType.API_SEND_FB_TOKEN) {
 
                 Map<String, Object> fbTokenRequest = convertToMapAndCheckSessionID(pendingTask.data, sessionId);
 

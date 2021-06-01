@@ -1,4 +1,4 @@
-package com.letscooee.room.postoperations.dao;
+package com.letscooee.room.task;
 
 import androidx.room.Dao;
 import androidx.room.Delete;
@@ -7,26 +7,24 @@ import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 import androidx.room.Update;
 
-import com.letscooee.room.postoperations.entity.PendingTask;
-
 import java.util.List;
 
 /**
- * DAO to fetch data from PendingTask table
+ * DAO to fetch data from {@link PendingTask} table.
  *
  * @author Ashish Gaikwad on 19/5/21
- * @version 0.1
+ * @version 0.3.0
  */
 @Dao
 public interface PendingTaskDAO {
+
     @Query("SELECT * FROM PendingTask")
     List<PendingTask> getAll();
 
     @Query("SELECT * FROM PendingTask WHERE id IN (:taskId)")
     List<PendingTask> loadAllByIds(int[] taskId);
 
-    @Query("SELECT * FROM PendingTask WHERE date_created < :date and " +
-            "attempts < 20")
+    @Query("SELECT * FROM PendingTask WHERE date_created < :date and attempts < 20")
     List<PendingTask> fetchByDate(long date);
 
     @Insert

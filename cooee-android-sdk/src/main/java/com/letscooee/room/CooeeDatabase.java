@@ -1,13 +1,11 @@
 package com.letscooee.room;
 
 import android.content.Context;
-
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
-
-import com.letscooee.room.postoperations.dao.PendingTaskDAO;
-import com.letscooee.room.postoperations.entity.PendingTask;
+import com.letscooee.room.task.PendingTaskDAO;
+import com.letscooee.room.task.PendingTask;
 
 /**
  * Create a instance of the database
@@ -19,6 +17,7 @@ import com.letscooee.room.postoperations.entity.PendingTask;
 public abstract class CooeeDatabase extends RoomDatabase {
 
     private static final String DB_NAME = "letscooee";
+
     private static CooeeDatabase instance;
 
     /**
