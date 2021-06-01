@@ -42,19 +42,8 @@ public final class HttpCallsHelper {
         event.setScreenName(runtimeData.getCurrentScreenName());
         event.setSessionNumber(sessionManager.getCurrentSessionNumber());
 
-        ArrayList<HashMap<String, String>> allTriggers = LocalStorageHelper.getList(context, CooeeSDKConstants.STORAGE_ACTIVE_TRIGGERS);
+        event.setActiveTriggers(EngagementTriggerHelper.getActiveTriggers(context));
 
-        ArrayList<HashMap<String, String>> activeTriggerList = new ArrayList<>();
-
-        for (HashMap<String, String> map : allTriggers) {
-            long time = Long.parseLong(map.get("duration"));
-            long currentTime = new Date().getTime();
-            if (time > currentTime) {
-                activeTriggerList.add(map);
-            }
-        }
-
-        event.setActiveTriggers(activeTriggerList);
         Map<String, Object> properties = event.getProperties();
         if (SentryHelper.getInstance(context).isAppInDebugMode()) {
             properties.put("appDebug", 1);

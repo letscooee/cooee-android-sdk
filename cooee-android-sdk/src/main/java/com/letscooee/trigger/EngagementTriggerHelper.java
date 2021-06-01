@@ -52,6 +52,38 @@ public class EngagementTriggerHelper {
     }
 
     /**
+     * Get the list of non-expired active triggers from local storage for "late engagement tracking".
+     *
+     * @param context The application context.
+     */
+    public static ArrayList<HashMap<String, String>> getActiveTriggers(Context context) {
+        ArrayList<HashMap<String, String>> allTriggers = LocalStorageHelper.getList(context, CooeeSDKConstants.STORAGE_ACTIVE_TRIGGERS);
+
+        ArrayList<HashMap<String, String>> activeTriggers = new ArrayList<>();
+
+        for (HashMap<String, String> map : allTriggers) {
+            String duration = map.get("duration");
+            if (TextUtils.isEmpty(duration)) {
+                continue;
+            }
+
+            assert duration != null;
+            long time = Long.parseLong(duration);
+            long currentTime = new Date().getTime();
+
+            // If it's validity has not yet expired
+            if (time > currentTime) {
+                activeTriggers.add(map);
+            }
+        }
+
+        // Also update it immediately in local storage
+        LocalStorageHelper.putListImmediately(context, CooeeSDKConstants.STORAGE_ACTIVE_TRIGGERS, activeTriggers);
+
+        return activeTriggers;
+    }
+
+    /**
      * Start rendering the in-app trigger from the the raw response received from the backend API.
      *
      * @param context context of the application

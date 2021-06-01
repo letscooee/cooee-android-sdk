@@ -23,9 +23,7 @@ public class Event {
     public Event(String name, Map<String, Object> properties) {
         this.name = name;
         this.properties = properties;
-        this.sessionID = sessionID;
-        this.sessionNumber = sessionNumber;
-        this.screenName = screenName;
+        this.occurred = new Date();
     }
 
     public String getName() {

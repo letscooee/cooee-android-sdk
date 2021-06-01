@@ -35,7 +35,7 @@ public class SentryHelper {
     private static final String COOEE_DSN = "https://83cd199eb9134e40803220b7cca979db@o559187.ingest.sentry.io/5693686";
 
     @SuppressLint("StaticFieldLeak")
-    private static SentryHelper sentryHelper;
+    private static SentryHelper INSTANCE;
 
     private final Context context;
     private final User sentryUser = new User();
@@ -52,15 +52,15 @@ public class SentryHelper {
      * Initialize Sentry with Manual initialization
      */
     public static SentryHelper getInstance(Context context) {
-        if (sentryHelper == null) {
+        if (INSTANCE == null) {
             synchronized (SentryHelper.class) {
-                if (sentryHelper == null) {
-                    sentryHelper = new SentryHelper(context);
+                if (INSTANCE == null) {
+                    INSTANCE = new SentryHelper(context);
                 }
             }
         }
 
-        return sentryHelper;
+        return INSTANCE;
     }
 
     private void init() {
