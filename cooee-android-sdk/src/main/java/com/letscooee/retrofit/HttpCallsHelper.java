@@ -5,6 +5,9 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import com.letscooee.BuildConfig;
 import com.letscooee.init.ActivityLifecycleCallback;
 import com.letscooee.init.PostLaunchActivity;
 import com.letscooee.models.Event;
@@ -12,16 +15,14 @@ import com.letscooee.utils.Closure;
 import com.letscooee.utils.CooeeSDKConstants;
 import com.letscooee.utils.LocalStorageHelper;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 import io.sentry.Sentry;
-import okhttp3.ResponseBody;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
+import okhttp3.*;
 
 /**
  * HttpCallsHelper will be used to create http calls to the server
@@ -30,7 +31,10 @@ import retrofit2.Response;
  */
 public final class HttpCallsHelper {
 
-    static ServerAPIService serverAPIService = APIClient.getServerAPIService();
+    static OkHttpClient client = new OkHttpClient();
+    private static String apiToken;
+    private static String deviceName = "";
+    private static String userId = "";
 
     public static void sendEvent(Context context, Event event, Closure closure) {
         //noinspection ResultOfMethodCallIgnored
@@ -60,20 +64,26 @@ public final class HttpCallsHelper {
 
         LocalStorageHelper.putListImmediately(context, CooeeSDKConstants.STORAGE_ACTIVE_TRIGGERS, activeTriggerList);
 
-        serverAPIService.sendEvent(event).enqueue(new Callback<Map<String, Object>>() {
-            @Override
-            public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {
-                Log.i(CooeeSDKConstants.LOG_PREFIX, event.getName() + " Event Sent Code: " + response.code());
+        Request request = createRequest(event, CooeeSDKConstants.EVENT_PATH, CooeeSDKConstants.POST_METHOD, null);
 
-                if (closure != null) {
-                    closure.call(response.body());
-                }
+        client.newCall(request).enqueue(new okhttp3.Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                Log.e(CooeeSDKConstants.LOG_PREFIX, event.getName() + " Event Sent Error Message: " + e.toString());
+                Sentry.captureException(e);
             }
 
             @Override
-            public void onFailure(Call<Map<String, Object>> call, Throwable t) {
-                Log.e(CooeeSDKConstants.LOG_PREFIX, event.getName() + " Event Sent Error Message: " + t.toString());
-                Sentry.captureException(t);
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                Log.i(CooeeSDKConstants.LOG_PREFIX, event.getName() + " Event Sent Code: " + response.code());
+
+                if (closure != null) {
+                    Map<String, Object> map = new Gson().fromJson(
+                            response.body().string(), new TypeToken<HashMap<String, Object>>() {
+                            }.getType()
+                    );
+                    closure.call(map);
+                }
             }
         });
     }
@@ -82,9 +92,20 @@ public final class HttpCallsHelper {
         //noinspection ResultOfMethodCallIgnored
         PostLaunchActivity.onSDKStateDecided.subscribe((Object ignored) -> {
             userMap.put("sessionID", PostLaunchActivity.currentSessionId);
-            serverAPIService.updateProfile(userMap).enqueue(new Callback<Map<String, Object>>() {
+
+            Request request = createRequest(userMap,
+                    CooeeSDKConstants.USER_PROFILE_PATH,
+                    CooeeSDKConstants.PUT_METHOD,
+                    null);
+            client.newCall(request).enqueue(new okhttp3.Callback() {
                 @Override
-                public void onResponse(@NonNull Call<Map<String, Object>> call, @NonNull Response<Map<String, Object>> response) {
+                public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                    Log.e(CooeeSDKConstants.LOG_PREFIX, msg + " User Profile Error Message : " + e.toString());
+                    Sentry.captureException(e);
+                }
+
+                @Override
+                public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
                     Log.i(CooeeSDKConstants.LOG_PREFIX, msg + " User Profile Response Code : " + response.code());
 
                     if (closure == null) {          // space change
@@ -92,14 +113,12 @@ public final class HttpCallsHelper {
                     }
 
                     if (response.body() != null) {          // space change
-                        closure.call(response.body());
+                        Map<String, Object> map = new Gson().fromJson(
+                                response.body().string(), new TypeToken<HashMap<String, Object>>() {
+                                }.getType()
+                        );
+                        closure.call(map);
                     }
-                }
-
-                public void onFailure(@NonNull Call<Map<String, Object>> call, @NonNull Throwable t) {
-                    // TODO Saving the request locally so that it can be sent later
-                    Log.e(CooeeSDKConstants.LOG_PREFIX, msg + " User Profile Error Message : " + t.toString());
-                    Sentry.captureException(t);
                 }
             });
         });
@@ -112,16 +131,21 @@ public final class HttpCallsHelper {
             sessionConcludedRequest.put("sessionID", PostLaunchActivity.currentSessionId);
             sessionConcludedRequest.put("duration", duration);
 
-            serverAPIService.concludeSession(sessionConcludedRequest).enqueue(new Callback<ResponseBody>() {
+            Request request = createRequest(sessionConcludedRequest,
+                    CooeeSDKConstants.SESSION_CONCLUDED_PATH,
+                    CooeeSDKConstants.POST_METHOD,
+                    null);
+
+            client.newCall(request).enqueue(new okhttp3.Callback() {
                 @Override
-                public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
-                    Log.i(CooeeSDKConstants.LOG_PREFIX, "Session Concluded Event Sent Code : " + response.code());
+                public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                    Log.e(CooeeSDKConstants.LOG_PREFIX, "Session Concluded Event Sent Error Message" + e.toString());
+                    Sentry.captureException(e);
                 }
 
                 @Override
-                public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
-                    Log.e(CooeeSDKConstants.LOG_PREFIX, "Session Concluded Event Sent Error Message" + t.toString());
-                    Sentry.captureException(t);
+                public void onResponse(@NonNull Call call, @NonNull Response response) {
+                    Log.i(CooeeSDKConstants.LOG_PREFIX, "Session Concluded Event Sent Code : " + response.code());
                 }
             });
         });
@@ -133,16 +157,21 @@ public final class HttpCallsHelper {
             Map<String, String> keepAliveRequest = new HashMap<>();
             keepAliveRequest.put("sessionID", PostLaunchActivity.currentSessionId);
 
-            serverAPIService.keepAlive(keepAliveRequest).enqueue(new Callback<ResponseBody>() {
+            Request request = createRequest(keepAliveRequest,
+                    CooeeSDKConstants.KEEP_ALIVE_PATH,
+                    CooeeSDKConstants.POST_METHOD,
+                    null);
+
+            client.newCall(request).enqueue(new okhttp3.Callback() {
                 @Override
-                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                    Log.i(CooeeSDKConstants.LOG_PREFIX, "Session Alive Response Code : " + response.code());
+                public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                    Log.e(CooeeSDKConstants.LOG_PREFIX, "Session Alive Response Error Message" + e.toString());
+                    Sentry.captureException(e);
                 }
 
                 @Override
-                public void onFailure(Call<ResponseBody> call, Throwable t) {
-                    Log.e(CooeeSDKConstants.LOG_PREFIX, "Session Alive Response Error Message" + t.toString());
-                    Sentry.captureException(t);
+                public void onResponse(@NonNull Call call, @NonNull Response response) {
+                    Log.i(CooeeSDKConstants.LOG_PREFIX, "Session Alive Response Code : " + response.code());
                 }
             });
         });
@@ -154,18 +183,79 @@ public final class HttpCallsHelper {
             tokenRequest.put("sessionID", PostLaunchActivity.currentSessionId);
             tokenRequest.put("firebaseToken", firebaseToken);
 
-            serverAPIService.setFirebaseToken(tokenRequest).enqueue(new Callback<ResponseBody>() {
+            Request request = createRequest(tokenRequest,
+                    CooeeSDKConstants.FIREBASE_TOKEN_PATH,
+                    CooeeSDKConstants.POST_METHOD,
+                    null);
+
+            client.newCall(request).enqueue(new okhttp3.Callback() {
                 @Override
-                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                    Log.i(CooeeSDKConstants.LOG_PREFIX, "Firebase Token Response Code : " + response.code());
+                public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                    Log.e(CooeeSDKConstants.LOG_PREFIX, "Firebase Token Response Error Message" + e.toString());
+                    Sentry.captureException(e);
                 }
 
                 @Override
-                public void onFailure(Call<ResponseBody> call, Throwable t) {
-                    Log.e(CooeeSDKConstants.LOG_PREFIX, "Firebase Token Response Error Message" + t.toString());
-                    Sentry.captureException(t);
+                public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                    Log.i(CooeeSDKConstants.LOG_PREFIX, "Firebase Token Response Code : " + response.code());
                 }
             });
         });
+    }
+
+    public static Request createRequest(Object object, String urlPath, String methodType, Headers headers) {
+        Gson gson = new Gson();
+        String jsonObject = gson.toJson(object);
+        final MediaType jsonMediaType = MediaType.parse("application/json;charset=utf-8");
+
+        Headers.Builder headersBuilder = new Headers.Builder()
+                .add("device-name", deviceName)
+                .add("user-id", userId);
+
+        // Not sending sdk token header on user creation api
+        boolean isPublicAPI = urlPath.equals(CooeeSDKConstants.SAVE_USER_PATH);
+        if (!isPublicAPI && apiToken != null) {
+            headersBuilder.add("x-sdk-token", apiToken);
+        }
+
+        // Adding specific headers for individual request, if any
+        if (headers != null) {
+            headersBuilder.addAll(headers);
+        }
+        Headers appendedHeaders = headersBuilder.build();
+
+        RequestBody body = RequestBody.create(jsonObject, jsonMediaType);
+
+        Request.Builder requestBuilder = new Request.Builder()
+                .url(BuildConfig.SERVER_URL + urlPath)
+                .headers(appendedHeaders);
+
+        switch (methodType) {
+            case CooeeSDKConstants.POST_METHOD: {
+                requestBuilder.post(body);
+                break;
+            }
+            case CooeeSDKConstants.PUT_METHOD: {
+                requestBuilder.put(body);
+                break;
+            }
+        }
+
+        Request request = requestBuilder.build();
+        Log.d(CooeeSDKConstants.LOG_PREFIX, "Request : " + request.toString());
+
+        return request;
+    }
+
+    public static void setAPIToken(String token) {
+        apiToken = token;
+    }
+
+    public static void setDeviceName(String name) {
+        deviceName = name;
+    }
+
+    public static void setUserId(String id) {
+        userId = id;
     }
 }

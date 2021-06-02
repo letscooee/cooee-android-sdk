@@ -17,9 +17,11 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.RemoteViews;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
+
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
@@ -35,11 +37,11 @@ import com.letscooee.models.CarouselData;
 import com.letscooee.models.Event;
 import com.letscooee.models.TriggerButton;
 import com.letscooee.models.TriggerData;
-import com.letscooee.retrofit.APIClient;
 import com.letscooee.retrofit.HttpCallsHelper;
 import com.letscooee.trigger.CooeeEmptyActivity;
 import com.letscooee.utils.CooeeSDKConstants;
 import com.letscooee.utils.LocalStorageHelper;
+
 import io.sentry.Sentry;
 
 import java.util.ArrayList;
@@ -381,7 +383,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
      * @param event kpi event
      */
     public static void sendEvent(Context context, Event event) {
-        APIClient.setAPIToken(LocalStorageHelper.getString(context, CooeeSDKConstants.STORAGE_SDK_TOKEN, ""));
+        HttpCallsHelper.setAPIToken(LocalStorageHelper.getString(context, CooeeSDKConstants.STORAGE_SDK_TOKEN, ""));
 
         event.setSessionID(PostLaunchActivity.currentSessionId);
         HttpCallsHelper.sendEventWithoutSDKState(context, event, null);

@@ -12,27 +12,22 @@ import android.util.Log;
 import android.view.Window;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.letscooee.BuildConfig;
 import com.letscooee.trigger.EngagementTriggerActivity;
 import com.letscooee.models.*;
-import com.letscooee.retrofit.APIClient;
 import com.letscooee.retrofit.HttpCallsHelper;
-import com.letscooee.retrofit.ServerAPIService;
 import com.letscooee.utils.CooeeSDKConstants;
 import com.letscooee.utils.LocalStorageHelper;
 import com.letscooee.utils.CooeeWindowCallback;
 
 import io.reactivex.rxjava3.subjects.ReplaySubject;
 import io.sentry.Sentry;
-import io.sentry.android.core.SentryAndroid;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.IOException;
+import java.util.*;
 
 /**
  * PostLaunchActivity initialized when app is launched
@@ -43,7 +38,6 @@ public class PostLaunchActivity {
 
     private Context context;
     private DefaultUserPropertiesCollector defaultUserPropertiesCollector;
-    private ServerAPIService apiService;
 
     public static ReplaySubject<Object> onSDKStateDecided;
     public static Date currentSessionStartTime;
@@ -63,37 +57,48 @@ public class PostLaunchActivity {
         this.context = context;
 
         this.defaultUserPropertiesCollector = new DefaultUserPropertiesCollector(context);
-        this.apiService = APIClient.getServerAPIService();
 
         sessionCreation();
 
         if (isAppFirstTimeLaunch()) {
             AuthenticationRequestBody authenticationRequestBody = getAuthenticationRequestBody();
-            apiService.registerUser(authenticationRequestBody).enqueue(new Callback<SDKAuthentication>() {
-                @Override
-                public void onResponse(Call<SDKAuthentication> call, Response<SDKAuthentication> response) {
+            OkHttpClient client = new OkHttpClient();
 
+            Request request = HttpCallsHelper.createRequest(authenticationRequestBody,
+                    CooeeSDKConstants.SAVE_USER_PATH,
+                    CooeeSDKConstants.POST_METHOD,
+                    null);
+
+            client.newCall(request).enqueue(new okhttp3.Callback() {
+                @Override
+                public void onFailure(okhttp3.Call call, IOException e) {
+                    LocalStorageHelper.putBoolean(context, CooeeSDKConstants.STORAGE_FIRST_TIME_LAUNCH, true);
+                }
+
+                @Override
+                public void onResponse(okhttp3.Call call, okhttp3.Response response) throws IOException {
                     if (response == null) {
                         LocalStorageHelper.putBoolean(context, CooeeSDKConstants.STORAGE_FIRST_TIME_LAUNCH, true);
 
                     } else if (response.isSuccessful()) {
                         assert response.body() != null;
-                        String sdkToken = response.body().getSdkToken();
+
+                        Map<String, Object> map = new Gson().fromJson(
+                                response.body().string(), new TypeToken<HashMap<String, Object>>() {
+                                }.getType()
+                        );
+
+                        String sdkToken = Objects.requireNonNull(map.get("sdkToken")).toString();
                         Log.i(CooeeSDKConstants.LOG_PREFIX, "Token : " + sdkToken);
-                        currentSessionId = response.body().getSessionID();
+                        currentSessionId = Objects.requireNonNull(map.get("sessionID")).toString();
 
                         LocalStorageHelper.putString(context, CooeeSDKConstants.STORAGE_SDK_TOKEN, sdkToken);
-                        LocalStorageHelper.putString(context, CooeeSDKConstants.STORAGE_USER_ID, response.body().getId());
+                        LocalStorageHelper.putString(context, CooeeSDKConstants.STORAGE_USER_ID, Objects.requireNonNull(map.get("id")).toString());
 
-                        APIClient.setAPIToken(sdkToken);
+                        HttpCallsHelper.setAPIToken(sdkToken);
                         notifySDKStateDecided();
                         appFirstOpen();
                     }
-                }
-
-                @Override
-                public void onFailure(Call<SDKAuthentication> call, Throwable t) {
-                    LocalStorageHelper.putBoolean(context, CooeeSDKConstants.STORAGE_FIRST_TIME_LAUNCH, true);
                 }
             });
         } else {
@@ -105,13 +110,13 @@ public class PostLaunchActivity {
 
             Log.i(CooeeSDKConstants.LOG_PREFIX, "Token : " + apiToken);
 
-            APIClient.setAPIToken(apiToken);
+            HttpCallsHelper.setAPIToken(apiToken);
 
             successiveAppLaunch();
         }
 
-        APIClient.setDeviceName(getDeviceName());
-        APIClient.setUserId(LocalStorageHelper.getString(context, CooeeSDKConstants.STORAGE_USER_ID, ""));
+        HttpCallsHelper.setDeviceName(getDeviceName());
+        HttpCallsHelper.setUserId(LocalStorageHelper.getString(context, CooeeSDKConstants.STORAGE_USER_ID, ""));
     }
 
     public static void setHeatMapRecorder(Activity activity) {

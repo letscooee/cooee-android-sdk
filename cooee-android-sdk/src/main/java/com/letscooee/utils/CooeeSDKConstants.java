@@ -25,4 +25,14 @@ public class CooeeSDKConstants {
 
     public static final String INTENT_BUNDLE_KEY = "cooeeIntentBundle";
     public static final String INTENT_TRIGGER_DATA_KEY = "cooeeTriggerData";
+
+    public static final String POST_METHOD = "post";
+    public static final String PUT_METHOD = "put";
+
+    public static final String SAVE_USER_PATH = "/v1/user/save";
+    public static final String EVENT_PATH = "/v1/event/track";
+    public static final String USER_PROFILE_PATH = "/v1/user/update";
+    public static final String SESSION_CONCLUDED_PATH = "/v1/session/conclude";
+    public static final String KEEP_ALIVE_PATH = "/v1/session/keepAlive";
+    public static final String FIREBASE_TOKEN_PATH = "/v1/user/setFirebaseToken";
 }
