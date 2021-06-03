@@ -45,7 +45,6 @@ public class SentryHelper {
     private SentryHelper(Context context) {
         this.context = context.getApplicationContext();
         this.enabled = !BuildConfig.DEBUG;
-        this.init();
     }
 
     public static SentryHelper getInstance(Context context) {
@@ -60,7 +59,7 @@ public class SentryHelper {
         return INSTANCE;
     }
 
-    private void init() {
+    public void init() {
         Log.d(CooeeSDKConstants.LOG_PREFIX, "Initializing Sentry: " + enabled.toString());
         if (!enabled) {
             return;

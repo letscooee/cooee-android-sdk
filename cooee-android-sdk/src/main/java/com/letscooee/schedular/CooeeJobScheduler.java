@@ -5,12 +5,11 @@ import android.app.job.JobScheduler;
 import android.app.job.JobService;
 import android.content.ComponentName;
 import android.content.Context;
-
 import com.letscooee.schedular.job.PendingTaskJob;
 import com.letscooee.utils.CooeeSDKConstants;
 
 /**
- * Schedules a [@link CooeeJobService]
+ * Schedules {@link PendingTaskJob}.
  *
  * @author Ashish Gaikwad on 19/5/21
  * @version 0.2.10

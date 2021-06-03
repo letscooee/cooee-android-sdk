@@ -5,16 +5,15 @@ import android.app.job.JobScheduler;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-
 import com.letscooee.schedular.CooeeJobScheduler;
 
 import static com.letscooee.utils.CooeeSDKConstants.PENDING_TASK_JOB_ID;
 
 /**
+ * Registers {@link com.letscooee.schedular.job.PendingTaskJob} when device boots.
+ *
  * @author Ashish Gaikwad on 19/5/21
- * @version 0.1
- * <p>
- * Registers PendingTask Job when device boots
+ * @version 0.3.0
  */
 public class CooeeJobSchedulerBroadcast extends BroadcastReceiver {
 
@@ -27,14 +26,13 @@ public class CooeeJobSchedulerBroadcast extends BroadcastReceiver {
     }
 
     /**
-     * Used to check if similar job is already in system queue
-     * will return true if job is already in queue
+     * Used to check if similar job is already in system queue.
      *
      * @param context will be application context
-     * @return true or false
+     * @return true if job is already in queue
      */
     public static boolean isJobServiceOn(Context context) {
-        JobScheduler jobScheduler = null;
+        JobScheduler jobScheduler;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
             jobScheduler = context.getSystemService(JobScheduler.class);
         } else {
