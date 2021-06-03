@@ -11,7 +11,7 @@ import com.letscooee.models.Event;
 import com.letscooee.retrofit.HttpCallsHelper;
 import com.letscooee.user.NewSessionExecutor;
 import com.letscooee.user.SessionManager;
-import com.letscooee.utils.CooeeSDKConstants;
+import com.letscooee.utils.Constants;
 import com.letscooee.utils.RuntimeData;
 
 import java.util.HashMap;
@@ -45,11 +45,11 @@ class AppLifecycleCallback implements DefaultLifecycleObserver {
 
         long backgroundDuration = runtimeData.getTimeInBackgroundInSeconds();
 
-        if (backgroundDuration > CooeeSDKConstants.IDLE_TIME_IN_SECONDS) {
+        if (backgroundDuration > Constants.IDLE_TIME_IN_SECONDS) {
             sessionManager.conclude();
 
             new NewSessionExecutor(context).execute();
-            Log.d(CooeeSDKConstants.LOG_PREFIX, "After 30 min of App Background " + "Session Concluded");
+            Log.d(Constants.LOG_PREFIX, "After 30 min of App Background " + "Session Concluded");
         } else {
             Map<String, Object> eventProps = new HashMap<>();
             eventProps.put("CE Duration", backgroundDuration / 1000);
@@ -97,9 +97,9 @@ class AppLifecycleCallback implements DefaultLifecycleObserver {
     private void keepSessionAlive() {
         //send server check message every 5 min that session is still alive
         handler.postDelayed(runnable = () -> {
-            handler.postDelayed(runnable, CooeeSDKConstants.KEEP_ALIVE_TIME_IN_MS);
+            handler.postDelayed(runnable, Constants.KEEP_ALIVE_TIME_IN_MS);
             this.sessionManager.pingServerToKeepAlive();
 
-        }, CooeeSDKConstants.KEEP_ALIVE_TIME_IN_MS);
+        }, Constants.KEEP_ALIVE_TIME_IN_MS);
     }
 }

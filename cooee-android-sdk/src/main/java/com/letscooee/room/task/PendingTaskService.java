@@ -9,7 +9,7 @@ import com.letscooee.models.Event;
 import com.letscooee.room.CooeeDatabase;
 import com.letscooee.room.task.processor.*;
 import com.letscooee.schedular.job.PendingTaskJob;
-import com.letscooee.utils.CooeeSDKConstants;
+import com.letscooee.utils.Constants;
 import com.letscooee.utils.SentryHelper;
 
 import java.util.ArrayList;
@@ -84,7 +84,7 @@ public class PendingTaskService extends ContextAware {
 
         this.database.pendingTaskDAO().insertAll(task);
 
-        Log.v(CooeeSDKConstants.LOG_PREFIX, "Created " + task);
+        Log.v(Constants.LOG_PREFIX, "Created " + task);
         return task;
     }
 
@@ -109,7 +109,7 @@ public class PendingTaskService extends ContextAware {
      * @param pendingTask The task to process.
      */
     public void processTask(PendingTask pendingTask) {
-        Log.d(CooeeSDKConstants.LOG_PREFIX, "Attempt processing " + pendingTask);
+        Log.d(Constants.LOG_PREFIX, "Attempt processing " + pendingTask);
 
         if (pendingTask == null) {
             throw new IllegalArgumentException("pendingTask can't be null");

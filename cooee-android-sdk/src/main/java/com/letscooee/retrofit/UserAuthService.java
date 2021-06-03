@@ -11,7 +11,7 @@ import com.letscooee.init.DefaultUserPropertiesCollector;
 import com.letscooee.models.AuthenticationRequestBody;
 import com.letscooee.models.DeviceData;
 import com.letscooee.models.UserAuthResponse;
-import com.letscooee.utils.CooeeSDKConstants;
+import com.letscooee.utils.Constants;
 import com.letscooee.utils.LocalStorageHelper;
 import com.letscooee.utils.ManifestReader;
 import com.letscooee.utils.SentryHelper;
@@ -49,7 +49,7 @@ public class UserAuthService {
     }
 
     public boolean hasToken() {
-        String sdkToken = LocalStorageHelper.getString(context, CooeeSDKConstants.STORAGE_SDK_TOKEN, null);
+        String sdkToken = LocalStorageHelper.getString(context, Constants.STORAGE_SDK_TOKEN, null);
         return TextUtils.isEmpty(sdkToken);
     }
 
@@ -62,14 +62,14 @@ public class UserAuthService {
      * and populates it for further use.
      */
     public void populateUserDataFromStorage() {
-        sdkToken = LocalStorageHelper.getString(context, CooeeSDKConstants.STORAGE_SDK_TOKEN, null);
+        sdkToken = LocalStorageHelper.getString(context, Constants.STORAGE_SDK_TOKEN, null);
         if (TextUtils.isEmpty(sdkToken)) {
-            Log.d(CooeeSDKConstants.LOG_PREFIX, "No SDK token found in preference");
+            Log.d(Constants.LOG_PREFIX, "No SDK token found in preference");
         }
 
-        userID = LocalStorageHelper.getString(context, CooeeSDKConstants.STORAGE_USER_ID, null);
+        userID = LocalStorageHelper.getString(context, Constants.STORAGE_USER_ID, null);
         if (TextUtils.isEmpty(userID)) {
-            Log.d(CooeeSDKConstants.LOG_PREFIX, "No user ID found in preference");
+            Log.d(Constants.LOG_PREFIX, "No user ID found in preference");
         }
 
         this.updateAPIClient();
@@ -98,7 +98,7 @@ public class UserAuthService {
             return;
         }
 
-        long lastCheckTime = LocalStorageHelper.getLong(context, CooeeSDKConstants.STORAGE_LAST_TOKEN_ATTEMPT, 0);
+        long lastCheckTime = LocalStorageHelper.getLong(context, Constants.STORAGE_LAST_TOKEN_ATTEMPT, 0);
 
         // We are attempting first time
         if (lastCheckTime == 0) {
@@ -135,11 +135,11 @@ public class UserAuthService {
 
             @Override
             public void onFailure(@NonNull Call<UserAuthResponse> call, @NonNull Throwable t) {
-                Log.e(CooeeSDKConstants.LOG_PREFIX, "Unable to acquire token", t);
+                Log.e(Constants.LOG_PREFIX, "Unable to acquire token", t);
             }
         });
 
-        LocalStorageHelper.putLong(context, CooeeSDKConstants.STORAGE_LAST_TOKEN_ATTEMPT, new Date().getTime());
+        LocalStorageHelper.putLong(context, Constants.STORAGE_LAST_TOKEN_ATTEMPT, new Date().getTime());
     }
 
     private void saveUserDataInStorage(UserAuthResponse userAuthResponse) {
@@ -148,14 +148,14 @@ public class UserAuthService {
 
         this.updateAPIClient();
 
-        LocalStorageHelper.putString(context, CooeeSDKConstants.STORAGE_SDK_TOKEN, sdkToken);
-        LocalStorageHelper.putString(context, CooeeSDKConstants.STORAGE_USER_ID, userID);
+        LocalStorageHelper.putString(context, Constants.STORAGE_SDK_TOKEN, sdkToken);
+        LocalStorageHelper.putString(context, Constants.STORAGE_USER_ID, userID);
     }
 
     private void updateAPIClient() {
         if (BuildConfig.DEBUG) {
-            Log.i(CooeeSDKConstants.LOG_PREFIX, "SDK Token: " + sdkToken);
-            Log.i(CooeeSDKConstants.LOG_PREFIX, "User ID: " + userID);
+            Log.i(Constants.LOG_PREFIX, "SDK Token: " + sdkToken);
+            Log.i(Constants.LOG_PREFIX, "User ID: " + userID);
         }
 
         APIClient.setAPIToken(sdkToken);

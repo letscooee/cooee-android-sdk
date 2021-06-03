@@ -10,7 +10,7 @@ import android.widget.Button;
 
 import com.letscooee.R;
 import com.letscooee.models.TriggerData;
-import com.letscooee.utils.CooeeSDKConstants;
+import com.letscooee.utils.Constants;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -82,7 +82,7 @@ public class FeedbackActivity extends AppCompatActivity {
         super.finish();
         Bundle bundle = getIntent().getExtras().getBundle("review");
         if (bundle == null) {
-            Log.d(CooeeSDKConstants.LOG_PREFIX, "review null");
+            Log.d(Constants.LOG_PREFIX, "review null");
             return;
         }
 

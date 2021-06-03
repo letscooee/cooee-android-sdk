@@ -4,7 +4,7 @@ import android.content.Context;
 import android.text.TextUtils;
 import androidx.annotation.RestrictTo;
 import com.letscooee.CooeeFactory;
-import com.letscooee.utils.CooeeSDKConstants;
+import com.letscooee.utils.Constants;
 import com.letscooee.utils.LocalStorageHelper;
 import com.letscooee.utils.RuntimeData;
 import com.letscooee.utils.SentryHelper;
@@ -66,7 +66,7 @@ public class SessionManager {
 
     /**
      * When the app come back from background (B) to foreground (F) and if the user's ideal time
-     * {@link CooeeSDKConstants.IDLE_TIME_IN_SECONDS} is elapsed; this method will return the duration (in seconds)
+     * {@link Constants.IDLE_TIME_IN_SECONDS} is elapsed; this method will return the duration (in seconds)
      * from the session start to the time app went to background.
      * <p>
      * Hence this method will throw an exception if the app is not coming from the backend,
@@ -101,10 +101,10 @@ public class SessionManager {
     }
 
     private void bumpSessionNumber() {
-        currentSessionNumber = LocalStorageHelper.getInt(context, CooeeSDKConstants.STORAGE_SESSION_NUMBER, 0);
+        currentSessionNumber = LocalStorageHelper.getInt(context, Constants.STORAGE_SESSION_NUMBER, 0);
         currentSessionNumber += 1;
 
-        LocalStorageHelper.putInt(context, CooeeSDKConstants.STORAGE_SESSION_NUMBER, currentSessionNumber);
+        LocalStorageHelper.putInt(context, Constants.STORAGE_SESSION_NUMBER, currentSessionNumber);
     }
 
     public void destroySession() {

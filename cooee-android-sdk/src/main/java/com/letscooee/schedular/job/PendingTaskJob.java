@@ -10,7 +10,7 @@ import com.letscooee.room.CooeeDatabase;
 import com.letscooee.room.task.PendingTask;
 import com.letscooee.room.task.PendingTaskService;
 import com.letscooee.schedular.CooeeJobUtils;
-import com.letscooee.utils.CooeeSDKConstants;
+import com.letscooee.utils.Constants;
 
 import java.util.Calendar;
 import java.util.List;
@@ -28,7 +28,7 @@ public class PendingTaskJob extends JobService {
 
     PendingTaskJob() {
         if (BuildConfig.DEBUG) {
-            Log.v(CooeeSDKConstants.LOG_PREFIX, "CooeePendingTaskJob created");
+            Log.v(Constants.LOG_PREFIX, "CooeePendingTaskJob created");
         }
 
         this.appDatabase = CooeeDatabase.getInstance(getApplicationContext());

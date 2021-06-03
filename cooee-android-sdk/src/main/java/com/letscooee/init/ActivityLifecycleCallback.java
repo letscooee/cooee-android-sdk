@@ -13,7 +13,7 @@ import com.letscooee.retrofit.HttpCallsHelper;
 import com.letscooee.trigger.CooeeEmptyActivity;
 import com.letscooee.trigger.EngagementTriggerHelper;
 import com.letscooee.trigger.inapp.InAppTriggerActivity;
-import com.letscooee.utils.CooeeSDKConstants;
+import com.letscooee.utils.Constants;
 import com.letscooee.utils.LocalStorageHelper;
 
 import java.util.HashMap;
@@ -77,14 +77,14 @@ public class ActivityLifecycleCallback implements Application.ActivityLifecycleC
      * @param activity
      */
     private void handleTriggerDataFromActivity(Activity activity) {
-        Bundle bundle = activity.getIntent().getBundleExtra(CooeeSDKConstants.INTENT_BUNDLE_KEY);
+        Bundle bundle = activity.getIntent().getBundleExtra(Constants.INTENT_BUNDLE_KEY);
 
         // Should not go ahead if bundle is null
         if (bundle == null) {
             return;
         }
 
-        TriggerData triggerData = bundle.getParcelable(CooeeSDKConstants.INTENT_TRIGGER_DATA_KEY);
+        TriggerData triggerData = bundle.getParcelable(Constants.INTENT_TRIGGER_DATA_KEY);
 
         // Should not go ahead if triggerData is null or triggerData's id is null
         if (triggerData == null || triggerData.getId() == null) {

@@ -6,7 +6,7 @@ import com.letscooee.CooeeFactory;
 import com.letscooee.exceptions.HttpRequestFailedException;
 import com.letscooee.network.BaseHTTPService;
 import com.letscooee.room.task.PendingTask;
-import com.letscooee.utils.CooeeSDKConstants;
+import com.letscooee.utils.Constants;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -41,7 +41,7 @@ public abstract class HttpTaskProcessor<T> extends AbstractPendingTaskProcessor<
      * @param task Task to process.
      */
     public void process(@NotNull PendingTask task) {
-        Log.d(CooeeSDKConstants.LOG_PREFIX, "Processing " + task);
+        Log.d(Constants.LOG_PREFIX, "Processing " + task);
         T data = deserialize(task);
 
         try {

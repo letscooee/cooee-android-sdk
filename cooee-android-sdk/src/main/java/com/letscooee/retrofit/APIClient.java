@@ -11,7 +11,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 import java.util.concurrent.TimeUnit;
 
-import static com.letscooee.utils.CooeeSDKConstants.LOG_PREFIX;
+import static com.letscooee.utils.Constants.LOG_PREFIX;
 
 /**
  * The APIClient class will help in sending request to server

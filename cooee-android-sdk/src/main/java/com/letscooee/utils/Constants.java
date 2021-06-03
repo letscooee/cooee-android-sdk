@@ -4,8 +4,9 @@ package com.letscooee.utils;
  * The CooeeSDKConstants class contains all the constants required by SDK
  *
  * @author Abhishek Taparia
+ * @version 0.0.2
  */
-public class CooeeSDKConstants {
+public class Constants {
 
     public static final int REQUEST_LOCATION = 1;
 

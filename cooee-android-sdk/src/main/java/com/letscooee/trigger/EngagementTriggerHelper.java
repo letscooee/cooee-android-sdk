@@ -10,7 +10,7 @@ import com.google.gson.Gson;
 import com.letscooee.BuildConfig;
 import com.letscooee.models.TriggerData;
 import com.letscooee.trigger.inapp.InAppTriggerActivity;
-import com.letscooee.utils.CooeeSDKConstants;
+import com.letscooee.utils.Constants;
 import com.letscooee.utils.LocalStorageHelper;
 import com.letscooee.utils.RuntimeData;
 import io.sentry.Sentry;
@@ -37,7 +37,7 @@ public class EngagementTriggerHelper {
      * @param ttl     The valid time-to-live duration (in seconds) of the this trigger.
      */
     public static void storeActiveTriggerDetails(Context context, String id, long ttl) {
-        ArrayList<HashMap<String, String>> activeTriggers = LocalStorageHelper.getList(context, CooeeSDKConstants.STORAGE_ACTIVE_TRIGGERS);
+        ArrayList<HashMap<String, String>> activeTriggers = LocalStorageHelper.getList(context, Constants.STORAGE_ACTIVE_TRIGGERS);
 
         HashMap<String, String> newActiveTrigger = new HashMap<>();
         newActiveTrigger.put("triggerID", id);
@@ -45,10 +45,10 @@ public class EngagementTriggerHelper {
 
         activeTriggers.add(newActiveTrigger);
         if (BuildConfig.DEBUG) {
-            Log.d(CooeeSDKConstants.LOG_PREFIX, "Current active triggers: " + activeTriggers.toString());
+            Log.d(Constants.LOG_PREFIX, "Current active triggers: " + activeTriggers.toString());
         }
 
-        LocalStorageHelper.putListImmediately(context, CooeeSDKConstants.STORAGE_ACTIVE_TRIGGERS, activeTriggers);
+        LocalStorageHelper.putListImmediately(context, Constants.STORAGE_ACTIVE_TRIGGERS, activeTriggers);
     }
 
     /**
@@ -57,7 +57,7 @@ public class EngagementTriggerHelper {
      * @param context The application context.
      */
     public static ArrayList<HashMap<String, String>> getActiveTriggers(Context context) {
-        ArrayList<HashMap<String, String>> allTriggers = LocalStorageHelper.getList(context, CooeeSDKConstants.STORAGE_ACTIVE_TRIGGERS);
+        ArrayList<HashMap<String, String>> allTriggers = LocalStorageHelper.getList(context, Constants.STORAGE_ACTIVE_TRIGGERS);
 
         ArrayList<HashMap<String, String>> activeTriggers = new ArrayList<>();
 
@@ -78,7 +78,7 @@ public class EngagementTriggerHelper {
         }
 
         // Also update it immediately in local storage
-        LocalStorageHelper.putListImmediately(context, CooeeSDKConstants.STORAGE_ACTIVE_TRIGGERS, activeTriggers);
+        LocalStorageHelper.putListImmediately(context, Constants.STORAGE_ACTIVE_TRIGGERS, activeTriggers);
 
         return activeTriggers;
     }
@@ -104,7 +104,7 @@ public class EngagementTriggerHelper {
 
     public static void renderInAppTriggerFromJSONString(Context context, String rawTriggerData) {
         if (TextUtils.isEmpty(rawTriggerData)) {
-            Log.i(CooeeSDKConstants.LOG_PREFIX, "Empty/null trigger data received");
+            Log.i(Constants.LOG_PREFIX, "Empty/null trigger data received");
             return;
         }
 
@@ -135,7 +135,7 @@ public class EngagementTriggerHelper {
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(intent);
         } catch (Exception ex) {
-            Log.d(CooeeSDKConstants.LOG_PREFIX, "Couldn't show Engagement Trigger " + ex.toString());
+            Log.d(Constants.LOG_PREFIX, "Couldn't show Engagement Trigger " + ex.toString());
             Sentry.captureException(ex);
         }
     }

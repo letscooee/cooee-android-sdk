@@ -44,13 +44,13 @@ public class RuntimeData {
     }
 
     public void setInBackground() {
-        Log.d(CooeeSDKConstants.LOG_PREFIX, "App went to background");
+        Log.d(Constants.LOG_PREFIX, "App went to background");
         this.inBackground = true;
         this.lastEnterBackground = new Date();
     }
 
     public void setInForeground() {
-        Log.d(CooeeSDKConstants.LOG_PREFIX, "App went to foreground");
+        Log.d(Constants.LOG_PREFIX, "App went to foreground");
         this.inBackground = false;
         this.lastEnterForeground = new Date();
     }
@@ -89,7 +89,7 @@ public class RuntimeData {
     }
 
     public void setCurrentScreenName(String name) {
-        Log.d(CooeeSDKConstants.LOG_PREFIX, "Updated screen: " + name);
+        Log.d(Constants.LOG_PREFIX, "Updated screen: " + name);
         this.currentScreenName = name;
     }
 }

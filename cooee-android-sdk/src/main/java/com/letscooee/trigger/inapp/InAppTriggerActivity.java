@@ -131,7 +131,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
             createActionButtons();
         } catch (Exception e) {
 
-            Log.e(CooeeSDKConstants.LOG_PREFIX, "InApp Trigger Failed", e);
+            Log.e(Constants.LOG_PREFIX, "InApp Trigger Failed", e);
             Sentry.captureException(e);
         }
     }

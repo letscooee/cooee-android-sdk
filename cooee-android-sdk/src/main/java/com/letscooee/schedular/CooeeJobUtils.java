@@ -6,7 +6,7 @@ import android.app.job.JobService;
 import android.content.ComponentName;
 import android.content.Context;
 import com.letscooee.schedular.job.PendingTaskJob;
-import com.letscooee.utils.CooeeSDKConstants;
+import com.letscooee.utils.Constants;
 
 /**
  * Schedules {@link PendingTaskJob}.
@@ -60,10 +60,10 @@ public class CooeeJobUtils {
 
     public static void schedulePendingTaskJob(Context context) {
         // TODO: 03/06/21 Do we really need to check if the job is running or not
-        if (isJobServiceOn(context, CooeeSDKConstants.PENDING_TASK_JOB_ID)) {
+        if (isJobServiceOn(context, Constants.PENDING_TASK_JOB_ID)) {
             return;
         }
 
-        scheduleJob(context, PendingTaskJob.class, CooeeSDKConstants.PENDING_TASK_JOB_ID);
+        scheduleJob(context, PendingTaskJob.class, Constants.PENDING_TASK_JOB_ID);
     }
 }

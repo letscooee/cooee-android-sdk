@@ -7,7 +7,7 @@ import com.letscooee.BuildConfig;
 import com.letscooee.init.DefaultUserPropertiesCollector;
 import com.letscooee.models.Event;
 import com.letscooee.retrofit.HttpCallsHelper;
-import com.letscooee.utils.CooeeSDKConstants;
+import com.letscooee.utils.Constants;
 import com.letscooee.utils.LocalStorageHelper;
 import org.jetbrains.annotations.NotNull;
 
@@ -54,8 +54,8 @@ public class NewSessionExecutor {
      * @return true if app is launched for first time, else false
      */
     private boolean isAppFirstTimeLaunch() {
-        if (LocalStorageHelper.getBoolean(context, CooeeSDKConstants.STORAGE_FIRST_TIME_LAUNCH, true)) {
-            LocalStorageHelper.putBoolean(context, CooeeSDKConstants.STORAGE_FIRST_TIME_LAUNCH, false);
+        if (LocalStorageHelper.getBoolean(context, Constants.STORAGE_FIRST_TIME_LAUNCH, true)) {
+            LocalStorageHelper.putBoolean(context, Constants.STORAGE_FIRST_TIME_LAUNCH, false);
             return true;
         } else {
             return false;

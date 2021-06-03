@@ -9,7 +9,7 @@ import com.letscooee.models.Event;
 import com.letscooee.retrofit.APIClient;
 import com.letscooee.retrofit.APIService;
 import com.letscooee.trigger.EngagementTriggerHelper;
-import com.letscooee.utils.CooeeSDKConstants;
+import com.letscooee.utils.Constants;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -74,12 +74,12 @@ public class BaseHTTPService extends ContextAware {
         apiService.keepAlive(data).enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
-                Log.i(CooeeSDKConstants.LOG_PREFIX, "Session Alive Response Code: " + response.code());
+                Log.i(Constants.LOG_PREFIX, "Session Alive Response Code: " + response.code());
             }
 
             @Override
             public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
-                Log.e(CooeeSDKConstants.LOG_PREFIX, "Session Alive Response Error Message" + t.toString());
+                Log.e(Constants.LOG_PREFIX, "Session Alive Response Error Message" + t.toString());
             }
         });
     }
@@ -92,13 +92,13 @@ public class BaseHTTPService extends ContextAware {
                 return (Response<?>) response.body();
             }
 
-            Log.d(CooeeSDKConstants.LOG_PREFIX, "Server failure for " + message + ", resp code: " + response.code()
+            Log.d(Constants.LOG_PREFIX, "Server failure for " + message + ", resp code: " + response.code()
                     + ", resp: " + response.body());
 
             throw new HttpRequestFailedException("Error on " + message, response.code(), response.body());
 
         } catch (IOException e) {
-            Log.e(CooeeSDKConstants.LOG_PREFIX, "Exception in HTTP " + message, e);
+            Log.e(Constants.LOG_PREFIX, "Exception in HTTP " + message, e);
             throw new HttpRequestFailedException("Exception in HTTP " + message, e);
         }
     }

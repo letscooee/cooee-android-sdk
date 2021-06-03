@@ -41,7 +41,7 @@ public class ManifestReader {
             appInfo = pm.getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);
 
         } catch (PackageManager.NameNotFoundException e) {
-            Log.e(CooeeSDKConstants.LOG_PREFIX, "Unable to read ApplicationManifest", e);
+            Log.e(Constants.LOG_PREFIX, "Unable to read ApplicationManifest", e);
             // Not using SentryHelper to prevent deadlock
             Sentry.captureException(e);
 

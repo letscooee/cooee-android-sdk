@@ -24,14 +24,12 @@ import androidx.core.app.NotificationCompat;
 import com.letscooee.CooeeSDK;
 import com.letscooee.brodcast.OnPushNotificationButtonClick;
 import com.letscooee.cooeetester.databinding.ActivityHomeBinding;
-import com.letscooee.utils.CooeeSDKConstants;
+import com.letscooee.utils.Constants;
 import com.letscooee.utils.InAppNotificationClickListener;
 import com.letscooee.utils.PropertyNameException;
 
 import java.util.Date;
 import java.util.HashMap;
-
-import io.sentry.Sentry;
 
 public class HomeActivity extends AppCompatActivity implements InAppNotificationClickListener {
     private CooeeSDK cooeeSDK;
@@ -111,8 +109,8 @@ public class HomeActivity extends AppCompatActivity implements InAppNotification
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 NotificationChannel notificationChannel = new NotificationChannel(
-                        CooeeSDKConstants.NOTIFICATION_CHANNEL_ID,
-                        CooeeSDKConstants.NOTIFICATION_CHANNEL_NAME,
+                        Constants.NOTIFICATION_CHANNEL_ID,
+                        Constants.NOTIFICATION_CHANNEL_NAME,
                         NotificationManager.IMPORTANCE_DEFAULT);
 
                 notificationChannel.setDescription("");
@@ -174,7 +172,7 @@ public class HomeActivity extends AppCompatActivity implements InAppNotification
 
             NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(
                     getApplicationContext(),
-                    CooeeSDKConstants.NOTIFICATION_CHANNEL_ID);
+                    Constants.NOTIFICATION_CHANNEL_ID);
             //notificationBuilder = addAction(notificationBuilder, createActionButtons(triggerData, notificationId));
 
                     /*smallNotification.setImageViewBitmap(R.id.imageViewLarge, resource);
