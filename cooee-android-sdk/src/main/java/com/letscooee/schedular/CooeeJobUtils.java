@@ -14,7 +14,15 @@ import com.letscooee.utils.CooeeSDKConstants;
  * @author Ashish Gaikwad on 19/5/21
  * @version 0.2.10
  */
-public class CooeeJobScheduler {
+public class CooeeJobUtils {
+
+    public static JobScheduler getJobScheduler(Context context) {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            return context.getSystemService(JobScheduler.class);
+        } else {
+            return (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
+        }
+    }
 
     /**
      * Schedule a job with Android Service.
@@ -26,14 +34,7 @@ public class CooeeJobScheduler {
         JobInfo.Builder builder = new JobInfo.Builder(jobID, serviceComponent);
         builder.setMinimumLatency(120 * 1000);
 
-        JobScheduler jobScheduler;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-            jobScheduler = context.getSystemService(JobScheduler.class);
-        } else {
-            jobScheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
-        }
-
-        jobScheduler.schedule(builder.build());
+        getJobScheduler(context).schedule(builder.build());
     }
 
     public static void schedulePendingTaskJob(Context context) {

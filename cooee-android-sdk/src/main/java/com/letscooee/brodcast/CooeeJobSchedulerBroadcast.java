@@ -5,7 +5,7 @@ import android.app.job.JobScheduler;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import com.letscooee.schedular.CooeeJobScheduler;
+import com.letscooee.schedular.CooeeJobUtils;
 
 import static com.letscooee.utils.CooeeSDKConstants.PENDING_TASK_JOB_ID;
 
@@ -19,9 +19,8 @@ public class CooeeJobSchedulerBroadcast extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-
         if (!isJobServiceOn(context)) {
-            CooeeJobScheduler.schedulePendingTaskJob(context);
+            CooeeJobUtils.schedulePendingTaskJob(context);
         }
     }
 
@@ -32,12 +31,7 @@ public class CooeeJobSchedulerBroadcast extends BroadcastReceiver {
      * @return true if job is already in queue
      */
     public static boolean isJobServiceOn(Context context) {
-        JobScheduler jobScheduler;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-            jobScheduler = context.getSystemService(JobScheduler.class);
-        } else {
-            jobScheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
-        }
+        JobScheduler jobScheduler = CooeeJobUtils.getJobScheduler(context);
 
         boolean hasBeenScheduled = false;
 

@@ -6,7 +6,7 @@ import androidx.annotation.RestrictTo;
 import androidx.lifecycle.ProcessLifecycleOwner;
 import com.letscooee.CooeeFactory;
 import com.letscooee.brodcast.CooeeJobSchedulerBroadcast;
-import com.letscooee.schedular.CooeeJobScheduler;
+import com.letscooee.schedular.CooeeJobUtils;
 import com.letscooee.task.CooeeExecutors;
 
 /**
@@ -57,7 +57,7 @@ public class CooeeBootstrap {
         // TODO: 03/06/21 Do we really need to check if the job is running or not
         // TODO: 03/06/21 Do we really need to start manually
         if (!CooeeJobSchedulerBroadcast.isJobServiceOn(context)) {
-            CooeeJobScheduler.schedulePendingTaskJob(context);
+            CooeeJobUtils.schedulePendingTaskJob(context);
         }
     }
 }

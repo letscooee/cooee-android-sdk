@@ -9,7 +9,7 @@ import com.letscooee.network.ConnectionManager;
 import com.letscooee.room.CooeeDatabase;
 import com.letscooee.room.task.PendingTask;
 import com.letscooee.room.task.PendingTaskService;
-import com.letscooee.schedular.CooeeJobScheduler;
+import com.letscooee.schedular.CooeeJobUtils;
 import com.letscooee.utils.CooeeSDKConstants;
 
 import java.util.Calendar;
@@ -47,7 +47,7 @@ public class PendingTaskJob extends JobService {
             this.pendingTaskService.processTasks(taskList);
         }
 
-        CooeeJobScheduler.schedulePendingTaskJob(context);
+        CooeeJobUtils.schedulePendingTaskJob(context);
         return true;
     }
 
@@ -60,7 +60,7 @@ public class PendingTaskJob extends JobService {
     @Override
     public boolean onStopJob(JobParameters params) {
         // TODO: 03/06/21 Why we are again re-scheduling here?
-        CooeeJobScheduler.schedulePendingTaskJob(getApplicationContext());
+        CooeeJobUtils.schedulePendingTaskJob(getApplicationContext());
         return true;
     }
 }
