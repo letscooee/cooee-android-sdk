@@ -12,8 +12,8 @@ import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.OnLifecycleEvent;
 import androidx.lifecycle.ProcessLifecycleOwner;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.messaging.FirebaseMessaging;
+import com.letscooee.CooeeFactory;
 import com.letscooee.brodcast.CooeeJobSchedulerBroadcast;
 import com.letscooee.models.Event;
 import com.letscooee.models.TriggerData;
@@ -48,19 +48,27 @@ public class ActivityLifecycleCallback {
     private final Context context;
     private final Application application;
     private final SessionManager sessionManager;
+    private final RuntimeData runtimeData;
 
     ActivityLifecycleCallback(Application application) {
         this.application = application;
         this.context = application.getApplicationContext();
-        this.sessionManager = SessionManager.getInstance(context);
+
+        CooeeFactory.init(this.context);
+
+        this.sessionManager = CooeeFactory.getSessionManager();
+        this.runtimeData = CooeeFactory.getRuntimeData();
     }
 
     /**
      * Used to register activity lifecycle
      */
     public void register() {
-        RuntimeData runtimeData = RuntimeData.getInstance(this.context);
+        this.registerActivityLifecycleCallbacks();
+        this.registerProcessLifecycle();
+    }
 
+    private void registerActivityLifecycleCallbacks() {
         SentryHelper.getInstance(context);
         checkAndStartJob(application.getApplicationContext());
 
@@ -69,12 +77,7 @@ public class ActivityLifecycleCallback {
             public void onActivityCreated(@NonNull Activity activity, @Nullable Bundle savedInstanceState) {
                 InAppTriggerActivity.captureWindowForBlurryEffect(activity);
 
-                FirebaseMessaging.getInstance().getToken().addOnSuccessListener(new OnSuccessListener<String>() {
-                    @Override
-                    public void onSuccess(String token) {
-                        HttpCallsHelper.setFirebaseToken(token);
-                    }
-                });
+                FirebaseMessaging.getInstance().getToken().addOnSuccessListener(token -> HttpCallsHelper.setFirebaseToken(token));
             }
 
             @Override
@@ -94,25 +97,23 @@ public class ActivityLifecycleCallback {
 
             @Override
             public void onActivityPaused(@NonNull Activity activity) {
-
             }
 
             @Override
             public void onActivityStopped(@NonNull Activity activity) {
-
             }
 
             @Override
             public void onActivitySaveInstanceState(@NonNull Activity activity, @NonNull Bundle outState) {
-
             }
 
             @Override
             public void onActivityDestroyed(@NonNull Activity activity) {
-
             }
         });
+    }
 
+    private void registerProcessLifecycle() {
         ProcessLifecycleOwner.get().getLifecycle().addObserver(new LifecycleObserver() {
             @OnLifecycleEvent(Lifecycle.Event.ON_START)
             public void onEnterForeground() {
