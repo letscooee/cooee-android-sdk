@@ -25,6 +25,27 @@ public class CooeeJobUtils {
     }
 
     /**
+     * Used to check if similar job is already in system queue.
+     *
+     * @param context will be application context
+     * @return true if job is already in queue
+     */
+    public static boolean isJobServiceOn(Context context, int jobID) {
+        JobScheduler jobScheduler = CooeeJobUtils.getJobScheduler(context);
+
+        boolean hasBeenScheduled = false;
+
+        for (JobInfo jobInfo : jobScheduler.getAllPendingJobs()) {
+            if (jobInfo.getId() == jobID) {
+                hasBeenScheduled = true;
+                break;
+            }
+        }
+
+        return hasBeenScheduled;
+    }
+
+    /**
      * Schedule a job with Android Service.
      *
      * @param context will be application context
@@ -38,6 +59,11 @@ public class CooeeJobUtils {
     }
 
     public static void schedulePendingTaskJob(Context context) {
+        // TODO: 03/06/21 Do we really need to check if the job is running or not
+        if (isJobServiceOn(context, CooeeSDKConstants.PENDING_TASK_JOB_ID)) {
+            return;
+        }
+
         scheduleJob(context, PendingTaskJob.class, CooeeSDKConstants.PENDING_TASK_JOB_ID);
     }
 }

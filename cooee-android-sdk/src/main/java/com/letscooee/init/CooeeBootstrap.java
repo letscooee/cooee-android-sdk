@@ -54,10 +54,7 @@ public class CooeeBootstrap {
      * If job is not present it will add job in a queue
      */
     private void checkAndStartJob() {
-        // TODO: 03/06/21 Do we really need to check if the job is running or not
         // TODO: 03/06/21 Do we really need to start manually
-        if (!CooeeJobSchedulerBroadcast.isJobServiceOn(context)) {
-            CooeeJobUtils.schedulePendingTaskJob(context);
-        }
+        CooeeJobUtils.schedulePendingTaskJob(context);
     }
 }
