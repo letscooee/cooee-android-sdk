@@ -17,7 +17,7 @@ import java.util.Map;
  * @author Abhishek Taparia
  * @version 0.0.1
  */
-public interface ServerAPIService {
+public interface APIService {
 
     @POST("/v1/user/save")
     Call<UserAuthResponse> registerUser(@Body AuthenticationRequestBody authenticationRequestBody);

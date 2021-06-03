@@ -6,9 +6,9 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
-import com.letscooee.schedular.jobschedular.CooeeScheduleJob;
+import com.letscooee.schedular.CooeeJobScheduler;
 
-import static com.letscooee.utils.CooeeSDKConstants.JOB_ID;
+import static com.letscooee.utils.CooeeSDKConstants.PENDING_TASK_JOB_ID;
 
 /**
  * @author Ashish Gaikwad on 19/5/21
@@ -22,7 +22,7 @@ public class CooeeJobSchedulerBroadcast extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
 
         if (!isJobServiceOn(context)) {
-            CooeeScheduleJob.scheduleJob(context);
+            CooeeJobScheduler.schedulePendingTaskJob(context);
         }
     }
 
@@ -44,7 +44,7 @@ public class CooeeJobSchedulerBroadcast extends BroadcastReceiver {
         boolean hasBeenScheduled = false;
 
         for (JobInfo jobInfo : jobScheduler.getAllPendingJobs()) {
-            if (jobInfo.getId() == JOB_ID) {
+            if (jobInfo.getId() == PENDING_TASK_JOB_ID) {
                 hasBeenScheduled = true;
                 break;
             }

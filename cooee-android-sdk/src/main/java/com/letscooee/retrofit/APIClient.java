@@ -29,12 +29,12 @@ public class APIClient {
     private static String deviceName = "";
     private static String userId = "";
 
-    public static ServerAPIService getServerAPIService() {
-        Retrofit retrofit = getClient(BASE_URL);
-        return retrofit.create(ServerAPIService.class);
+    public static APIService getAPIService() {
+        Retrofit retrofit = getClient();
+        return retrofit.create(APIService.class);
     }
 
-    public static Retrofit getClient(String baseUrl) {
+    private static Retrofit getClient() {
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
                 .connectTimeout(60, TimeUnit.SECONDS)
                 .readTimeout(60, TimeUnit.SECONDS)
@@ -49,17 +49,21 @@ public class APIClient {
                         requestBuilder.addHeader("x-sdk-token", apiToken);
                     }
 
+                    if (BuildConfig.DEBUG) {
+                        requestBuilder.addHeader("sdk-debug", "1");
+                    }
+
                     requestBuilder.addHeader("device-name", deviceName);
                     requestBuilder.addHeader("user-id", userId);
 
-                    Log.d(LOG_PREFIX, "Request : " + requestBuilder.build().toString());
+                    Log.d(LOG_PREFIX, "Request: " + requestBuilder.build().toString());
                     return chain.proceed(requestBuilder.build());
                 })
                 .build();
 
         if (retrofit == null) {
             retrofit = new Retrofit.Builder()
-                    .baseUrl(baseUrl)
+                    .baseUrl(BASE_URL)
                     .addConverterFactory(GsonConverterFactory.create())
                     .client(okHttpClient)
                     .build();

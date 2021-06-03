@@ -35,7 +35,7 @@ public class UserAuthService {
 
     private final Context context;
     private final SentryHelper sentryHelper;
-    private final ServerAPIService apiService;
+    private final APIService apiService;
     private final DefaultUserPropertiesCollector defaultUserPropertiesCollector;
 
     private String sdkToken;
@@ -44,7 +44,7 @@ public class UserAuthService {
     private UserAuthService(Context context) {
         this.context = context.getApplicationContext();
         this.defaultUserPropertiesCollector = new DefaultUserPropertiesCollector(context);
-        this.apiService = APIClient.getServerAPIService();
+        this.apiService = APIClient.getAPIService();
         this.sentryHelper = SentryHelper.getInstance(context);
     }
 

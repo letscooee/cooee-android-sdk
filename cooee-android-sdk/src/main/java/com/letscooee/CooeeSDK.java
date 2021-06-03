@@ -132,11 +132,7 @@ public class CooeeSDK implements InAppTriggerActivity.InAppListener {
         }
 
         this.sentryHelper.setUserInfo(userData);
-        HttpCallsHelper.sendUserProfile(context, userMap, "Manual", data -> {
-            if (data.get("id") != null) {
-                LocalStorageHelper.putString(context, CooeeSDKConstants.STORAGE_USER_ID, data.get("id").toString());
-            }
-        });
+        HttpCallsHelper.sendUserProfile(userMap);
     }
 
     /**

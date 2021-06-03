@@ -147,6 +147,6 @@ public class NewSessionExecutor {
         userMap.put("userProperties", userProperties);
         userMap.put("userData", new HashMap<>());
 
-        HttpCallsHelper.sendUserProfile(context, userMap, "SDK", null);
+        HttpCallsHelper.sendUserProfile(userMap);
     }
 }

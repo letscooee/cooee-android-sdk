@@ -3,6 +3,7 @@ package com.letscooee.user;
 import android.content.Context;
 import android.text.TextUtils;
 import androidx.annotation.RestrictTo;
+import com.letscooee.CooeeFactory;
 import com.letscooee.utils.CooeeSDKConstants;
 import com.letscooee.utils.LocalStorageHelper;
 import com.letscooee.utils.RuntimeData;
@@ -10,9 +11,11 @@ import com.letscooee.utils.SentryHelper;
 import org.bson.types.ObjectId;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * Manages the sessionId
+ * Manages the user's current session in the app.
  *
  * @author Ashish Gaikwad on 22/05/21
  * @version 0.2.10
@@ -71,12 +74,26 @@ public class SessionManager {
      *
      * @return Total session duration in seconds
      */
-    public long getTotalSessionDurationInSeconds() {
+    public long getTotalDurationInSeconds() {
         if (this.runtimeData.isFirstForeground()) {
             throw new IllegalStateException("This is the first time in foreground after launch");
         }
 
         return ((this.runtimeData.getLastEnterBackground().getTime() - this.currentSessionStartTime.getTime()) / 1000);
+    }
+
+    /**
+     * Conclude the current session by sending an event to the server followed by
+     * destroying it.
+     */
+    public void conclude() {
+        Map<String, Object> requestData = new HashMap<>();
+        requestData.put("sessionID", this.getCurrentSessionID());
+        requestData.put("occurred", new Date());
+        requestData.put("duration", this.getTotalDurationInSeconds());
+
+        CooeeFactory.getSafeHTTPService().sendSessionConcludedEvent(requestData);
+        this.destroySession();
     }
 
     public Integer getCurrentSessionNumber() {
@@ -94,5 +111,15 @@ public class SessionManager {
         this.currentSessionID = null;
         this.currentSessionNumber = null;
         this.currentSessionStartTime = null;
+    }
+
+    /**
+     * Send a beacon to backend server for keeping the session alive.
+     */
+    public void pingServerToKeepAlive() {
+        Map<String, Object> requestData = new HashMap<>();
+        requestData.put("sessionID", this.getCurrentSessionID());
+
+        CooeeFactory.getBaseHTTPService().keepAliveSession(requestData);
     }
 }

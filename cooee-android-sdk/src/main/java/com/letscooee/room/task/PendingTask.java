@@ -1,5 +1,6 @@
 package com.letscooee.room.task;
 
+import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
@@ -32,4 +33,10 @@ public class PendingTask {
     @ColumnInfo(name = "type")
     @TypeConverters(PendingTaskTypeConverter.class)
     public PendingTaskType type;
+
+    @NonNull
+    @Override
+    public String toString() {
+        return "PendingTask(id=" + id + ",type=" + type + ")";
+    }
 }

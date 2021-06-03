@@ -29,5 +29,5 @@ public class CooeeSDKConstants {
     public static final String INTENT_BUNDLE_KEY = "cooeeIntentBundle";
     public static final String INTENT_TRIGGER_DATA_KEY = "cooeeTriggerData";
 
-    public static final int JOB_ID = 2663;
+    public static final int PENDING_TASK_JOB_ID = 2663;
 }

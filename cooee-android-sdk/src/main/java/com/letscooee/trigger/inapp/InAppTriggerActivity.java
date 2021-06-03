@@ -221,7 +221,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
             recieved.put("triggerID", triggerData.getId());
             userProfile.put("userData", new HashMap<>());
             userProfile.put("userProperties", action.getUserProperty());
-            HttpCallsHelper.sendUserProfile(this,userProfile, "Trigger Property", null);
+            HttpCallsHelper.sendUserProfile(userProfile);
         }
     }
 

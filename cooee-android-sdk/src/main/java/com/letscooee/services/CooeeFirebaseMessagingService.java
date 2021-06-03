@@ -420,7 +420,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
      * @param token received from Firebase
      */
     private void sendTokenToServer(String token) {
-        HttpCallsHelper.setFirebaseToken(token, this);
+        HttpCallsHelper.setFirebaseToken(token);
     }
 
     /**

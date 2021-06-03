@@ -73,4 +73,9 @@ public class Event {
     public void setActiveTriggers(ArrayList<HashMap<String, String>> activeTriggers) {
         this.activeTriggers = activeTriggers;
     }
+
+    @Override
+    public String toString() {
+        return "Event{name=" + name + "}";
+    }
 }

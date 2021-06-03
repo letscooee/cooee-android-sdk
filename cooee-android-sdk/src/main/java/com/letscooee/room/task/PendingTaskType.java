@@ -6,8 +6,8 @@ package com.letscooee.room.task;
  */
 public enum PendingTaskType {
 
-    API_PUSH_EVENT,
-    API_PUSH_PROFILE,
+    API_SEND_EVENT,
+    API_UPDATE_PROFILE,
     API_SESSION_CONCLUDE,
-    API_SEND_FB_TOKEN,
+    API_UPDATE_PUSH_TOKEN,
 }

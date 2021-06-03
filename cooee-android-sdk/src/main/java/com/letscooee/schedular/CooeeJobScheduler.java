@@ -1,13 +1,13 @@
-package com.letscooee.schedular.jobschedular;
+package com.letscooee.schedular;
 
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
+import android.app.job.JobService;
 import android.content.ComponentName;
 import android.content.Context;
 
-import com.letscooee.schedular.job.CooeePendingTaskJob;
-
-import static com.letscooee.utils.CooeeSDKConstants.JOB_ID;
+import com.letscooee.schedular.job.PendingTaskJob;
+import com.letscooee.utils.CooeeSDKConstants;
 
 /**
  * Schedules a [@link CooeeJobService]
@@ -15,25 +15,29 @@ import static com.letscooee.utils.CooeeSDKConstants.JOB_ID;
  * @author Ashish Gaikwad on 19/5/21
  * @version 0.2.10
  */
-public class CooeeScheduleJob {
+public class CooeeJobScheduler {
 
     /**
-     * Used to schedule a job with android service
+     * Schedule a job with Android Service.
      *
      * @param context will be application context
      */
-    public static void scheduleJob(Context context) {
-
-        ComponentName serviceComponent = new ComponentName(context, CooeePendingTaskJob.class);
-        JobInfo.Builder builder = new JobInfo.Builder(JOB_ID, serviceComponent);
+    public static void scheduleJob(Context context, Class<? extends JobService> clazz, int jobID) {
+        ComponentName serviceComponent = new ComponentName(context, clazz);
+        JobInfo.Builder builder = new JobInfo.Builder(jobID, serviceComponent);
         builder.setMinimumLatency(120 * 1000);
 
-        JobScheduler jobScheduler = null;
+        JobScheduler jobScheduler;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
             jobScheduler = context.getSystemService(JobScheduler.class);
         } else {
             jobScheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
         }
+
         jobScheduler.schedule(builder.build());
+    }
+
+    public static void schedulePendingTaskJob(Context context) {
+        scheduleJob(context, PendingTaskJob.class, CooeeSDKConstants.PENDING_TASK_JOB_ID);
     }
 }

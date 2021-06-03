@@ -18,14 +18,8 @@ import java.util.List;
 @Dao
 public interface PendingTaskDAO {
 
-    @Query("SELECT * FROM PendingTask")
-    List<PendingTask> getAll();
-
-    @Query("SELECT * FROM PendingTask WHERE id IN (:taskId)")
-    List<PendingTask> loadAllByIds(int[] taskId);
-
     @Query("SELECT * FROM PendingTask WHERE date_created < :date and attempts < 20")
-    List<PendingTask> fetchByDate(long date);
+    List<PendingTask> fetchBeforeTime(long date);
 
     @Insert
     void insertAll(PendingTask... task);

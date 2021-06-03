@@ -43,14 +43,11 @@ public class SentryHelper {
     private Boolean enabled;
 
     private SentryHelper(Context context) {
-        this.context = context;
+        this.context = context.getApplicationContext();
         this.enabled = !BuildConfig.DEBUG;
         this.init();
     }
 
-    /**
-     * Initialize Sentry with Manual initialization
-     */
     public static SentryHelper getInstance(Context context) {
         if (INSTANCE == null) {
             synchronized (SentryHelper.class) {

@@ -18,7 +18,7 @@ import com.letscooee.brodcast.CooeeJobSchedulerBroadcast;
 import com.letscooee.models.Event;
 import com.letscooee.models.TriggerData;
 import com.letscooee.retrofit.HttpCallsHelper;
-import com.letscooee.schedular.jobschedular.CooeeScheduleJob;
+import com.letscooee.schedular.CooeeJobScheduler;
 import com.letscooee.trigger.CooeeEmptyActivity;
 import com.letscooee.trigger.EngagementTriggerHelper;
 import com.letscooee.trigger.inapp.InAppTriggerActivity;
@@ -72,7 +72,7 @@ public class ActivityLifecycleCallback {
                 FirebaseMessaging.getInstance().getToken().addOnSuccessListener(new OnSuccessListener<String>() {
                     @Override
                     public void onSuccess(String token) {
-                        HttpCallsHelper.setFirebaseToken(token, application.getApplicationContext());
+                        HttpCallsHelper.setFirebaseToken(token);
                     }
                 });
             }
@@ -118,7 +118,7 @@ public class ActivityLifecycleCallback {
             public void onEnterForeground() {
                 runtimeData.setInForeground();
 
-                keepSessionAlive(context);
+                keepSessionAlive();
 
                 if (runtimeData.isFirstForeground()) {
                     return;
@@ -127,9 +127,7 @@ public class ActivityLifecycleCallback {
                 long backgroundDuration = runtimeData.getTimeInBackgroundInSeconds();
 
                 if (backgroundDuration > CooeeSDKConstants.IDLE_TIME_IN_SECONDS) {
-                    long duration = sessionManager.getTotalSessionDurationInSeconds();
-
-                    HttpCallsHelper.sendSessionConcludedEvent(duration, application.getApplicationContext());
+                    sessionManager.conclude();
 
                     new NewSessionExecutor(context).execute();
                     Log.d(CooeeSDKConstants.LOG_PREFIX, "After 30 min of App Background " + "Session Concluded");
@@ -227,24 +225,23 @@ public class ActivityLifecycleCallback {
      * @param context will be application context
      */
     private void checkAndStartJob(Context context) {
+        // TODO: 03/06/21 Do we really need to check
+        // TODO: 03/06/21 Do we really need to start manually
         if (!CooeeJobSchedulerBroadcast.isJobServiceOn(context)) {
-            CooeeScheduleJob.scheduleJob(context);
+            CooeeJobScheduler.schedulePendingTaskJob(context);
         }
     }
 
     /**
-     * send server check message every 5 min that session is still alive
-     *
-     * @param applicationContext
+     * Send server check message every 5 min that session is still alive
      */
-    private void keepSessionAlive(Context applicationContext) {
+    // TODO: 03/06/21 Move to SessionManager
+    private void keepSessionAlive() {
         //send server check message every 5 min that session is still alive
-        handler.postDelayed(runnable = new Runnable() {
-            public void run() {
-                handler.postDelayed(runnable, CooeeSDKConstants.KEEP_ALIVE_TIME_IN_MS);
-                HttpCallsHelper.keepAlive(applicationContext);
-                Log.d(CooeeSDKConstants.LOG_PREFIX, "Sent keep alive call");
-            }
+        handler.postDelayed(runnable = () -> {
+            handler.postDelayed(runnable, CooeeSDKConstants.KEEP_ALIVE_TIME_IN_MS);
+            this.sessionManager.pingServerToKeepAlive();
+
         }, CooeeSDKConstants.KEEP_ALIVE_TIME_IN_MS);
     }
 }
