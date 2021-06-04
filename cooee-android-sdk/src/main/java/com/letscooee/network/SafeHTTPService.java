@@ -10,7 +10,6 @@ import com.letscooee.task.CooeeExecutors;
 import com.letscooee.trigger.EngagementTriggerHelper;
 import com.letscooee.user.SessionManager;
 import com.letscooee.utils.RuntimeData;
-import com.letscooee.utils.SentryHelper;
 
 import java.util.Map;
 
@@ -40,12 +39,6 @@ public class SafeHTTPService extends ContextAware {
         event.setScreenName(runtimeData.getCurrentScreenName());
         event.setSessionNumber(sessionManager.getCurrentSessionNumber());
         event.setActiveTriggers(EngagementTriggerHelper.getActiveTriggers(context));
-
-        // TODO: 03/06/21 Make it pass to each header
-        Map<String, Object> properties = event.getProperties();
-        if (SentryHelper.getInstance(context).isAppInDebugMode()) {
-            properties.put("appDebug", 1);
-        }
 
         PendingTask pendingTask = pendingTaskService.newTask(event);
         this.attemptTaskImmediately(pendingTask);

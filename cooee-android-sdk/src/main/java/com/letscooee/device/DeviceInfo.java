@@ -49,7 +49,7 @@ public class DeviceInfo extends ContextAware {
 
     public static DeviceInfo getInstance(Context context) {
         if (instance == null) {
-            synchronized (SentryHelper.class) {
+            synchronized (DeviceInfo.class) {
                 if (instance == null) {
                     instance = new DeviceInfo(context);
                 }

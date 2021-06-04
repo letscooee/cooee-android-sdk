@@ -10,6 +10,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import androidx.annotation.RestrictTo;
 import com.letscooee.BuildConfig;
+import com.letscooee.CooeeFactory;
 import io.sentry.Sentry;
 import io.sentry.SentryEvent;
 import io.sentry.SentryOptions;
@@ -108,7 +109,7 @@ public class SentryHelper {
         Sentry.setTag("client.appVersion", getAppVersion());
         Sentry.setTag("client.appName", getApplicationName());
         Sentry.setTag("client.appId", Objects.requireNonNull(getCooeeAppID()));
-        Sentry.setTag("appBuildType", isAppInDebugMode() ? "debug" : "release");
+        Sentry.setTag("appBuildType", CooeeFactory.getAppInfo().isDebuggable() ? "debug" : "release");
     }
 
     /**
@@ -175,25 +176,6 @@ public class SentryHelper {
         ApplicationInfo applicationInfo = context.getApplicationInfo();
         int stringId = applicationInfo.labelRes;
         return stringId == 0 ? applicationInfo.nonLocalizedLabel.toString() : context.getString(stringId);
-    }
-
-    /**
-     * Checks if the installing app is in debug or in release mode.
-     *
-     * @return true ot false
-     */
-    public boolean isAppInDebugMode() {
-        boolean debuggable = false;
-
-        PackageManager pm = context.getPackageManager();
-        try {
-            ApplicationInfo appInfo = pm.getApplicationInfo(context.getPackageName(), 0);
-            debuggable = (0 != (appInfo.flags & ApplicationInfo.FLAG_DEBUGGABLE));
-        } catch (PackageManager.NameNotFoundException e) {
-            // Debuggable variable will remain false
-        }
-
-        return debuggable;
     }
 
     /**

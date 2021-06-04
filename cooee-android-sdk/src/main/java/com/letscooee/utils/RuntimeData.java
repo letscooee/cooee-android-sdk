@@ -25,7 +25,7 @@ public class RuntimeData {
 
     public static RuntimeData getInstance(Context context) {
         if (instance == null) {
-            synchronized (SentryHelper.class) {
+            synchronized (RuntimeData.class) {
                 if (instance == null) {
                     instance = new RuntimeData(context);
                 }

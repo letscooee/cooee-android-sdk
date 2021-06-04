@@ -37,7 +37,7 @@ public class PendingTaskService extends ContextAware {
 
     public static PendingTaskService getInstance(Context context) {
         if (INSTANCE == null) {
-            synchronized (SentryHelper.class) {
+            synchronized (PendingTaskService.class) {
                 if (INSTANCE == null) {
                     INSTANCE = new PendingTaskService(context);
                 }

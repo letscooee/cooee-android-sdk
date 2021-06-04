@@ -36,6 +36,7 @@ public class APIClient {
 
     private static Retrofit getClient() {
         String deviceName = CooeeFactory.getDeviceInfo().getDeviceName();
+        boolean isAppDebuggable = CooeeFactory.getAppInfo().isDebuggable();
 
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
                 .connectTimeout(60, TimeUnit.SECONDS)
@@ -53,6 +54,10 @@ public class APIClient {
 
                     if (BuildConfig.DEBUG) {
                         requestBuilder.addHeader("sdk-debug", "1");
+                    }
+
+                    if (isAppDebuggable) {
+                        requestBuilder.addHeader("app-debug", "1");
                     }
 
                     requestBuilder.addHeader("device-name", deviceName);

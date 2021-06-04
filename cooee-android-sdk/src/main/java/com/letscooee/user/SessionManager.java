@@ -7,7 +7,6 @@ import com.letscooee.CooeeFactory;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.LocalStorageHelper;
 import com.letscooee.utils.RuntimeData;
-import com.letscooee.utils.SentryHelper;
 import org.bson.types.ObjectId;
 
 import java.util.Date;
@@ -39,7 +38,7 @@ public class SessionManager {
 
     public static SessionManager getInstance(Context context) {
         if (instance == null) {
-            synchronized (SentryHelper.class) {
+            synchronized (SessionManager.class) {
                 if (instance == null) {
                     instance = new SessionManager(context);
                 }
