@@ -6,7 +6,7 @@ import android.provider.Settings;
 import android.text.TextUtils;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
-import com.letscooee.retrofit.APIClient;
+import com.letscooee.ContextAware;
 import com.letscooee.utils.SentryHelper;
 
 /**
@@ -16,11 +16,9 @@ import com.letscooee.utils.SentryHelper;
  * @version 0.3.0
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public class DeviceInfo {
+public class DeviceInfo extends ContextAware {
 
     private static DeviceInfo instance;
-
-    private final Context context;
     private final CachedInfo cachedInfo;
 
     private class CachedInfo {
@@ -46,7 +44,6 @@ public class DeviceInfo {
             }
 
             this.name = name;
-            APIClient.setDeviceName(name);
         }
     }
 
@@ -63,7 +60,7 @@ public class DeviceInfo {
     }
 
     DeviceInfo(Context context) {
-        this.context = context;
+        super(context);
         this.cachedInfo = new CachedInfo();
     }
 

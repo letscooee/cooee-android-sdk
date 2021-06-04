@@ -4,6 +4,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import androidx.annotation.RestrictTo;
 import com.letscooee.BuildConfig;
+import com.letscooee.CooeeFactory;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import retrofit2.Retrofit;
@@ -26,7 +27,6 @@ public class APIClient {
     private static Retrofit retrofit = null;
 
     private static String apiToken;
-    private static String deviceName = "";
     private static String userId = "";
 
     public static APIService getAPIService() {
@@ -35,6 +35,8 @@ public class APIClient {
     }
 
     private static Retrofit getClient() {
+        String deviceName = CooeeFactory.getDeviceInfo().getDeviceName();
+
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
                 .connectTimeout(60, TimeUnit.SECONDS)
                 .readTimeout(60, TimeUnit.SECONDS)
@@ -74,10 +76,6 @@ public class APIClient {
 
     public static void setAPIToken(String token) {
         apiToken = TextUtils.isEmpty(token) ? "" : token;
-    }
-
-    public static void setDeviceName(String name) {
-        deviceName = name;
     }
 
     public static void setUserId(String id) {
