@@ -7,6 +7,7 @@ import com.letscooee.device.DeviceInfo;
 import com.letscooee.network.BaseHTTPService;
 import com.letscooee.network.SafeHTTPService;
 import com.letscooee.user.SessionManager;
+import com.letscooee.utils.ManifestReader;
 import com.letscooee.utils.RuntimeData;
 import com.letscooee.utils.SentryHelper;
 
@@ -24,6 +25,7 @@ public class CooeeFactory {
     private static RuntimeData runtimeData;
     private static SentryHelper sentryHelper;
     private static SessionManager sessionManager;
+    private static ManifestReader manifestReader;
     private static BaseHTTPService baseHTTPService;
     private static SafeHTTPService safeHTTPService;
 
@@ -34,10 +36,11 @@ public class CooeeFactory {
         appInfo = AppInfo.getInstance(context);
         deviceInfo = DeviceInfo.getInstance(context);
         runtimeData = RuntimeData.getInstance(context);
-        sentryHelper = SentryHelper.getInstance(context);
         sessionManager = SessionManager.getInstance(context);
+        manifestReader = ManifestReader.getInstance(context);
         baseHTTPService = new BaseHTTPService(context);
         safeHTTPService = new SafeHTTPService(context);
+        sentryHelper = new SentryHelper(context, appInfo, manifestReader);
     }
 
     public static AppInfo getAppInfo() {
@@ -54,6 +57,10 @@ public class CooeeFactory {
 
     public static SentryHelper getSentryHelper() {
         return sentryHelper;
+    }
+
+    public static ManifestReader getManifestReader() {
+        return manifestReader;
     }
 
     public static SessionManager getSessionManager() {

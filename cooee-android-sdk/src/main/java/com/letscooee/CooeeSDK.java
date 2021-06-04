@@ -38,7 +38,7 @@ public class CooeeSDK implements InAppTriggerActivity.InAppListener {
     private CooeeSDK(@NotNull Context context) {
         this.context = context.getApplicationContext();
         this.runtimeData = RuntimeData.getInstance(context);
-        this.sentryHelper = SentryHelper.getInstance(context);
+        this.sentryHelper = CooeeFactory.getSentryHelper();
         this.userAuthService = UserAuthService.getInstance(context);
 
         CooeeExecutors.getInstance().singleThreadExecutor().execute(() -> {

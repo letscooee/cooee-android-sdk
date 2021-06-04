@@ -4,6 +4,9 @@ import android.content.Context;
 import android.os.Build;
 import androidx.annotation.RestrictTo;
 import com.letscooee.BuildConfig;
+import com.letscooee.ContextAware;
+import com.letscooee.CooeeFactory;
+import com.letscooee.device.AppInfo;
 import com.letscooee.init.DefaultUserPropertiesCollector;
 import com.letscooee.models.Event;
 import com.letscooee.retrofit.HttpCallsHelper;
@@ -22,11 +25,10 @@ import java.util.Map;
  * @version 0.0.2
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public class NewSessionExecutor {
+public class NewSessionExecutor extends ContextAware {
 
-    private final Context context;
     private final DefaultUserPropertiesCollector defaultUserPropertiesCollector;
-
+    private final AppInfo appInfo;
     private final SessionManager sessionManager;
 
     /**
@@ -35,9 +37,10 @@ public class NewSessionExecutor {
      * @param context application context
      */
     public NewSessionExecutor(@NotNull Context context) {
-        this.context = context;
+        super(context);
         this.defaultUserPropertiesCollector = new DefaultUserPropertiesCollector(context);
         this.sessionManager = SessionManager.getInstance(context);
+        this.appInfo = CooeeFactory.getAppInfo();
     }
 
     public void execute() {
@@ -73,7 +76,7 @@ public class NewSessionExecutor {
 
         Map<String, Object> eventProperties = new HashMap<>();
         eventProperties.put("CE Source", "SYSTEM");
-        eventProperties.put("CE App Version", defaultUserPropertiesCollector.getAppVersion());
+        eventProperties.put("CE App Version", appInfo.getVersion());
         Event event = new Event("CE App Installed", eventProperties);
 
         HttpCallsHelper.sendEvent(context, event, null);
@@ -90,7 +93,7 @@ public class NewSessionExecutor {
         String[] networkData = defaultUserPropertiesCollector.getNetworkData();
         Map<String, Object> eventProperties = new HashMap<>();
         eventProperties.put("CE Source", "SYSTEM");
-        eventProperties.put("CE App Version", defaultUserPropertiesCollector.getAppVersion());
+        eventProperties.put("CE App Version", appInfo.getVersion());
         eventProperties.put("CE SDK Version", BuildConfig.VERSION_NAME);
         eventProperties.put("CE OS Version", Build.VERSION.RELEASE);
         eventProperties.put("CE Network Provider", networkData[0]);
@@ -122,7 +125,7 @@ public class NewSessionExecutor {
         userProperties.put("CE OS", "ANDROID");
         userProperties.put("CE SDK Version", BuildConfig.VERSION_NAME);
         userProperties.put("CE SDK Version Code", BuildConfig.VERSION_CODE);
-        userProperties.put("CE App Version", defaultUserPropertiesCollector.getAppVersion());
+        userProperties.put("CE App Version", appInfo.getVersion());
         userProperties.put("CE OS Version", Build.VERSION.RELEASE);
         userProperties.put("CE Device Manufacturer", Build.MANUFACTURER);
         userProperties.put("CE Device Model", Build.MODEL);

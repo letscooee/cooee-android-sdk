@@ -1,16 +1,12 @@
 package com.letscooee.utils;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import androidx.annotation.RestrictTo;
 import com.letscooee.BuildConfig;
-import com.letscooee.CooeeFactory;
+import com.letscooee.ContextAware;
+import com.letscooee.device.AppInfo;
 import io.sentry.Sentry;
 import io.sentry.SentryEvent;
 import io.sentry.SentryOptions;
@@ -31,33 +27,21 @@ import java.util.Objects;
  * @version 0.2.10
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public class SentryHelper {
+public class SentryHelper extends ContextAware {
 
     private static final String COOEE_DSN = "https://83cd199eb9134e40803220b7cca979db@o559187.ingest.sentry.io/5693686";
 
-    @SuppressLint("StaticFieldLeak")
-    private static SentryHelper INSTANCE;
-
-    private final Context context;
+    private final AppInfo appInfo;
+    private final ManifestReader manifestReader;
     private final User sentryUser = new User();
 
     private Boolean enabled;
 
-    private SentryHelper(Context context) {
-        this.context = context.getApplicationContext();
+    public SentryHelper(Context context, AppInfo appInfo, ManifestReader manifestReader) {
+        super(context);
+        this.appInfo = appInfo;
+        this.manifestReader = manifestReader;
         this.enabled = !BuildConfig.DEBUG;
-    }
-
-    public static SentryHelper getInstance(Context context) {
-        if (INSTANCE == null) {
-            synchronized (SentryHelper.class) {
-                if (INSTANCE == null) {
-                    INSTANCE = new SentryHelper(context);
-                }
-            }
-        }
-
-        return INSTANCE;
     }
 
     public void init() {
@@ -105,42 +89,11 @@ public class SentryHelper {
      * Adds some global tags to each event.
      */
     private void setupGlobalTags() {
-        Sentry.setTag("client.appPackage", getAppPackage());
-        Sentry.setTag("client.appVersion", getAppVersion());
-        Sentry.setTag("client.appName", getApplicationName());
-        Sentry.setTag("client.appId", Objects.requireNonNull(getCooeeAppID()));
-        Sentry.setTag("appBuildType", CooeeFactory.getAppInfo().isDebuggable() ? "debug" : "release");
-    }
-
-    /**
-     * Get host application package name
-     *
-     * @return app package name
-     */
-    private String getAppPackage() {
-        PackageInfo packageInfo = null;
-
-        try {
-            packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
-        } catch (PackageManager.NameNotFoundException e) {
-            this.captureException(e);
-        }
-
-        assert packageInfo != null;
-        return packageInfo.packageName;
-    }
-
-    public String getAppVersion() {
-        PackageInfo packageInfo = null;
-
-        try {
-            packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
-        } catch (PackageManager.NameNotFoundException e) {
-            this.captureException(e);
-        }
-
-        assert packageInfo != null;
-        return packageInfo.versionName;
+        Sentry.setTag("client.appPackage", this.appInfo.getPackageName());
+        Sentry.setTag("client.appVersion", this.appInfo.getVersion());
+        Sentry.setTag("client.appName", this.appInfo.getName());
+        Sentry.setTag("client.appId", this.manifestReader.getAppID());
+        Sentry.setTag("appBuildType", this.appInfo.isDebuggable() ? "debug" : "release");
     }
 
     /**
@@ -165,37 +118,6 @@ public class SentryHelper {
         String stackTrace = stringWriter.toString();
 
         return stackTrace.toLowerCase().contains("cooee");
-    }
-
-    /**
-     * Get app's name.
-     *
-     * @return app name
-     */
-    private String getApplicationName() {
-        ApplicationInfo applicationInfo = context.getApplicationInfo();
-        int stringId = applicationInfo.labelRes;
-        return stringId == 0 ? applicationInfo.nonLocalizedLabel.toString() : context.getString(stringId);
-    }
-
-    /**
-     * Get Cooee's client app ID from host application's manifest file
-     *
-     * @return String[]{appId,appSecret}
-     */
-    private String getCooeeAppID() {
-        ApplicationInfo app;
-
-        try {
-            app = this.context.getPackageManager().getApplicationInfo(this.context.getPackageName(), PackageManager.GET_META_DATA);
-        } catch (PackageManager.NameNotFoundException e) {
-            Sentry.captureException(e);
-            return null;
-        }
-
-        Bundle bundle = app.metaData;
-
-        return bundle.getString("COOEE_APP_ID");
     }
 
     /**

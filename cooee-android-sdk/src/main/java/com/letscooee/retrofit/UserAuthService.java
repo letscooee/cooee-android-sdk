@@ -7,7 +7,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import com.letscooee.BuildConfig;
-import com.letscooee.init.DefaultUserPropertiesCollector;
+import com.letscooee.CooeeFactory;
 import com.letscooee.models.AuthenticationRequestBody;
 import com.letscooee.models.DeviceData;
 import com.letscooee.models.UserAuthResponse;
@@ -36,16 +36,14 @@ public class UserAuthService {
     private final Context context;
     private final SentryHelper sentryHelper;
     private final APIService apiService;
-    private final DefaultUserPropertiesCollector defaultUserPropertiesCollector;
 
     private String sdkToken;
     private String userID;
 
     private UserAuthService(Context context) {
         this.context = context.getApplicationContext();
-        this.defaultUserPropertiesCollector = new DefaultUserPropertiesCollector(context);
         this.apiService = APIClient.getAPIService();
-        this.sentryHelper = SentryHelper.getInstance(context);
+        this.sentryHelper = CooeeFactory.getSentryHelper();
     }
 
     public boolean hasToken() {
@@ -128,7 +126,6 @@ public class UserAuthService {
                     assert response.body() != null;
                     UserAuthService.this.saveUserDataInStorage(response.body());
                 } else {
-                    // TODO: 01/06/21 When this occur??
                     UserAuthService.this.sentryHelper.captureMessage("Unable to acquire token- " + response.code());
                 }
             }
@@ -175,8 +172,8 @@ public class UserAuthService {
                 manifestReader.getAppID(),
                 manifestReader.getAppSecret(),
                 new DeviceData("ANDROID",
-                        BuildConfig.VERSION_NAME + "",
-                        defaultUserPropertiesCollector.getAppVersion(),
+                        BuildConfig.VERSION_NAME,
+                        CooeeFactory.getAppInfo().getVersion(),
                         Build.VERSION.RELEASE));
     }
 }
