@@ -38,6 +38,11 @@ class AppLifecycleCallback implements DefaultLifecycleObserver {
         runtimeData.setInForeground();
 
         keepSessionAlive();
+    }
+
+    @Override
+    public void onResume(@NonNull LifecycleOwner owner) {
+        // TODO: 03/06/21 When this will be called?
 
         if (runtimeData.isFirstForeground()) {
             return;
@@ -57,11 +62,6 @@ class AppLifecycleCallback implements DefaultLifecycleObserver {
 
             HttpCallsHelper.sendEvent(context, session, null);
         }
-    }
-
-    @Override
-    public void onResume(@NonNull LifecycleOwner owner) {
-        // TODO: 03/06/21 When this will be called?
     }
 
     @Override
