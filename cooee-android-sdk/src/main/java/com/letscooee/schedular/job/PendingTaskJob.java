@@ -3,13 +3,10 @@ package com.letscooee.schedular.job;
 import android.app.job.JobParameters;
 import android.app.job.JobService;
 import android.content.Context;
-import android.util.Log;
-import com.letscooee.BuildConfig;
 import com.letscooee.room.CooeeDatabase;
 import com.letscooee.room.task.PendingTask;
 import com.letscooee.room.task.PendingTaskService;
 import com.letscooee.schedular.CooeeJobUtils;
-import com.letscooee.utils.Constants;
 
 import java.util.Calendar;
 import java.util.List;
@@ -22,27 +19,15 @@ import java.util.List;
  */
 public class PendingTaskJob extends JobService {
 
-    private final CooeeDatabase appDatabase;
-    private final PendingTaskService pendingTaskService;
-
-    PendingTaskJob() {
-        if (BuildConfig.DEBUG) {
-            Log.v(Constants.LOG_PREFIX, "CooeePendingTaskJob created");
-        }
-
-        this.appDatabase = CooeeDatabase.getInstance(getApplicationContext());
-        this.pendingTaskService = PendingTaskService.getInstance(getApplicationContext());
-    }
-
     @Override
     public boolean onStartJob(JobParameters params) {
         Context context = getApplicationContext();
 
-        List<PendingTask> taskList = appDatabase
+        List<PendingTask> taskList = CooeeDatabase.getInstance(context)
                 .pendingTaskDAO()
                 .fetchBeforeTime(this.getTMinusTwoMinutes());
 
-        this.pendingTaskService.processTasks(taskList);
+        PendingTaskService.getInstance(context).processTasks(taskList);
 
         CooeeJobUtils.schedulePendingTaskJob(context);
         return true;
