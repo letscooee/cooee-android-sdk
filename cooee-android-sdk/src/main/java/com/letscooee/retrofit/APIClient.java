@@ -62,6 +62,8 @@ public class APIClient {
 
                     requestBuilder.addHeader("device-name", deviceName);
                     requestBuilder.addHeader("user-id", userId);
+                    requestBuilder.addHeader("sdk-version", BuildConfig.VERSION_NAME);
+                    requestBuilder.addHeader("sdk-version-code", String.valueOf(BuildConfig.VERSION_CODE));
 
                     Log.d(LOG_PREFIX, "Request: " + requestBuilder.build().toString());
                     return chain.proceed(requestBuilder.build());
