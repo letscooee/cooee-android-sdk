@@ -5,7 +5,6 @@ import com.letscooee.CooeeFactory;
 import com.letscooee.models.Event;
 import com.letscooee.utils.Closure;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -22,12 +21,5 @@ public final class HttpCallsHelper {
 
     public static void sendUserProfile(Map<String, Object> userMap) {
         CooeeFactory.getSafeHTTPService().updateUserProfile(userMap);
-    }
-
-    public static void setFirebaseToken(String firebaseToken) {
-        Map<String, Object> requestData = new HashMap<>();
-        requestData.put("firebaseToken", firebaseToken);
-
-        CooeeFactory.getSafeHTTPService().updatePushToken(requestData);
     }
 }

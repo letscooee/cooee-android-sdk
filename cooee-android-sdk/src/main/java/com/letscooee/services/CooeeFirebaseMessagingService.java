@@ -27,12 +27,14 @@ import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
+import com.letscooee.BuildConfig;
 import com.letscooee.R;
 import com.letscooee.brodcast.OnPushNotificationButtonClick;
 import com.letscooee.models.CarouselData;
 import com.letscooee.models.Event;
 import com.letscooee.models.TriggerButton;
 import com.letscooee.models.TriggerData;
+import com.letscooee.pushnotification.PushProviderUtils;
 import com.letscooee.retrofit.APIClient;
 import com.letscooee.retrofit.HttpCallsHelper;
 import com.letscooee.trigger.CooeeEmptyActivity;
@@ -420,7 +422,11 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
      * @param token received from Firebase
      */
     private void sendTokenToServer(String token) {
-        HttpCallsHelper.setFirebaseToken(token);
+        if (BuildConfig.DEBUG) {
+            Log.d(Constants.LOG_PREFIX, "FCM token received- " + token);
+        }
+
+        PushProviderUtils.pushTokenRefresh(token);
     }
 
     /**

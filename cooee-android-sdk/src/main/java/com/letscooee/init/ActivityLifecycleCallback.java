@@ -6,7 +6,6 @@ import android.content.Context;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import com.google.firebase.messaging.FirebaseMessaging;
 import com.letscooee.models.Event;
 import com.letscooee.models.TriggerData;
 import com.letscooee.retrofit.HttpCallsHelper;
@@ -37,8 +36,6 @@ public class ActivityLifecycleCallback implements Application.ActivityLifecycleC
     @Override
     public void onActivityCreated(@NonNull Activity activity, @Nullable Bundle savedInstanceState) {
         InAppTriggerActivity.captureWindowForBlurryEffect(activity);
-
-        FirebaseMessaging.getInstance().getToken().addOnSuccessListener(token -> HttpCallsHelper.setFirebaseToken(token));
     }
 
     @Override
@@ -74,6 +71,7 @@ public class ActivityLifecycleCallback implements Application.ActivityLifecycleC
 
     /**
      * Handles the creation of triggers
+     *
      * @param activity
      */
     private void handleTriggerDataFromActivity(Activity activity) {

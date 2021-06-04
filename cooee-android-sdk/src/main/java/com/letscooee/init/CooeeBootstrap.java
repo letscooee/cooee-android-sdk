@@ -2,12 +2,16 @@ package com.letscooee.init;
 
 import android.app.Application;
 import android.content.Context;
+import android.util.Log;
 import androidx.annotation.RestrictTo;
 import androidx.lifecycle.ProcessLifecycleOwner;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.letscooee.BuildConfig;
 import com.letscooee.CooeeFactory;
-import com.letscooee.brodcast.CooeeJobSchedulerBroadcast;
+import com.letscooee.pushnotification.PushProviderUtils;
 import com.letscooee.schedular.CooeeJobUtils;
 import com.letscooee.task.CooeeExecutors;
+import com.letscooee.utils.Constants;
 
 /**
  * A one time initializer class which initialises the Cooee SDK. This is used internally by the SDK
@@ -41,6 +45,7 @@ public class CooeeBootstrap {
     private void initAsyncTasks() {
         CooeeExecutors.getInstance().singleThreadExecutor().execute(() -> {
             initSentry();
+            getAndUpdateFirebaseToken();
             checkAndStartJob();
         });
     }
@@ -56,5 +61,15 @@ public class CooeeBootstrap {
     private void checkAndStartJob() {
         // TODO: 03/06/21 Do we really need to start manually
         CooeeJobUtils.schedulePendingTaskJob(context);
+    }
+
+    private void getAndUpdateFirebaseToken() {
+        FirebaseMessaging.getInstance().getToken().addOnSuccessListener(token -> {
+            if (BuildConfig.DEBUG) {
+                Log.d(Constants.LOG_PREFIX, "FCM token fetched- " + token);
+            }
+
+            PushProviderUtils.pushTokenRefresh(token);
+        });
     }
 }
