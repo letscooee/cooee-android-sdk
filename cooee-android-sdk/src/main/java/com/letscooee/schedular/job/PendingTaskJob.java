@@ -3,10 +3,12 @@ package com.letscooee.schedular.job;
 import android.app.job.JobParameters;
 import android.app.job.JobService;
 import android.content.Context;
+
 import com.letscooee.room.CooeeDatabase;
 import com.letscooee.room.task.PendingTask;
 import com.letscooee.room.task.PendingTaskService;
 import com.letscooee.schedular.CooeeJobUtils;
+import com.letscooee.task.CooeeExecutors;
 
 import java.util.Calendar;
 import java.util.List;
@@ -26,8 +28,8 @@ public class PendingTaskJob extends JobService {
         List<PendingTask> taskList = CooeeDatabase.getInstance(context)
                 .pendingTaskDAO()
                 .fetchBeforeTime(this.getTMinusTwoMinutes());
-
-        PendingTaskService.getInstance(context).processTasks(taskList);
+        //As job was running on main thread so all the network call were getting break
+        CooeeExecutors.getInstance().singleThreadExecutor().execute(() -> PendingTaskService.getInstance(context).processTasks(taskList));
 
         CooeeJobUtils.schedulePendingTaskJob(context);
         return true;
