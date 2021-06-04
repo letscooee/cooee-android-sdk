@@ -5,6 +5,7 @@ import android.util.Log;
 import com.letscooee.CooeeFactory;
 import com.letscooee.exceptions.HttpRequestFailedException;
 import com.letscooee.network.BaseHTTPService;
+import com.letscooee.network.ConnectionManager;
 import com.letscooee.room.task.PendingTask;
 import com.letscooee.utils.Constants;
 import org.jetbrains.annotations.NotNull;
@@ -29,7 +30,7 @@ public abstract class HttpTaskProcessor<T> extends AbstractPendingTaskProcessor<
      * Make the <strong>synchronous</strong> HTTP call to the service via {@link BaseHTTPService}.
      *
      * @param data The data to pass to the HTTP API.
-     * @throws HttpRequestFailedException
+     * @throws HttpRequestFailedException if HTTP request fails because of any reason.
      */
     protected abstract void doHTTP(T data) throws HttpRequestFailedException;
 
@@ -43,6 +44,11 @@ public abstract class HttpTaskProcessor<T> extends AbstractPendingTaskProcessor<
     public void process(@NotNull PendingTask task) {
         Log.d(Constants.LOG_PREFIX, "Processing " + task);
         T data = deserialize(task);
+
+        if (!ConnectionManager.isNetworkAvailable(context)) {
+            Log.i(Constants.LOG_PREFIX, "Device does not have internet");
+            return;
+        }
 
         try {
             this.doHTTP(data);

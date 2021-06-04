@@ -8,12 +8,12 @@ import android.net.NetworkInfo;
  * Checks for the internet availability.
  *
  * @author Ashish Gaikwad on 18/5/21
- * @version 0.1
+ * @version 0.3.0
  */
 public class ConnectionManager {
 
     /**
-     * isNetworkAvailable Will used to check if device is connected to internet and will return result in boolean
+     * This will used to check if device is connected to internet and will return result in boolean
      *
      * @param context will be the application context
      * @return true or false

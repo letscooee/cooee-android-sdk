@@ -5,7 +5,6 @@ import android.app.job.JobService;
 import android.content.Context;
 import android.util.Log;
 import com.letscooee.BuildConfig;
-import com.letscooee.network.ConnectionManager;
 import com.letscooee.room.CooeeDatabase;
 import com.letscooee.room.task.PendingTask;
 import com.letscooee.room.task.PendingTaskService;
@@ -39,13 +38,11 @@ public class PendingTaskJob extends JobService {
     public boolean onStartJob(JobParameters params) {
         Context context = getApplicationContext();
 
-        if (ConnectionManager.isNetworkAvailable(context)) {
-            List<PendingTask> taskList = appDatabase
-                    .pendingTaskDAO()
-                    .fetchBeforeTime(this.getTMinusTwoMinutes());
+        List<PendingTask> taskList = appDatabase
+                .pendingTaskDAO()
+                .fetchBeforeTime(this.getTMinusTwoMinutes());
 
-            this.pendingTaskService.processTasks(taskList);
-        }
+        this.pendingTaskService.processTasks(taskList);
 
         CooeeJobUtils.schedulePendingTaskJob(context);
         return true;

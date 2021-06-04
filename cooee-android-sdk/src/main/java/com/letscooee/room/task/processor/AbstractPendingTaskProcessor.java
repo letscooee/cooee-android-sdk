@@ -22,9 +22,12 @@ public abstract class AbstractPendingTaskProcessor<T> implements PendingTaskProc
 
     private final Gson gson = new Gson();
     private final CooeeDatabase appDatabase;
+
+    protected final Context context;
     protected final SentryHelper sentryHelper;
 
     protected AbstractPendingTaskProcessor(Context context) {
+        this.context = context;
         this.appDatabase = CooeeDatabase.getInstance(context);
         this.sentryHelper = SentryHelper.getInstance(context);
     }
