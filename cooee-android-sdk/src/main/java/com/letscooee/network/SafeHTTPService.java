@@ -6,6 +6,7 @@ import com.letscooee.models.Event;
 import com.letscooee.room.task.PendingTask;
 import com.letscooee.room.task.PendingTaskService;
 import com.letscooee.room.task.PendingTaskType;
+import com.letscooee.task.CooeeExecutors;
 import com.letscooee.trigger.EngagementTriggerHelper;
 import com.letscooee.user.SessionManager;
 import com.letscooee.utils.RuntimeData;
@@ -47,23 +48,34 @@ public class SafeHTTPService extends ContextAware {
         }
 
         PendingTask pendingTask = pendingTaskService.newTask(event);
-        // TODO: 03/06/21 Process in a different thread
-        pendingTaskService.processTask(pendingTask);
+        this.attemptTaskImmediately(pendingTask);
     }
 
     public void updateUserProfile(Map<String, Object> requestData) {
         requestData.put("sessionID", sessionManager.getCurrentSessionID());
         PendingTask pendingTask = pendingTaskService.newTask(requestData, PendingTaskType.API_UPDATE_PROFILE);
-        pendingTaskService.processTask(pendingTask);
+        this.attemptTaskImmediately(pendingTask);
     }
 
     public void sendSessionConcludedEvent(Map<String, Object> requestData) {
         PendingTask pendingTask = pendingTaskService.newTask(requestData, PendingTaskType.API_SESSION_CONCLUDE);
-        pendingTaskService.processTask(pendingTask);
+        this.attemptTaskImmediately(pendingTask);
     }
 
     public void updatePushToken(Map<String, Object> requestData) {
         PendingTask pendingTask = pendingTaskService.newTask(requestData, PendingTaskType.API_UPDATE_PUSH_TOKEN);
-        pendingTaskService.processTask(pendingTask);
+        this.attemptTaskImmediately(pendingTask);
+    }
+
+    /**
+     * Executes the newly created {@code pendingTask} immediately. This newly task will be processed in a new
+     * thread (outside the main thread) as the network calls are synchronous in {@link BaseHTTPService}.
+     *
+     * @param pendingTask Task to attempt execution.
+     */
+    private void attemptTaskImmediately(PendingTask pendingTask) {
+        CooeeExecutors.getInstance().networkExecutor().execute(() -> {
+            pendingTaskService.processTask(pendingTask);
+        });
     }
 }

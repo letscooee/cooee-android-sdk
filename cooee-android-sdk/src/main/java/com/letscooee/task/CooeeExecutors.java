@@ -15,9 +15,13 @@ import java.util.concurrent.Executors;
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class CooeeExecutors {
 
+    public static final int NUMBER_OF_CORES = Runtime.getRuntime().availableProcessors();
+
     private static CooeeExecutors INSTANCE;
 
     private final ExecutorService SINGLE_THREAD_EXECUTOR = Executors.newSingleThreadExecutor();
+
+    private final ExecutorService NETWORK_EXECUTOR = Executors.newFixedThreadPool(NUMBER_OF_CORES * 3);
 
     public static CooeeExecutors getInstance() {
         if (INSTANCE == null) {
@@ -32,5 +36,9 @@ public class CooeeExecutors {
 
     public ExecutorService singleThreadExecutor() {
         return this.SINGLE_THREAD_EXECUTOR;
+    }
+
+    public ExecutorService networkExecutor() {
+        return this.NETWORK_EXECUTOR;
     }
 }
