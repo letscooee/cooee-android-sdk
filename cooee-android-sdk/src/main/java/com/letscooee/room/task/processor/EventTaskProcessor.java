@@ -19,6 +19,10 @@ public class EventTaskProcessor extends HttpTaskProcessor<Event> {
         super(context);
     }
 
+    Event deserialize(PendingTask task) {
+        return gson.fromJson(task.data, Event.class);
+    }
+
     protected void doHTTP(Event event) throws HttpRequestFailedException {
         this.baseHTTPService.sendEvent(event);
     }
