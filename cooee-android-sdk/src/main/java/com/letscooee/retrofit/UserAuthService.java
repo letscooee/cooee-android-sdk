@@ -92,7 +92,7 @@ public class UserAuthService {
      * from the server, calling this method will reattempt the same maximum within 1 minute.
      */
     public synchronized void acquireSDKToken() {
-        if (this.hasToken()) {
+        if (!this.hasToken()) {
             return;
         }
 

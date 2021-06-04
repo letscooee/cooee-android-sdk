@@ -38,9 +38,9 @@ public class CooeeFactory {
         runtimeData = RuntimeData.getInstance(context);
         sessionManager = SessionManager.getInstance(context);
         manifestReader = ManifestReader.getInstance(context);
+        sentryHelper = new SentryHelper(context, appInfo, manifestReader);
         baseHTTPService = new BaseHTTPService(context);
         safeHTTPService = new SafeHTTPService(context);
-        sentryHelper = new SentryHelper(context, appInfo, manifestReader);
     }
 
     public static AppInfo getAppInfo() {
