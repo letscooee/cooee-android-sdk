@@ -5,6 +5,7 @@ import android.util.Log;
 import androidx.annotation.RestrictTo;
 import com.google.gson.Gson;
 import com.letscooee.ContextAware;
+import com.letscooee.CooeeFactory;
 import com.letscooee.models.Event;
 import com.letscooee.room.CooeeDatabase;
 import com.letscooee.room.task.processor.*;
@@ -30,6 +31,7 @@ public class PendingTaskService extends ContextAware {
 
     private static final ArrayList<PendingTaskProcessor> PROCESSORS = new ArrayList<>();
 
+    private final SentryHelper sentryHelper;
     private final CooeeDatabase database;
     private final Gson gson = new Gson();
 
@@ -48,6 +50,7 @@ public class PendingTaskService extends ContextAware {
     private PendingTaskService(Context context) {
         super(context);
         this.database = CooeeDatabase.getInstance(this.context);
+        this.sentryHelper = CooeeFactory.getSentryHelper();
         this.instantiateProcessors(context);
     }
 
@@ -117,7 +120,13 @@ public class PendingTaskService extends ContextAware {
 
         for (PendingTaskProcessor taskProcessor : PROCESSORS) {
             if (taskProcessor.canProcess(pendingTask)) {
-                taskProcessor.process(pendingTask);
+
+                try {
+                    taskProcessor.process(pendingTask);
+                } catch (Throwable t) {
+                    this.sentryHelper.captureException(t);
+                    // Suppress the exception to prevent app crash. It's already logged to Sentry
+                }
             }
         }
     }

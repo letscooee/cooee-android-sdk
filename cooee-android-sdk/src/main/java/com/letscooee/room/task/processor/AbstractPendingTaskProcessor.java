@@ -8,7 +8,6 @@ import com.google.gson.reflect.TypeToken;
 import com.letscooee.room.CooeeDatabase;
 import com.letscooee.room.task.PendingTask;
 import com.letscooee.utils.Constants;
-import com.letscooee.utils.SentryHelper;
 
 import java.util.Date;
 
@@ -20,16 +19,14 @@ import java.util.Date;
  */
 public abstract class AbstractPendingTaskProcessor<T> implements PendingTaskProcessor {
 
-    private final Gson gson = new Gson();
     private final CooeeDatabase appDatabase;
 
+    protected final Gson gson = new Gson();
     protected final Context context;
-    protected final SentryHelper sentryHelper;
 
     protected AbstractPendingTaskProcessor(Context context) {
         this.context = context;
         this.appDatabase = CooeeDatabase.getInstance(context);
-        this.sentryHelper = SentryHelper.getInstance(context);
     }
 
     /**
@@ -38,15 +35,9 @@ public abstract class AbstractPendingTaskProcessor<T> implements PendingTaskProc
      * @param task The pending task to deserialize.
      * @return Deserialized Java object of given type {@link T}.
      */
-    T deserialize(PendingTask task) {
-        try {
-            return gson.fromJson(task.data, new TypeToken<T>() {
-            }.getType());
-
-        } catch (JsonParseException e) {
-            this.sentryHelper.captureException(e);
-            throw e;
-        }
+    T deserialize(PendingTask task) throws JsonParseException {
+        return gson.fromJson(task.data, new TypeToken<T>() {
+        }.getType());
     }
 
     /**

@@ -238,12 +238,16 @@ public class SentryHelper {
     }
 
     /**
-     * Utility
+     * Utility method to capture exception in Sentry.
      *
-     * @param throwable
+     * @param throwable Throwable to log
      */
     public void captureException(Throwable throwable) {
-        throwable.printStackTrace();
+        this.captureException("", throwable);
+    }
+
+    public void captureException(String message, Throwable throwable) {
+        Log.e(Constants.LOG_PREFIX, message, throwable);
 
         if (!enabled) {
             return;
