@@ -1,38 +1,32 @@
 package com.letscooee;
 
 import android.content.Context;
-import android.text.TextUtils;
-import android.util.Log;
-
-import com.letscooee.init.PostLaunchActivity;
 import com.letscooee.models.Event;
 import com.letscooee.retrofit.HttpCallsHelper;
-import com.letscooee.trigger.EngagementTriggerActivity;
-import com.letscooee.utils.CooeeSDKConstants;
-import com.letscooee.utils.InAppNotificationClickListener;
-import com.letscooee.utils.LocalStorageHelper;
-import com.letscooee.utils.PropertyNameException;
+import com.letscooee.retrofit.UserAuthService;
+import com.letscooee.task.CooeeExecutors;
+import com.letscooee.trigger.inapp.InAppTriggerActivity;
+import com.letscooee.user.NewSessionExecutor;
+import com.letscooee.utils.*;
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Map;
-
-import io.sentry.Sentry;
-import io.sentry.protocol.User;
 
 /**
  * The CooeeSDK class contains all the functions required by application to achieve the campaign tasks(Singleton Class)
  *
  * @author Abhishek Taparia
  */
-public class CooeeSDK implements EngagementTriggerActivity.InAppListener {
+public class CooeeSDK implements InAppTriggerActivity.InAppListener {
 
-    private static CooeeSDK cooeeSDK = null;
+    private static CooeeSDK cooeeSDK;
 
     private final Context context;
-
-    private String currentScreenName = "";
-    private String uuid = "";
+    private final RuntimeData runtimeData;
+    private final SentryHelper sentryHelper;
+    private final UserAuthService userAuthService;
 
     private WeakReference<InAppNotificationClickListener> inAppNotificationClickListener;
 
@@ -41,10 +35,18 @@ public class CooeeSDK implements EngagementTriggerActivity.InAppListener {
      *
      * @param context application context
      */
-    private CooeeSDK(Context context) {
-        this.context = context;
-        new PostLaunchActivity(context);
-        setSentryUser(getUUID(), new HashMap<>());
+    private CooeeSDK(@NotNull Context context) {
+        this.context = context.getApplicationContext();
+        this.runtimeData = RuntimeData.getInstance(context);
+        this.sentryHelper = SentryHelper.getInstance(context);
+        this.userAuthService = UserAuthService.getInstance(context);
+
+        CooeeExecutors.getInstance().singleThreadExecutor().execute(() -> {
+            this.userAuthService.populateUserDataFromStorage();
+            this.userAuthService.acquireSDKToken();
+
+            new NewSessionExecutor(this.context).execute();
+        });
     }
 
     /**
@@ -57,6 +59,7 @@ public class CooeeSDK implements EngagementTriggerActivity.InAppListener {
         if (cooeeSDK == null) {
             cooeeSDK = new CooeeSDK(context);
         }
+
         return cooeeSDK;
     }
 
@@ -76,7 +79,7 @@ public class CooeeSDK implements EngagementTriggerActivity.InAppListener {
 
         Event event = new Event(eventName, eventProperties);
 
-        HttpCallsHelper.sendEvent(context, event, data -> PostLaunchActivity.createTrigger(context, data));
+        HttpCallsHelper.sendEvent(context, event, null);
     }
 
     /**
@@ -128,46 +131,17 @@ public class CooeeSDK implements EngagementTriggerActivity.InAppListener {
             userMap.put("userProperties", userProperties);
         }
 
-        HttpCallsHelper.sendUserProfile(userMap, "Manual", data -> {
-            if (data.get("id") != null) {
-                LocalStorageHelper.putString(context, CooeeSDKConstants.STORAGE_USER_ID, data.get("id").toString());
-                setSentryUser(data.get("id").toString(), userData);
-            }
-        });
-    }
-
-    private void setSentryUser(String id, Map<String, Object> userData) {
-        User user = new User();
-        user.setId(id);
-
-        if (userData.get("name") != null && !TextUtils.isEmpty(userData.get("name").toString())) {
-            user.setUsername(userData.get("name").toString());
-        }
-
-        if (userData.get("email") != null && !TextUtils.isEmpty(userData.get("email").toString())) {
-            user.setEmail(userData.get("email").toString());
-        }
-
-        if (userData.get("mobile") != null && !TextUtils.isEmpty(userData.get("mobile").toString())) {
-            Map<String, String> userDataExtra = new HashMap<>();
-            userDataExtra.put("mobile", userData.get("mobile").toString());
-            user.setOthers(userDataExtra);
-        }
-
-        Sentry.setUser(user);
+        this.sentryHelper.setUserInfo(userData);
+        HttpCallsHelper.sendUserProfile(userMap);
     }
 
     /**
-     * Manually update screen name
+     * Set current screen name where user navigated.
      *
-     * @param screenName Screen name given by user
+     * @param screenName Name of the screen. Like Login, Cart, Wishlist etc.
      */
     public void setCurrentScreen(String screenName) {
-        if (screenName == null || (!this.currentScreenName.isEmpty() && this.currentScreenName.equals(screenName))) {
-            return;
-        }
-        Log.d(CooeeSDKConstants.LOG_PREFIX, "Updated screen : " + screenName);
-        this.currentScreenName = screenName;
+        this.runtimeData.setCurrentScreenName(screenName);
     }
 
     /**
@@ -175,15 +149,18 @@ public class CooeeSDK implements EngagementTriggerActivity.InAppListener {
      *
      * @return current screen name
      */
+    @Deprecated
     public String getCurrentScreenName() {
-        return this.currentScreenName;
+        return this.runtimeData.getCurrentScreenName();
     }
 
+    @Deprecated
     public String getUUID() {
-        if (uuid.isEmpty()) {
-            uuid = LocalStorageHelper.getString(context, CooeeSDKConstants.STORAGE_USER_ID, "");
-        }
-        return uuid;
+        return this.getUserID();
+    }
+
+    public String getUserID() {
+        return this.userAuthService.getUserID();
     }
 
     public void setInAppNotificationButtonListener(InAppNotificationClickListener listener) {
@@ -203,7 +180,7 @@ public class CooeeSDK implements EngagementTriggerActivity.InAppListener {
      * @param base64 will contain bitmap in base64 format
      */
     public void setBitmap(String base64) {
-        EngagementTriggerActivity.setBitmap(base64);
+        InAppTriggerActivity.setBitmap(base64);
     }
 
 }

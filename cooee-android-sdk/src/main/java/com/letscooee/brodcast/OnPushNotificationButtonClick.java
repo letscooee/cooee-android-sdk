@@ -29,7 +29,7 @@ import com.letscooee.CooeeSDK;
 import com.letscooee.R;
 import com.letscooee.models.CarouselData;
 import com.letscooee.models.TriggerData;
-import com.letscooee.utils.CooeeSDKConstants;
+import com.letscooee.utils.Constants;
 import com.letscooee.utils.PropertyNameException;
 
 import java.util.ArrayList;
@@ -145,8 +145,8 @@ public class OnPushNotificationButtonClick extends BroadcastReceiver {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel notificationChannel = new NotificationChannel(
-                    CooeeSDKConstants.NOTIFICATION_CHANNEL_ID,
-                    CooeeSDKConstants.NOTIFICATION_CHANNEL_NAME,
+                    Constants.NOTIFICATION_CHANNEL_ID,
+                    Constants.NOTIFICATION_CHANNEL_NAME,
                     NotificationManager.IMPORTANCE_LOW);
 
             notificationChannel.setDescription("");
@@ -243,7 +243,7 @@ public class OnPushNotificationButtonClick extends BroadcastReceiver {
 
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(
                 context,
-                CooeeSDKConstants.NOTIFICATION_CHANNEL_ID);
+                Constants.NOTIFICATION_CHANNEL_ID);
 
 
         notificationBuilder.setAutoCancel(false)

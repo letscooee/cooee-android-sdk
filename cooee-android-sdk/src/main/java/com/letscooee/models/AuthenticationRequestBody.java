@@ -1,8 +1,10 @@
 package com.letscooee.models;
 
 /**
- * @author Abhishek Taparia
  * AuthenticationRequestBody class is used in sending request body for the first time to get sdkToken from server
+ *
+ * @author Abhishek Taparia
+ * @version 0.0.1
  */
 public class AuthenticationRequestBody {
     private String appID;

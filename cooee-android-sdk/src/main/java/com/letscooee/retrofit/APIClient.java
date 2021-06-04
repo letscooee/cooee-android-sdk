@@ -1,6 +1,8 @@
 package com.letscooee.retrofit;
 
+import android.text.TextUtils;
 import android.util.Log;
+import androidx.annotation.RestrictTo;
 import com.letscooee.BuildConfig;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -9,13 +11,15 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 import java.util.concurrent.TimeUnit;
 
-import static com.letscooee.utils.CooeeSDKConstants.LOG_PREFIX;
+import static com.letscooee.utils.Constants.LOG_PREFIX;
 
 /**
  * The APIClient class will help in sending request to server
  *
  * @author Abhishek Taparia
+ * @version 0.0.1
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class APIClient {
 
     private static final String BASE_URL = BuildConfig.SERVER_URL;
@@ -25,12 +29,12 @@ public class APIClient {
     private static String deviceName = "";
     private static String userId = "";
 
-    public static ServerAPIService getServerAPIService() {
-        Retrofit retrofit = getClient(BASE_URL);
-        return retrofit.create(ServerAPIService.class);
+    public static APIService getAPIService() {
+        Retrofit retrofit = getClient();
+        return retrofit.create(APIService.class);
     }
 
-    public static Retrofit getClient(String baseUrl) {
+    private static Retrofit getClient() {
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
                 .connectTimeout(60, TimeUnit.SECONDS)
                 .readTimeout(60, TimeUnit.SECONDS)
@@ -45,17 +49,21 @@ public class APIClient {
                         requestBuilder.addHeader("x-sdk-token", apiToken);
                     }
 
+                    if (BuildConfig.DEBUG) {
+                        requestBuilder.addHeader("sdk-debug", "1");
+                    }
+
                     requestBuilder.addHeader("device-name", deviceName);
                     requestBuilder.addHeader("user-id", userId);
 
-                    Log.d(LOG_PREFIX, "Request : " + requestBuilder.build().toString());
+                    Log.d(LOG_PREFIX, "Request: " + requestBuilder.build().toString());
                     return chain.proceed(requestBuilder.build());
                 })
                 .build();
 
         if (retrofit == null) {
             retrofit = new Retrofit.Builder()
-                    .baseUrl(baseUrl)
+                    .baseUrl(BASE_URL)
                     .addConverterFactory(GsonConverterFactory.create())
                     .client(okHttpClient)
                     .build();
@@ -65,7 +73,7 @@ public class APIClient {
     }
 
     public static void setAPIToken(String token) {
-        apiToken = token;
+        apiToken = TextUtils.isEmpty(token) ? "" : token;
     }
 
     public static void setDeviceName(String name) {
@@ -73,6 +81,6 @@ public class APIClient {
     }
 
     public static void setUserId(String id) {
-        userId = id;
+        userId = TextUtils.isEmpty(id) ? "" : id;
     }
 }

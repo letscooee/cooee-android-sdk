@@ -2,7 +2,7 @@ package com.letscooee.retrofit;
 
 import com.letscooee.models.AuthenticationRequestBody;
 import com.letscooee.models.Event;
-import com.letscooee.models.SDKAuthentication;
+import com.letscooee.models.UserAuthResponse;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -15,11 +15,12 @@ import java.util.Map;
  * The ServerAPIService interface helps APIClient class in sending requests
  *
  * @author Abhishek Taparia
+ * @version 0.0.1
  */
-public interface ServerAPIService {
+public interface APIService {
 
     @POST("/v1/user/save")
-    Call<SDKAuthentication> registerUser(@Body AuthenticationRequestBody authenticationRequestBody);
+    Call<UserAuthResponse> registerUser(@Body AuthenticationRequestBody authenticationRequestBody);
 
     @POST("/v1/event/track")
     Call<Map<String, Object>> sendEvent(@Body Event event);
@@ -31,8 +32,8 @@ public interface ServerAPIService {
     Call<Map<String, Object>> updateProfile(@Body Map<String, Object> objectMap);
 
     @POST("/v1/session/keepAlive")
-    Call<ResponseBody> keepAlive(@Body Map<String, String> keepAliveRequest);
+    Call<ResponseBody> keepAlive(@Body Map<String, Object> keepAliveRequest);
 
     @POST("/v1/user/setFirebaseToken")
-    Call<ResponseBody> setFirebaseToken(@Body Map<String, String> tokenRequest);
+    Call<ResponseBody> setFirebaseToken(@Body Map<String, Object> tokenRequest);
 }

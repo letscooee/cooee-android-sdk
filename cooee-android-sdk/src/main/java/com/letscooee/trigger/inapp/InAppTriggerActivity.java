@@ -1,4 +1,4 @@
-package com.letscooee.trigger;
+package com.letscooee.trigger.inapp;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -35,10 +35,7 @@ import com.letscooee.CooeeSDK;
 import com.letscooee.R;
 import com.letscooee.models.*;
 import com.letscooee.retrofit.HttpCallsHelper;
-import com.letscooee.utils.BlurBuilder;
-import com.letscooee.utils.LocalStorageHelper;
-import com.letscooee.utils.OnInAppCloseListener;
-import com.letscooee.utils.OnInAppPopListener;
+import com.letscooee.utils.*;
 import io.sentry.Sentry;
 import jp.wasabeef.blurry.Blurry;
 
@@ -51,9 +48,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-public class EngagementTriggerActivity extends AppCompatActivity implements PreventBlurActivity {
+public class InAppTriggerActivity extends AppCompatActivity implements PreventBlurActivity {
 
-    private static final String TAG = "EngagementTrigger";
     TriggerData triggerData;
     ImageButton closeImageButton;
     RelativeLayout secondParentLayout;
@@ -135,7 +131,7 @@ public class EngagementTriggerActivity extends AppCompatActivity implements Prev
             createActionButtons();
         } catch (Exception e) {
 
-            Log.e(TAG, "Engagement Trigger Failed: ", e);
+            Log.e(Constants.LOG_PREFIX, "InApp Trigger Failed", e);
             Sentry.captureException(e);
         }
     }
@@ -225,7 +221,7 @@ public class EngagementTriggerActivity extends AppCompatActivity implements Prev
             recieved.put("triggerID", triggerData.getId());
             userProfile.put("userData", new HashMap<>());
             userProfile.put("userProperties", action.getUserProperty());
-            HttpCallsHelper.sendUserProfile(userProfile, "Trigger Property", null);
+            HttpCallsHelper.sendUserProfile(userProfile);
         }
     }
 
@@ -561,7 +557,7 @@ public class EngagementTriggerActivity extends AppCompatActivity implements Prev
         RelativeLayout insideMediaFrameLayout = findViewById(R.id.insideMediaFrameLayout);
         RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
 
-        ImageView imageView = new ImageView(EngagementTriggerActivity.this);
+        ImageView imageView = new ImageView(InAppTriggerActivity.this);
         imageView.setLayoutParams(layoutParams);
         imageView.setScaleType(ImageView.ScaleType.FIT_XY);
 
@@ -590,7 +586,7 @@ public class EngagementTriggerActivity extends AppCompatActivity implements Prev
             }
         });
 
-        ImageView layeredImageView = new ImageView(EngagementTriggerActivity.this);
+        ImageView layeredImageView = new ImageView(InAppTriggerActivity.this);
         layeredImageView.setLayoutParams(layoutParams);
         layeredImageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
         if (triggerData.getFill() == TriggerData.Fill.SIDE_POP) {
@@ -609,7 +605,7 @@ public class EngagementTriggerActivity extends AppCompatActivity implements Prev
         RelativeLayout insideMediaFrameLayout = findViewById(R.id.insideMediaFrameLayout);
         RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 
-        VideoView videoView = new VideoView(EngagementTriggerActivity.this);
+        VideoView videoView = new VideoView(InAppTriggerActivity.this);
 
         videoView.setLayoutParams(layoutParams);
         videoView.setVideoPath(triggerData.getVideoUrl());

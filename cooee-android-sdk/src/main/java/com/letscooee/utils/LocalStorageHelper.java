@@ -94,7 +94,7 @@ public final class LocalStorageHelper {
             Sentry.captureException(exception);
 
             // Remove all activeTriggers when wrong format of triggerId is saved in shared preferences
-            remove(context, CooeeSDKConstants.STORAGE_ACTIVE_TRIGGERS);
+            remove(context, Constants.STORAGE_ACTIVE_TRIGGERS);
             return new ArrayList<>();
         }
 
@@ -134,5 +134,15 @@ public final class LocalStorageHelper {
         SharedPreferences sharedPreferences = getPreferences(context);
         Map map = new Gson().fromJson(sharedPreferences.getString(key, null), Map.class);
         return map;
+    }
+
+    public static void putLong(Context context, String key, long value) {
+        SharedPreferences sharedPreferences = getPreferences(context);
+        SharedPreferences.Editor editor = sharedPreferences.edit().putLong(key, value);
+        apply(editor);
+    }
+
+    public static long getLong(Context context, String key, long defaultValue) {
+        return getPreferences(context).getLong(key, defaultValue);
     }
 }

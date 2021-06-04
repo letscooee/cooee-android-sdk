@@ -6,6 +6,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import androidx.annotation.RestrictTo;
 import com.letscooee.BuildConfig;
@@ -14,9 +15,12 @@ import io.sentry.SentryEvent;
 import io.sentry.SentryOptions;
 import io.sentry.android.core.SentryAndroid;
 import io.sentry.protocol.SentryId;
+import io.sentry.protocol.User;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -31,38 +35,37 @@ public class SentryHelper {
     private static final String COOEE_DSN = "https://83cd199eb9134e40803220b7cca979db@o559187.ingest.sentry.io/5693686";
 
     @SuppressLint("StaticFieldLeak")
-    private static SentryHelper sentryHelper;
+    private static SentryHelper INSTANCE;
 
     private final Context context;
+    private final User sentryUser = new User();
 
     private Boolean enabled;
 
     private SentryHelper(Context context) {
-        this.context = context;
+        this.context = context.getApplicationContext();
         this.enabled = !BuildConfig.DEBUG;
-        this.init();
     }
 
-    /**
-     * Initialize Sentry with Manual initialization
-     */
     public static SentryHelper getInstance(Context context) {
-        if (sentryHelper == null) {
+        if (INSTANCE == null) {
             synchronized (SentryHelper.class) {
-                if (sentryHelper == null) {
-                    sentryHelper = new SentryHelper(context);
+                if (INSTANCE == null) {
+                    INSTANCE = new SentryHelper(context);
                 }
             }
         }
 
-        return sentryHelper;
+        return INSTANCE;
     }
 
-    private void init() {
-        Log.d(CooeeSDKConstants.LOG_PREFIX, "Initializing Sentry: " + enabled.toString());
+    public void init() {
+        Log.d(Constants.LOG_PREFIX, "Initializing Sentry: " + enabled.toString());
         if (!enabled) {
             return;
         }
+
+        Sentry.setUser(sentryUser);
 
         SentryAndroid.init(context, options -> {
             options.setDsn(COOEE_DSN);
@@ -84,7 +87,7 @@ public class SentryHelper {
     private void setupFilterToExcludeNonCooeeEvents(SentryOptions options) {
         options.setBeforeSend((event, hint) -> {
             if (!containsWordCooee(event)) {
-                Log.d(CooeeSDKConstants.LOG_PREFIX, "Skipping Sentry event with message: " + event.getMessage());
+                Log.d(Constants.LOG_PREFIX, "Skipping Sentry event with message: " + event.getMessage());
                 return null;
             }
 
@@ -179,7 +182,7 @@ public class SentryHelper {
      *
      * @return true ot false
      */
-    private boolean isAppInDebugMode() {
+    public boolean isAppInDebugMode() {
         boolean debuggable = false;
 
         PackageManager pm = context.getPackageManager();
@@ -230,23 +233,66 @@ public class SentryHelper {
      * @param message Any custom message to send.
      */
     public void captureMessage(String message) {
-        Log.d(CooeeSDKConstants.LOG_PREFIX, message);
-        Sentry.captureMessage(CooeeSDKConstants.LOG_PREFIX + ": " + message);
+        Log.e(Constants.LOG_PREFIX, message);
+        Sentry.captureMessage(Constants.LOG_PREFIX + ": " + message);
     }
 
     /**
-     * Utility
+     * Utility method to capture exception in Sentry.
      *
-     * @param throwable
+     * @param throwable Throwable to log
      */
     public void captureException(Throwable throwable) {
-        throwable.printStackTrace();
+        this.captureException("", throwable);
+    }
+
+    public void captureException(String message, Throwable throwable) {
+        Log.e(Constants.LOG_PREFIX, message, throwable);
 
         if (!enabled) {
             return;
         }
 
         SentryId id = Sentry.captureException(throwable);
-        Log.d(CooeeSDKConstants.LOG_PREFIX, "Sentry id of the exception: " + id.toString());
+        Log.d(Constants.LOG_PREFIX, "Sentry id of the exception: " + id.toString());
+    }
+
+    /**
+     * Set Cooee's User id to Sentry's {@link User} so that this information can be shown in
+     * the Sentry dashboard as well.
+     *
+     * @param id Identify of the Cooee's User.
+     */
+    public void setUserId(String id) {
+        sentryUser.setId(id);
+    }
+
+    /**
+     * Set additional Cooee's User information to Sentry's {@link User} so that this information can be shown in
+     * the Sentry dashboard as well. Sentry is already GDPR compliant.
+     *
+     * @param userData Additional user data which may contain <code>mobile</code>, <code>name</code> or <code>mobile</code>.
+     */
+    public void setUserInfo(Map<String, Object> userData) {
+        if (userData == null) {
+            return;
+        }
+
+        Object name = userData.get("name");
+        if (name != null && !TextUtils.isEmpty(name.toString())) {
+            sentryUser.setUsername(name.toString());
+        }
+
+        Object email = userData.get("email");
+        if (email != null && !TextUtils.isEmpty(email.toString())) {
+            sentryUser.setEmail(email.toString());
+        }
+
+        Object mobile = userData.get("mobile");
+        if (mobile != null && !TextUtils.isEmpty(mobile.toString())) {
+            Map<String, String> userDataExtra = new HashMap<>();
+            userDataExtra.put("mobile", mobile.toString());
+            sentryUser.setOthers(userDataExtra);
+        }
     }
 }
