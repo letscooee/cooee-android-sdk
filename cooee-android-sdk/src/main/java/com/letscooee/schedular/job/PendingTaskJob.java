@@ -3,12 +3,13 @@ package com.letscooee.schedular.job;
 import android.app.job.JobParameters;
 import android.app.job.JobService;
 import android.content.Context;
+import android.util.Log;
 
 import com.letscooee.room.CooeeDatabase;
 import com.letscooee.room.task.PendingTask;
 import com.letscooee.room.task.PendingTaskService;
-import com.letscooee.schedular.CooeeJobUtils;
 import com.letscooee.task.CooeeExecutors;
+import com.letscooee.utils.Constants;
 
 import java.util.Calendar;
 import java.util.List;
@@ -20,18 +21,20 @@ import java.util.List;
  * @version 0.3.0
  */
 public class PendingTaskJob extends JobService {
+    private JobParameters jobParameters;
 
     @Override
     public boolean onStartJob(JobParameters params) {
+        jobParameters = params;
         Context context = getApplicationContext();
-
+        Log.i(Constants.LOG_PREFIX, "onStartJob: ************************ Job Started");
         List<PendingTask> taskList = CooeeDatabase.getInstance(context)
                 .pendingTaskDAO()
                 .fetchBeforeTime(this.getTMinusTwoMinutes());
         //As job was running on main thread so all the network call were getting break
-        CooeeExecutors.getInstance().singleThreadExecutor().execute(() -> PendingTaskService.getInstance(context).processTasks(taskList));
-
-        CooeeJobUtils.schedulePendingTaskJob(context);
+        CooeeExecutors.getInstance().singleThreadExecutor().execute(() ->
+                PendingTaskService.getInstance(context).processTasks(taskList, this)
+        );
         return true;
     }
 
@@ -44,7 +47,11 @@ public class PendingTaskJob extends JobService {
     @Override
     public boolean onStopJob(JobParameters params) {
         // TODO: 03/06/21 Why we are again re-scheduling here?
-        CooeeJobUtils.schedulePendingTaskJob(getApplicationContext());
-        return true;
+        //returning false to let job get finish
+        return false;
+    }
+
+    public JobParameters getJobParameters() {
+        return jobParameters;
     }
 }
