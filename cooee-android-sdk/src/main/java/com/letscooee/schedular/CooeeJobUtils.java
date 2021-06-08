@@ -5,6 +5,9 @@ import android.app.job.JobScheduler;
 import android.app.job.JobService;
 import android.content.ComponentName;
 import android.content.Context;
+
+import androidx.annotation.RestrictTo;
+
 import com.letscooee.schedular.job.PendingTaskJob;
 import com.letscooee.utils.Constants;
 
@@ -14,6 +17,7 @@ import com.letscooee.utils.Constants;
  * @author Ashish Gaikwad on 19/5/21
  * @version 0.2.10
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class CooeeJobUtils {
 
     public static JobScheduler getJobScheduler(Context context) {
