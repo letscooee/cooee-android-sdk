@@ -3,9 +3,11 @@ package com.letscooee.init;
 import android.content.Context;
 import android.os.Handler;
 import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
+
 import com.letscooee.CooeeFactory;
 import com.letscooee.models.Event;
 import com.letscooee.retrofit.HttpCallsHelper;
@@ -35,14 +37,14 @@ class AppLifecycleCallback implements DefaultLifecycleObserver {
     @Override
     public void onCreate(@NonNull LifecycleOwner owner) {
         // TODO: 03/06/21 When this will be called?
-        runtimeData.setInForeground();
-
-        keepSessionAlive();
     }
 
     @Override
     public void onResume(@NonNull LifecycleOwner owner) {
         // TODO: 03/06/21 When this will be called?
+        //Will set app is in foreground
+        runtimeData.setInForeground();
+        keepSessionAlive();
 
         if (runtimeData.isFirstForeground()) {
             return;
