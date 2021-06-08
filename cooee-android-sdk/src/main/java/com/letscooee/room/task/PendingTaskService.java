@@ -90,7 +90,8 @@ public class PendingTaskService extends ContextAware {
         task.type = taskType;
         task.dateCreated = new Date().getTime();
 
-        this.database.pendingTaskDAO().insertAll(task);
+        long id=this.database.pendingTaskDAO().insertAll(task);
+        task.id= (int) id;
 
         Log.v(Constants.LOG_PREFIX, "Created " + task);
         return task;
