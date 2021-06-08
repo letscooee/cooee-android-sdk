@@ -42,7 +42,6 @@ public class SentryHelper extends ContextAware {
         this.appInfo = appInfo;
         this.manifestReader = manifestReader;
         this.enabled = !BuildConfig.DEBUG;
-        init();
     }
 
     public void init() {
