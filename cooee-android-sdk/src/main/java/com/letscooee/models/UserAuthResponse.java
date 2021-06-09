@@ -1,10 +1,12 @@
 package com.letscooee.models;
 
 /**
+ * This class will help in storing sdkToken received from the server when app is opened first time.
+ *
  * @author Abhishek Taparia
- * The SDKAuthentication class will help in storing sdkToken received from the server when app is opened first time.
  */
-public class SDKAuthentication {
+public class UserAuthResponse {
+
     private String sdkToken;
     private String sessionID;
     private String id;
@@ -16,7 +18,6 @@ public class SDKAuthentication {
     public void setSdkToken(String sdkToken) {
         this.sdkToken = sdkToken;
     }
-
 
     public String getSessionID() {
         return sessionID;

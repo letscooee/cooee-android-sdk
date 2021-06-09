@@ -27,18 +27,19 @@ import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
+import com.letscooee.BuildConfig;
 import com.letscooee.R;
 import com.letscooee.brodcast.OnPushNotificationButtonClick;
-import com.letscooee.init.ActivityLifecycleCallback;
-import com.letscooee.init.PostLaunchActivity;
 import com.letscooee.models.CarouselData;
 import com.letscooee.models.Event;
 import com.letscooee.models.TriggerButton;
 import com.letscooee.models.TriggerData;
+import com.letscooee.pushnotification.PushProviderUtils;
 import com.letscooee.retrofit.APIClient;
 import com.letscooee.retrofit.HttpCallsHelper;
 import com.letscooee.trigger.CooeeEmptyActivity;
-import com.letscooee.utils.CooeeSDKConstants;
+import com.letscooee.trigger.EngagementTriggerHelper;
+import com.letscooee.utils.Constants;
 import com.letscooee.utils.LocalStorageHelper;
 import io.sentry.Sentry;
 
@@ -56,7 +57,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
 
     @Override
     public void onNewToken(@NonNull String token) {
-        Log.d(CooeeSDKConstants.LOG_PREFIX, "Firebase Refreshed token: " + token);
+        Log.d(Constants.LOG_PREFIX, "Firebase Refreshed token: " + token);
         sendTokenToServer(token);
     }
 
@@ -69,7 +70,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
 
         String rawTriggerData = remoteMessage.getData().get("triggerData");
         if (TextUtils.isEmpty(rawTriggerData)) {
-            Log.d(CooeeSDKConstants.LOG_PREFIX, "No triggerData found on the notification payload");
+            Log.d(Constants.LOG_PREFIX, "No triggerData found on the notification payload");
             return;
         }
 
@@ -79,7 +80,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
             triggerData = new Gson().fromJson(rawTriggerData, TriggerData.class);
 
         } catch (JsonSyntaxException e) {
-            Log.e(CooeeSDKConstants.LOG_PREFIX, "Unable to parse the trigger data", e);
+            Log.e(Constants.LOG_PREFIX, "Unable to parse the trigger data", e);
             // TODO Change this to use SentryHelper once these code are moved to a separate class
             Sentry.captureException(e);
 
@@ -90,7 +91,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
             return;
         }
 
-        PostLaunchActivity.storeTriggerID(getApplicationContext(), triggerData.getId(), triggerData.getDuration());
+        EngagementTriggerHelper.storeActiveTriggerDetails(getApplicationContext(), triggerData.getId(), triggerData.getDuration());
 
         Map<String, Object> eventProps = new HashMap<>();
         eventProps.put("triggerID", triggerData.getId());
@@ -155,8 +156,8 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
                     .build();
 
             NotificationChannel notificationChannel = new NotificationChannel(
-                    CooeeSDKConstants.NOTIFICATION_CHANNEL_ID,
-                    CooeeSDKConstants.NOTIFICATION_CHANNEL_NAME,
+                    Constants.NOTIFICATION_CHANNEL_ID,
+                    Constants.NOTIFICATION_CHANNEL_NAME,
                     NotificationManager.IMPORTANCE_DEFAULT);
             notificationChannel.enableVibration(true);
             notificationChannel.enableLights(true);
@@ -240,7 +241,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
 
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(
                 getApplicationContext(),
-                CooeeSDKConstants.NOTIFICATION_CHANNEL_ID);
+                Constants.NOTIFICATION_CHANNEL_ID);
 
         notificationBuilder.setAutoCancel(false)
                 .setWhen(System.currentTimeMillis())
@@ -274,10 +275,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
      * @param triggerData received from data payload
      */
     private void showInAppMessaging(TriggerData triggerData) {
-        // Don't show inapp notification if app is in background
-        if (!ActivityLifecycleCallback.isIsBackground()) {
-            PostLaunchActivity.createTrigger(getApplicationContext(), triggerData);
-        }
+        EngagementTriggerHelper.renderInAppTrigger(getApplicationContext(), triggerData);
     }
 
     /**
@@ -298,8 +296,8 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel notificationChannel = new NotificationChannel(
-                    CooeeSDKConstants.NOTIFICATION_CHANNEL_ID,
-                    CooeeSDKConstants.NOTIFICATION_CHANNEL_NAME,
+                    Constants.NOTIFICATION_CHANNEL_ID,
+                    Constants.NOTIFICATION_CHANNEL_NAME,
                     NotificationManager.IMPORTANCE_DEFAULT);
 
             notificationChannel.setDescription("");
@@ -310,8 +308,8 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
         Intent appLaunchIntent = new Intent(this, CooeeEmptyActivity.class);
 
         Bundle bundle = new Bundle();
-        bundle.putParcelable(CooeeSDKConstants.INTENT_TRIGGER_DATA_KEY, triggerData);
-        appLaunchIntent.putExtra(CooeeSDKConstants.INTENT_BUNDLE_KEY, bundle);
+        bundle.putParcelable(Constants.INTENT_TRIGGER_DATA_KEY, triggerData);
+        appLaunchIntent.putExtra(Constants.INTENT_BUNDLE_KEY, bundle);
         appLaunchIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
         PendingIntent appLaunchPendingIntent = PendingIntent.getActivity(this, triggerData.getId().hashCode(), appLaunchIntent, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -330,7 +328,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
             public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
                 NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(
                         getApplicationContext(),
-                        CooeeSDKConstants.NOTIFICATION_CHANNEL_ID);
+                        Constants.NOTIFICATION_CHANNEL_ID);
                 notificationBuilder = addAction(notificationBuilder, createActionButtons(triggerData, notificationId));
 
                 smallNotification.setImageViewBitmap(R.id.imageViewLarge, resource);
@@ -381,10 +379,9 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
      * @param event kpi event
      */
     public static void sendEvent(Context context, Event event) {
-        APIClient.setAPIToken(LocalStorageHelper.getString(context, CooeeSDKConstants.STORAGE_SDK_TOKEN, ""));
+        APIClient.setAPIToken(LocalStorageHelper.getString(context, Constants.STORAGE_SDK_TOKEN, ""));
 
-        event.setSessionID(PostLaunchActivity.currentSessionId);
-        HttpCallsHelper.sendEventWithoutSDKState(context, event, null);
+        HttpCallsHelper.sendEvent(context, event, null);
     }
 
     /**
@@ -425,7 +422,11 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
      * @param token received from Firebase
      */
     private void sendTokenToServer(String token) {
-        HttpCallsHelper.setFirebaseToken(token);
+        if (BuildConfig.DEBUG) {
+            Log.d(Constants.LOG_PREFIX, "FCM token received- " + token);
+        }
+
+        PushProviderUtils.pushTokenRefresh(token);
     }
 
     /**

@@ -21,6 +21,7 @@ import android.telephony.TelephonyManager;
 import android.util.DisplayMetrics;
 import androidx.core.app.ActivityCompat;
 import com.google.android.gms.location.LocationRequest;
+import com.letscooee.CooeeFactory;
 import com.letscooee.utils.SentryHelper;
 
 import java.io.File;
@@ -44,7 +45,7 @@ public class DefaultUserPropertiesCollector {
 
     public DefaultUserPropertiesCollector(Context context) {
         this.context = context;
-        this.sentryHelper = SentryHelper.getInstance(context);
+        this.sentryHelper = CooeeFactory.getSentryHelper();
     }
 
     /**
@@ -143,24 +144,6 @@ public class DefaultUserPropertiesCollector {
     public boolean isBluetoothOn() {
         BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         return mBluetoothAdapter != null && mBluetoothAdapter.isEnabled();
-    }
-
-    /**
-     * Get host application version
-     *
-     * @return app version(eg - 0.0.1)
-     */
-    public String getAppVersion() {
-        PackageInfo packageInfo = null;
-
-        try {
-            packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
-        } catch (PackageManager.NameNotFoundException e) {
-            sentryHelper.captureException(e);
-        }
-
-        assert packageInfo != null;
-        return packageInfo.versionName;
     }
 
     /**

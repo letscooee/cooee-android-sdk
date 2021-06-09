@@ -3,18 +3,8 @@ package com.letscooee.utils;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.util.Log;
-import android.view.ActionMode;
-import android.view.KeyEvent;
-import android.view.KeyboardShortcutGroup;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.MotionEvent;
-import android.view.SearchEvent;
-import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
+import android.view.*;
 import android.view.accessibility.AccessibilityEvent;
-
 import androidx.annotation.Nullable;
 
 import java.util.HashMap;
@@ -23,17 +13,17 @@ import java.util.Map;
 
 /**
  * @author Ashish Gaikwad on 6/4/21
- *
+ * <p>
  * All click or touch event in any activity will be pass through CooeeWindowCallback
  */
-public class CooeeWindowCallback implements Window.Callback{
+public class CooeeWindowCallback implements Window.Callback {
 
     Window.Callback localCallback;
     Activity activity;
 
     public CooeeWindowCallback(Window.Callback localCallback, Activity activity) {
         this.localCallback = localCallback;
-        this.activity=activity;
+        this.activity = activity;
     }
 
     @Override
@@ -49,13 +39,13 @@ public class CooeeWindowCallback implements Window.Callback{
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent event) {
-        float xCoordinate=event.getX();
-        float yCoordinate=event.getY();
+        float xCoordinate = event.getX();
+        float yCoordinate = event.getY();
 
-        Map map=new HashMap<String,Object>();
+        Map map = new HashMap<String, Object>();
         map.put("x", xCoordinate);
         map.put("y", yCoordinate);
-        LocalStorageHelper.putTouchMapString(activity,CooeeSDKConstants.TOUCH_MAP,map.toString());
+        LocalStorageHelper.putTouchMapString(activity, Constants.TOUCH_MAP, map.toString());
         //Log.i(CooeeSDKConstants.LOG_PREFIX, "onTouch: "+map.toString());
 
         return localCallback.dispatchTouchEvent(event);
@@ -115,7 +105,7 @@ public class CooeeWindowCallback implements Window.Callback{
 
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
-        Log.d("","ttest onfocus changed called");
+        Log.d("", "ttest onfocus changed called");
         localCallback.onWindowFocusChanged(hasFocus);
     }
 

@@ -20,8 +20,9 @@ import io.sentry.Sentry;
  * @author Abhishek Taparia
  */
 public class CooeeIntentService extends IntentService {
+
     /**
-     * Creates an IntentService.  Invoked by your subclass's constructor.
+     * Creates an IntentService. Invoked by your subclass's constructor.
      */
     public CooeeIntentService() {
         super("CooeeServiceIntent");

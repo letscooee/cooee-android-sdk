@@ -5,10 +5,11 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
+import com.letscooee.trigger.inapp.PreventBlurActivity;
 
 /**
  * This is an empty activity specifically created to handle the rendering of
- * EngagementTriggerActivity with trigger data in intent extras. The empty activity
+ * {@link com.letscooee.trigger.inapp.InAppTriggerActivity} with trigger data in intent extras. The empty activity
  * then starts the launch activity of the application in its onResumed method.
  *
  * @author Abhishek Taparia
