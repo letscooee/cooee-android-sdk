@@ -11,6 +11,7 @@ import com.letscooee.CooeeFactory;
 import com.letscooee.device.AppInfo;
 import com.letscooee.init.DefaultUserPropertiesCollector;
 import com.letscooee.models.Event;
+import com.letscooee.network.SafeHTTPService;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.LocalStorageHelper;
 
@@ -32,6 +33,7 @@ public class NewSessionExecutor extends ContextAware {
     private final DefaultUserPropertiesCollector defaultUserPropertiesCollector;
     private final AppInfo appInfo;
     private final SessionManager sessionManager;
+    private final SafeHTTPService safeHTTPService;
 
     /**
      * Public Constructor
@@ -43,6 +45,7 @@ public class NewSessionExecutor extends ContextAware {
         this.defaultUserPropertiesCollector = new DefaultUserPropertiesCollector(context);
         this.sessionManager = SessionManager.getInstance(context);
         this.appInfo = CooeeFactory.getAppInfo();
+        this.safeHTTPService = CooeeFactory.getSafeHTTPService();
     }
 
     public void execute() {
@@ -81,7 +84,7 @@ public class NewSessionExecutor extends ContextAware {
         eventProperties.put("CE App Version", appInfo.getVersion());
         Event event = new Event("CE App Installed", eventProperties);
 
-        CooeeFactory.getSafeHTTPService().sendEvent(event);
+        safeHTTPService.sendEvent(event);
     }
 
     /**
@@ -105,7 +108,7 @@ public class NewSessionExecutor extends ContextAware {
         eventProperties.put("CE Device Battery", defaultUserPropertiesCollector.getBatteryLevel());
 
         Event event = new Event("CE App Launched", eventProperties);
-        CooeeFactory.getSafeHTTPService().sendEvent(event);
+        safeHTTPService.sendEvent(event);
     }
 
     /**

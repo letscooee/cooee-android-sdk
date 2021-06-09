@@ -127,12 +127,7 @@ public class PendingTaskService extends ContextAware {
 
         // Add delay to let previous job get fully finished
         new Timer().schedule(
-                new TimerTask() {
-                    @Override
-                    public void run() {
-                        CooeeJobUtils.schedulePendingTaskJob(context);
-                    }
-                }, 2000
+                () -> CooeeJobUtils.schedulePendingTaskJob(context), 2000
         );
 
     }

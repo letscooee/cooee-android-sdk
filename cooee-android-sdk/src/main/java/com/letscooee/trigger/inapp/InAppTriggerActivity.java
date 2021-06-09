@@ -42,6 +42,7 @@ import com.letscooee.CooeeFactory;
 import com.letscooee.CooeeSDK;
 import com.letscooee.R;
 import com.letscooee.models.*;
+import com.letscooee.network.SafeHTTPService;
 import com.letscooee.utils.*;
 
 import java.lang.ref.WeakReference;
@@ -79,6 +80,11 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
     public static OnInAppPopListener onInAppPopListener;
     public static OnInAppCloseListener onInAppCloseListener;
     public static boolean isManualClose = true;
+    private final SafeHTTPService safeHTTPService;
+
+    public InAppTriggerActivity() {
+        safeHTTPService = CooeeFactory.getSafeHTTPService();
+    }
 
     public static void setBitmap(String base64) {
         byte[] decodedString = Base64.decode(base64, Base64.DEFAULT);
@@ -815,7 +821,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
         if (triggerData != null)
             eventProps.put("triggerID", triggerData.getId());
         Event event = new Event("CE Trigger Displayed", eventProps);
-        CooeeFactory.getSafeHTTPService().sendEvent(event);
+        safeHTTPService.sendEvent(event);
     }
 
     @Override
@@ -832,6 +838,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
                     .animate(500)
                     .onto((ViewGroup) _window.getDecorView());
 
+            //TODO: 09/06/2021 Need to clear flutter related
             if (onInAppPopListener != null) {
                 onInAppPopListener.onInAppTriggered(triggerData.getTriggerBackground().getBlur());
             }
@@ -858,6 +865,8 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
     protected void onPause() {
         super.onPause();
         Blurry.delete((ViewGroup) _window.getDecorView());
+
+        //TODO: 09/06/2021 Need to clear flutter related
         if (onInAppCloseListener != null) {
             onInAppCloseListener.onInAppClosed();
             if (!isManualClose) {
@@ -900,7 +909,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
         }
 
         Event event = new Event("CE Trigger Closed", kpiMap);
-        CooeeFactory.getSafeHTTPService().sendEvent(event);
+        safeHTTPService.sendEvent(event);
 
         if (runnable != null) {
             handler.removeCallbacks(runnable);

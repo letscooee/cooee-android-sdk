@@ -10,6 +10,7 @@ import androidx.lifecycle.LifecycleOwner;
 
 import com.letscooee.CooeeFactory;
 import com.letscooee.models.Event;
+import com.letscooee.network.SafeHTTPService;
 import com.letscooee.user.NewSessionExecutor;
 import com.letscooee.user.SessionManager;
 import com.letscooee.utils.Constants;
@@ -26,11 +27,13 @@ class AppLifecycleCallback implements DefaultLifecycleObserver {
 
     private Handler handler = new Handler();
     private Runnable runnable;
+    private final SafeHTTPService safeHTTPService;
 
     AppLifecycleCallback(Context context) {
         this.context = context;
         this.runtimeData = CooeeFactory.getRuntimeData();
         this.sessionManager = CooeeFactory.getSessionManager();
+        this.safeHTTPService = CooeeFactory.getSafeHTTPService();
     }
 
     @Override
@@ -55,7 +58,7 @@ class AppLifecycleCallback implements DefaultLifecycleObserver {
             eventProps.put("CE Duration", backgroundDuration / 1000);
             Event session = new Event("CE App Foreground", eventProps);
 
-            CooeeFactory.getSafeHTTPService().sendEvent(session);
+            safeHTTPService.sendEvent(session);
         }
     }
 
@@ -77,7 +80,7 @@ class AppLifecycleCallback implements DefaultLifecycleObserver {
         sessionProperties.put("CE Duration", duration);
 
         Event session = new Event("CE App Background", sessionProperties);
-        CooeeFactory.getSafeHTTPService().sendEvent(session);
+        safeHTTPService.sendEvent(session);
     }
 
     /**
@@ -86,6 +89,7 @@ class AppLifecycleCallback implements DefaultLifecycleObserver {
     // TODO: 03/06/21 Move to SessionManager
     private void keepSessionAlive() {
         //send server check message every 5 min that session is still alive
+        //TODO: 09/06/2021 To be change with Timer class
         handler.postDelayed(runnable = () -> {
             handler.postDelayed(runnable, Constants.KEEP_ALIVE_TIME_IN_MS);
             this.sessionManager.pingServerToKeepAlive();
