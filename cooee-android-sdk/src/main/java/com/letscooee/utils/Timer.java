@@ -2,22 +2,26 @@ package com.letscooee.utils;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.TimerTask;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
- * Common implementation for {@link java.util.Timer}
+ * Common implementation for {@link ScheduledExecutorService}
  *
  * @author Ashish Gaikwad on 09/06/21
+ * @version 0.3.0
  */
 public class Timer {
 
-    private final java.util.Timer handler;
+    private final ScheduledExecutorService scheduledPool;
 
     public Timer() {
-        handler = new java.util.Timer();
+
+        scheduledPool = Executors.newScheduledThreadPool(1);
     }
 
-    public void schedule(@NotNull TimerTask runnable, long durationMillis) {
-        handler.schedule(runnable, durationMillis);
+    public void schedule(@NotNull Runnable runnable, long durationMillis) {
+        scheduledPool.schedule(runnable, durationMillis, TimeUnit.MILLISECONDS);
     }
 }
