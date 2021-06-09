@@ -5,6 +5,7 @@ import android.app.job.JobService;
 import android.content.Context;
 import android.util.Log;
 
+import com.letscooee.BuildConfig;
 import com.letscooee.room.CooeeDatabase;
 import com.letscooee.room.task.PendingTask;
 import com.letscooee.room.task.PendingTaskService;
@@ -21,13 +22,18 @@ import java.util.List;
  * @version 0.3.0
  */
 public class PendingTaskJob extends JobService {
+
     private JobParameters jobParameters;
 
     @Override
     public boolean onStartJob(JobParameters params) {
         jobParameters = params;
         Context context = getApplicationContext();
-        Log.i(Constants.LOG_PREFIX, "onStartJob: ************************ Job Started");
+
+        if (BuildConfig.DEBUG) {
+            Log.v(Constants.LOG_PREFIX, "PendingTaskJob running");
+        }
+
         List<PendingTask> taskList = CooeeDatabase.getInstance(context)
                 .pendingTaskDAO()
                 .fetchBeforeTime(this.getTMinusTwoMinutes());
@@ -46,7 +52,6 @@ public class PendingTaskJob extends JobService {
 
     @Override
     public boolean onStopJob(JobParameters params) {
-        // TODO: 03/06/21 Why we are again re-scheduling here?
         //returning false to let job get finish
         return false;
     }

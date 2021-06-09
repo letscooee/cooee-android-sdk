@@ -4,8 +4,10 @@ import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
 import android.os.Bundle;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
 import com.letscooee.models.Event;
 import com.letscooee.models.TriggerData;
 import com.letscooee.retrofit.HttpCallsHelper;
@@ -120,7 +122,6 @@ public class ActivityLifecycleCallback implements Application.ActivityLifecycleC
             return;
         }
 
-        // TODO Why are we pulling from local storage
         String triggerString = LocalStorageHelper.getString(activity, "trigger", null);
         EngagementTriggerHelper.renderInAppTriggerFromJSONString(activity, triggerString);
     }

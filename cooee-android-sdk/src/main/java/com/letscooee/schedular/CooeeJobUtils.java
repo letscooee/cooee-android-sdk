@@ -63,7 +63,7 @@ public class CooeeJobUtils {
     }
 
     public static void schedulePendingTaskJob(Context context) {
-        // TODO: 03/06/21 Do we really need to check if the job is running or not
+
         if (isJobServiceOn(context, Constants.PENDING_TASK_JOB_ID)) {
             return;
         }

@@ -35,13 +35,7 @@ class AppLifecycleCallback implements DefaultLifecycleObserver {
     }
 
     @Override
-    public void onCreate(@NonNull LifecycleOwner owner) {
-        // TODO: 03/06/21 When this will be called?
-    }
-
-    @Override
     public void onResume(@NonNull LifecycleOwner owner) {
-        // TODO: 03/06/21 When this will be called?
         //Will set app is in foreground
         runtimeData.setInForeground();
         keepSessionAlive();
@@ -67,13 +61,8 @@ class AppLifecycleCallback implements DefaultLifecycleObserver {
     }
 
     @Override
-    public void onPause(@NonNull LifecycleOwner owner) {
-        // TODO: 03/06/21 When this will be called?
-    }
-
-    @Override
     public void onStop(@NonNull LifecycleOwner owner) {
-        // TODO: 03/06/21 When this will be called?
+
         runtimeData.setInBackground();
 
         //stop sending check message of session alive on app background
