@@ -2,14 +2,21 @@ package com.letscooee.retrofit;
 
 import android.text.TextUtils;
 import android.util.Log;
+
 import androidx.annotation.RestrictTo;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.letscooee.BuildConfig;
 import com.letscooee.CooeeFactory;
+import com.letscooee.utils.GsonDateAdapter;
+
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 import static com.letscooee.utils.Constants.LOG_PREFIX;
@@ -28,6 +35,7 @@ public class APIClient {
 
     private static String apiToken;
     private static String userId = "";
+    private static Gson gson = new GsonBuilder().registerTypeAdapter(Date.class, new GsonDateAdapter()).create();
 
     public static APIService getAPIService() {
         Retrofit retrofit = getClient();
@@ -73,7 +81,7 @@ public class APIClient {
         if (retrofit == null) {
             retrofit = new Retrofit.Builder()
                     .baseUrl(BASE_URL)
-                    .addConverterFactory(GsonConverterFactory.create())
+                    .addConverterFactory(GsonConverterFactory.create(gson))
                     .client(okHttpClient)
                     .build();
         }
