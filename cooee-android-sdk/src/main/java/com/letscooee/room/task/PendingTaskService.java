@@ -90,8 +90,7 @@ public class PendingTaskService extends ContextAware {
         task.type = taskType;
         task.dateCreated = new Date().getTime();
 
-        long id=this.database.pendingTaskDAO().insertAll(task);
-        task.id= (int) id;
+        task.id = this.database.pendingTaskDAO().insert(task);
 
         Log.v(Constants.LOG_PREFIX, "Created " + task);
         return task;
@@ -124,7 +123,7 @@ public class PendingTaskService extends ContextAware {
     private void reScheduleJob(PendingTaskJob pendingTaskJob) {
         pendingTaskJob.jobFinished(pendingTaskJob.getJobParameters(), false);
 
-        //Add delay to let previous job get fully finished
+        // Add delay to let previous job get fully finished
         handler.postDelayed(() -> CooeeJobUtils.schedulePendingTaskJob(context), 2000);
 
     }
