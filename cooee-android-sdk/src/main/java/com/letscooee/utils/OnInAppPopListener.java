@@ -9,7 +9,8 @@ public interface OnInAppPopListener {
 
     /**
      * Callback to send InApp is triggered to flutter plugin.
+     * @param blur int value for glassmorphism
      */
-    void onInAppTriggered();
+    void onInAppTriggered(int blur);
 
 }

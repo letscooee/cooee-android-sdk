@@ -825,7 +825,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
                     .onto((ViewGroup) _window.getDecorView());
 
             if (onInAppPopListener != null) {
-                onInAppPopListener.onInAppTriggered();
+                onInAppPopListener.onInAppTriggered(triggerData.getTriggerBackground().getBlur());
             }
         } else if (triggerData.getTriggerBackground().getType() == TriggerBehindBackground.Type.SOLID_COLOR) {
             ImageView imageView = findViewById(R.id.blurImage);
