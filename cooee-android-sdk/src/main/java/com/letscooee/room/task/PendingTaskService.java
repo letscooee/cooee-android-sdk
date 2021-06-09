@@ -1,7 +1,6 @@
 package com.letscooee.room.task;
 
 import android.content.Context;
-import android.os.Handler;
 import android.util.Log;
 
 import androidx.annotation.RestrictTo;
@@ -9,6 +8,7 @@ import androidx.annotation.RestrictTo;
 import com.google.gson.Gson;
 import com.letscooee.ContextAware;
 import com.letscooee.CooeeFactory;
+import com.letscooee.handler.CooeeHandler;
 import com.letscooee.models.Event;
 import com.letscooee.room.CooeeDatabase;
 import com.letscooee.room.task.processor.*;
@@ -38,7 +38,6 @@ public class PendingTaskService extends ContextAware {
     private final SentryHelper sentryHelper;
     private final CooeeDatabase database;
     private final Gson gson = new Gson();
-    Handler handler = new Handler();
 
     public static PendingTaskService getInstance(Context context) {
         if (INSTANCE == null) {
@@ -124,7 +123,7 @@ public class PendingTaskService extends ContextAware {
         pendingTaskJob.jobFinished(pendingTaskJob.getJobParameters(), false);
 
         // Add delay to let previous job get fully finished
-        handler.postDelayed(() -> CooeeJobUtils.schedulePendingTaskJob(context), 2000);
+        new CooeeHandler(2000).setOnCooeeHandlerComplete(() -> CooeeJobUtils.schedulePendingTaskJob(context));
 
     }
 
