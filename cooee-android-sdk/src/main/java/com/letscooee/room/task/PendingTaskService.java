@@ -9,7 +9,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.letscooee.ContextAware;
 import com.letscooee.CooeeFactory;
-import com.letscooee.handler.CooeeHandler;
+import com.letscooee.utils.Timer;
 import com.letscooee.models.Event;
 import com.letscooee.room.CooeeDatabase;
 import com.letscooee.room.task.processor.*;
@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.TimerTask;
 
 /**
  * A singleton service for utility over {@link PendingTask}.
@@ -39,7 +40,7 @@ public class PendingTaskService extends ContextAware {
 
     private final SentryHelper sentryHelper;
     private final CooeeDatabase database;
-    private final Gson gson = new GsonBuilder().registerTypeAdapter(Date.class,new GsonDateAdapter()).create();
+    private final Gson gson = new Gson();
 
     public static PendingTaskService getInstance(Context context) {
         if (INSTANCE == null) {
@@ -125,7 +126,14 @@ public class PendingTaskService extends ContextAware {
         pendingTaskJob.jobFinished(pendingTaskJob.getJobParameters(), false);
 
         // Add delay to let previous job get fully finished
-        new CooeeHandler(context,2000).setOnCooeeHandlerComplete(() -> CooeeJobUtils.schedulePendingTaskJob(context));
+        new Timer().schedule(
+                new TimerTask() {
+                    @Override
+                    public void run() {
+                        CooeeJobUtils.schedulePendingTaskJob(context);
+                    }
+                }, 2000
+        );
 
     }
 

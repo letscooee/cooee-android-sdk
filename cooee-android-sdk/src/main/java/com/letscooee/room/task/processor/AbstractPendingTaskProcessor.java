@@ -23,7 +23,7 @@ public abstract class AbstractPendingTaskProcessor<T> implements PendingTaskProc
 
     private final CooeeDatabase appDatabase;
 
-    protected final Gson gson = new GsonBuilder().registerTypeAdapter(Date.class,new GsonDateAdapter()).create();;
+    protected final Gson gson = new Gson();
     protected final Context context;
 
     protected AbstractPendingTaskProcessor(Context context) {
