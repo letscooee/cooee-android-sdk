@@ -1,13 +1,17 @@
 package com.letscooee;
 
 import android.content.Context;
+
 import com.letscooee.models.Event;
-import com.letscooee.retrofit.HttpCallsHelper;
 import com.letscooee.retrofit.UserAuthService;
 import com.letscooee.task.CooeeExecutors;
 import com.letscooee.trigger.inapp.InAppTriggerActivity;
 import com.letscooee.user.NewSessionExecutor;
-import com.letscooee.utils.*;
+import com.letscooee.utils.InAppNotificationClickListener;
+import com.letscooee.utils.PropertyNameException;
+import com.letscooee.utils.RuntimeData;
+import com.letscooee.utils.SentryHelper;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.ref.WeakReference;
@@ -79,7 +83,7 @@ public class CooeeSDK implements InAppTriggerActivity.InAppListener {
 
         Event event = new Event(eventName, eventProperties);
 
-        HttpCallsHelper.sendEvent(context, event, null);
+        CooeeFactory.getSafeHTTPService().sendEvent(event);
     }
 
     /**
@@ -132,7 +136,7 @@ public class CooeeSDK implements InAppTriggerActivity.InAppListener {
         }
 
         this.sentryHelper.setUserInfo(userData);
-        HttpCallsHelper.sendUserProfile(userMap);
+        CooeeFactory.getSafeHTTPService().updateUserProfile(userMap);
     }
 
     /**

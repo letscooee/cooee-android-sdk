@@ -17,9 +17,11 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.RemoteViews;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
+
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
@@ -28,6 +30,7 @@ import com.google.firebase.messaging.RemoteMessage;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.letscooee.BuildConfig;
+import com.letscooee.CooeeFactory;
 import com.letscooee.R;
 import com.letscooee.brodcast.OnPushNotificationButtonClick;
 import com.letscooee.models.CarouselData;
@@ -36,17 +39,17 @@ import com.letscooee.models.TriggerButton;
 import com.letscooee.models.TriggerData;
 import com.letscooee.pushnotification.PushProviderUtils;
 import com.letscooee.retrofit.APIClient;
-import com.letscooee.retrofit.HttpCallsHelper;
 import com.letscooee.trigger.CooeeEmptyActivity;
 import com.letscooee.trigger.EngagementTriggerHelper;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.LocalStorageHelper;
-import io.sentry.Sentry;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+
+import io.sentry.Sentry;
 
 /**
  * MyFirebaseMessagingService helps connects with firebase for push notification
@@ -381,7 +384,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
     public static void sendEvent(Context context, Event event) {
         APIClient.setAPIToken(LocalStorageHelper.getString(context, Constants.STORAGE_SDK_TOKEN, ""));
 
-        HttpCallsHelper.sendEvent(context, event, null);
+        CooeeFactory.getSafeHTTPService().sendEvent(event);
     }
 
     /**

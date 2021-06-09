@@ -10,7 +10,6 @@ import androidx.lifecycle.LifecycleOwner;
 
 import com.letscooee.CooeeFactory;
 import com.letscooee.models.Event;
-import com.letscooee.retrofit.HttpCallsHelper;
 import com.letscooee.user.NewSessionExecutor;
 import com.letscooee.user.SessionManager;
 import com.letscooee.utils.Constants;
@@ -56,7 +55,7 @@ class AppLifecycleCallback implements DefaultLifecycleObserver {
             eventProps.put("CE Duration", backgroundDuration / 1000);
             Event session = new Event("CE App Foreground", eventProps);
 
-            HttpCallsHelper.sendEvent(context, session, null);
+            CooeeFactory.getSafeHTTPService().sendEvent(session);
         }
     }
 
@@ -78,7 +77,7 @@ class AppLifecycleCallback implements DefaultLifecycleObserver {
         sessionProperties.put("CE Duration", duration);
 
         Event session = new Event("CE App Background", sessionProperties);
-        HttpCallsHelper.sendEvent(context, session, null);
+        CooeeFactory.getSafeHTTPService().sendEvent(session);
     }
 
     /**
