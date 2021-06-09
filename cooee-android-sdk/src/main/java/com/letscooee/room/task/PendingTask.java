@@ -16,7 +16,7 @@ import androidx.room.TypeConverters;
 public class PendingTask {
 
     @PrimaryKey(autoGenerate = true)
-    public int id;
+    public long id;
 
     @ColumnInfo(name = "attempts")
     public int attempts;
