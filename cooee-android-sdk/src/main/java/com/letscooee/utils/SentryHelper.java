@@ -3,10 +3,15 @@ package com.letscooee.utils;
 import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
+
 import androidx.annotation.RestrictTo;
+
 import com.letscooee.BuildConfig;
 import com.letscooee.ContextAware;
 import com.letscooee.device.AppInfo;
+import com.letscooee.trigger.inapp.InAppTriggerActivity;
+
+import io.sentry.CustomSamplingContext;
 import io.sentry.Sentry;
 import io.sentry.SentryEvent;
 import io.sentry.SentryOptions;
@@ -56,6 +61,20 @@ public class SentryHelper extends ContextAware {
             options.setDsn(COOEE_DSN);
             options.setRelease("com.letscooee@" + BuildConfig.VERSION_NAME + "+" + BuildConfig.VERSION_CODE);
             options.setEnvironment(BuildConfig.DEBUG ? "development" : "production");
+
+            options.setTracesSampler(context -> {
+                CustomSamplingContext ctx = context.getCustomSamplingContext();
+                if (ctx != null) {
+                    if (InAppTriggerActivity.class.getSimpleName().equals(ctx.get("ActivityName"))) {
+                        // These are important - take a big sample
+                        return 0.75;
+                    } else {
+                        return null;
+                    }
+                }
+
+                return 0.25;
+            });
 
             this.setupFilterToExcludeNonCooeeEvents(options);
         });

@@ -1,7 +1,9 @@
 package com.letscooee;
 
 import android.content.Context;
+
 import androidx.annotation.RestrictTo;
+
 import com.letscooee.device.AppInfo;
 import com.letscooee.device.DeviceInfo;
 import com.letscooee.network.BaseHTTPService;
@@ -11,6 +13,9 @@ import com.letscooee.user.SessionManager;
 import com.letscooee.utils.ManifestReader;
 import com.letscooee.utils.RuntimeData;
 import com.letscooee.utils.SentryHelper;
+
+import io.sentry.ITransaction;
+import io.sentry.Sentry;
 
 /**
  * A factory pattern utility class to provide the singleton instances of various classes.
@@ -46,6 +51,9 @@ public class CooeeFactory {
         sentryHelper = new SentryHelper(context, appInfo, manifestReader);
         sentryHelper.init();
 
+        // Sentry should be initialized first
+        ITransaction transaction = Sentry.startTransaction("CooeeFactory.init()", "task");
+
         runtimeData = RuntimeData.getInstance(context);
         sessionManager = SessionManager.getInstance(context);
         baseHTTPService = new BaseHTTPService(context);
@@ -53,6 +61,7 @@ public class CooeeFactory {
         userAuthService = UserAuthService.getInstance(context);
 
         userAuthService.populateUserDataFromStorage();
+        transaction.finish();
 
         initialized = true;
     }
