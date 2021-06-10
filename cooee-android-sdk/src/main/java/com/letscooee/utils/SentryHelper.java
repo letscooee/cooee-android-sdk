@@ -127,13 +127,13 @@ public class SentryHelper extends ContextAware {
             }
         }
 
-        if (event.getThrowable() == null) {
+        if (event.getOriginThrowable() == null) {
             return false;
         }
 
         StringWriter stringWriter = new StringWriter();
         PrintWriter printWriter = new PrintWriter(stringWriter);
-        Objects.requireNonNull(event.getThrowable()).printStackTrace(printWriter);
+        Objects.requireNonNull(event.getOriginThrowable()).printStackTrace(printWriter);
         String stackTrace = stringWriter.toString();
 
         return stackTrace.toLowerCase().contains("cooee");
