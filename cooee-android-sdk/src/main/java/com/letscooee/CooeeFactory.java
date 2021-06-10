@@ -20,6 +20,7 @@ import com.letscooee.utils.SentryHelper;
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class CooeeFactory {
 
+    private static boolean initialized;
     private static AppInfo appInfo;
     private static DeviceInfo deviceInfo;
     private static RuntimeData runtimeData;
@@ -32,7 +33,11 @@ public class CooeeFactory {
     private CooeeFactory() {
     }
 
-    public static void init(Context context) {
+    public synchronized static void init(Context context) {
+        if (initialized) {
+            return;
+        }
+
         appInfo = AppInfo.getInstance(context);
         deviceInfo = DeviceInfo.getInstance(context);
         runtimeData = RuntimeData.getInstance(context);
@@ -41,6 +46,8 @@ public class CooeeFactory {
         sentryHelper = new SentryHelper(context, appInfo, manifestReader);
         baseHTTPService = new BaseHTTPService(context);
         safeHTTPService = new SafeHTTPService(context);
+
+        initialized = true;
     }
 
     public static AppInfo getAppInfo() {
