@@ -382,8 +382,6 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
      * @param event kpi event
      */
     public static void sendEvent(Context context, Event event) {
-        APIClient.setAPIToken(LocalStorageHelper.getString(context, Constants.STORAGE_SDK_TOKEN, ""));
-
         CooeeFactory.getSafeHTTPService().sendEvent(event);
     }
 

@@ -6,6 +6,7 @@ import com.letscooee.device.AppInfo;
 import com.letscooee.device.DeviceInfo;
 import com.letscooee.network.BaseHTTPService;
 import com.letscooee.network.SafeHTTPService;
+import com.letscooee.retrofit.UserAuthService;
 import com.letscooee.user.SessionManager;
 import com.letscooee.utils.ManifestReader;
 import com.letscooee.utils.RuntimeData;
@@ -29,6 +30,7 @@ public class CooeeFactory {
     private static ManifestReader manifestReader;
     private static BaseHTTPService baseHTTPService;
     private static SafeHTTPService safeHTTPService;
+    private static UserAuthService userAuthService;
 
     private CooeeFactory() {
     }
@@ -40,12 +42,17 @@ public class CooeeFactory {
 
         appInfo = AppInfo.getInstance(context);
         deviceInfo = DeviceInfo.getInstance(context);
-        runtimeData = RuntimeData.getInstance(context);
-        sessionManager = SessionManager.getInstance(context);
         manifestReader = ManifestReader.getInstance(context);
         sentryHelper = new SentryHelper(context, appInfo, manifestReader);
+        sentryHelper.init();
+
+        runtimeData = RuntimeData.getInstance(context);
+        sessionManager = SessionManager.getInstance(context);
         baseHTTPService = new BaseHTTPService(context);
         safeHTTPService = new SafeHTTPService(context);
+        userAuthService = UserAuthService.getInstance(context);
+
+        userAuthService.populateUserDataFromStorage();
 
         initialized = true;
     }

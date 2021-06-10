@@ -46,7 +46,6 @@ public class CooeeSDK implements InAppTriggerActivity.InAppListener {
         this.userAuthService = UserAuthService.getInstance(context);
 
         CooeeExecutors.getInstance().singleThreadExecutor().execute(() -> {
-            this.userAuthService.populateUserDataFromStorage();
             this.userAuthService.acquireSDKToken();
 
             new NewSessionExecutor(this.context).execute();

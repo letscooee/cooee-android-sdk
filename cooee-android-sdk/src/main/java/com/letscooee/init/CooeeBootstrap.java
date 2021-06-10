@@ -44,14 +44,9 @@ public class CooeeBootstrap {
      */
     private void initAsyncTasks() {
         CooeeExecutors.getInstance().singleThreadExecutor().execute(() -> {
-            initSentry();
             getAndUpdateFirebaseToken();
             checkAndStartJob();
         });
-    }
-
-    private void initSentry() {
-        CooeeFactory.getSentryHelper().init();
     }
 
     /**
