@@ -3,10 +3,8 @@ package com.letscooee.init;
 import android.app.Application;
 import android.content.Context;
 import android.util.Log;
-
 import androidx.annotation.RestrictTo;
 import androidx.lifecycle.ProcessLifecycleOwner;
-
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.letscooee.BuildConfig;
 import com.letscooee.CooeeFactory;
@@ -32,7 +30,7 @@ public class CooeeBootstrap {
         this.application = application;
         this.context = application.getApplicationContext();
 
-        CooeeFactory.getInstance(this.context);
+        CooeeFactory.init(this.context);
     }
 
     void init() {
@@ -46,9 +44,14 @@ public class CooeeBootstrap {
      */
     private void initAsyncTasks() {
         CooeeExecutors.getInstance().singleThreadExecutor().execute(() -> {
+            initSentry();
             getAndUpdateFirebaseToken();
             checkAndStartJob();
         });
+    }
+
+    private void initSentry() {
+        CooeeFactory.getSentryHelper().init();
     }
 
     /**

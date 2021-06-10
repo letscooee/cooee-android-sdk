@@ -287,7 +287,6 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
      * @param triggerData received from data payload
      */
     private void showNotification(TriggerData triggerData) {
-        // TODO: 10/06/21 Need to show PN If image is not present
         String title = getNotificationTitle(triggerData);
         String body = getNotificationBody(triggerData);
 
@@ -383,6 +382,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
      * @param event kpi event
      */
     public static void sendEvent(Context context, Event event) {
+        APIClient.setAPIToken(LocalStorageHelper.getString(context, Constants.STORAGE_SDK_TOKEN, ""));
 
         CooeeFactory.getSafeHTTPService().sendEvent(event);
     }

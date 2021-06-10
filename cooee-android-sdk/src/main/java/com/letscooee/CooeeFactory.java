@@ -1,14 +1,11 @@
 package com.letscooee;
 
 import android.content.Context;
-
 import androidx.annotation.RestrictTo;
-
 import com.letscooee.device.AppInfo;
 import com.letscooee.device.DeviceInfo;
 import com.letscooee.network.BaseHTTPService;
 import com.letscooee.network.SafeHTTPService;
-import com.letscooee.retrofit.UserAuthService;
 import com.letscooee.user.SessionManager;
 import com.letscooee.utils.ManifestReader;
 import com.letscooee.utils.RuntimeData;
@@ -23,7 +20,6 @@ import com.letscooee.utils.SentryHelper;
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class CooeeFactory {
 
-    private static CooeeFactory INSTANCE;
     private static AppInfo appInfo;
     private static DeviceInfo deviceInfo;
     private static RuntimeData runtimeData;
@@ -32,13 +28,11 @@ public class CooeeFactory {
     private static ManifestReader manifestReader;
     private static BaseHTTPService baseHTTPService;
     private static SafeHTTPService safeHTTPService;
-    private static UserAuthService userAuthService;
 
-    private CooeeFactory(Context context) {
-        init(context);
+    private CooeeFactory() {
     }
 
-    private void init(Context context) {
+    public static void init(Context context) {
         appInfo = AppInfo.getInstance(context);
         deviceInfo = DeviceInfo.getInstance(context);
         runtimeData = RuntimeData.getInstance(context);
@@ -47,27 +41,7 @@ public class CooeeFactory {
         sentryHelper = new SentryHelper(context, appInfo, manifestReader);
         baseHTTPService = new BaseHTTPService(context);
         safeHTTPService = new SafeHTTPService(context);
-        userAuthService = UserAuthService.getInstance(context);
-
-        sentryHelper.init();
-        userAuthService.populateUserDataFromStorage();
-
     }
-
-    /**
-     * Initialise the {@link CooeeFactory}
-     */
-    public static CooeeFactory getInstance(Context context) {
-        if (INSTANCE == null) {
-            synchronized (CooeeFactory.class) {
-                if (INSTANCE == null) {
-                    INSTANCE = new CooeeFactory(context);
-                }
-            }
-        }
-        return INSTANCE;
-    }
-
 
     public static AppInfo getAppInfo() {
         return appInfo;
