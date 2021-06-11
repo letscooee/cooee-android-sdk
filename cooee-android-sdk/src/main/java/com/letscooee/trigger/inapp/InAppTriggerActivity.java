@@ -56,7 +56,7 @@ import jp.wasabeef.blurry.Blurry;
 
 public class InAppTriggerActivity extends AppCompatActivity implements PreventBlurActivity {
 
-    private static TriggerData triggerData;
+    private TriggerData triggerData;
     ImageButton closeImageButton;
     RelativeLayout secondParentLayout;
     TextView textViewTimer;
@@ -73,7 +73,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
     private int watchedTill;
     private int videoSeenCounter = 0;
     private boolean isVideoUnmuted;
-    public static boolean isManualClose = true;
+    public boolean isManualClose = true;
     private final SafeHTTPService safeHTTPService;
 
     public InAppTriggerActivity() {
@@ -893,8 +893,11 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
         updateExit();
     }
 
-    // Used to send TriggerData to flutter
-    public static TriggerData getTriggerData() {
+    public TriggerData getTriggerData() {
         return triggerData;
+    }
+
+    public boolean isManualClose() {
+        return isManualClose;
     }
 }
