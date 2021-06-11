@@ -1,13 +1,11 @@
 package com.letscooee.utils;
 
-import java.util.Map;
-
 /**
  * A simple callback utility for any purpose.
  *
  * @author Abhishek Taparia
  */
-public interface Closure {
+public interface Closure<T> {
 
-    void call(Map<String, Object> data);
+    void call(T data);
 }

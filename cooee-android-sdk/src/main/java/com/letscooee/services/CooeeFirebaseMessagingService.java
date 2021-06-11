@@ -1,6 +1,5 @@
 package com.letscooee.services;
 
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.TaskStackBuilder;
 import android.content.Context;
@@ -8,7 +7,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -16,7 +14,6 @@ import android.view.View;
 import android.widget.RemoteViews;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
 import com.bumptech.glide.Glide;
@@ -31,6 +28,7 @@ import com.letscooee.BuildConfig;
 import com.letscooee.CooeeFactory;
 import com.letscooee.R;
 import com.letscooee.brodcast.OnPushNotificationButtonClick;
+import com.letscooee.loader.http.RemoteImageLoader;
 import com.letscooee.models.CarouselData;
 import com.letscooee.models.Event;
 import com.letscooee.models.TriggerButton;
@@ -38,12 +36,12 @@ import com.letscooee.models.TriggerData;
 import com.letscooee.models.trigger.InAppTrigger;
 import com.letscooee.models.trigger.PushNotificationTrigger;
 import com.letscooee.pushnotification.PushProviderUtils;
-import com.letscooee.trigger.pushnotification.CarouselNotificationRenderer;
-import com.letscooee.trigger.pushnotification.NotificationRenderer;
-import com.letscooee.trigger.pushnotification.SimpleNotificationRenderer;
 import com.letscooee.retrofit.APIClient;
 import com.letscooee.trigger.CooeeEmptyActivity;
 import com.letscooee.trigger.EngagementTriggerHelper;
+import com.letscooee.trigger.pushnotification.CarouselNotificationRenderer;
+import com.letscooee.trigger.pushnotification.NotificationRenderer;
+import com.letscooee.trigger.pushnotification.SimpleNotificationRenderer;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.LocalStorageHelper;
 
@@ -75,6 +73,10 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
 
         this.handleTriggerData(remoteMessage.getData().get("triggerData"));
     }
+
+    // TODO: 11/06/21 All code from below should be moved to their respective files
+
+    RemoteImageLoader imageLoader = new RemoteImageLoader(getApplicationContext());
 
     private void handleTriggerData(String rawTriggerData) {
         if (TextUtils.isEmpty(rawTriggerData)) {
@@ -119,8 +121,9 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
 
         if (triggerData instanceof PushNotificationTrigger) {
             sendEvent(getApplicationContext(), new Event("CE Notification Received", eventProps));
+
             if (triggerData.isCarousel()) {
-                loadBitmaps(triggerData.getCarouselData(), 0, (PushNotificationTrigger) triggerData);
+                loadCarouselImages(triggerData.getCarouselData(), 0, (PushNotificationTrigger) triggerData);
             } else {
                 showNotification((PushNotificationTrigger) triggerData);
             }
@@ -129,29 +132,14 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
         }
     }
 
-    private final ArrayList<Bitmap> bitmaps = new ArrayList<>();
+    private final ArrayList<Bitmap> carouselBitmaps = new ArrayList<>();
 
-    private void loadBitmaps(CarouselData[] carouselData, final int i, PushNotificationTrigger triggerData) {
+    private void loadCarouselImages(CarouselData[] carouselData, final int i, PushNotificationTrigger triggerData) {
         if (i < carouselData.length) {
-
-            try {
-                Glide.with(getApplicationContext())
-                        .asBitmap().load(carouselData[i].getImageUrl()).into(new CustomTarget<Bitmap>() {
-                    @Override
-                    public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
-                        bitmaps.add(resource);
-                        loadBitmaps(triggerData.getCarouselData(), i + 1, triggerData);
-                    }
-
-                    @Override
-                    public void onLoadCleared(@Nullable Drawable placeholder) {
-
-                    }
-                });
-            } catch (Exception e) {
-                Sentry.captureException(e);
-            }
-
+            this.imageLoader.load(carouselData[i].getImageUrl(), (Bitmap resource) -> {
+                carouselBitmaps.add(resource);
+                loadCarouselImages(triggerData.getCarouselData(), i + 1, triggerData);
+            });
         } else {
             showCarouselNotification(triggerData);
         }
@@ -212,9 +200,9 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
         views.setOnClickPendingIntent(R.id.right, pendingIntentRight);
         views.setViewVisibility(R.id.left, View.INVISIBLE);
 
-        for (int i = 0; i < bitmaps.size(); i++) {
+        for (int i = 0; i < carouselBitmaps.size(); i++) {
             RemoteViews image = new RemoteViews(getPackageName(), R.layout.row_notification_list);
-            image.setImageViewBitmap(R.id.caroselImage, bitmaps.get(i));
+            image.setImageViewBitmap(R.id.caroselImage, carouselBitmaps.get(i));
 
             CarouselData data = triggerData.getCarouselData()[i];
 
@@ -296,11 +284,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
 
         addAction(notificationBuilder, createActionButtons(triggerData, renderer.getNotificationID()));
 
-        Glide.with(getApplicationContext())
-                .asBitmap().load(triggerData.getImageUrl1()).into(new CustomTarget<Bitmap>() {
-            @Override
-            public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
-
+        this.imageLoader.load(triggerData.getImageUrl1(), (Bitmap resource) -> {
                 smallNotification.setImageViewBitmap(R.id.imageViewLarge, resource);
                 largeNotification.setImageViewBitmap(R.id.imageViewLarge, resource);
                 notificationBuilder
@@ -309,12 +293,6 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
                         .setContentIntent(appLaunchPendingIntent);
 
                 renderer.render();
-            }
-
-            @Override
-            public void onLoadCleared(@Nullable Drawable placeholder) {
-
-            }
         });
     }
 
