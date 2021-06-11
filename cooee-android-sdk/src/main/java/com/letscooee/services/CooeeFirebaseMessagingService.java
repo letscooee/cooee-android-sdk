@@ -158,16 +158,8 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
 
         Context context = getApplicationContext();
         NotificationRenderer renderer = new CarouselNotificationRenderer(context, triggerData);
-        NotificationCompat.Builder notificationBuilder = renderer.getBuilder();
-        NotificationManager notificationManager = renderer.getNotificationManager();
 
-        RemoteViews smallNotification = new RemoteViews(getPackageName(), R.layout.notification_small);
-        smallNotification.setTextViewText(R.id.textViewTitle, title);
-        smallNotification.setTextViewText(R.id.textViewInfo, body);
-
-        RemoteViews views = new RemoteViews(getPackageName(), R.layout.notification_carousel);
-        views.setTextViewText(R.id.textViewTitle, title);
-        views.setTextViewText(R.id.textViewInfo, body);
+        RemoteViews views = renderer.getBigContentView();
 
         Bundle bundle = new Bundle();
         bundle.putInt("POSITION", triggerData.getCarouselOffset());
@@ -232,10 +224,6 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
             views.addView(R.id.lvNotificationList, image);
         }
 
-        notificationBuilder
-                .setCustomContentView(smallNotification)
-                .setCustomBigContentView(views);
-
         renderer.render();
     }
 
@@ -254,13 +242,6 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
      * @param triggerData received from data payload
      */
     private void showNotification(PushNotificationTrigger triggerData) {
-        String title = triggerData.getNotificationTitle();
-        String body = triggerData.getNotificationBody();
-
-        if (title == null) {
-            return;
-        }
-
         Context context = getApplicationContext();
         NotificationRenderer renderer = new SimpleNotificationRenderer(context, triggerData);
         NotificationCompat.Builder notificationBuilder = renderer.getBuilder();
@@ -274,25 +255,18 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
 
         PendingIntent appLaunchPendingIntent = PendingIntent.getActivity(this, triggerData.getId().hashCode(), appLaunchIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        RemoteViews smallNotification = new RemoteViews(getPackageName(), R.layout.notification_small);
-        smallNotification.setTextViewText(R.id.textViewTitle, title);
-        smallNotification.setTextViewText(R.id.textViewInfo, body);
-
-        RemoteViews largeNotification = new RemoteViews(getPackageName(), R.layout.notification_large);
-        largeNotification.setTextViewText(R.id.textViewTitle, title);
-        largeNotification.setTextViewText(R.id.textViewInfo, body);
+        RemoteViews smallViews = renderer.getSmallContentView();
+        RemoteViews bigViews = renderer.getBigContentView();
 
         addAction(notificationBuilder, createActionButtons(triggerData, renderer.getNotificationID()));
 
-        this.imageLoader.load(triggerData.getImageUrl1(), (Bitmap resource) -> {
-                smallNotification.setImageViewBitmap(R.id.imageViewLarge, resource);
-                largeNotification.setImageViewBitmap(R.id.imageViewLarge, resource);
-                notificationBuilder
-                        .setCustomContentView(smallNotification)
-                        .setCustomBigContentView(largeNotification)
-                        .setContentIntent(appLaunchPendingIntent);
+        notificationBuilder.setContentIntent(appLaunchPendingIntent);
 
-                renderer.render();
+        this.imageLoader.load(triggerData.getImageUrl1(), (Bitmap resource) -> {
+            smallViews.setImageViewBitmap(R.id.imageViewLarge, resource);
+            bigViews.setImageViewBitmap(R.id.imageViewLarge, resource);
+
+            renderer.render();
         });
     }
 

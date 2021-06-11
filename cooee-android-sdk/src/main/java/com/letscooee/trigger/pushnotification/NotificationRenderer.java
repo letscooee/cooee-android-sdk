@@ -8,8 +8,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.service.notification.StatusBarNotification;
+import android.widget.RemoteViews;
 import androidx.core.app.NotificationCompat;
 import com.letscooee.CooeeFactory;
+import com.letscooee.R;
 import com.letscooee.models.Event;
 import com.letscooee.models.TriggerData;
 import com.letscooee.models.trigger.PushNotificationTrigger;
@@ -29,9 +31,12 @@ import java.util.Map;
  */
 public abstract class NotificationRenderer {
 
-    private final Context context;
+    protected final Context context;
+    protected final PushNotificationTrigger triggerData;
+    protected final RemoteViews smallContentViews;
+    protected final RemoteViews bigContentViews;
+
     private final SafeHTTPService safeHTTPService;
-    private final PushNotificationTrigger triggerData;
     private final NotificationSound notificationSound;
     private final NotificationManager notificationManager;
     private final NotificationCompat.Builder notificationBuilder;
@@ -47,9 +52,34 @@ public abstract class NotificationRenderer {
         this.notificationBuilder = new NotificationCompat.Builder(this.context, Constants.NOTIFICATION_CHANNEL_ID);
         this.notificationSound = new NotificationSound(context, triggerData, notificationBuilder);
 
+        this.smallContentViews = new RemoteViews(context.getPackageName(), R.layout.notification_small);
+        this.bigContentViews = new RemoteViews(context.getPackageName(), R.layout.notification_carousel);
+
         this.createChannel();
         this.setBuilder();
         this.notificationSound.setSoundInNotification();
+    }
+
+    abstract void updateSmallContentView();
+
+    abstract void updateBigContentView();
+
+    public NotificationCompat.Builder getBuilder() {
+        return notificationBuilder;
+    }
+
+    protected void setTitleAndBody() {
+        String title = this.triggerData.getNotificationTitle();
+        String body = this.triggerData.getNotificationBody();
+
+        this.notificationBuilder
+                .setContentTitle(title)
+                .setContentText(body);
+
+        this.smallContentViews.setTextViewText(R.id.textViewTitle, title);
+        this.smallContentViews.setTextViewText(R.id.textViewInfo, body);
+        this.bigContentViews.setTextViewText(R.id.textViewTitle, title);
+        this.bigContentViews.setTextViewText(R.id.textViewInfo, body);
     }
 
     private void setBuilder() {
@@ -58,14 +88,12 @@ public abstract class NotificationRenderer {
                 .setAutoCancel(true)
                 // TODO: 11/06/21 It should be the date of engagement trigger planned
                 .setWhen(System.currentTimeMillis())
-                .setContentTitle(this.triggerData.getNotificationTitle())
-                .setContentText(this.triggerData.getNotificationBody())
                 .setSmallIcon(context.getApplicationInfo().icon)
+                .setCustomContentView(smallContentViews)
+                .setCustomBigContentView(bigContentViews)
                 .setStyle(new NotificationCompat.DecoratedCustomViewStyle());
-    }
 
-    public NotificationCompat.Builder getBuilder() {
-        return notificationBuilder;
+        this.setTitleAndBody();
     }
 
     private void createChannel() {
@@ -116,6 +144,14 @@ public abstract class NotificationRenderer {
 
     public NotificationManager getNotificationManager() {
         return this.notificationManager;
+    }
+
+    public RemoteViews getSmallContentView() {
+        return this.smallContentViews;
+    }
+
+    public RemoteViews getBigContentView() {
+        return this.bigContentViews;
     }
 
     public void render() {

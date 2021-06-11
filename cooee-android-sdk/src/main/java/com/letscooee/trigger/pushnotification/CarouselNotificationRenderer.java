@@ -1,6 +1,7 @@
 package com.letscooee.trigger.pushnotification;
 
 import android.content.Context;
+import com.letscooee.R;
 import com.letscooee.models.TriggerData;
 import com.letscooee.models.trigger.PushNotificationTrigger;
 
@@ -14,5 +15,13 @@ public class CarouselNotificationRenderer extends NotificationRenderer {
 
     public CarouselNotificationRenderer(Context context, PushNotificationTrigger triggerData) {
         super(context, triggerData);
+    }
+
+    void updateSmallContentView() {
+        // TODO: 11/06/21 implement me
+    }
+
+    void updateBigContentView() {
+        // TODO: 11/06/21 implement me
     }
 }
