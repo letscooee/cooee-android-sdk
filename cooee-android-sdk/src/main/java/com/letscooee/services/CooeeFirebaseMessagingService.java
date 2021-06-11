@@ -1,15 +1,15 @@
 package com.letscooee.services;
 
-import android.app.*;
-import android.content.ContentResolver;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
-import android.media.AudioAttributes;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.service.notification.StatusBarNotification;
@@ -38,6 +38,7 @@ import com.letscooee.models.Event;
 import com.letscooee.models.TriggerButton;
 import com.letscooee.models.TriggerData;
 import com.letscooee.pushnotification.PushProviderUtils;
+import com.letscooee.pushnotification.renderer.NotificationRenderer;
 import com.letscooee.retrofit.APIClient;
 import com.letscooee.trigger.CooeeEmptyActivity;
 import com.letscooee.trigger.EngagementTriggerHelper;
@@ -45,7 +46,6 @@ import com.letscooee.utils.Constants;
 import com.letscooee.utils.LocalStorageHelper;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -150,26 +150,12 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
         if (title == null) {
             return;
         }
-        NotificationManager notificationManager = (NotificationManager) getApplicationContext()
-                .getSystemService(Context.NOTIFICATION_SERVICE);
-        Uri sound = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + getPackageName() + "/" + R.raw.notification_sound);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            AudioAttributes att = new AudioAttributes.Builder()
-                    .setUsage(AudioAttributes.USAGE_NOTIFICATION)
-                    .build();
 
-            NotificationChannel notificationChannel = new NotificationChannel(
-                    Constants.NOTIFICATION_CHANNEL_ID,
-                    Constants.NOTIFICATION_CHANNEL_NAME,
-                    NotificationManager.IMPORTANCE_DEFAULT);
-            notificationChannel.enableVibration(true);
-            notificationChannel.enableLights(true);
-            notificationChannel.setSound(sound, att);
-            notificationChannel.setDescription("");
-            notificationManager.createNotificationChannel(notificationChannel);
-        }
+        Context context = getApplicationContext();
+        NotificationRenderer renderer = new NotificationRenderer(context, triggerData);
+        NotificationCompat.Builder notificationBuilder = renderer.getBuilder();
+        NotificationManager notificationManager = renderer.getNotificationManager();
 
-        int notificationId = (int) new Date().getTime();
         RemoteViews smallNotification = new RemoteViews(getPackageName(), R.layout.notification_small);
         smallNotification.setTextViewText(R.id.textViewTitle, title);
         smallNotification.setTextViewText(R.id.textViewInfo, body);
@@ -180,7 +166,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
 
         Bundle bundle = new Bundle();
         bundle.putInt("POSITION", triggerData.getCarouselOffset());
-        bundle.putInt("NOTIFICATIONID", notificationId);
+        bundle.putInt("NOTIFICATIONID", renderer.getNotificationID());
         bundle.putParcelable("TRIGGERDATA", triggerData);
         bundle.putString("TYPE", "CAROUSEL");
 
@@ -242,10 +228,6 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
             views.addView(R.id.lvNotificationList, image);
         }
 
-        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(
-                getApplicationContext(),
-                Constants.NOTIFICATION_CHANNEL_ID);
-
         notificationBuilder.setAutoCancel(false)
                 .setWhen(System.currentTimeMillis())
                 .setSmallIcon(getApplicationInfo().icon)
@@ -253,17 +235,14 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
                 .setCustomContentView(smallNotification)
                 .setCustomBigContentView(views)
                 .setContentTitle(title)
-                .setSound(sound)
                 .setContentText(body);
 
-        Notification notification = notificationBuilder.build();
-
-        notificationManager.notify(notificationId, notification);
+        renderer.render();
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             StatusBarNotification[] statusBarNotifications = notificationManager.getActiveNotifications();
             for (StatusBarNotification statusBarNotification : statusBarNotifications) {
-                if (statusBarNotification.getId() == notificationId) {
+                if (statusBarNotification.getId() == renderer.getNotificationID()) {
                     Map<String, Object> eventProps = new HashMap<>();
                     eventProps.put("triggerID", triggerData.getId());
                     sendEvent(getApplicationContext(), new Event("CE Notification Viewed", eventProps));
@@ -294,20 +273,11 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
             return;
         }
 
-        NotificationManager notificationManager = (NotificationManager) getApplicationContext()
-                .getSystemService(Context.NOTIFICATION_SERVICE);
+        Context context = getApplicationContext();
+        NotificationRenderer renderer = new NotificationRenderer(context, triggerData);
+        NotificationCompat.Builder notificationBuilder = renderer.getBuilder();
+        NotificationManager notificationManager = renderer.getNotificationManager();
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel notificationChannel = new NotificationChannel(
-                    Constants.NOTIFICATION_CHANNEL_ID,
-                    Constants.NOTIFICATION_CHANNEL_NAME,
-                    NotificationManager.IMPORTANCE_DEFAULT);
-
-            notificationChannel.setDescription("");
-            notificationManager.createNotificationChannel(notificationChannel);
-        }
-
-        int notificationId = (int) System.currentTimeMillis();
         Intent appLaunchIntent = new Intent(this, CooeeEmptyActivity.class);
 
         Bundle bundle = new Bundle();
@@ -329,10 +299,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
                 .asBitmap().load(triggerData.getImageUrl1()).into(new CustomTarget<Bitmap>() {
             @Override
             public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
-                NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(
-                        getApplicationContext(),
-                        Constants.NOTIFICATION_CHANNEL_ID);
-                notificationBuilder = addAction(notificationBuilder, createActionButtons(triggerData, notificationId));
+                addAction(notificationBuilder, createActionButtons(triggerData, renderer.getNotificationID()));
 
                 smallNotification.setImageViewBitmap(R.id.imageViewLarge, resource);
                 largeNotification.setImageViewBitmap(R.id.imageViewLarge, resource);
@@ -355,12 +322,12 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
                         0,
                         deleteIntent,
                         PendingIntent.FLAG_ONE_SHOT);
-                notificationManager.notify(notificationId, notification);
+                renderer.render();
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     StatusBarNotification[] statusBarNotifications = notificationManager.getActiveNotifications();
                     for (StatusBarNotification statusBarNotification : statusBarNotifications) {
-                        if (statusBarNotification.getId() == notificationId) {
+                        if (statusBarNotification.getId() == renderer.getNotificationID()) {
                             Map<String, Object> eventProps = new HashMap<>();
                             eventProps.put("triggerID", triggerData.getId());
                             sendEvent(getApplicationContext(), new Event("CE Notification Viewed", eventProps));
@@ -472,14 +439,12 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
      *
      * @param builder NotificationCompat Builder
      * @param actions NotificationCompat.Action array
-     * @return NotificationCompat Builder
      */
-    private NotificationCompat.Builder addAction(NotificationCompat.Builder builder, NotificationCompat.Action[] actions) {
+    private void addAction(NotificationCompat.Builder builder, NotificationCompat.Action[] actions) {
         for (NotificationCompat.Action action : actions) {
             if (action != null && action.getTitle() != null) {
                 builder.addAction(action);
             }
         }
-        return builder;
     }
 }
