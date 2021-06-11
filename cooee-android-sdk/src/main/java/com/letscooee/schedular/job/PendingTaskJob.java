@@ -37,7 +37,8 @@ public class PendingTaskJob extends JobService {
         List<PendingTask> taskList = CooeeDatabase.getInstance(context)
                 .pendingTaskDAO()
                 .fetchBeforeTime(this.getTMinusTwoMinutes());
-        //As job was running on main thread so all the network call were getting break
+
+        // As job was running on main thread so all the network call were getting break
         CooeeExecutors.getInstance().singleThreadExecutor().execute(() ->
                 PendingTaskService.getInstance(context).processTasks(taskList, this)
         );
@@ -52,7 +53,7 @@ public class PendingTaskJob extends JobService {
 
     @Override
     public boolean onStopJob(JobParameters params) {
-        //returning false to let job get finish
+        // Returning false to let job get finish
         return false;
     }
 

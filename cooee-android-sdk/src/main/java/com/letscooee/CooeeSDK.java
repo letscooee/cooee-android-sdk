@@ -3,6 +3,7 @@ package com.letscooee;
 import android.content.Context;
 
 import com.letscooee.models.Event;
+import com.letscooee.network.SafeHTTPService;
 import com.letscooee.retrofit.UserAuthService;
 import com.letscooee.task.CooeeExecutors;
 import com.letscooee.trigger.inapp.InAppTriggerActivity;
@@ -31,6 +32,7 @@ public class CooeeSDK implements InAppTriggerActivity.InAppListener {
     private final RuntimeData runtimeData;
     private final SentryHelper sentryHelper;
     private final UserAuthService userAuthService;
+    private final SafeHTTPService safeHTTPService;
 
     private WeakReference<InAppNotificationClickListener> inAppNotificationClickListener;
 
@@ -41,9 +43,10 @@ public class CooeeSDK implements InAppTriggerActivity.InAppListener {
      */
     private CooeeSDK(@NotNull Context context) {
         this.context = context.getApplicationContext();
-        this.runtimeData = RuntimeData.getInstance(context);
+        this.runtimeData = CooeeFactory.getRuntimeData();
         this.sentryHelper = CooeeFactory.getSentryHelper();
-        this.userAuthService = UserAuthService.getInstance(context);
+        this.safeHTTPService = CooeeFactory.getSafeHTTPService();
+        this.userAuthService = CooeeFactory.getUserAuthService();
 
         CooeeExecutors.getInstance().singleThreadExecutor().execute(() -> {
             this.userAuthService.acquireSDKToken();
@@ -82,7 +85,7 @@ public class CooeeSDK implements InAppTriggerActivity.InAppListener {
 
         Event event = new Event(eventName, eventProperties);
 
-        CooeeFactory.getSafeHTTPService().sendEvent(event);
+        this.safeHTTPService.sendEvent(event);
     }
 
     /**
@@ -135,7 +138,7 @@ public class CooeeSDK implements InAppTriggerActivity.InAppListener {
         }
 
         this.sentryHelper.setUserInfo(userData);
-        CooeeFactory.getSafeHTTPService().updateUserProfile(userMap);
+        this.safeHTTPService.updateUserProfile(userMap);
     }
 
     /**

@@ -7,21 +7,20 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Common implementation for {@link ScheduledExecutorService}
+ * Common implementation of {@link ScheduledExecutorService} to make it a timer or interval.
  *
  * @author Ashish Gaikwad on 09/06/21
  * @version 0.3.0
  */
 public class Timer {
 
-    private final ScheduledExecutorService scheduledPool;
+    private final ScheduledExecutorService scheduledExecutor;
 
     public Timer() {
-
-        scheduledPool = Executors.newScheduledThreadPool(1);
+        scheduledExecutor = Executors.newScheduledThreadPool(1);
     }
 
     public void schedule(@NotNull Runnable runnable, long durationMillis) {
-        scheduledPool.schedule(runnable, durationMillis, TimeUnit.MILLISECONDS);
+        scheduledExecutor.schedule(runnable, durationMillis, TimeUnit.MILLISECONDS);
     }
 }

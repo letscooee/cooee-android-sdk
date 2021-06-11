@@ -97,4 +97,8 @@ public class CooeeFactory {
     public static SafeHTTPService getSafeHTTPService() {
         return safeHTTPService;
     }
+
+    public static UserAuthService getUserAuthService() {
+        return userAuthService;
+    }
 }

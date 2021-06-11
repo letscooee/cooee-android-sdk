@@ -155,6 +155,6 @@ public class NewSessionExecutor extends ContextAware {
         userMap.put("userProperties", userProperties);
         userMap.put("userData", new HashMap<>());
 
-        CooeeFactory.getSafeHTTPService().updateUserProfile(userMap);
+        this.safeHTTPService.updateUserProfile(userMap);
     }
 }
