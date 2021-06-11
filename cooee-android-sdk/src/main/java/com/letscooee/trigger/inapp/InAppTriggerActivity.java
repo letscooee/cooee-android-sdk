@@ -59,7 +59,7 @@ import jp.wasabeef.blurry.Blurry;
 
 public class InAppTriggerActivity extends AppCompatActivity implements PreventBlurActivity {
 
-    TriggerData triggerData;
+    private static TriggerData triggerData;
     ImageButton closeImageButton;
     RelativeLayout secondParentLayout;
     TextView textViewTimer;
@@ -76,9 +76,6 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
     private int watchedTill;
     private int videoSeenCounter = 0;
     private boolean isVideoUnmuted;
-    private static Bitmap flutterBitmap;
-    public static OnInAppPopListener onInAppPopListener;
-    public static OnInAppCloseListener onInAppCloseListener;
     public static boolean isManualClose = true;
     private final SafeHTTPService safeHTTPService;
 
@@ -86,11 +83,6 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
         safeHTTPService = CooeeFactory.getSafeHTTPService();
     }
 
-    public static void setBitmap(String base64) {
-        byte[] decodedString = Base64.decode(base64, Base64.DEFAULT);
-        Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-        flutterBitmap = decodedByte;
-    }
 
     public interface InAppListener {
         void inAppNotificationDidClick(HashMap<String, Object> payload);
@@ -838,10 +830,6 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
                     .animate(500)
                     .onto((ViewGroup) _window.getDecorView());
 
-            //TODO: 09/06/2021 Need to clear flutter related
-            if (onInAppPopListener != null) {
-                onInAppPopListener.onInAppTriggered(triggerData.getTriggerBackground().getBlur());
-            }
         } else if (triggerData.getTriggerBackground().getType() == TriggerBehindBackground.Type.SOLID_COLOR) {
             ImageView imageView = findViewById(R.id.blurImage);
             if (triggerData.getTriggerBackground() != null) {
@@ -865,16 +853,6 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
     protected void onPause() {
         super.onPause();
         Blurry.delete((ViewGroup) _window.getDecorView());
-
-        //TODO: 09/06/2021 Need to clear flutter related
-        if (onInAppCloseListener != null) {
-            onInAppCloseListener.onInAppClosed();
-            if (!isManualClose) {
-                LocalStorageHelper.putString(this, "trigger", new Gson().toJson(triggerData));
-                finish();
-            }
-
-        }
     }
 
     @Override
@@ -916,5 +894,10 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
         }
 
         updateExit();
+    }
+
+    // Used to send TriggerData to flutter
+    public static TriggerData getTriggerData() {
+        return triggerData;
     }
 }
