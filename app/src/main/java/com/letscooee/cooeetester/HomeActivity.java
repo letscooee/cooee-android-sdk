@@ -109,8 +109,8 @@ public class HomeActivity extends AppCompatActivity implements InAppNotification
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 NotificationChannel notificationChannel = new NotificationChannel(
-                        Constants.NOTIFICATION_CHANNEL_ID,
-                        Constants.NOTIFICATION_CHANNEL_NAME,
+                        Constants.DEFAULT_CHANNEL_ID,
+                        Constants.DEFAULT_CHANNEL_NAME,
                         NotificationManager.IMPORTANCE_DEFAULT);
 
                 notificationChannel.setDescription("");
@@ -172,7 +172,7 @@ public class HomeActivity extends AppCompatActivity implements InAppNotification
 
             NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(
                     getApplicationContext(),
-                    Constants.NOTIFICATION_CHANNEL_ID);
+                    Constants.DEFAULT_CHANNEL_ID);
             //notificationBuilder = addAction(notificationBuilder, createActionButtons(triggerData, notificationId));
 
                     /*smallNotification.setImageViewBitmap(R.id.imageViewLarge, resource);

@@ -14,10 +14,10 @@ import com.letscooee.CooeeFactory;
 import com.letscooee.R;
 import com.letscooee.models.Event;
 import com.letscooee.models.TriggerData;
+import com.letscooee.models.trigger.PushNotificationImportance;
 import com.letscooee.models.trigger.PushNotificationTrigger;
 import com.letscooee.network.SafeHTTPService;
 import com.letscooee.services.CooeeIntentService;
-import com.letscooee.utils.Constants;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -41,24 +41,23 @@ public abstract class NotificationRenderer {
     private final NotificationManager notificationManager;
     private final NotificationCompat.Builder notificationBuilder;
 
-    private final int notificationID = (int) new Date().getTime();
+    private final PushNotificationImportance notificationImportance;
 
-    private int notificationPriority;
-    private int notificationImportance;
+    private final int notificationID = (int) new Date().getTime();
 
     protected NotificationRenderer(Context context, PushNotificationTrigger triggerData) {
         this.context = context;
         this.triggerData = triggerData;
+        this.notificationImportance = this.triggerData.getImportance();
 
         this.safeHTTPService = CooeeFactory.getSafeHTTPService();
         this.notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        this.notificationBuilder = new NotificationCompat.Builder(this.context, Constants.NOTIFICATION_CHANNEL_ID);
+        this.notificationBuilder = new NotificationCompat.Builder(this.context, this.notificationImportance.getChannelID());
         this.notificationSound = new NotificationSound(context, triggerData, notificationBuilder);
 
         this.smallContentViews = new RemoteViews(context.getPackageName(), R.layout.notification_small);
         this.bigContentViews = new RemoteViews(context.getPackageName(), R.layout.notification_carousel);
 
-        this.decideImportance();
         this.createChannel();
         this.setBuilder();
         this.notificationSound.setSoundInNotification();
@@ -86,22 +85,6 @@ public abstract class NotificationRenderer {
         this.bigContentViews.setTextViewText(R.id.textViewInfo, body);
     }
 
-    /**
-     * Based on the data received from the backend, set the notification priority/importance.
-     * The default will be HIGH/MAX.
-     */
-    private void decideImportance() {
-        // The default value
-        this.notificationPriority = NotificationCompat.PRIORITY_MAX;
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            // The default value
-            this.notificationImportance = NotificationManager.IMPORTANCE_HIGH;
-        }
-
-        // TODO: 11/06/21 Decide importance and update those
-    }
-
     private void setBuilder() {
         this.notificationBuilder
                 // TODO: 11/06/21 Test this for carousel based notifications as it was false there
@@ -111,7 +94,7 @@ public abstract class NotificationRenderer {
                 .setSmallIcon(context.getApplicationInfo().icon)
                 .setCustomContentView(smallContentViews)
                 .setCustomBigContentView(bigContentViews)
-                .setPriority(this.notificationPriority)
+                .setPriority(this.notificationImportance.getPriority())
                 .setStyle(new NotificationCompat.DecoratedCustomViewStyle());
 
         this.setTitleAndBody();
@@ -123,17 +106,26 @@ public abstract class NotificationRenderer {
         }
 
         NotificationChannel notificationChannel = new NotificationChannel(
-                Constants.NOTIFICATION_CHANNEL_ID,
-                Constants.NOTIFICATION_CHANNEL_NAME,
-                NotificationManager.IMPORTANCE_DEFAULT);
+                notificationImportance.getChannelID(),
+                notificationImportance.getChannelName(),
+                NotificationManager.IMPORTANCE_HIGH);
 
-        // TODO: 11/06/21 Make vibration and lights configurable
-        notificationChannel.enableVibration(true);
-        notificationChannel.enableLights(true);
         notificationChannel.setDescription("");
-        notificationChannel.setImportance(this.notificationImportance);
 
-        this.notificationSound.setSoundInChannel(notificationChannel);
+        if (notificationImportance == PushNotificationImportance.DEFAULT) {
+            notificationChannel.setImportance(NotificationManager.IMPORTANCE_DEFAULT);
+        } else {
+            notificationChannel.setImportance(NotificationManager.IMPORTANCE_HIGH);
+        }
+
+        if (this.triggerData.pn != null) {
+            if (this.triggerData.pn.lights) notificationChannel.enableLights(true);
+            if (this.triggerData.pn.vibrate) notificationChannel.enableVibration(true);
+
+            if (this.triggerData.pn.sound) {
+                this.notificationSound.setSoundInChannel(notificationChannel);
+            }
+        }
 
         this.notificationManager.createNotificationChannel(notificationChannel);
     }

@@ -3,7 +3,23 @@ package com.letscooee.models.trigger;
 import android.text.TextUtils;
 import com.letscooee.models.TriggerData;
 
+/**
+ * A engagement trigger payload received from the service which is for rendering
+ * a push notification.
+ *
+ * @author Shashank Agrawal
+ * @since 0.3.0
+ */
 public class PushNotificationTrigger extends TriggerData {
+
+    public PushNotification pn;
+
+    public PushNotificationImportance getImportance() {
+        if (pn == null || pn.importance == null) {
+            return PushNotificationImportance.HIGH;
+        }
+        return pn.importance;
+    }
 
     public String getSmallImage() {
         return this.imageUrl1;

@@ -141,8 +141,8 @@ public class OnPushNotificationButtonClick extends BroadcastReceiver {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel notificationChannel = new NotificationChannel(
-                    Constants.NOTIFICATION_CHANNEL_ID,
-                    Constants.NOTIFICATION_CHANNEL_NAME,
+                    Constants.DEFAULT_CHANNEL_ID,
+                    Constants.DEFAULT_CHANNEL_NAME,
                     NotificationManager.IMPORTANCE_LOW);
 
             notificationChannel.setDescription("");
@@ -239,7 +239,7 @@ public class OnPushNotificationButtonClick extends BroadcastReceiver {
 
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(
                 context,
-                Constants.NOTIFICATION_CHANNEL_ID);
+                Constants.DEFAULT_CHANNEL_ID);
 
 
         notificationBuilder.setAutoCancel(false)

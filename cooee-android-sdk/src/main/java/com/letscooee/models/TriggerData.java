@@ -11,6 +11,7 @@ import java.util.Map;
  * @author Abhishek Taparia
  */
 public class TriggerData implements Parcelable {
+
     public enum Type {
         IMAGE, VIDEO
     }
