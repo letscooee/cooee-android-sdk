@@ -4,11 +4,13 @@ import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
 import android.os.Bundle;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import com.letscooee.CooeeFactory;
 import com.letscooee.models.Event;
 import com.letscooee.models.TriggerData;
-import com.letscooee.retrofit.HttpCallsHelper;
 import com.letscooee.trigger.CooeeEmptyActivity;
 import com.letscooee.trigger.EngagementTriggerHelper;
 import com.letscooee.trigger.inapp.InAppTriggerActivity;
@@ -94,7 +96,7 @@ public class ActivityLifecycleCallback implements Application.ActivityLifecycleC
                     @Override
                     public void run() {
                         EngagementTriggerHelper.renderInAppTrigger(context, triggerData);
-                        HttpCallsHelper.sendEvent(context, new Event("CE Notification Clicked", new HashMap<>()), null);
+                        CooeeFactory.getSafeHTTPService().sendEvent(new Event("CE Notification Clicked", new HashMap<>()));
                     }
                 }, 6000);
     }
@@ -120,7 +122,6 @@ public class ActivityLifecycleCallback implements Application.ActivityLifecycleC
             return;
         }
 
-        // TODO Why are we pulling from local storage
         String triggerString = LocalStorageHelper.getString(activity, "trigger", null);
         EngagementTriggerHelper.renderInAppTriggerFromJSONString(activity, triggerString);
     }

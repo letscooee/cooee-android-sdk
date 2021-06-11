@@ -44,14 +44,9 @@ public class CooeeBootstrap {
      */
     private void initAsyncTasks() {
         CooeeExecutors.getInstance().singleThreadExecutor().execute(() -> {
-            initSentry();
             getAndUpdateFirebaseToken();
             checkAndStartJob();
         });
-    }
-
-    private void initSentry() {
-        CooeeFactory.getSentryHelper().init();
     }
 
     /**
@@ -59,7 +54,6 @@ public class CooeeBootstrap {
      * If job is not present it will add job in a queue
      */
     private void checkAndStartJob() {
-        // TODO: 03/06/21 Do we really need to start manually
         CooeeJobUtils.schedulePendingTaskJob(context);
     }
 

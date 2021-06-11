@@ -22,7 +22,7 @@ public interface PendingTaskDAO {
     List<PendingTask> fetchBeforeTime(long date);
 
     @Insert
-    void insertAll(PendingTask... task);
+    long insert(PendingTask task);
 
     @Delete
     void delete(PendingTask task);

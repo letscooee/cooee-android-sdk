@@ -2,16 +2,19 @@ package com.letscooee.user;
 
 import android.content.Context;
 import android.os.Build;
+
 import androidx.annotation.RestrictTo;
+
 import com.letscooee.BuildConfig;
 import com.letscooee.ContextAware;
 import com.letscooee.CooeeFactory;
 import com.letscooee.device.AppInfo;
 import com.letscooee.init.DefaultUserPropertiesCollector;
 import com.letscooee.models.Event;
-import com.letscooee.retrofit.HttpCallsHelper;
+import com.letscooee.network.SafeHTTPService;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.LocalStorageHelper;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Date;
@@ -30,6 +33,7 @@ public class NewSessionExecutor extends ContextAware {
     private final DefaultUserPropertiesCollector defaultUserPropertiesCollector;
     private final AppInfo appInfo;
     private final SessionManager sessionManager;
+    private final SafeHTTPService safeHTTPService;
 
     /**
      * Public Constructor
@@ -41,6 +45,7 @@ public class NewSessionExecutor extends ContextAware {
         this.defaultUserPropertiesCollector = new DefaultUserPropertiesCollector(context);
         this.sessionManager = SessionManager.getInstance(context);
         this.appInfo = CooeeFactory.getAppInfo();
+        this.safeHTTPService = CooeeFactory.getSafeHTTPService();
     }
 
     public void execute() {
@@ -79,7 +84,7 @@ public class NewSessionExecutor extends ContextAware {
         eventProperties.put("CE App Version", appInfo.getVersion());
         Event event = new Event("CE App Installed", eventProperties);
 
-        HttpCallsHelper.sendEvent(context, event, null);
+        safeHTTPService.sendEvent(event);
     }
 
     /**
@@ -103,7 +108,7 @@ public class NewSessionExecutor extends ContextAware {
         eventProperties.put("CE Device Battery", defaultUserPropertiesCollector.getBatteryLevel());
 
         Event event = new Event("CE App Launched", eventProperties);
-        HttpCallsHelper.sendEvent(context, event, null);
+        safeHTTPService.sendEvent(event);
     }
 
     /**
@@ -150,6 +155,6 @@ public class NewSessionExecutor extends ContextAware {
         userMap.put("userProperties", userProperties);
         userMap.put("userData", new HashMap<>());
 
-        HttpCallsHelper.sendUserProfile(userMap);
+        this.safeHTTPService.updateUserProfile(userMap);
     }
 }

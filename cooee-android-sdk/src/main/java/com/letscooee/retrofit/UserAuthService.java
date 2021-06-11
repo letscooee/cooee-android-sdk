@@ -4,8 +4,10 @@ import android.content.Context;
 import android.os.Build;
 import android.text.TextUtils;
 import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+
 import com.letscooee.BuildConfig;
 import com.letscooee.CooeeFactory;
 import com.letscooee.models.AuthenticationRequestBody;
@@ -48,7 +50,7 @@ public class UserAuthService {
 
     public boolean hasToken() {
         String sdkToken = LocalStorageHelper.getString(context, Constants.STORAGE_SDK_TOKEN, null);
-        return TextUtils.isEmpty(sdkToken);
+        return !TextUtils.isEmpty(sdkToken);
     }
 
     public String getUserID() {

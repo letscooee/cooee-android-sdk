@@ -2,21 +2,28 @@ package com.letscooee.room.task;
 
 import android.content.Context;
 import android.util.Log;
+
 import androidx.annotation.RestrictTo;
+
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.letscooee.ContextAware;
 import com.letscooee.CooeeFactory;
+import com.letscooee.utils.Timer;
 import com.letscooee.models.Event;
 import com.letscooee.room.CooeeDatabase;
 import com.letscooee.room.task.processor.*;
+import com.letscooee.schedular.CooeeJobUtils;
 import com.letscooee.schedular.job.PendingTaskJob;
 import com.letscooee.utils.Constants;
+import com.letscooee.utils.GsonDateAdapter;
 import com.letscooee.utils.SentryHelper;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.TimerTask;
 
 /**
  * A singleton service for utility over {@link PendingTask}.
@@ -85,7 +92,7 @@ public class PendingTaskService extends ContextAware {
         task.type = taskType;
         task.dateCreated = new Date().getTime();
 
-        this.database.pendingTaskDAO().insertAll(task);
+        task.id = this.database.pendingTaskDAO().insert(task);
 
         Log.v(Constants.LOG_PREFIX, "Created " + task);
         return task;
@@ -94,16 +101,32 @@ public class PendingTaskService extends ContextAware {
     /**
      * Process the given list of {@link PendingTask} via {@link PendingTaskProcessor}.
      *
-     * @param pendingTasks The list of tasks.
+     * @param pendingTasks   The list of tasks.
+     * @param pendingTaskJob instance of {@link PendingTaskJob}
      */
-    public void processTasks(List<PendingTask> pendingTasks) {
+    public void processTasks(List<PendingTask> pendingTasks, PendingTaskJob pendingTaskJob) {
         if (pendingTasks == null || pendingTasks.isEmpty()) {
+            reScheduleJob(pendingTaskJob);
             return;
         }
 
         for (PendingTask pendingTask : pendingTasks) {
             this.processTask(pendingTask);
         }
+        reScheduleJob(pendingTaskJob);
+    }
+
+    /**
+     * Stops the current running job and reschedule job with the help of
+     * {@link CooeeJobUtils}
+     *
+     * @param pendingTaskJob is instamce of {@link PendingTaskJob}
+     */
+    private void reScheduleJob(PendingTaskJob pendingTaskJob) {
+        pendingTaskJob.jobFinished(pendingTaskJob.getJobParameters(), false);
+
+        // Add delay to let previous job get fully finished
+        new Timer().schedule(() -> CooeeJobUtils.schedulePendingTaskJob(context), 2000);
     }
 
     /**

@@ -89,7 +89,7 @@ public class BaseHTTPService extends ContextAware {
             Response<?> response = call.execute();
 
             if (response.isSuccessful()) {
-                return (Response<?>) response.body();
+                return (Response<?>) response;
             }
 
             Log.d(Constants.LOG_PREFIX, "Server failure for " + message + ", resp code: " + response.code()

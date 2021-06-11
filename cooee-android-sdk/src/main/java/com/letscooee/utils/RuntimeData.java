@@ -4,6 +4,8 @@ import android.content.Context;
 import android.util.Log;
 import androidx.annotation.RestrictTo;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Date;
 
 /**
@@ -17,7 +19,7 @@ public class RuntimeData {
 
     private static RuntimeData instance;
 
-    private Boolean inBackground;
+    private Boolean inBackground = true;
     private Date lastEnterForeground;
     private Date lastEnterBackground;
 
@@ -39,6 +41,7 @@ public class RuntimeData {
 
     }
 
+    @NotNull
     public Boolean isInBackground() {
         return this.inBackground;
     }

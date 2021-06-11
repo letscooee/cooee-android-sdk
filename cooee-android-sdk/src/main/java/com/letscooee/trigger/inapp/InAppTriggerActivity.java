@@ -4,7 +4,12 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
-import android.graphics.*;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.media.AudioManager;
@@ -19,6 +24,7 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.view.*;
 import android.widget.*;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -26,18 +32,18 @@ import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.RoundedBitmapDrawable;
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
+
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.google.android.flexbox.FlexboxLayout;
 import com.google.gson.Gson;
+import com.letscooee.CooeeFactory;
 import com.letscooee.CooeeSDK;
 import com.letscooee.R;
 import com.letscooee.models.*;
-import com.letscooee.retrofit.HttpCallsHelper;
+import com.letscooee.network.SafeHTTPService;
 import com.letscooee.utils.*;
-import io.sentry.Sentry;
-import jp.wasabeef.blurry.Blurry;
 
 import java.lang.ref.WeakReference;
 import java.util.Date;
@@ -47,6 +53,9 @@ import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+
+import io.sentry.Sentry;
+import jp.wasabeef.blurry.Blurry;
 
 public class InAppTriggerActivity extends AppCompatActivity implements PreventBlurActivity {
 
@@ -71,6 +80,11 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
     public static OnInAppPopListener onInAppPopListener;
     public static OnInAppCloseListener onInAppCloseListener;
     public static boolean isManualClose = true;
+    private final SafeHTTPService safeHTTPService;
+
+    public InAppTriggerActivity() {
+        safeHTTPService = CooeeFactory.getSafeHTTPService();
+    }
 
     public static void setBitmap(String base64) {
         byte[] decodedString = Base64.decode(base64, Base64.DEFAULT);
@@ -221,7 +235,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
             recieved.put("triggerID", triggerData.getId());
             userProfile.put("userData", new HashMap<>());
             userProfile.put("userProperties", action.getUserProperty());
-            HttpCallsHelper.sendUserProfile(userProfile);
+            CooeeFactory.getSafeHTTPService().updateUserProfile(userProfile);
         }
     }
 
@@ -807,7 +821,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
         if (triggerData != null)
             eventProps.put("triggerID", triggerData.getId());
         Event event = new Event("CE Trigger Displayed", eventProps);
-        HttpCallsHelper.sendEvent(getApplicationContext(), event, null);
+        safeHTTPService.sendEvent(event);
     }
 
     @Override
@@ -824,8 +838,9 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
                     .animate(500)
                     .onto((ViewGroup) _window.getDecorView());
 
+            //TODO: 09/06/2021 Need to clear flutter related
             if (onInAppPopListener != null) {
-                onInAppPopListener.onInAppTriggered();
+                onInAppPopListener.onInAppTriggered(triggerData.getTriggerBackground().getBlur());
             }
         } else if (triggerData.getTriggerBackground().getType() == TriggerBehindBackground.Type.SOLID_COLOR) {
             ImageView imageView = findViewById(R.id.blurImage);
@@ -850,6 +865,8 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
     protected void onPause() {
         super.onPause();
         Blurry.delete((ViewGroup) _window.getDecorView());
+
+        //TODO: 09/06/2021 Need to clear flutter related
         if (onInAppCloseListener != null) {
             onInAppCloseListener.onInAppClosed();
             if (!isManualClose) {
@@ -892,7 +909,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
         }
 
         Event event = new Event("CE Trigger Closed", kpiMap);
-        HttpCallsHelper.sendEvent(getApplicationContext(), event, null);
+        safeHTTPService.sendEvent(event);
 
         if (runnable != null) {
             handler.removeCallbacks(runnable);

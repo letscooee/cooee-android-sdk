@@ -1,15 +1,21 @@
 package com.letscooee;
 
 import android.content.Context;
+
 import androidx.annotation.RestrictTo;
+
 import com.letscooee.device.AppInfo;
 import com.letscooee.device.DeviceInfo;
 import com.letscooee.network.BaseHTTPService;
 import com.letscooee.network.SafeHTTPService;
+import com.letscooee.retrofit.UserAuthService;
 import com.letscooee.user.SessionManager;
 import com.letscooee.utils.ManifestReader;
 import com.letscooee.utils.RuntimeData;
 import com.letscooee.utils.SentryHelper;
+
+import io.sentry.ITransaction;
+import io.sentry.Sentry;
 
 /**
  * A factory pattern utility class to provide the singleton instances of various classes.
@@ -20,6 +26,7 @@ import com.letscooee.utils.SentryHelper;
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class CooeeFactory {
 
+    private static boolean initialized;
     private static AppInfo appInfo;
     private static DeviceInfo deviceInfo;
     private static RuntimeData runtimeData;
@@ -28,19 +35,35 @@ public class CooeeFactory {
     private static ManifestReader manifestReader;
     private static BaseHTTPService baseHTTPService;
     private static SafeHTTPService safeHTTPService;
+    private static UserAuthService userAuthService;
 
     private CooeeFactory() {
     }
 
-    public static void init(Context context) {
+    public synchronized static void init(Context context) {
+        if (initialized) {
+            return;
+        }
+
         appInfo = AppInfo.getInstance(context);
         deviceInfo = DeviceInfo.getInstance(context);
+        manifestReader = ManifestReader.getInstance(context);
+        sentryHelper = new SentryHelper(context, appInfo, manifestReader);
+        sentryHelper.init();
+
+        // Sentry should be initialized first
+        ITransaction transaction = Sentry.startTransaction("CooeeFactory.init()", "task");
+
         runtimeData = RuntimeData.getInstance(context);
         sessionManager = SessionManager.getInstance(context);
-        manifestReader = ManifestReader.getInstance(context);
         baseHTTPService = new BaseHTTPService(context);
         safeHTTPService = new SafeHTTPService(context);
-        sentryHelper = new SentryHelper(context, appInfo, manifestReader);
+        userAuthService = UserAuthService.getInstance(context);
+
+        userAuthService.populateUserDataFromStorage();
+        transaction.finish();
+
+        initialized = true;
     }
 
     public static AppInfo getAppInfo() {
@@ -73,5 +96,9 @@ public class CooeeFactory {
 
     public static SafeHTTPService getSafeHTTPService() {
         return safeHTTPService;
+    }
+
+    public static UserAuthService getUserAuthService() {
+        return userAuthService;
     }
 }
