@@ -51,8 +51,6 @@ public class ActivityLifecycleCallback implements Application.ActivityLifecycleC
         if (activity instanceof CooeeEmptyActivity) {
             activity.finish();
         }
-
-        handleGlassmorphismAfterLaunch(activity);
     }
 
     @Override
@@ -99,30 +97,5 @@ public class ActivityLifecycleCallback implements Application.ActivityLifecycleC
                         CooeeFactory.getSafeHTTPService().sendEvent(new Event("CE Notification Clicked", new HashMap<>()));
                     }
                 }, 6000);
-    }
-
-    /**
-     * This block handle the glassmorphism effect for the triggers
-     *
-     * @param activity The currently created activity.
-     */
-    private void handleGlassmorphismAfterLaunch(Activity activity) {
-        // Do not entertain if activity is instance of InAppTriggerActivity
-        if (activity instanceof InAppTriggerActivity) {
-            return;
-        }
-
-        // Do not entertain if onInAppPopListener in not initialized
-        if (InAppTriggerActivity.onInAppPopListener == null) {
-            return;
-        }
-
-        // Do not entertain if InAppTriggerActivity's isManualClose set true
-        if (InAppTriggerActivity.isManualClose) {
-            return;
-        }
-
-        String triggerString = LocalStorageHelper.getString(activity, "trigger", null);
-        EngagementTriggerHelper.renderInAppTriggerFromJSONString(activity, triggerString);
     }
 }
