@@ -68,12 +68,16 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
 
     // TODO: 11/06/21 All code from below should be moved to their respective files
 
-    RemoteImageLoader imageLoader = new RemoteImageLoader(getApplicationContext());
+    private RemoteImageLoader imageLoader;
 
     private void handleTriggerData(String rawTriggerData) {
         if (TextUtils.isEmpty(rawTriggerData)) {
             Log.d(Constants.LOG_PREFIX, "No triggerData found on the notification payload");
             return;
+        }
+
+        if (imageLoader != null) {
+            imageLoader = new RemoteImageLoader(getApplicationContext());
         }
 
         TriggerData triggerData;
@@ -89,16 +93,13 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
             // TODO: 11/06/21 Find a better way to find the kind of notification so that double gson parsing is not required
             //noinspection ConstantConditions
             if ((Boolean) baseTriggerData.get("showAsPN")) {
-                triggerData = new Gson().fromJson(rawTriggerData, PushNotificationTrigger.class);
+                triggerData = gson.fromJson(rawTriggerData, PushNotificationTrigger.class);
             } else {
-                triggerData = new Gson().fromJson(rawTriggerData, InAppTrigger.class);
+                triggerData = gson.fromJson(rawTriggerData, InAppTrigger.class);
             }
 
         } catch (JsonSyntaxException e) {
-            Log.e(Constants.LOG_PREFIX, "Unable to parse the trigger data", e);
-            // TODO Change this to use SentryHelper once these code are moved to a separate class
-            Sentry.captureException(e);
-
+            CooeeFactory.getSentryHelper().captureException(e);
             return;
         }
 
@@ -139,8 +140,8 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
 
     private void showCarouselNotification(PushNotificationTrigger triggerData) {
         String title = triggerData.getNotificationTitle();
-        String body = triggerData.getNotificationBody();
         CarouselData[] images = triggerData.getCarouselData();
+
         if (images.length < 4) {
             return;
         }
@@ -166,13 +167,13 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
         leftScrollIntent.putExtras(bundle);
 
         PendingIntent pendingIntentLeft = PendingIntent.getBroadcast(
-                getApplicationContext(),
+                context,
                 1,
                 leftScrollIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT);
 
         PendingIntent pendingIntentRight = PendingIntent.getBroadcast(
-                getApplicationContext(),
+                context,
                 0,
                 rightScrollIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT);

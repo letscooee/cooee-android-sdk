@@ -157,10 +157,6 @@ public abstract class NotificationRenderer {
         return this.notificationID;
     }
 
-    public NotificationManager getNotificationManager() {
-        return this.notificationManager;
-    }
-
     public RemoteViews getSmallContentView() {
         return this.smallContentViews;
     }

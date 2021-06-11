@@ -15,8 +15,8 @@ public enum PushNotificationImportance {
     DEFAULT(DEFAULT_CHANNEL_ID, DEFAULT_CHANNEL_NAME, NotificationCompat.PRIORITY_DEFAULT),
     HIGH(HIGH_CHANNEL_ID, HIGH_CHANNEL_NAME, NotificationCompat.PRIORITY_MAX);
 
-    private String channelID;
-    private String channelName;
+    private final String channelID;
+    private final String channelName;
     int priority;
 
     PushNotificationImportance(String channelID, String channelName, int priority) {

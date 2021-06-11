@@ -80,12 +80,6 @@ public class TriggerData implements Parcelable {
         return isCarousel;
     }
 
-    public TriggerData() {
-    }
-
-    public TriggerData(Map<String, String> triggerData) {
-    }
-
     public int getCarouselOffset() {
         return carouselOffset;
     }

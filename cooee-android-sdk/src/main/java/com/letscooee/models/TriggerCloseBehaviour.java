@@ -7,6 +7,7 @@ import android.os.Parcelable;
  * @author Abhishek Taparia
  */
 public class TriggerCloseBehaviour implements Parcelable {
+
     public enum Position {
         TOP_RIGHT, TOP_LEFT, DOWN_RIGHT, DOWN_LEFT
     }
@@ -18,7 +19,6 @@ public class TriggerCloseBehaviour implements Parcelable {
     private String countDownTextColor;
     private String progressBarColor;
     private boolean show;
-
 
     protected TriggerCloseBehaviour(Parcel in) {
         auto = in.readByte() != 0;
