@@ -195,7 +195,6 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
         views.setOnClickPendingIntent(R.id.right, pendingIntentRight);
         views.setViewVisibility(R.id.left, View.INVISIBLE);
 
-
         for (int i = 0; i < bitmaps.size(); i++) {
             RemoteViews image = new RemoteViews(getPackageName(), R.layout.row_notification_list);
             image.setImageViewBitmap(R.id.caroselImage, bitmaps.get(i));
@@ -228,10 +227,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
             views.addView(R.id.lvNotificationList, image);
         }
 
-        notificationBuilder.setAutoCancel(false)
-                .setWhen(System.currentTimeMillis())
-                .setSmallIcon(getApplicationInfo().icon)
-                .setStyle(new NotificationCompat.DecoratedCustomViewStyle())
+        notificationBuilder
                 .setCustomContentView(smallNotification)
                 .setCustomBigContentView(views)
                 .setContentTitle(title)
@@ -303,25 +299,13 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
 
                 smallNotification.setImageViewBitmap(R.id.imageViewLarge, resource);
                 largeNotification.setImageViewBitmap(R.id.imageViewLarge, resource);
-                notificationBuilder.setAutoCancel(true)
-                        .setWhen(System.currentTimeMillis())
-                        .setSmallIcon(getApplicationInfo().icon)
-                        .setStyle(new NotificationCompat.DecoratedCustomViewStyle())
+                notificationBuilder
                         .setCustomContentView(smallNotification)
                         .setCustomBigContentView(largeNotification)
                         .setContentTitle(title)
                         .setContentText(body)
                         .setContentIntent(appLaunchPendingIntent);
 
-                Intent deleteIntent = new Intent(getApplicationContext(), CooeeIntentService.class);
-                deleteIntent.setAction("Notification Deleted");
-
-                Notification notification = notificationBuilder.build();
-                notification.deleteIntent = PendingIntent.getService(
-                        getApplicationContext(),
-                        0,
-                        deleteIntent,
-                        PendingIntent.FLAG_ONE_SHOT);
                 renderer.render();
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {

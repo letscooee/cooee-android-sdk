@@ -1,11 +1,15 @@
 package com.letscooee.pushnotification.renderer;
 
+import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
 import androidx.core.app.NotificationCompat;
 import com.letscooee.models.TriggerData;
+import com.letscooee.services.CooeeIntentService;
 import com.letscooee.utils.Constants;
 
 import java.util.Date;
@@ -34,7 +38,18 @@ public class NotificationRenderer {
         this.notificationSound = new NotificationSound(context, triggerData, notificationBuilder);
 
         this.createChannel();
+        this.setBuilder();
         this.notificationSound.setSoundInNotification();
+    }
+
+    private void setBuilder() {
+        this.notificationBuilder
+                // TODO: 11/06/21 Test this for carousel based notifications as it was false there
+                .setAutoCancel(true)
+                // TODO: 11/06/21 It should be the date of engagement trigger planned
+                .setWhen(System.currentTimeMillis())
+                .setSmallIcon(context.getApplicationInfo().icon)
+                .setStyle(new NotificationCompat.DecoratedCustomViewStyle());
     }
 
     public NotificationCompat.Builder getBuilder() {
@@ -60,6 +75,13 @@ public class NotificationRenderer {
         this.notificationManager.createNotificationChannel(notificationChannel);
     }
 
+    private void setDeleteIntent(Notification notification) {
+        Intent deleteIntent = new Intent(this.context, CooeeIntentService.class);
+        deleteIntent.setAction("Notification Deleted");
+
+        notification.deleteIntent = PendingIntent.getService(context, 0, deleteIntent, PendingIntent.FLAG_ONE_SHOT);
+    }
+
     public int getNotificationID() {
         return this.notificationID;
     }
@@ -69,6 +91,9 @@ public class NotificationRenderer {
     }
 
     public void render() {
-        this.notificationManager.notify(this.notificationID, notificationBuilder.build());
+        Notification notification = notificationBuilder.build();
+        this.setDeleteIntent(notification);
+
+        this.notificationManager.notify(this.notificationID, notification);
     }
 }
