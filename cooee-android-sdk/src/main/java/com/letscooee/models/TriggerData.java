@@ -27,10 +27,6 @@ public class TriggerData implements Parcelable {
         SLIDE_OUT_TOP, SLIDE_OUT_DOWN, SLIDE_OUT_LEFT, SLIDE_OUT_RIGHT
     }
 
-    public boolean isShowAsPN() {
-        return showAsPN;
-    }
-
     public TriggerCloseBehaviour getCloseBehaviour() {
         return closeBehaviour;
     }
@@ -60,7 +56,7 @@ public class TriggerData implements Parcelable {
     private CarouselData[] carouselData;
     private int imageShadow;
     private boolean showImageShadow;
-    private String imageUrl1;
+    protected String imageUrl1;
     private int carouselOffset = 1;
 
     public SidePopSetting getSidePopSetting() {
@@ -205,10 +201,6 @@ public class TriggerData implements Parcelable {
 
     public String getImageUrl() {
         return imageUrl;
-    }
-
-    public String getImageUrl1() {
-        return imageUrl1;
     }
 
     public void setImageUrl(String imageUrl) {

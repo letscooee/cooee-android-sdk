@@ -255,19 +255,20 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
 
         PendingIntent appLaunchPendingIntent = PendingIntent.getActivity(this, triggerData.getId().hashCode(), appLaunchIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        RemoteViews smallViews = renderer.getSmallContentView();
-        RemoteViews bigViews = renderer.getBigContentView();
-
         addAction(notificationBuilder, createActionButtons(triggerData, renderer.getNotificationID()));
 
         notificationBuilder.setContentIntent(appLaunchPendingIntent);
 
-        this.imageLoader.load(triggerData.getImageUrl1(), (Bitmap resource) -> {
-            smallViews.setImageViewBitmap(R.id.imageViewLarge, resource);
-            bigViews.setImageViewBitmap(R.id.imageViewLarge, resource);
-
+        String smallImage = triggerData.getSmallImage();
+        if (TextUtils.isEmpty(smallImage)) {
             renderer.render();
-        });
+        } else {
+            this.imageLoader.load(triggerData.getSmallImage(), (Bitmap resource) -> {
+                renderer.getSmallContentView().setImageViewBitmap(R.id.imageViewLarge, resource);
+                renderer.getBigContentView().setImageViewBitmap(R.id.imageViewLarge, resource);
+                renderer.render();
+            });
+        }
     }
 
     /**

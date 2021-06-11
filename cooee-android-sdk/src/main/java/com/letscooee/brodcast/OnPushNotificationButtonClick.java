@@ -75,8 +75,6 @@ public class OnPushNotificationButtonClick extends BroadcastReceiver {
      * @param intent  will come from onReceive method.
      */
     private void processCarouselData(Context context, Intent intent) throws PropertyNameException {
-
-
         TriggerData triggerData = (TriggerData) intent.getExtras().getParcelable("TRIGGERDATA");
 
         Map eventProps = new HashMap<String, Object>();
@@ -85,8 +83,6 @@ public class OnPushNotificationButtonClick extends BroadcastReceiver {
 
         assert triggerData != null;
         loadBitmapsForCarousel(triggerData.getCarouselData(), 0, triggerData, context, intent);
-
-
     }
 
     /**

@@ -5,6 +5,14 @@ import com.letscooee.models.TriggerData;
 
 public class PushNotificationTrigger extends TriggerData {
 
+    public String getSmallImage() {
+        return this.imageUrl1;
+    }
+
+    public String getLargeImage() {
+        return this.imageUrl1;
+    }
+
     /**
      * Get notification title from the data
      *
