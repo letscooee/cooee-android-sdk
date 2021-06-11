@@ -43,6 +43,9 @@ public abstract class NotificationRenderer {
 
     private final int notificationID = (int) new Date().getTime();
 
+    private int notificationPriority;
+    private int notificationImportance;
+
     protected NotificationRenderer(Context context, PushNotificationTrigger triggerData) {
         this.context = context;
         this.triggerData = triggerData;
@@ -55,6 +58,7 @@ public abstract class NotificationRenderer {
         this.smallContentViews = new RemoteViews(context.getPackageName(), R.layout.notification_small);
         this.bigContentViews = new RemoteViews(context.getPackageName(), R.layout.notification_carousel);
 
+        this.decideImportance();
         this.createChannel();
         this.setBuilder();
         this.notificationSound.setSoundInNotification();
@@ -82,6 +86,22 @@ public abstract class NotificationRenderer {
         this.bigContentViews.setTextViewText(R.id.textViewInfo, body);
     }
 
+    /**
+     * Based on the data received from the backend, set the notification priority/importance.
+     * The default will be HIGH/MAX.
+     */
+    private void decideImportance() {
+        // The default value
+        this.notificationPriority = NotificationCompat.PRIORITY_MAX;
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            // The default value
+            this.notificationImportance = NotificationManager.IMPORTANCE_HIGH;
+        }
+
+        // TODO: 11/06/21 Decide importance and update those
+    }
+
     private void setBuilder() {
         this.notificationBuilder
                 // TODO: 11/06/21 Test this for carousel based notifications as it was false there
@@ -91,6 +111,7 @@ public abstract class NotificationRenderer {
                 .setSmallIcon(context.getApplicationInfo().icon)
                 .setCustomContentView(smallContentViews)
                 .setCustomBigContentView(bigContentViews)
+                .setPriority(this.notificationPriority)
                 .setStyle(new NotificationCompat.DecoratedCustomViewStyle());
 
         this.setTitleAndBody();
@@ -106,9 +127,11 @@ public abstract class NotificationRenderer {
                 Constants.NOTIFICATION_CHANNEL_NAME,
                 NotificationManager.IMPORTANCE_DEFAULT);
 
+        // TODO: 11/06/21 Make vibration and lights configurable
         notificationChannel.enableVibration(true);
         notificationChannel.enableLights(true);
         notificationChannel.setDescription("");
+        notificationChannel.setImportance(this.notificationImportance);
 
         this.notificationSound.setSoundInChannel(notificationChannel);
 
