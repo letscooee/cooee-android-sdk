@@ -3,8 +3,6 @@ package com.letscooee.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Map;
 
 /**
@@ -283,17 +281,8 @@ public class TriggerData implements Parcelable {
         return "TriggerData{" +
                 "id=" + id +
                 ", type=" + type +
-                ", fill=" + fill +
-                ", background=" + background +
-                ", showAsPN=" + showAsPN +
-                ", imageUrl='" + imageUrl + '\'' +
-                ", videoUrl='" + videoUrl + '\'' +
-                ", entranceAnimation=" + entranceAnimation +
-                ", exitAnimation=" + exitAnimation +
-                ", closeBehaviour=" + closeBehaviour +
                 ", title=" + title +
                 ", message=" + message +
-                ", buttons=" + Arrays.toString(buttons) +
                 '}';
     }
 }

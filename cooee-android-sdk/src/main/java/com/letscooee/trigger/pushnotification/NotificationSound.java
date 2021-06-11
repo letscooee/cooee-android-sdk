@@ -1,4 +1,4 @@
-package com.letscooee.pushnotification.renderer;
+package com.letscooee.trigger.pushnotification;
 
 import android.app.NotificationChannel;
 import android.content.ContentResolver;
@@ -9,7 +9,7 @@ import android.os.Build;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 import com.letscooee.R;
-import com.letscooee.models.TriggerData;
+import com.letscooee.models.trigger.PushNotificationTrigger;
 
 /**
  * Provides sound for the notification.
@@ -20,10 +20,10 @@ import com.letscooee.models.TriggerData;
 class NotificationSound {
 
     private final String packageName;
-    private final TriggerData triggerData;
+    private final PushNotificationTrigger triggerData;
     private final NotificationCompat.Builder notificationBuilder;
 
-    public NotificationSound(Context context, TriggerData triggerData, NotificationCompat.Builder notificationBuilder) {
+    public NotificationSound(Context context, PushNotificationTrigger triggerData, NotificationCompat.Builder notificationBuilder) {
         this.triggerData = triggerData;
         this.packageName = context.getPackageName();
         this.notificationBuilder = notificationBuilder;

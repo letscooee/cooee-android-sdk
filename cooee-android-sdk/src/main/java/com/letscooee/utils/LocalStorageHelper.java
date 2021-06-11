@@ -2,19 +2,16 @@ package com.letscooee.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-
 import androidx.annotation.RestrictTo;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
+import io.sentry.Sentry;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-
-import io.sentry.Sentry;
 
 /**
  * LocalStorageHelper is used to store local shared preference data
@@ -132,8 +129,7 @@ public final class LocalStorageHelper {
 
     public static Map<Object, Object> getTouchMap(Context context, String key) {
         SharedPreferences sharedPreferences = getPreferences(context);
-        Map map = new Gson().fromJson(sharedPreferences.getString(key, null), Map.class);
-        return map;
+        return new Gson().fromJson(sharedPreferences.getString(key, null), Map.class);
     }
 
     public static void putLong(Context context, String key, long value) {
