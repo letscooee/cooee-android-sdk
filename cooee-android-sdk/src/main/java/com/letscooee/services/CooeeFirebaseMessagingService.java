@@ -12,13 +12,8 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.RemoteViews;
-
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
-
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.target.CustomTarget;
-import com.bumptech.glide.request.transition.Transition;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.google.gson.Gson;
@@ -36,20 +31,17 @@ import com.letscooee.models.TriggerData;
 import com.letscooee.models.trigger.InAppTrigger;
 import com.letscooee.models.trigger.PushNotificationTrigger;
 import com.letscooee.pushnotification.PushProviderUtils;
-import com.letscooee.retrofit.APIClient;
 import com.letscooee.trigger.CooeeEmptyActivity;
 import com.letscooee.trigger.EngagementTriggerHelper;
 import com.letscooee.trigger.pushnotification.CarouselNotificationRenderer;
 import com.letscooee.trigger.pushnotification.NotificationRenderer;
 import com.letscooee.trigger.pushnotification.SimpleNotificationRenderer;
 import com.letscooee.utils.Constants;
-import com.letscooee.utils.LocalStorageHelper;
+import io.sentry.Sentry;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-
-import io.sentry.Sentry;
 
 /**
  * MyFirebaseMessagingService helps connects with firebase for push notification
