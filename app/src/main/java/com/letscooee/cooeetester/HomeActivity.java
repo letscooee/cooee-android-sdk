@@ -109,8 +109,8 @@ public class HomeActivity extends AppCompatActivity implements InAppNotification
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 NotificationChannel notificationChannel = new NotificationChannel(
-                        Constants.NOTIFICATION_CHANNEL_ID,
-                        Constants.NOTIFICATION_CHANNEL_NAME,
+                        Constants.DEFAULT_CHANNEL_ID,
+                        Constants.DEFAULT_CHANNEL_NAME,
                         NotificationManager.IMPORTANCE_DEFAULT);
 
                 notificationChannel.setDescription("");
@@ -132,17 +132,17 @@ public class HomeActivity extends AppCompatActivity implements InAppNotification
 
             Intent rightScrollIntent = new Intent(this, OnPushNotificationButtonClick.class);
             rightScrollIntent.putExtra("EVENT", "right");
-            rightScrollIntent.putExtra("POSITION", 1);
+            rightScrollIntent.putExtra("carouselPosition", 1);
             rightScrollIntent.putExtra("notificationId", notificationId);
-            rightScrollIntent.putExtra("TRIGGERDATA", "new TriggerData()");
-            rightScrollIntent.putExtra("TYPE", "CAROUSEL");
+            rightScrollIntent.putExtra("triggerData", "new TriggerData()");
+            rightScrollIntent.putExtra("intentType", "moveCarousel");
 
             Intent leftScrollIntent = new Intent(this, OnPushNotificationButtonClick.class);
             leftScrollIntent.putExtra("EVENT", "left");
-            leftScrollIntent.putExtra("POSITION", 1);
+            leftScrollIntent.putExtra("carouselPosition", 1);
             leftScrollIntent.putExtra("notificationId", notificationId);
-            leftScrollIntent.putExtra("TRIGGERDATA", "new TriggerData()");
-            leftScrollIntent.putExtra("TYPE", "CAROUSEL");
+            leftScrollIntent.putExtra("triggerData", "new TriggerData()");
+            leftScrollIntent.putExtra("intentType", "moveCarousel");
 
             PendingIntent pendingIntentLeft = PendingIntent.getBroadcast(
                     getApplicationContext(),
@@ -172,7 +172,7 @@ public class HomeActivity extends AppCompatActivity implements InAppNotification
 
             NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(
                     getApplicationContext(),
-                    Constants.NOTIFICATION_CHANNEL_ID);
+                    Constants.DEFAULT_CHANNEL_ID);
             //notificationBuilder = addAction(notificationBuilder, createActionButtons(triggerData, notificationId));
 
                     /*smallNotification.setImageViewBitmap(R.id.imageViewLarge, resource);

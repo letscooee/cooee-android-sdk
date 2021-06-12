@@ -1,55 +1,47 @@
 package com.letscooee.services;
 
-import android.app.*;
-import android.content.ContentResolver;
+import android.app.PendingIntent;
+import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
-import android.media.AudioAttributes;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.service.notification.StatusBarNotification;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.RemoteViews;
-
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
-
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.target.CustomTarget;
-import com.bumptech.glide.request.transition.Transition;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
+import com.google.gson.reflect.TypeToken;
 import com.letscooee.BuildConfig;
 import com.letscooee.CooeeFactory;
 import com.letscooee.R;
 import com.letscooee.brodcast.OnPushNotificationButtonClick;
+import com.letscooee.loader.http.RemoteImageLoader;
 import com.letscooee.models.CarouselData;
 import com.letscooee.models.Event;
 import com.letscooee.models.TriggerButton;
 import com.letscooee.models.TriggerData;
+import com.letscooee.models.trigger.InAppTrigger;
+import com.letscooee.models.trigger.PushNotificationTrigger;
 import com.letscooee.pushnotification.PushProviderUtils;
-import com.letscooee.retrofit.APIClient;
 import com.letscooee.trigger.CooeeEmptyActivity;
 import com.letscooee.trigger.EngagementTriggerHelper;
+import com.letscooee.trigger.pushnotification.CarouselNotificationRenderer;
+import com.letscooee.trigger.pushnotification.NotificationRenderer;
+import com.letscooee.trigger.pushnotification.SimpleNotificationRenderer;
 import com.letscooee.utils.Constants;
-import com.letscooee.utils.LocalStorageHelper;
+import io.sentry.Sentry;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-
-import io.sentry.Sentry;
 
 /**
  * MyFirebaseMessagingService helps connects with firebase for push notification
@@ -71,22 +63,43 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
             return;
         }
 
-        String rawTriggerData = remoteMessage.getData().get("triggerData");
+        this.handleTriggerData(remoteMessage.getData().get("triggerData"));
+    }
+
+    // TODO: 11/06/21 All code from below should be moved to their respective files
+
+    private RemoteImageLoader imageLoader;
+
+    private void handleTriggerData(String rawTriggerData) {
         if (TextUtils.isEmpty(rawTriggerData)) {
             Log.d(Constants.LOG_PREFIX, "No triggerData found on the notification payload");
             return;
         }
 
+        if (imageLoader != null) {
+            imageLoader = new RemoteImageLoader(getApplicationContext());
+        }
+
         TriggerData triggerData;
 
         try {
-            triggerData = new Gson().fromJson(rawTriggerData, TriggerData.class);
+            Gson gson = new Gson();
+
+            HashMap<String, Object> baseTriggerData = gson.fromJson(rawTriggerData, new TypeToken<HashMap<String, Object>>() {
+            }.getType());
+
+            assert baseTriggerData != null;
+
+            // TODO: 11/06/21 Find a better way to find the kind of notification so that double gson parsing is not required
+            //noinspection ConstantConditions
+            if ((Boolean) baseTriggerData.get("showAsPN")) {
+                triggerData = gson.fromJson(rawTriggerData, PushNotificationTrigger.class);
+            } else {
+                triggerData = gson.fromJson(rawTriggerData, InAppTrigger.class);
+            }
 
         } catch (JsonSyntaxException e) {
-            Log.e(Constants.LOG_PREFIX, "Unable to parse the trigger data", e);
-            // TODO Change this to use SentryHelper once these code are moved to a separate class
-            Sentry.captureException(e);
-
+            CooeeFactory.getSentryHelper().captureException(e);
             return;
         }
 
@@ -99,90 +112,53 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
         Map<String, Object> eventProps = new HashMap<>();
         eventProps.put("triggerID", triggerData.getId());
 
-        if (triggerData.isShowAsPN()) {
+        if (triggerData instanceof PushNotificationTrigger) {
             sendEvent(getApplicationContext(), new Event("CE Notification Received", eventProps));
+
             if (triggerData.isCarousel()) {
-                loadBitmaps(triggerData.getCarouselData(), 0, triggerData);
+                loadCarouselImages(triggerData.getCarouselData(), 0, (PushNotificationTrigger) triggerData);
             } else {
-                showNotification(triggerData);
+                showNotification((PushNotificationTrigger) triggerData);
             }
         } else {
             showInAppMessaging(triggerData);
         }
     }
 
-    private final ArrayList<Bitmap> bitmaps = new ArrayList<>();
+    private final ArrayList<Bitmap> carouselBitmaps = new ArrayList<>();
 
-    private void loadBitmaps(CarouselData[] carouselData, final int i, TriggerData triggerData) {
+    private void loadCarouselImages(CarouselData[] carouselData, final int i, PushNotificationTrigger triggerData) {
         if (i < carouselData.length) {
-
-            try {
-                Glide.with(getApplicationContext())
-                        .asBitmap().load(carouselData[i].getImageUrl()).into(new CustomTarget<Bitmap>() {
-                    @Override
-                    public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
-                        bitmaps.add(resource);
-                        loadBitmaps(triggerData.getCarouselData(), i + 1, triggerData);
-                    }
-
-                    @Override
-                    public void onLoadCleared(@Nullable Drawable placeholder) {
-
-                    }
-                });
-            } catch (Exception e) {
-                Sentry.captureException(e);
-            }
-
+            this.imageLoader.load(carouselData[i].getImageUrl(), (Bitmap resource) -> {
+                carouselBitmaps.add(resource);
+                loadCarouselImages(triggerData.getCarouselData(), i + 1, triggerData);
+            });
         } else {
             showCarouselNotification(triggerData);
         }
-
     }
 
-    private void showCarouselNotification(TriggerData triggerData) {
-        String title = getNotificationTitle(triggerData);
-        String body = getNotificationBody(triggerData);
+    private void showCarouselNotification(PushNotificationTrigger triggerData) {
+        String title = triggerData.getNotificationTitle();
         CarouselData[] images = triggerData.getCarouselData();
+
         if (images.length < 4) {
             return;
         }
         if (title == null) {
             return;
         }
-        NotificationManager notificationManager = (NotificationManager) getApplicationContext()
-                .getSystemService(Context.NOTIFICATION_SERVICE);
-        Uri sound = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + getPackageName() + "/" + R.raw.notification_sound);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            AudioAttributes att = new AudioAttributes.Builder()
-                    .setUsage(AudioAttributes.USAGE_NOTIFICATION)
-                    .build();
 
-            NotificationChannel notificationChannel = new NotificationChannel(
-                    Constants.NOTIFICATION_CHANNEL_ID,
-                    Constants.NOTIFICATION_CHANNEL_NAME,
-                    NotificationManager.IMPORTANCE_DEFAULT);
-            notificationChannel.enableVibration(true);
-            notificationChannel.enableLights(true);
-            notificationChannel.setSound(sound, att);
-            notificationChannel.setDescription("");
-            notificationManager.createNotificationChannel(notificationChannel);
-        }
+        Context context = getApplicationContext();
+        NotificationRenderer renderer = new CarouselNotificationRenderer(context, triggerData);
 
-        int notificationId = (int) new Date().getTime();
-        RemoteViews smallNotification = new RemoteViews(getPackageName(), R.layout.notification_small);
-        smallNotification.setTextViewText(R.id.textViewTitle, title);
-        smallNotification.setTextViewText(R.id.textViewInfo, body);
-
-        RemoteViews views = new RemoteViews(getPackageName(), R.layout.notification_carousel);
-        views.setTextViewText(R.id.textViewTitle, title);
-        views.setTextViewText(R.id.textViewInfo, body);
+        RemoteViews views = renderer.getBigContentView();
 
         Bundle bundle = new Bundle();
-        bundle.putInt("POSITION", triggerData.getCarouselOffset());
-        bundle.putInt("NOTIFICATIONID", notificationId);
-        bundle.putParcelable("TRIGGERDATA", triggerData);
-        bundle.putString("TYPE", "CAROUSEL");
+        bundle.putInt("carouselPosition", triggerData.getCarouselOffset());
+        bundle.putInt("notificationID", renderer.getNotificationID());
+        bundle.putParcelable("triggerData", triggerData);
+        bundle.putString("intentType", "moveCarousel");
 
         Intent rightScrollIntent = new Intent(this, OnPushNotificationButtonClick.class);
         rightScrollIntent.putExtras(bundle);
@@ -191,13 +167,13 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
         leftScrollIntent.putExtras(bundle);
 
         PendingIntent pendingIntentLeft = PendingIntent.getBroadcast(
-                getApplicationContext(),
+                context,
                 1,
                 leftScrollIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT);
 
         PendingIntent pendingIntentRight = PendingIntent.getBroadcast(
-                getApplicationContext(),
+                context,
                 0,
                 rightScrollIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT);
@@ -209,10 +185,9 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
         views.setOnClickPendingIntent(R.id.right, pendingIntentRight);
         views.setViewVisibility(R.id.left, View.INVISIBLE);
 
-
-        for (int i = 0; i < bitmaps.size(); i++) {
+        for (int i = 0; i < carouselBitmaps.size(); i++) {
             RemoteViews image = new RemoteViews(getPackageName(), R.layout.row_notification_list);
-            image.setImageViewBitmap(R.id.caroselImage, bitmaps.get(i));
+            image.setImageViewBitmap(R.id.caroselImage, carouselBitmaps.get(i));
 
             CarouselData data = triggerData.getCarouselData()[i];
 
@@ -242,34 +217,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
             views.addView(R.id.lvNotificationList, image);
         }
 
-        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(
-                getApplicationContext(),
-                Constants.NOTIFICATION_CHANNEL_ID);
-
-        notificationBuilder.setAutoCancel(false)
-                .setWhen(System.currentTimeMillis())
-                .setSmallIcon(getApplicationInfo().icon)
-                .setStyle(new NotificationCompat.DecoratedCustomViewStyle())
-                .setCustomContentView(smallNotification)
-                .setCustomBigContentView(views)
-                .setContentTitle(title)
-                .setSound(sound)
-                .setContentText(body);
-
-        Notification notification = notificationBuilder.build();
-
-        notificationManager.notify(notificationId, notification);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            StatusBarNotification[] statusBarNotifications = notificationManager.getActiveNotifications();
-            for (StatusBarNotification statusBarNotification : statusBarNotifications) {
-                if (statusBarNotification.getId() == notificationId) {
-                    Map<String, Object> eventProps = new HashMap<>();
-                    eventProps.put("triggerID", triggerData.getId());
-                    sendEvent(getApplicationContext(), new Event("CE Notification Viewed", eventProps));
-                }
-            }
-        }
+        renderer.render();
     }
 
     /**
@@ -286,28 +234,11 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
      *
      * @param triggerData received from data payload
      */
-    private void showNotification(TriggerData triggerData) {
-        String title = getNotificationTitle(triggerData);
-        String body = getNotificationBody(triggerData);
+    private void showNotification(PushNotificationTrigger triggerData) {
+        Context context = getApplicationContext();
+        NotificationRenderer renderer = new SimpleNotificationRenderer(context, triggerData);
+        NotificationCompat.Builder notificationBuilder = renderer.getBuilder();
 
-        if (title == null) {
-            return;
-        }
-
-        NotificationManager notificationManager = (NotificationManager) getApplicationContext()
-                .getSystemService(Context.NOTIFICATION_SERVICE);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel notificationChannel = new NotificationChannel(
-                    Constants.NOTIFICATION_CHANNEL_ID,
-                    Constants.NOTIFICATION_CHANNEL_NAME,
-                    NotificationManager.IMPORTANCE_DEFAULT);
-
-            notificationChannel.setDescription("");
-            notificationManager.createNotificationChannel(notificationChannel);
-        }
-
-        int notificationId = (int) System.currentTimeMillis();
         Intent appLaunchIntent = new Intent(this, CooeeEmptyActivity.class);
 
         Bundle bundle = new Bundle();
@@ -317,63 +248,20 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
 
         PendingIntent appLaunchPendingIntent = PendingIntent.getActivity(this, triggerData.getId().hashCode(), appLaunchIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        RemoteViews smallNotification = new RemoteViews(getPackageName(), R.layout.notification_small);
-        smallNotification.setTextViewText(R.id.textViewTitle, title);
-        smallNotification.setTextViewText(R.id.textViewInfo, body);
+        addAction(notificationBuilder, createActionButtons(triggerData, renderer.getNotificationID()));
 
-        RemoteViews largeNotification = new RemoteViews(getPackageName(), R.layout.notification_large);
-        largeNotification.setTextViewText(R.id.textViewTitle, title);
-        largeNotification.setTextViewText(R.id.textViewInfo, body);
+        notificationBuilder.setContentIntent(appLaunchPendingIntent);
 
-        Glide.with(getApplicationContext())
-                .asBitmap().load(triggerData.getImageUrl1()).into(new CustomTarget<Bitmap>() {
-            @Override
-            public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
-                NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(
-                        getApplicationContext(),
-                        Constants.NOTIFICATION_CHANNEL_ID);
-                notificationBuilder = addAction(notificationBuilder, createActionButtons(triggerData, notificationId));
-
-                smallNotification.setImageViewBitmap(R.id.imageViewLarge, resource);
-                largeNotification.setImageViewBitmap(R.id.imageViewLarge, resource);
-                notificationBuilder.setAutoCancel(true)
-                        .setWhen(System.currentTimeMillis())
-                        .setSmallIcon(getApplicationInfo().icon)
-                        .setStyle(new NotificationCompat.DecoratedCustomViewStyle())
-                        .setCustomContentView(smallNotification)
-                        .setCustomBigContentView(largeNotification)
-                        .setContentTitle(title)
-                        .setContentText(body)
-                        .setContentIntent(appLaunchPendingIntent);
-
-                Intent deleteIntent = new Intent(getApplicationContext(), CooeeIntentService.class);
-                deleteIntent.setAction("Notification Deleted");
-
-                Notification notification = notificationBuilder.build();
-                notification.deleteIntent = PendingIntent.getService(
-                        getApplicationContext(),
-                        0,
-                        deleteIntent,
-                        PendingIntent.FLAG_ONE_SHOT);
-                notificationManager.notify(notificationId, notification);
-
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    StatusBarNotification[] statusBarNotifications = notificationManager.getActiveNotifications();
-                    for (StatusBarNotification statusBarNotification : statusBarNotifications) {
-                        if (statusBarNotification.getId() == notificationId) {
-                            Map<String, Object> eventProps = new HashMap<>();
-                            eventProps.put("triggerID", triggerData.getId());
-                            sendEvent(getApplicationContext(), new Event("CE Notification Viewed", eventProps));
-                        }
-                    }
-                }
-            }
-
-            @Override
-            public void onLoadCleared(@Nullable Drawable placeholder) {
-
-            }
-        });
+        String smallImage = triggerData.getSmallImage();
+        if (TextUtils.isEmpty(smallImage)) {
+            renderer.render();
+        } else {
+            this.imageLoader.load(triggerData.getSmallImage(), (Bitmap resource) -> {
+                renderer.getSmallContentView().setImageViewBitmap(R.id.imageViewLarge, resource);
+                renderer.getBigContentView().setImageViewBitmap(R.id.imageViewLarge, resource);
+                renderer.render();
+            });
+        }
     }
 
     /**
@@ -383,38 +271,6 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
      */
     public static void sendEvent(Context context, Event event) {
         CooeeFactory.getSafeHTTPService().sendEvent(event);
-    }
-
-    /**
-     * Get Notification title from trigger data
-     *
-     * @param triggerData Trigger data
-     * @return title
-     */
-    private String getNotificationTitle(TriggerData triggerData) {
-        String title = null;
-        if (triggerData.getTitle().getNotificationText() != null && !triggerData.getTitle().getNotificationText().isEmpty()) {
-            title = triggerData.getTitle().getNotificationText();
-        } else {
-            title = triggerData.getTitle().getText();
-        }
-        return title;
-    }
-
-    /**
-     * Get Notification body from trigger data
-     *
-     * @param triggerData Trigger data
-     * @return body
-     */
-    private String getNotificationBody(TriggerData triggerData) {
-        String body = "";
-        if (triggerData.getMessage().getNotificationText() != null && !triggerData.getMessage().getNotificationText().isEmpty()) {
-            body = triggerData.getMessage().getNotificationText();
-        } else if (triggerData.getMessage().getText() != null && !triggerData.getMessage().getText().isEmpty()) {
-            body = triggerData.getMessage().getText();
-        }
-        return body;
     }
 
     /**
@@ -472,14 +328,12 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
      *
      * @param builder NotificationCompat Builder
      * @param actions NotificationCompat.Action array
-     * @return NotificationCompat Builder
      */
-    private NotificationCompat.Builder addAction(NotificationCompat.Builder builder, NotificationCompat.Action[] actions) {
+    private void addAction(NotificationCompat.Builder builder, NotificationCompat.Action[] actions) {
         for (NotificationCompat.Action action : actions) {
             if (action != null && action.getTitle() != null) {
                 builder.addAction(action);
             }
         }
-        return builder;
     }
 }

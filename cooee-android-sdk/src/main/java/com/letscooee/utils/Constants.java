@@ -23,8 +23,13 @@ public class Constants {
     public static final int IDLE_TIME_IN_SECONDS = 30 * 60;
     public static final int KEEP_ALIVE_TIME_IN_MS = 5 * 60 * 1000;
 
-    public static final String NOTIFICATION_CHANNEL_ID = "COOEE_DEFAULT_CHANNEL";
-    public static final String NOTIFICATION_CHANNEL_NAME = "DEFAULT";
+    // region Push notification channel keys
+    public static final String DEFAULT_CHANNEL_ID = "COOEE_DEFAULT_CHANNEL";
+    public static final String DEFAULT_CHANNEL_NAME = "Default";
+    public static final String HIGH_CHANNEL_ID = "COOEE_HIGH_CHANNEL";
+    public static final String HIGH_CHANNEL_NAME = "Important";
+    // endregion
+
     public static final String TOUCH_MAP = "TOUCHMAP";
 
     public static final String INTENT_BUNDLE_KEY = "cooeeIntentBundle";

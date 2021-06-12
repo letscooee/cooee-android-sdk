@@ -5,7 +5,7 @@ package com.letscooee.utils;
  *
  * @author Abhishek Taparia
  */
-public class PropertyNameException extends Exception {
+public class PropertyNameException extends RuntimeException {
 
     public PropertyNameException() {
         super("Property name cannot start with 'CE '");

@@ -3,8 +3,6 @@ package com.letscooee.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Map;
 
 /**
@@ -13,6 +11,7 @@ import java.util.Map;
  * @author Abhishek Taparia
  */
 public class TriggerData implements Parcelable {
+
     public enum Type {
         IMAGE, VIDEO
     }
@@ -27,10 +26,6 @@ public class TriggerData implements Parcelable {
 
     public enum ExitAnimation {
         SLIDE_OUT_TOP, SLIDE_OUT_DOWN, SLIDE_OUT_LEFT, SLIDE_OUT_RIGHT
-    }
-
-    public boolean isShowAsPN() {
-        return showAsPN;
     }
 
     public TriggerCloseBehaviour getCloseBehaviour() {
@@ -62,7 +57,7 @@ public class TriggerData implements Parcelable {
     private CarouselData[] carouselData;
     private int imageShadow;
     private boolean showImageShadow;
-    private String imageUrl1;
+    protected String imageUrl1;
     private int carouselOffset = 1;
 
     public SidePopSetting getSidePopSetting() {
@@ -86,9 +81,6 @@ public class TriggerData implements Parcelable {
     }
 
     public TriggerData() {
-    }
-
-    public TriggerData(Map<String, String> triggerData) {
     }
 
     public int getCarouselOffset() {
@@ -209,10 +201,6 @@ public class TriggerData implements Parcelable {
         return imageUrl;
     }
 
-    public String getImageUrl1() {
-        return imageUrl1;
-    }
-
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
     }
@@ -283,17 +271,8 @@ public class TriggerData implements Parcelable {
         return "TriggerData{" +
                 "id=" + id +
                 ", type=" + type +
-                ", fill=" + fill +
-                ", background=" + background +
-                ", showAsPN=" + showAsPN +
-                ", imageUrl='" + imageUrl + '\'' +
-                ", videoUrl='" + videoUrl + '\'' +
-                ", entranceAnimation=" + entranceAnimation +
-                ", exitAnimation=" + exitAnimation +
-                ", closeBehaviour=" + closeBehaviour +
                 ", title=" + title +
                 ", message=" + message +
-                ", buttons=" + Arrays.toString(buttons) +
                 '}';
     }
 }
