@@ -56,12 +56,14 @@ public abstract class NotificationRenderer {
         this.notificationSound = new NotificationSound(context, triggerData, notificationBuilder);
 
         this.smallContentViews = new RemoteViews(context.getPackageName(), R.layout.notification_small);
-        this.bigContentViews = new RemoteViews(context.getPackageName(), R.layout.notification_carousel);
+        this.bigContentViews = new RemoteViews(context.getPackageName(), this.getBigViewLayout());
 
         this.createChannel();
         this.setBuilder();
         this.notificationSound.setSoundInNotification();
     }
+
+    abstract int getBigViewLayout();
 
     abstract void updateSmallContentView();
 

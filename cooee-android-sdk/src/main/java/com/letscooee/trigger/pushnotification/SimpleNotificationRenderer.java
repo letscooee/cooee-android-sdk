@@ -17,6 +17,10 @@ public class SimpleNotificationRenderer extends NotificationRenderer {
         super(context, triggerData);
     }
 
+    int getBigViewLayout() {
+        return R.layout.notification_large;
+    }
+
     void updateSmallContentView() {
         // TODO: 11/06/21 implement me
     }
