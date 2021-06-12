@@ -175,14 +175,4 @@ public class CooeeSDK implements InAppTriggerActivity.InAppListener {
             inAppNotificationClickListener.get().onInAppButtonClick(payload);
         }
     }
-
-    /**
-     * Set Bitmap to Engagement Trigger Activity while working in flutter
-     *
-     * @param base64 will contain bitmap in base64 format
-     */
-    public void setBitmap(String base64) {
-        InAppTriggerActivity.setBitmap(base64);
-    }
-
 }

@@ -5,7 +5,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -18,7 +17,6 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.text.TextUtils;
-import android.util.Base64;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
@@ -37,7 +35,6 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.google.android.flexbox.FlexboxLayout;
-import com.google.gson.Gson;
 import com.letscooee.CooeeFactory;
 import com.letscooee.CooeeSDK;
 import com.letscooee.R;
@@ -59,7 +56,7 @@ import jp.wasabeef.blurry.Blurry;
 
 public class InAppTriggerActivity extends AppCompatActivity implements PreventBlurActivity {
 
-    TriggerData triggerData;
+    private TriggerData triggerData;
     ImageButton closeImageButton;
     RelativeLayout secondParentLayout;
     TextView textViewTimer;
@@ -76,21 +73,13 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
     private int watchedTill;
     private int videoSeenCounter = 0;
     private boolean isVideoUnmuted;
-    private static Bitmap flutterBitmap;
-    public static OnInAppPopListener onInAppPopListener;
-    public static OnInAppCloseListener onInAppCloseListener;
-    public static boolean isManualClose = true;
+    public boolean isManualClose = true;
     private final SafeHTTPService safeHTTPService;
 
     public InAppTriggerActivity() {
         safeHTTPService = CooeeFactory.getSafeHTTPService();
     }
 
-    public static void setBitmap(String base64) {
-        byte[] decodedString = Base64.decode(base64, Base64.DEFAULT);
-        Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-        flutterBitmap = decodedByte;
-    }
 
     public interface InAppListener {
         void inAppNotificationDidClick(HashMap<String, Object> payload);
@@ -838,10 +827,6 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
                     .animate(500)
                     .onto((ViewGroup) _window.getDecorView());
 
-            //TODO: 09/06/2021 Need to clear flutter related
-            if (onInAppPopListener != null) {
-                onInAppPopListener.onInAppTriggered(triggerData.getTriggerBackground().getBlur());
-            }
         } else if (triggerData.getTriggerBackground().getType() == TriggerBehindBackground.Type.SOLID_COLOR) {
             ImageView imageView = findViewById(R.id.blurImage);
             if (triggerData.getTriggerBackground() != null) {
@@ -865,16 +850,6 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
     protected void onPause() {
         super.onPause();
         Blurry.delete((ViewGroup) _window.getDecorView());
-
-        //TODO: 09/06/2021 Need to clear flutter related
-        if (onInAppCloseListener != null) {
-            onInAppCloseListener.onInAppClosed();
-            if (!isManualClose) {
-                LocalStorageHelper.putString(this, "trigger", new Gson().toJson(triggerData));
-                finish();
-            }
-
-        }
     }
 
     @Override
@@ -916,5 +891,13 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
         }
 
         updateExit();
+    }
+
+    public TriggerData getTriggerData() {
+        return triggerData;
+    }
+
+    public boolean isManualClose() {
+        return isManualClose;
     }
 }
