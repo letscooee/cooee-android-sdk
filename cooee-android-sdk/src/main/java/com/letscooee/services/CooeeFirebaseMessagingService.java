@@ -37,7 +37,6 @@ import com.letscooee.trigger.pushnotification.CarouselNotificationRenderer;
 import com.letscooee.trigger.pushnotification.NotificationRenderer;
 import com.letscooee.trigger.pushnotification.SimpleNotificationRenderer;
 import com.letscooee.utils.Constants;
-import io.sentry.Sentry;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -113,7 +112,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
         eventProps.put("triggerID", triggerData.getId());
 
         if (triggerData instanceof PushNotificationTrigger) {
-            sendEvent(getApplicationContext(), new Event("CE Notification Received", eventProps));
+            CooeeFactory.getSafeHTTPService().sendEvent(new Event("CE Notification Received", eventProps));
 
             if (triggerData.isCarousel()) {
                 loadCarouselImages(triggerData.getCarouselData(), 0, (PushNotificationTrigger) triggerData);
@@ -121,7 +120,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
                 showNotification((PushNotificationTrigger) triggerData);
             }
         } else {
-            showInAppMessaging(triggerData);
+            EngagementTriggerHelper.renderInAppTrigger(getApplicationContext(), triggerData);
         }
     }
 
@@ -221,15 +220,6 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
     }
 
     /**
-     * Show inapp engagement trigger
-     *
-     * @param triggerData received from data payload
-     */
-    private void showInAppMessaging(TriggerData triggerData) {
-        EngagementTriggerHelper.renderInAppTrigger(getApplicationContext(), triggerData);
-    }
-
-    /**
      * Show push notification engagement trigger
      *
      * @param triggerData received from data payload
@@ -243,12 +233,13 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
 
         Bundle bundle = new Bundle();
         bundle.putParcelable(Constants.INTENT_TRIGGER_DATA_KEY, triggerData);
+
         appLaunchIntent.putExtra(Constants.INTENT_BUNDLE_KEY, bundle);
         appLaunchIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
         PendingIntent appLaunchPendingIntent = PendingIntent.getActivity(this, triggerData.getId().hashCode(), appLaunchIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        addAction(notificationBuilder, createActionButtons(triggerData, renderer.getNotificationID()));
+        renderer.addActions(createActionButtons(triggerData, renderer.getNotificationID()));
 
         notificationBuilder.setContentIntent(appLaunchPendingIntent);
 
@@ -262,15 +253,6 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
                 renderer.render();
             });
         }
-    }
-
-    /**
-     * Send notification kpi tracking event
-     *
-     * @param event kpi event
-     */
-    public static void sendEvent(Context context, Event event) {
-        CooeeFactory.getSafeHTTPService().sendEvent(event);
     }
 
     /**
@@ -306,10 +288,9 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
             }
 
             if (triggerButton.isShowInPN()) {
-                Intent actionButtonIntent = new Intent(getApplicationContext(), CooeeIntentService.class);
-                actionButtonIntent.setAction("Notification");
+                Intent actionButtonIntent = new Intent(getApplicationContext(), PushNotificationIntentService.class);
+                actionButtonIntent.setAction(Constants.ACTION_PUSH_BUTTON_CLICK);
                 actionButtonIntent.putExtra("triggerData", triggerData);
-                actionButtonIntent.putExtra("buttonCount", i);
                 actionButtonIntent.putExtra("notificationId", notificationId);
                 PendingIntent pendingIntent = PendingIntent.getService(
                         getApplicationContext(),
@@ -321,19 +302,5 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
         }
 
         return actions;
-    }
-
-    /**
-     * Add action to NotificationCompat Builder
-     *
-     * @param builder NotificationCompat Builder
-     * @param actions NotificationCompat.Action array
-     */
-    private void addAction(NotificationCompat.Builder builder, NotificationCompat.Action[] actions) {
-        for (NotificationCompat.Action action : actions) {
-            if (action != null && action.getTitle() != null) {
-                builder.addAction(action);
-            }
-        }
     }
 }

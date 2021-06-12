@@ -12,12 +12,14 @@ import android.widget.RemoteViews;
 import androidx.core.app.NotificationCompat;
 import com.letscooee.CooeeFactory;
 import com.letscooee.R;
+import com.letscooee.loader.http.RemoteImageLoader;
 import com.letscooee.models.Event;
 import com.letscooee.models.TriggerData;
 import com.letscooee.models.trigger.PushNotificationImportance;
 import com.letscooee.models.trigger.PushNotificationTrigger;
 import com.letscooee.network.SafeHTTPService;
-import com.letscooee.services.CooeeIntentService;
+import com.letscooee.services.PushNotificationIntentService;
+import com.letscooee.utils.Constants;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -36,6 +38,8 @@ public abstract class NotificationRenderer {
     protected final RemoteViews smallContentViews;
     protected final RemoteViews bigContentViews;
 
+    protected final RemoteImageLoader imageLoader;
+
     private final SafeHTTPService safeHTTPService;
     private final NotificationSound notificationSound;
     private final NotificationManager notificationManager;
@@ -48,6 +52,7 @@ public abstract class NotificationRenderer {
     protected NotificationRenderer(Context context, PushNotificationTrigger triggerData) {
         this.context = context;
         this.triggerData = triggerData;
+        this.imageLoader = new RemoteImageLoader(context);
         this.notificationImportance = this.triggerData.getImportance();
 
         this.safeHTTPService = CooeeFactory.getSafeHTTPService();
@@ -133,8 +138,8 @@ public abstract class NotificationRenderer {
     }
 
     private void setDeleteIntent(Notification notification) {
-        Intent deleteIntent = new Intent(this.context, CooeeIntentService.class);
-        deleteIntent.setAction("Notification Deleted");
+        Intent deleteIntent = new Intent(this.context, PushNotificationIntentService.class);
+        deleteIntent.setAction(Constants.ACTION_DELETE_NOTIFICATION);
 
         notification.deleteIntent = PendingIntent.getService(context, 0, deleteIntent, PendingIntent.FLAG_ONE_SHOT);
     }
@@ -165,6 +170,19 @@ public abstract class NotificationRenderer {
 
     public RemoteViews getBigContentView() {
         return this.bigContentViews;
+    }
+
+    /**
+     * Add actions to push notification.
+     *
+     * @param actions NotificationCompat.Action array
+     */
+    public void addActions(NotificationCompat.Action[] actions) {
+        for (NotificationCompat.Action action : actions) {
+            if (action != null && action.getTitle() != null) {
+                notificationBuilder.addAction(action);
+            }
+        }
     }
 
     public void render() {

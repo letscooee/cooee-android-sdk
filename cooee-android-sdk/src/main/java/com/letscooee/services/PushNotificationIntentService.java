@@ -6,34 +6,34 @@ import android.app.PendingIntent;
 import android.app.TaskStackBuilder;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-
 import androidx.annotation.Nullable;
-
+import androidx.annotation.RestrictTo;
+import com.letscooee.CooeeFactory;
 import com.letscooee.models.Event;
 import com.letscooee.models.TriggerData;
+import com.letscooee.utils.Constants;
 
 import java.util.HashMap;
-
-import io.sentry.Sentry;
 
 /**
  * @author Abhishek Taparia
  */
-public class CooeeIntentService extends IntentService {
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+public class PushNotificationIntentService extends IntentService {
 
-    /**
-     * Creates an IntentService. Invoked by your subclass's constructor.
-     */
-    public CooeeIntentService() {
-        super("CooeeServiceIntent");
+    public PushNotificationIntentService() {
+        super(PushNotificationIntentService.class.getSimpleName());
     }
 
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
+        if (intent == null) {
+            return;
+        }
+
         switch (intent.getAction()) {
-            case "Notification": {
+            case Constants.ACTION_PUSH_BUTTON_CLICK: {
                 TriggerData triggerData = intent.getParcelableExtra("triggerData");
-                int i = intent.getIntExtra("buttonCount", -1);
                 int notificationId = intent.getIntExtra("notificationId", 0);
 
                 NotificationManager notificationManager = (NotificationManager) getApplicationContext().getSystemService(NOTIFICATION_SERVICE);
@@ -51,16 +51,15 @@ public class CooeeIntentService extends IntentService {
                 try {
                     appLaunchPendingIntent.send();
                 } catch (PendingIntent.CanceledException e) {
-                    Sentry.captureException(e);
+                    CooeeFactory.getSentryHelper().captureException(e);
                 }
 
-
-                Intent it = new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS);
-                getApplicationContext().sendBroadcast(it);
+                Intent newIntent = new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS);
+                getApplicationContext().sendBroadcast(newIntent);
                 break;
             }
-            case "Notification Deleted": {
-                CooeeFirebaseMessagingService.sendEvent(getApplicationContext(), new Event("CE Notification Cancelled", new HashMap<>()));
+            case Constants.ACTION_DELETE_NOTIFICATION: {
+                CooeeFactory.getSafeHTTPService().sendEvent(new Event("CE Notification Cancelled", new HashMap<>()));
                 break;
             }
         }

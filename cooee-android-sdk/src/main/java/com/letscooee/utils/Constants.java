@@ -30,6 +30,11 @@ public class Constants {
     public static final String HIGH_CHANNEL_NAME = "Important";
     // endregion
 
+    // region Push notification
+    public static final String ACTION_PUSH_BUTTON_CLICK = "pnButtonClick";
+    public static final String ACTION_DELETE_NOTIFICATION = "pnDelete";
+    // endregion
+
     public static final String TOUCH_MAP = "TOUCHMAP";
 
     public static final String INTENT_BUNDLE_KEY = "cooeeIntentBundle";

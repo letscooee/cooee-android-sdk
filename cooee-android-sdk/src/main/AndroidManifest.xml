@@ -39,7 +39,7 @@
             </intent-filter>
         </service>
 
-        <service android:name=".services.CooeeIntentService" />
+        <service android:name=".services.PushNotificationIntentService" />
         <service
             android:name=".schedular.job.PendingTaskJob"
             android:exported="false"
