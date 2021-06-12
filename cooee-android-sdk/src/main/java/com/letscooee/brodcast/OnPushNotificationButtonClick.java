@@ -1,10 +1,6 @@
 package com.letscooee.brodcast;
 
-import android.app.Notification;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.app.TaskStackBuilder;
+import android.app.*;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -17,33 +13,28 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.RemoteViews;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
-
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
+import com.letscooee.CooeeFactory;
 import com.letscooee.CooeeSDK;
 import com.letscooee.R;
 import com.letscooee.models.CarouselData;
 import com.letscooee.models.TriggerData;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.PropertyNameException;
+import io.sentry.Sentry;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
-
-import io.sentry.Sentry;
 
 /**
  * @author Ashish Gaikwad
  */
 public class OnPushNotificationButtonClick extends BroadcastReceiver {
-
-    private CooeeSDK sdk;
 
     /**
      * onReceive will get call when broadcast will get trigger and it will hold context and intent of current instance.
@@ -51,18 +42,13 @@ public class OnPushNotificationButtonClick extends BroadcastReceiver {
      */
     @Override
     public void onReceive(Context context, Intent intent) {
-
-        sdk = CooeeSDK.getDefaultInstance(context);
+        String intentType = intent.getStringExtra("intentType");
 
         try {
-
-            String TYPE = intent.getStringExtra("TYPE");
-            if (TYPE.equals("CAROUSEL"))
+            if (intentType.equals("moveCarousel"))
                 processCarouselData(context, intent);
-
-
         } catch (Exception e) {
-            Sentry.captureException(e);
+            CooeeFactory.getSentryHelper().captureException(e);
         }
     }
 
@@ -74,14 +60,18 @@ public class OnPushNotificationButtonClick extends BroadcastReceiver {
      * @param context will come from onReceive method.
      * @param intent  will come from onReceive method.
      */
-    private void processCarouselData(Context context, Intent intent) throws PropertyNameException {
-        TriggerData triggerData = (TriggerData) intent.getExtras().getParcelable("TRIGGERDATA");
+    private void processCarouselData(Context context, Intent intent) {
+        TriggerData triggerData = (TriggerData) intent.getExtras().getParcelable("triggerData");
 
-        Map eventProps = new HashMap<String, Object>();
+        HashMap<String, Object> eventProps = new HashMap<>();
         eventProps.put("triggerID", triggerData.getId());
-        sdk.sendEvent("CE PN Action Click", eventProps);
 
-        assert triggerData != null;
+        try {
+            CooeeSDK.getDefaultInstance(context).sendEvent("CE PN Carousel Move", eventProps);
+        } catch (PropertyNameException e) {
+            e.printStackTrace();
+        }
+
         loadBitmapsForCarousel(triggerData.getCarouselData(), 0, triggerData, context, intent);
     }
 
@@ -120,14 +110,14 @@ public class OnPushNotificationButtonClick extends BroadcastReceiver {
     }
 
     /**
-     * showCarouselNotification will get call after all image loading is done. It will show carousel notification
+     * This will get call after all image loading is done. It will show carousel notification
      * and will also handle click event for scrolling.
      *
-     * @param triggerData will instance of TriggerData which will hold all other PN data
+     * @param triggerData will be instance of TriggerData which will hold all other PN data
      */
     private void showCarouselNotification(Context context, TriggerData triggerData, Intent intent) {
-        int notificationId = intent.getExtras().getInt("NOTIFICATIONID", 0);
-        int POSITION = intent.getExtras().getInt("POSITION", 1);
+        int notificationId = intent.getExtras().getInt("notificationID", 0);
+        int position = intent.getExtras().getInt("carouselPosition", 1);
         assert triggerData != null;
         String title = getNotificationTitle(triggerData);
         String body = getNotificationBody(triggerData);
@@ -135,7 +125,7 @@ public class OnPushNotificationButtonClick extends BroadcastReceiver {
         if (title == null) {
             return;
         }
-        Log.d("TAG", "showCarouselNotification: Position " + POSITION);
+        Log.d(Constants.LOG_PREFIX, "showCarouselNotification: Position " + position);
         NotificationManager notificationManager = (NotificationManager) context
                 .getSystemService(Context.NOTIFICATION_SERVICE);
 
@@ -149,7 +139,6 @@ public class OnPushNotificationButtonClick extends BroadcastReceiver {
             notificationChannel.setSound(null, null);
             notificationManager.createNotificationChannel(notificationChannel);
         }
-
 
         RemoteViews smallNotification = new RemoteViews(context.getPackageName(), R.layout.notification_small);
         smallNotification.setTextViewText(R.id.textViewTitle, title);
@@ -166,26 +155,26 @@ public class OnPushNotificationButtonClick extends BroadcastReceiver {
         int carouselOffset = triggerData.getCarouselOffset();
         int totalImages = triggerData.getCarouselData().length;
 
-        if (POSITION + carouselOffset >= totalImages || POSITION > totalImages) {
+        if (position + carouselOffset >= totalImages || position > totalImages) {
             views.setViewVisibility(R.id.right, View.INVISIBLE);
         } else {
             views.setViewVisibility(R.id.right, View.VISIBLE);
         }
-        if (POSITION < 1) {
+        if (position < 1) {
             views.setViewVisibility(R.id.left, View.INVISIBLE);
         } else {
             views.setViewVisibility(R.id.left, View.VISIBLE);
         }
 
         Bundle bundle = new Bundle();
-        bundle.putInt("POSITION", POSITION + carouselOffset);
-        bundle.putInt("NOTIFICATIONID", notificationId);
-        bundle.putParcelable("TRIGGERDATA", triggerData);
-        bundle.putString("TYPE", "CAROUSEL");
+        bundle.putInt("carouselPosition", position + carouselOffset);
+        bundle.putInt("notificationID", notificationId);
+        bundle.putParcelable("triggerData", triggerData);
+        bundle.putString("intentType", "moveCarousel");
 
         Intent rightScrollIntent = new Intent(context, OnPushNotificationButtonClick.class);
         rightScrollIntent.putExtras(bundle);
-        bundle.putInt("POSITION", POSITION - carouselOffset);
+        bundle.putInt("carouselPosition", position - carouselOffset);
         Intent leftScrollIntent = new Intent(context, OnPushNotificationButtonClick.class);
         leftScrollIntent.putExtras(bundle);
 
@@ -205,7 +194,7 @@ public class OnPushNotificationButtonClick extends BroadcastReceiver {
         views.setOnClickPendingIntent(R.id.left, pendingIntentLeft);
         views.setOnClickPendingIntent(R.id.right, pendingIntentRight);
 
-        for (int i = POSITION; i < triggerData.getCarouselData().length; i++) {
+        for (int i = position; i < triggerData.getCarouselData().length; i++) {
             RemoteViews image = new RemoteViews(context.getPackageName(), R.layout.row_notification_list);
             image.setImageViewBitmap(R.id.caroselImage, bitmaps.get(i));
             CarouselData data = triggerData.getCarouselData()[i];

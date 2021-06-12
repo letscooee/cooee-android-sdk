@@ -155,10 +155,10 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
         RemoteViews views = renderer.getBigContentView();
 
         Bundle bundle = new Bundle();
-        bundle.putInt("POSITION", triggerData.getCarouselOffset());
-        bundle.putInt("NOTIFICATIONID", renderer.getNotificationID());
-        bundle.putParcelable("TRIGGERDATA", triggerData);
-        bundle.putString("TYPE", "CAROUSEL");
+        bundle.putInt("carouselPosition", triggerData.getCarouselOffset());
+        bundle.putInt("notificationID", renderer.getNotificationID());
+        bundle.putParcelable("triggerData", triggerData);
+        bundle.putString("intentType", "moveCarousel");
 
         Intent rightScrollIntent = new Intent(this, OnPushNotificationButtonClick.class);
         rightScrollIntent.putExtras(bundle);
