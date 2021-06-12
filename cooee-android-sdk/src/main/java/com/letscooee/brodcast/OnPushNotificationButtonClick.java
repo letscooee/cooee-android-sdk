@@ -25,7 +25,6 @@ import com.letscooee.R;
 import com.letscooee.models.CarouselData;
 import com.letscooee.models.TriggerData;
 import com.letscooee.utils.Constants;
-import com.letscooee.utils.PropertyNameException;
 import io.sentry.Sentry;
 
 import java.util.ArrayList;
@@ -65,12 +64,7 @@ public class OnPushNotificationButtonClick extends BroadcastReceiver {
 
         HashMap<String, Object> eventProps = new HashMap<>();
         eventProps.put("triggerID", triggerData.getId());
-
-        try {
-            CooeeSDK.getDefaultInstance(context).sendEvent("CE PN Carousel Move", eventProps);
-        } catch (PropertyNameException e) {
-            e.printStackTrace();
-        }
+        CooeeSDK.getDefaultInstance(context).sendEvent("CE PN Carousel Move", eventProps);
 
         loadBitmapsForCarousel(triggerData.getCarouselData(), 0, triggerData, context, intent);
     }

@@ -1,7 +1,6 @@
 package com.letscooee;
 
 import android.content.Context;
-
 import com.letscooee.models.Event;
 import com.letscooee.network.SafeHTTPService;
 import com.letscooee.retrofit.UserAuthService;
@@ -12,7 +11,6 @@ import com.letscooee.utils.InAppNotificationClickListener;
 import com.letscooee.utils.PropertyNameException;
 import com.letscooee.utils.RuntimeData;
 import com.letscooee.utils.SentryHelper;
-
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.ref.WeakReference;
@@ -25,6 +23,8 @@ import java.util.Map;
  * @author Abhishek Taparia
  */
 public class CooeeSDK implements InAppTriggerActivity.InAppListener {
+
+    private static final String SYSTEM_DATA_PREFIX = "CE ";
 
     private static CooeeSDK cooeeSDK;
 
@@ -74,11 +74,10 @@ public class CooeeSDK implements InAppTriggerActivity.InAppListener {
      *
      * @param eventName       Name the event like onDeviceReady
      * @param eventProperties Properties associated with the event
-     * @throws PropertyNameException Custom Exception so that properties' key has no prefix as 'ce '
      */
-    public void sendEvent(String eventName, Map<String, Object> eventProperties) throws PropertyNameException {
+    public void sendEvent(String eventName, Map<String, Object> eventProperties) {
         for (String key : eventProperties.keySet()) {
-            if (key.substring(0, 3).equalsIgnoreCase("ce ")) {
+            if (key.substring(0, 3).equalsIgnoreCase(SYSTEM_DATA_PREFIX)) {
                 throw new PropertyNameException();
             }
         }
@@ -92,9 +91,8 @@ public class CooeeSDK implements InAppTriggerActivity.InAppListener {
      * Send given user data to the server
      *
      * @param userData The common user data like name, email.
-     * @throws PropertyNameException Custom Exception so that properties' key has no prefix as 'ce '
      */
-    public void updateUserData(Map<String, Object> userData) throws PropertyNameException {
+    public void updateUserData(Map<String, Object> userData) {
         updateUserProfile(userData, null);
     }
 
@@ -102,9 +100,8 @@ public class CooeeSDK implements InAppTriggerActivity.InAppListener {
      * Send given user properties to the server
      *
      * @param userProperties The additional user properties.
-     * @throws PropertyNameException Custom Exception so that properties' key has no prefix as 'ce '
      */
-    public void updateUserProperties(Map<String, Object> userProperties) throws PropertyNameException {
+    public void updateUserProperties(Map<String, Object> userProperties) {
         updateUserProfile(null, userProperties);
     }
 
@@ -113,12 +110,11 @@ public class CooeeSDK implements InAppTriggerActivity.InAppListener {
      *
      * @param userData       The common user data like name, email.
      * @param userProperties The additional user properties.
-     * @throws PropertyNameException Custom Exception so that properties' key has no prefix as 'ce '
      */
-    public void updateUserProfile(Map<String, Object> userData, Map<String, Object> userProperties) throws PropertyNameException {
+    public void updateUserProfile(Map<String, Object> userData, Map<String, Object> userProperties) {
         if (userProperties != null) {
             for (String key : userProperties.keySet()) {
-                if (key.substring(0, 3).equalsIgnoreCase("ce ")) {
+                if (key.substring(0, 3).equalsIgnoreCase(SYSTEM_DATA_PREFIX)) {
                     throw new PropertyNameException();
                 }
             }
