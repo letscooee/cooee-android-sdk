@@ -821,9 +821,8 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
 
         if (triggerData.getTriggerBackground().getType() == TriggerBehindBackground.Type.BLURRED) {
             Blurry.with(getApplicationContext())
-                    .radius(triggerData.getTriggerBackground().getBlur() != 0
-                            ? triggerData.getTriggerBackground().getBlur()
-                            : 25)
+                    .radius(triggerData.getTriggerBackground().getBlurRadius())
+                    .color(triggerData.getTriggerBackground().getParsedColor())
                     .sampling(2)
                     .animate(500)
                     .onto((ViewGroup) _window.getDecorView());
