@@ -818,6 +818,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
         super.onResume();
         isManualClose = false;
         LocalStorageHelper.putString(this, "trigger", "");
+
         if (triggerData.getTriggerBackground().getType() == TriggerBehindBackground.Type.BLURRED) {
             Blurry.with(getApplicationContext())
                     .radius(triggerData.getTriggerBackground().getBlur() != 0
@@ -829,20 +830,10 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
 
         } else if (triggerData.getTriggerBackground().getType() == TriggerBehindBackground.Type.SOLID_COLOR) {
             ImageView imageView = findViewById(R.id.blurImage);
-            if (triggerData.getTriggerBackground() != null) {
-                if (!TextUtils.isEmpty(triggerData.getTriggerBackground().getColor())) {
-                    Bitmap bmp = Bitmap.createBitmap(500, 1024, Bitmap.Config.ARGB_8888);
-                    Canvas canvas = new Canvas(bmp);
-                    canvas.drawColor(Color.parseColor("" + triggerData.getTriggerBackground().getColor()));
 
-                    imageView.setImageBitmap(BlurBuilder.blur(this, bmp));
-                } else {
-                    imageView.setBackgroundColor(Color.parseColor("#828282"));
-                }
-            } else {
-                imageView.setBackgroundColor(Color.parseColor("#828282"));
-            }
-            imageView.setAlpha((float) triggerData.getTriggerBackground().getBlur() / 10);
+            imageView.setBackgroundColor(triggerData.getTriggerBackground().getParsedColor());
+            // TODO: 14/06/21 Test this
+            //imageView.setAlpha((float) triggerData.getTriggerBackground().getBlur() / 10);
         }
     }
 
