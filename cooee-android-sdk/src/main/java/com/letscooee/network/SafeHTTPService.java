@@ -1,6 +1,7 @@
 package com.letscooee.network;
 
 import android.content.Context;
+import android.text.TextUtils;
 
 import com.letscooee.ContextAware;
 import com.letscooee.models.Event;
@@ -55,9 +56,14 @@ public class SafeHTTPService extends ContextAware {
     }
 
     private void sendEvent(Event event, boolean createSession) {
-        event.setSessionID(sessionManager.getCurrentSessionID(createSession));
+        String sessionID = sessionManager.getCurrentSessionID(createSession);
+
+        if (!TextUtils.isEmpty(sessionID)) {
+            event.setSessionID(sessionID);
+            event.setSessionNumber(sessionManager.getCurrentSessionNumber());
+        }
+
         event.setScreenName(runtimeData.getCurrentScreenName());
-        event.setSessionNumber(sessionManager.getCurrentSessionNumber());
         event.setActiveTriggers(EngagementTriggerHelper.getActiveTriggers(context));
 
         PendingTask pendingTask = pendingTaskService.newTask(event);
