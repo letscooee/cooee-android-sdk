@@ -67,7 +67,6 @@ public abstract class NotificationRenderer {
 
         this.createChannel();
         this.setBuilder();
-        this.notificationSound.setSoundInNotification();
     }
 
     abstract int getBigViewLayout();
@@ -106,6 +105,20 @@ public abstract class NotificationRenderer {
                 .setPriority(this.notificationImportance.getPriority())
                 .setStyle(new NotificationCompat.DecoratedCustomViewStyle());
 
+        int defaults = 0;
+        if (this.triggerData.pn != null) {
+            if (this.triggerData.pn.lights) defaults |= NotificationCompat.DEFAULT_LIGHTS;
+            if (this.triggerData.pn.vibrate) defaults |= NotificationCompat.DEFAULT_VIBRATE;
+
+            if (this.triggerData.pn.sound) {
+                defaults |= NotificationCompat.DEFAULT_SOUND;
+                this.notificationSound.setSoundInNotification();
+            } else {
+                this.notificationBuilder.setSound(null);
+            }
+        }
+        this.notificationBuilder.setDefaults(defaults);
+
         this.setTitleAndBody();
     }
 
@@ -128,6 +141,7 @@ public abstract class NotificationRenderer {
         }
 
         if (this.triggerData.pn != null) {
+            // TODO: 15/06/21 This does not update if the channel is already created
             if (this.triggerData.pn.lights) notificationChannel.enableLights(true);
             if (this.triggerData.pn.vibrate) notificationChannel.enableVibration(true);
 
