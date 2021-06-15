@@ -55,7 +55,7 @@ class AppLifecycleCallback implements DefaultLifecycleObserver {
             Log.d(Constants.LOG_PREFIX, "After 30 min of App Background " + "Session Concluded");
         } else {
             Map<String, Object> eventProps = new HashMap<>();
-            eventProps.put("CE Duration", backgroundDuration / 1000);
+            eventProps.put("CE Duration", backgroundDuration);
             Event session = new Event("CE App Foreground", eventProps);
 
             safeHTTPService.sendEvent(session);
@@ -64,7 +64,6 @@ class AppLifecycleCallback implements DefaultLifecycleObserver {
 
     @Override
     public void onStop(@NonNull LifecycleOwner owner) {
-
         runtimeData.setInBackground();
 
         //stop sending check message of session alive on app background
