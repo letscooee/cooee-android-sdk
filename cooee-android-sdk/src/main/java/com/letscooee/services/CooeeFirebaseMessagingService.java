@@ -112,7 +112,8 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
         eventProps.put("triggerID", triggerData.getId());
 
         if (triggerData instanceof PushNotificationTrigger) {
-            CooeeFactory.getSafeHTTPService().sendEvent(new Event("CE Notification Received", eventProps));
+            Event event = new Event("CE Notification Received", eventProps);
+            CooeeFactory.getSafeHTTPService().sendEventWithoutNewSession(event);
 
             if (triggerData.isCarousel()) {
                 loadCarouselImages(triggerData.getCarouselData(), 0, (PushNotificationTrigger) triggerData);

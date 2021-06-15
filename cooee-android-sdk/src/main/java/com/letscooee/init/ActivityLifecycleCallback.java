@@ -94,7 +94,7 @@ public class ActivityLifecycleCallback implements Application.ActivityLifecycleC
                     @Override
                     public void run() {
                         EngagementTriggerHelper.renderInAppTrigger(context, triggerData);
-                        CooeeFactory.getSafeHTTPService().sendEvent(new Event("CE Notification Clicked", new HashMap<>()));
+                        CooeeFactory.getSafeHTTPService().sendEvent(new Event("CE Notification Clicked"));
                     }
                 }, 6000);
     }

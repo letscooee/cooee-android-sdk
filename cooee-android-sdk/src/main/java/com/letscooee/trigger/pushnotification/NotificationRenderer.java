@@ -9,7 +9,9 @@ import android.content.Intent;
 import android.os.Build;
 import android.service.notification.StatusBarNotification;
 import android.widget.RemoteViews;
+
 import androidx.core.app.NotificationCompat;
+
 import com.letscooee.CooeeFactory;
 import com.letscooee.R;
 import com.letscooee.loader.http.RemoteImageLoader;
@@ -155,7 +157,9 @@ public abstract class NotificationRenderer {
             if (statusBarNotification.getId() == this.notificationID) {
                 Map<String, Object> eventProps = new HashMap<>();
                 eventProps.put("triggerID", triggerData.getId());
-                this.safeHTTPService.sendEvent(new Event("CE Notification Viewed", eventProps));
+                Event event = new Event("CE Notification Viewed", eventProps);
+
+                this.safeHTTPService.sendEventWithoutNewSession(event);
             }
         }
     }

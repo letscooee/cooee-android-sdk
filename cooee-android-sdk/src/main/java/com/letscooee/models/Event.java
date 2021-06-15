@@ -20,6 +20,10 @@ public class Event {
     private ArrayList<HashMap<String, String>> activeTriggers;
     private Date occurred;
 
+    public Event(String name) {
+        this(name, new HashMap<>());
+    }
+
     public Event(String name, Map<String, Object> properties) {
         this.name = name;
         this.properties = properties;

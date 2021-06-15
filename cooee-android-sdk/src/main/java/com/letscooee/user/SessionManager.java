@@ -2,11 +2,14 @@ package com.letscooee.user;
 
 import android.content.Context;
 import android.text.TextUtils;
+
 import androidx.annotation.RestrictTo;
+
 import com.letscooee.CooeeFactory;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.LocalStorageHelper;
 import com.letscooee.utils.RuntimeData;
+
 import org.bson.types.ObjectId;
 
 import java.util.Date;
@@ -48,8 +51,24 @@ public class SessionManager {
         return instance;
     }
 
+    /**
+     * Create a new session and always make sure that a session is created if not already started.
+     *
+     * @return The current session id.
+     */
     public String getCurrentSessionID() {
-        if (TextUtils.isEmpty(currentSessionID)) {
+        return this.getCurrentSessionID(true);
+    }
+
+    /**
+     * Create a new session.
+     *
+     * @param createNew If a session does not exists and <code>createNew</code> is <true></true>,
+     *                  then create a new session.
+     * @return The current or new session id.
+     */
+    public String getCurrentSessionID(boolean createNew) {
+        if (TextUtils.isEmpty(currentSessionID) && createNew) {
             startNewSession();
         }
 

@@ -6,8 +6,10 @@ import android.app.PendingIntent;
 import android.app.TaskStackBuilder;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+
 import com.letscooee.CooeeFactory;
 import com.letscooee.models.Event;
 import com.letscooee.models.TriggerData;
@@ -59,7 +61,8 @@ public class PushNotificationIntentService extends IntentService {
                 break;
             }
             case Constants.ACTION_DELETE_NOTIFICATION: {
-                CooeeFactory.getSafeHTTPService().sendEvent(new Event("CE Notification Cancelled", new HashMap<>()));
+                Event event = new Event("CE Notification Cancelled");
+                CooeeFactory.getSafeHTTPService().sendEventWithoutNewSession(event);
                 break;
             }
         }
