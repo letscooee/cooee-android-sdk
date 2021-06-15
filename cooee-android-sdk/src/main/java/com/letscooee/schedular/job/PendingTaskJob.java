@@ -6,6 +6,8 @@ import android.content.Context;
 import android.util.Log;
 
 import com.letscooee.BuildConfig;
+import com.letscooee.CooeeFactory;
+import com.letscooee.retrofit.UserAuthService;
 import com.letscooee.room.CooeeDatabase;
 import com.letscooee.room.task.PendingTask;
 import com.letscooee.room.task.PendingTaskService;
@@ -29,9 +31,12 @@ public class PendingTaskJob extends JobService {
     public boolean onStartJob(JobParameters params) {
         jobParameters = params;
         Context context = getApplicationContext();
+        Log.v(Constants.LOG_PREFIX, "PendingTaskJob running");
 
-        if (BuildConfig.DEBUG) {
-            Log.v(Constants.LOG_PREFIX, "PendingTaskJob running");
+        UserAuthService userAuthService = CooeeFactory.getUserAuthService();
+        if (!userAuthService.hasToken()) {
+            Log.d(Constants.LOG_PREFIX, "Do not have the SDK token");
+            return false;       // Job is finished
         }
 
         List<PendingTask> taskList = CooeeDatabase.getInstance(context)
@@ -42,6 +47,7 @@ public class PendingTaskJob extends JobService {
         CooeeExecutors.getInstance().singleThreadExecutor().execute(() ->
                 PendingTaskService.getInstance(context).processTasks(taskList, this)
         );
+
         return true;
     }
 

@@ -63,7 +63,6 @@ public class CooeeJobUtils {
     }
 
     public static void schedulePendingTaskJob(Context context) {
-
         if (isJobServiceOn(context, Constants.PENDING_TASK_JOB_ID)) {
             return;
         }
