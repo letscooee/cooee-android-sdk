@@ -4,8 +4,6 @@ import android.app.job.JobParameters;
 import android.app.job.JobService;
 import android.content.Context;
 import android.util.Log;
-
-import com.letscooee.BuildConfig;
 import com.letscooee.CooeeFactory;
 import com.letscooee.retrofit.UserAuthService;
 import com.letscooee.room.CooeeDatabase;
@@ -41,7 +39,7 @@ public class PendingTaskJob extends JobService {
 
         List<PendingTask> taskList = CooeeDatabase.getInstance(context)
                 .pendingTaskDAO()
-                .fetchBeforeTime(this.getTMinusTwoMinutes());
+                .fetchPending();
 
         // As job was running on main thread so all the network call were getting break
         CooeeExecutors.getInstance().singleThreadExecutor().execute(() ->
