@@ -52,7 +52,6 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
 
     @Override
     public void onNewToken(@NonNull String token) {
-        Log.d(Constants.LOG_PREFIX, "Firebase Refreshed token: " + token);
         sendTokenToServer(token);
     }
 
@@ -266,10 +265,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
      * @param token received from Firebase
      */
     private void sendTokenToServer(String token) {
-        if (BuildConfig.DEBUG) {
-            Log.d(Constants.LOG_PREFIX, "FCM token received- " + token);
-        }
-
+        Log.d(Constants.LOG_PREFIX, "FCM token received- " + token);
         PushProviderUtils.pushTokenRefresh(token);
     }
 
