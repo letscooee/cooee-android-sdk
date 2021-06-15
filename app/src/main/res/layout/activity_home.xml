@@ -5,7 +5,7 @@
     android:id="@+id/parent"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/homepage"
+    android:background="@drawable/banner"
     tools:context=".HomeActivity">
 
     <ImageView
@@ -38,7 +38,7 @@
         android:layout_width="@dimen/length_200"
         android:layout_height="@dimen/length_30"
         android:layout_marginTop="@dimen/length_20"
-        android:text="Profile"
+        android:text="Go to Profile"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btnSendVideoEvent" />
@@ -61,7 +61,7 @@
         android:layout_height="@dimen/length_30"
         android:layout_marginTop="20dp"
         android:gravity="center"
-        android:text="Copy Code"
+        android:text="Copy User ID"
         android:visibility="visible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

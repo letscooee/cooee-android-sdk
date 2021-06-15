@@ -5,13 +5,9 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.CountDownTimer;
 import android.util.Log;
-import android.view.View;
 import android.widget.Toast;
-
 import androidx.appcompat.app.AppCompatActivity;
-
 import com.letscooee.CooeeSDK;
 import com.letscooee.cooeetester.databinding.ActivityHomeBinding;
 import com.letscooee.utils.InAppNotificationClickListener;
@@ -35,16 +31,6 @@ public class HomeActivity extends AppCompatActivity implements InAppNotification
         context = this;
         cooeeSDK = CooeeSDK.getDefaultInstance(this);
         cooeeSDK.setInAppNotificationButtonListener(this);
-
-        new CountDownTimer(1000, 3000) {
-            public void onTick(long millisUntilFinished) {
-            }
-
-            public void onFinish() {
-                binding.ivSplash.setVisibility(View.GONE);
-            }
-        }.start();
-
         cooeeSDK.setCurrentScreen(TAG);
 
         Log.d(TAG, "User ID " + cooeeSDK.getUserID());
