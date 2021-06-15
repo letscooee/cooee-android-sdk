@@ -75,7 +75,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
             return;
         }
 
-        if (imageLoader != null) {
+        if (imageLoader == null) {
             imageLoader = new RemoteImageLoader(getApplicationContext());
         }
 
