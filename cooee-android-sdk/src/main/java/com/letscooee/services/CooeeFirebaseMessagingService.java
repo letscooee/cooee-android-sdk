@@ -90,6 +90,12 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
 
             assert baseTriggerData != null;
 
+            Double version = (Double) baseTriggerData.get("version");
+            if (version == null || version >= 3) {
+                Log.d(Constants.LOG_PREFIX, "Unsupported version received " + version);
+                return;
+            }
+
             // TODO: 11/06/21 Find a better way to find the kind of notification so that double gson parsing is not required
             //noinspection ConstantConditions
             if ((Boolean) baseTriggerData.get("showAsPN")) {
