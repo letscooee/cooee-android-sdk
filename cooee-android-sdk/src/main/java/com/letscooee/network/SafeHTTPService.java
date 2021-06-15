@@ -1,6 +1,8 @@
 package com.letscooee.network;
 
 import android.content.Context;
+import android.text.TextUtils;
+
 import com.letscooee.ContextAware;
 import com.letscooee.models.Event;
 import com.letscooee.room.task.PendingTask;
@@ -34,10 +36,34 @@ public class SafeHTTPService extends ContextAware {
         this.runtimeData = RuntimeData.getInstance(context);
     }
 
+    /**
+     * Send a new event and make sure that a session always exists.
+     *
+     * @param event The new event to be posted to the server safely.
+     */
     public void sendEvent(Event event) {
-        event.setSessionID(sessionManager.getCurrentSessionID());
+        this.sendEvent(event, true);
+    }
+
+    /**
+     * Send a new event and make sure if the session is not already created then do not create
+     * a new session (skip session creation).
+     *0
+     * @param event
+     */
+    public void sendEventWithoutNewSession(Event event) {
+        this.sendEvent(event, false);
+    }
+
+    private void sendEvent(Event event, boolean createSession) {
+        String sessionID = sessionManager.getCurrentSessionID(createSession);
+
+        if (!TextUtils.isEmpty(sessionID)) {
+            event.setSessionID(sessionID);
+            event.setSessionNumber(sessionManager.getCurrentSessionNumber());
+        }
+
         event.setScreenName(runtimeData.getCurrentScreenName());
-        event.setSessionNumber(sessionManager.getCurrentSessionNumber());
         event.setActiveTriggers(EngagementTriggerHelper.getActiveTriggers(context));
 
         PendingTask pendingTask = pendingTaskService.newTask(event);

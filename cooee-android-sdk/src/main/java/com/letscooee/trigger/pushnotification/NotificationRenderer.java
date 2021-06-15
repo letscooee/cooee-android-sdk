@@ -9,7 +9,9 @@ import android.content.Intent;
 import android.os.Build;
 import android.service.notification.StatusBarNotification;
 import android.widget.RemoteViews;
+
 import androidx.core.app.NotificationCompat;
+
 import com.letscooee.CooeeFactory;
 import com.letscooee.R;
 import com.letscooee.loader.http.RemoteImageLoader;
@@ -65,7 +67,6 @@ public abstract class NotificationRenderer {
 
         this.createChannel();
         this.setBuilder();
-        this.notificationSound.setSoundInNotification();
     }
 
     abstract int getBigViewLayout();
@@ -104,6 +105,20 @@ public abstract class NotificationRenderer {
                 .setPriority(this.notificationImportance.getPriority())
                 .setStyle(new NotificationCompat.DecoratedCustomViewStyle());
 
+        int defaults = 0;
+        if (this.triggerData.pn != null) {
+            if (this.triggerData.pn.lights) defaults |= NotificationCompat.DEFAULT_LIGHTS;
+            if (this.triggerData.pn.vibrate) defaults |= NotificationCompat.DEFAULT_VIBRATE;
+
+            if (this.triggerData.pn.sound) {
+                defaults |= NotificationCompat.DEFAULT_SOUND;
+                this.notificationSound.setSoundInNotification();
+            } else {
+                this.notificationBuilder.setSound(null);
+            }
+        }
+        this.notificationBuilder.setDefaults(defaults);
+
         this.setTitleAndBody();
     }
 
@@ -126,6 +141,7 @@ public abstract class NotificationRenderer {
         }
 
         if (this.triggerData.pn != null) {
+            // TODO: 15/06/21 This does not update if the channel is already created
             if (this.triggerData.pn.lights) notificationChannel.enableLights(true);
             if (this.triggerData.pn.vibrate) notificationChannel.enableVibration(true);
 
@@ -139,6 +155,7 @@ public abstract class NotificationRenderer {
 
     private void setDeleteIntent(Notification notification) {
         Intent deleteIntent = new Intent(this.context, PushNotificationIntentService.class);
+        deleteIntent.putExtra(Constants.INTENT_TRIGGER_DATA_KEY, triggerData);
         deleteIntent.setAction(Constants.ACTION_DELETE_NOTIFICATION);
 
         notification.deleteIntent = PendingIntent.getService(context, 0, deleteIntent, PendingIntent.FLAG_ONE_SHOT);
@@ -153,9 +170,8 @@ public abstract class NotificationRenderer {
         for (StatusBarNotification statusBarNotification : statusBarNotifications) {
 
             if (statusBarNotification.getId() == this.notificationID) {
-                Map<String, Object> eventProps = new HashMap<>();
-                eventProps.put("triggerID", triggerData.getId());
-                this.safeHTTPService.sendEvent(new Event("CE Notification Viewed", eventProps));
+                Event event = new Event("CE Notification Viewed", triggerData);
+                this.safeHTTPService.sendEventWithoutNewSession(event);
             }
         }
     }

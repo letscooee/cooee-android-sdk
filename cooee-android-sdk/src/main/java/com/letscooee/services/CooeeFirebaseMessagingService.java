@@ -12,8 +12,10 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.RemoteViews;
+
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
+
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.google.gson.Gson;
@@ -40,10 +42,9 @@ import com.letscooee.utils.Constants;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 
 /**
- * MyFirebaseMessagingService helps connects with firebase for push notification
+ * This helps connects with firebase for push notification
  *
  * @author Abhishek Taparia
  */
@@ -75,7 +76,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
             return;
         }
 
-        if (imageLoader != null) {
+        if (imageLoader == null) {
             imageLoader = new RemoteImageLoader(getApplicationContext());
         }
 
@@ -88,6 +89,12 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
             }.getType());
 
             assert baseTriggerData != null;
+
+            Double version = (Double) baseTriggerData.get("version");
+            if (version == null || version >= 3) {
+                Log.d(Constants.LOG_PREFIX, "Unsupported version received " + version);
+                return;
+            }
 
             // TODO: 11/06/21 Find a better way to find the kind of notification so that double gson parsing is not required
             //noinspection ConstantConditions
@@ -108,11 +115,9 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
 
         EngagementTriggerHelper.storeActiveTriggerDetails(getApplicationContext(), triggerData.getId(), triggerData.getDuration());
 
-        Map<String, Object> eventProps = new HashMap<>();
-        eventProps.put("triggerID", triggerData.getId());
-
         if (triggerData instanceof PushNotificationTrigger) {
-            CooeeFactory.getSafeHTTPService().sendEvent(new Event("CE Notification Received", eventProps));
+            Event event = new Event("CE Notification Received", triggerData);
+            CooeeFactory.getSafeHTTPService().sendEventWithoutNewSession(event);
 
             if (triggerData.isCarousel()) {
                 loadCarouselImages(triggerData.getCarouselData(), 0, (PushNotificationTrigger) triggerData);
@@ -156,7 +161,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
         Bundle bundle = new Bundle();
         bundle.putInt("carouselPosition", triggerData.getCarouselOffset());
         bundle.putInt("notificationID", renderer.getNotificationID());
-        bundle.putParcelable("triggerData", triggerData);
+        bundle.putParcelable(Constants.INTENT_TRIGGER_DATA_KEY, triggerData);
         bundle.putString("intentType", "moveCarousel");
 
         Intent rightScrollIntent = new Intent(this, OnPushNotificationButtonClick.class);
@@ -290,7 +295,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
             if (triggerButton.isShowInPN()) {
                 Intent actionButtonIntent = new Intent(getApplicationContext(), PushNotificationIntentService.class);
                 actionButtonIntent.setAction(Constants.ACTION_PUSH_BUTTON_CLICK);
-                actionButtonIntent.putExtra("triggerData", triggerData);
+                actionButtonIntent.putExtra(Constants.INTENT_TRIGGER_DATA_KEY, triggerData);
                 actionButtonIntent.putExtra("notificationId", notificationId);
                 PendingIntent pendingIntent = PendingIntent.getService(
                         getApplicationContext(),

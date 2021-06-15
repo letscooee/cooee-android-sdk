@@ -1,19 +1,25 @@
 package com.letscooee.models;
 
+import android.graphics.Color;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.text.TextUtils;
 
 /**
  * @author Abhishek Taparia
  */
 public class TriggerBehindBackground implements Parcelable {
+
+    private final static int DEFAULT_BLUR_RADIUS = 25;
+    private final static String DEFAULT_COLOR = "#828282";     // Default colour- Gray
+
     public enum Type {
         BLURRED, SOLID_COLOR
     }
 
-    private Type type;
-    private int blur = 25;
-    private String color = "828282";
+    private final Type type;
+    private final int blur;
+    private final String color;
 
     protected TriggerBehindBackground(Parcel in) {
         blur = in.readInt();
@@ -49,11 +55,20 @@ public class TriggerBehindBackground implements Parcelable {
         return type;
     }
 
+    @Deprecated
     public int getBlur() {
         return blur;
     }
 
+    public int getBlurRadius() {
+        return blur == 0 ? DEFAULT_BLUR_RADIUS : blur;
+    }
+
     public String getColor() {
-        return color;
+        return TextUtils.isEmpty(color) ? DEFAULT_COLOR : color;
+    }
+
+    public int getParsedColor() {
+        return Color.parseColor(this.getColor());
     }
 }

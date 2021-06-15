@@ -130,7 +130,7 @@ public class EngagementTriggerHelper {
         try {
             Intent intent = new Intent(context, InAppTriggerActivity.class);
             Bundle sendBundle = new Bundle();
-            sendBundle.putParcelable("triggerData", triggerData);
+            sendBundle.putParcelable(Constants.INTENT_TRIGGER_DATA_KEY, triggerData);
             intent.putExtra("bundle", sendBundle);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(intent);
