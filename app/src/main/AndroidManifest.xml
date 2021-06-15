@@ -12,9 +12,7 @@
         android:theme="@style/Theme.Letscooee"
         android:usesCleartextTraffic="true"
         tools:targetApi="n">
-        <activity android:name="com.letscooee.cooeetester.MainActivity">
 
-        </activity>
         <activity android:name=".SignUpActivity" />
         <activity android:name=".ProfileActivity" />
         <activity android:name=".SplashActivity" />
@@ -33,12 +31,5 @@
             android:name="COOEE_APP_SECRET"
             android:value="TEST-6107d618d7d123cc118" />
 
-        <service
-            android:name=".ParentFirebaseMessagingService"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT" />
-            </intent-filter>
-        </service>
     </application>
 </manifest>
