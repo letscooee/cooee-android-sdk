@@ -13,6 +13,7 @@ import com.letscooee.CooeeFactory;
 import com.letscooee.models.AuthenticationRequestBody;
 import com.letscooee.models.DeviceData;
 import com.letscooee.models.UserAuthResponse;
+import com.letscooee.schedular.CooeeJobUtils;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.LocalStorageHelper;
 import com.letscooee.utils.ManifestReader;
@@ -98,6 +99,7 @@ public class UserAuthService {
             return;
         }
 
+        Log.d(Constants.LOG_PREFIX, "Attempt to acquire SDK token");
         long lastCheckTime = LocalStorageHelper.getLong(context, Constants.STORAGE_LAST_TOKEN_ATTEMPT, 0);
 
         // We are attempting first time
@@ -127,6 +129,7 @@ public class UserAuthService {
                 if (response.isSuccessful()) {
                     assert response.body() != null;
                     UserAuthService.this.saveUserDataInStorage(response.body());
+                    CooeeJobUtils.schedulePendingTaskJob(UserAuthService.this.context);
                 } else {
                     UserAuthService.this.sentryHelper.captureMessage("Unable to acquire token- " + response.code());
                 }
