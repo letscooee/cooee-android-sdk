@@ -55,7 +55,7 @@ class AppLifecycleCallback implements DefaultLifecycleObserver {
             Log.d(Constants.LOG_PREFIX, "After 30 min of App Background " + "Session Concluded");
         } else {
             Map<String, Object> eventProps = new HashMap<>();
-            eventProps.put("CE Duration", backgroundDuration);
+            eventProps.put("Background Duration", backgroundDuration);
             Event session = new Event("CE App Foreground", eventProps);
 
             safeHTTPService.sendEvent(session);
@@ -76,7 +76,7 @@ class AppLifecycleCallback implements DefaultLifecycleObserver {
         long duration = runtimeData.getTimeInForegroundInSeconds();
 
         Map<String, Object> sessionProperties = new HashMap<>();
-        sessionProperties.put("CE Duration", duration);
+        sessionProperties.put("Foreground Duration", duration);
 
         Event session = new Event("CE App Background", sessionProperties);
         safeHTTPService.sendEvent(session);
