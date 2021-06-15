@@ -33,9 +33,10 @@ public class PushNotificationIntentService extends IntentService {
             return;
         }
 
+        TriggerData triggerData = intent.getParcelableExtra(Constants.INTENT_TRIGGER_DATA_KEY);
+
         switch (intent.getAction()) {
             case Constants.ACTION_PUSH_BUTTON_CLICK: {
-                TriggerData triggerData = intent.getParcelableExtra("triggerData");
                 int notificationId = intent.getIntExtra("notificationId", 0);
 
                 NotificationManager notificationManager = (NotificationManager) getApplicationContext().getSystemService(NOTIFICATION_SERVICE);
@@ -43,7 +44,7 @@ public class PushNotificationIntentService extends IntentService {
 
                 PackageManager packageManager = getPackageManager();
                 Intent appLaunchIntent = packageManager.getLaunchIntentForPackage(getApplicationContext().getPackageName());
-                appLaunchIntent.putExtra("triggerData", triggerData);
+                appLaunchIntent.putExtra(Constants.INTENT_TRIGGER_DATA_KEY, triggerData);
 
                 TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
                 stackBuilder.addNextIntentWithParentStack(appLaunchIntent);
@@ -61,7 +62,7 @@ public class PushNotificationIntentService extends IntentService {
                 break;
             }
             case Constants.ACTION_DELETE_NOTIFICATION: {
-                Event event = new Event("CE Notification Cancelled");
+                Event event = new Event("CE Notification Cancelled", triggerData);
                 CooeeFactory.getSafeHTTPService().sendEventWithoutNewSession(event);
                 break;
             }

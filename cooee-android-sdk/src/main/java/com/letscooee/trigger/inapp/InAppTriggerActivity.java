@@ -116,7 +116,9 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
         inAppListenerWeakReference = new WeakReference<>(CooeeSDK.getDefaultInstance(this));
 
         try {
-            triggerData = (TriggerData) Objects.requireNonNull(getIntent().getBundleExtra("bundle")).getParcelable("triggerData");
+            triggerData = getIntent()
+                    .getBundleExtra("bundle")
+                    .getParcelable(Constants.INTENT_TRIGGER_DATA_KEY);
 
             if (triggerData == null) {
                 finish();
@@ -220,8 +222,6 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
 
         if (action.getUserProperty() != null) {
             Map<String, Object> userProfile = new HashMap<>();
-            Map recieved = new HashMap<String, Object>();
-            recieved.put("triggerID", triggerData.getId());
             userProfile.put("userData", new HashMap<>());
             userProfile.put("userProperties", action.getUserProperty());
             CooeeFactory.getSafeHTTPService().updateUserProfile(userProfile);
@@ -806,10 +806,8 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
     protected void onStart() {
         super.onStart();
         startTime = new Date();
-        Map eventProps = new HashMap<String, Object>();
-        if (triggerData != null)
-            eventProps.put("triggerID", triggerData.getId());
-        Event event = new Event("CE Trigger Displayed", eventProps);
+
+        Event event = new Event("CE Trigger Displayed", triggerData);
         safeHTTPService.sendEvent(event);
     }
 
@@ -863,17 +861,16 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
         Map<String, Object> kpiMap = new HashMap<>();
         kpiMap.put("Duration", duration);
         kpiMap.put("Close Behaviour", closeBehaviour);
-        kpiMap.put("triggerID", triggerData.getId());
 
         if (triggerData.getType() == TriggerData.Type.VIDEO) {
             kpiMap.put("Video Duration", videoDuration);
             kpiMap.put("Watched Till", watchedTill);
             kpiMap.put("Total Watched", totalWatched);
             kpiMap.put("Video Unmuted", isVideoUnmuted);
-
         }
 
         Event event = new Event("CE Trigger Closed", kpiMap);
+        event.withTrigger(triggerData);
         safeHTTPService.sendEvent(event);
 
         if (runnable != null) {

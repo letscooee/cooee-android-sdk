@@ -141,6 +141,7 @@ public abstract class NotificationRenderer {
 
     private void setDeleteIntent(Notification notification) {
         Intent deleteIntent = new Intent(this.context, PushNotificationIntentService.class);
+        deleteIntent.putExtra(Constants.INTENT_TRIGGER_DATA_KEY, triggerData);
         deleteIntent.setAction(Constants.ACTION_DELETE_NOTIFICATION);
 
         notification.deleteIntent = PendingIntent.getService(context, 0, deleteIntent, PendingIntent.FLAG_ONE_SHOT);
@@ -155,10 +156,7 @@ public abstract class NotificationRenderer {
         for (StatusBarNotification statusBarNotification : statusBarNotifications) {
 
             if (statusBarNotification.getId() == this.notificationID) {
-                Map<String, Object> eventProps = new HashMap<>();
-                eventProps.put("triggerID", triggerData.getId());
-                Event event = new Event("CE Notification Viewed", eventProps);
-
+                Event event = new Event("CE Notification Viewed", triggerData);
                 this.safeHTTPService.sendEventWithoutNewSession(event);
             }
         }

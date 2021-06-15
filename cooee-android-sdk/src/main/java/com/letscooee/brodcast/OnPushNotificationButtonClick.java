@@ -1,6 +1,10 @@
 package com.letscooee.brodcast;
 
-import android.app.*;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.app.TaskStackBuilder;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -13,22 +17,24 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.RemoteViews;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
+
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.letscooee.CooeeFactory;
-import com.letscooee.CooeeSDK;
 import com.letscooee.R;
 import com.letscooee.models.CarouselData;
+import com.letscooee.models.Event;
 import com.letscooee.models.TriggerData;
 import com.letscooee.utils.Constants;
-import io.sentry.Sentry;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+
+import io.sentry.Sentry;
 
 /**
  * @author Ashish Gaikwad
@@ -60,11 +66,12 @@ public class OnPushNotificationButtonClick extends BroadcastReceiver {
      * @param intent  will come from onReceive method.
      */
     private void processCarouselData(Context context, Intent intent) {
-        TriggerData triggerData = (TriggerData) intent.getExtras().getParcelable("triggerData");
+        TriggerData triggerData = intent
+                .getExtras()
+                .getParcelable(Constants.INTENT_TRIGGER_DATA_KEY);
 
-        HashMap<String, Object> eventProps = new HashMap<>();
-        eventProps.put("triggerID", triggerData.getId());
-        CooeeSDK.getDefaultInstance(context).sendEvent("CE PN Carousel Move", eventProps);
+        Event event = new Event("CE PN Carousel Move", triggerData);
+        CooeeFactory.getSafeHTTPService().sendEventWithoutNewSession(event);
 
         loadBitmapsForCarousel(triggerData.getCarouselData(), 0, triggerData, context, intent);
     }

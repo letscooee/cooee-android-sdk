@@ -24,10 +24,19 @@ public class Event {
         this(name, new HashMap<>());
     }
 
+    public Event(String name, TriggerData triggerData) {
+        this(name);
+        this.withTrigger(triggerData);
+    }
+
     public Event(String name, Map<String, Object> properties) {
         this.name = name;
         this.properties = properties;
         this.occurred = new Date();
+    }
+
+    public void withTrigger(TriggerData triggerData) {
+        properties.put("triggerID", triggerData.getId().trim());
     }
 
     public String getName() {

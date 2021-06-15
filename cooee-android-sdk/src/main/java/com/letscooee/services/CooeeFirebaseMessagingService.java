@@ -108,11 +108,8 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
 
         EngagementTriggerHelper.storeActiveTriggerDetails(getApplicationContext(), triggerData.getId(), triggerData.getDuration());
 
-        Map<String, Object> eventProps = new HashMap<>();
-        eventProps.put("triggerID", triggerData.getId());
-
         if (triggerData instanceof PushNotificationTrigger) {
-            Event event = new Event("CE Notification Received", eventProps);
+            Event event = new Event("CE Notification Received", triggerData);
             CooeeFactory.getSafeHTTPService().sendEventWithoutNewSession(event);
 
             if (triggerData.isCarousel()) {
@@ -157,7 +154,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
         Bundle bundle = new Bundle();
         bundle.putInt("carouselPosition", triggerData.getCarouselOffset());
         bundle.putInt("notificationID", renderer.getNotificationID());
-        bundle.putParcelable("triggerData", triggerData);
+        bundle.putParcelable(Constants.INTENT_TRIGGER_DATA_KEY, triggerData);
         bundle.putString("intentType", "moveCarousel");
 
         Intent rightScrollIntent = new Intent(this, OnPushNotificationButtonClick.class);
@@ -291,7 +288,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
             if (triggerButton.isShowInPN()) {
                 Intent actionButtonIntent = new Intent(getApplicationContext(), PushNotificationIntentService.class);
                 actionButtonIntent.setAction(Constants.ACTION_PUSH_BUTTON_CLICK);
-                actionButtonIntent.putExtra("triggerData", triggerData);
+                actionButtonIntent.putExtra(Constants.INTENT_TRIGGER_DATA_KEY, triggerData);
                 actionButtonIntent.putExtra("notificationId", notificationId);
                 PendingIntent pendingIntent = PendingIntent.getService(
                         getApplicationContext(),
