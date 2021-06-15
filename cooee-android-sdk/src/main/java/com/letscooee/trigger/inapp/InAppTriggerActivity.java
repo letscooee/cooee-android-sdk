@@ -815,7 +815,6 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
     protected void onResume() {
         super.onResume();
         isManualClose = false;
-        LocalStorageHelper.putString(this, "trigger", "");
 
         if (triggerData.getTriggerBackground().getType() == TriggerBehindBackground.Type.BLURRED) {
             Blurry.with(getApplicationContext())
@@ -829,8 +828,6 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
             ImageView imageView = findViewById(R.id.blurImage);
 
             imageView.setBackgroundColor(triggerData.getTriggerBackground().getParsedColor());
-            // TODO: 14/06/21 Test this
-            //imageView.setAlpha((float) triggerData.getTriggerBackground().getBlur() / 10);
         }
     }
 
@@ -849,7 +846,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
     public void onBackPressed() {
     }
 
-    /**
+    /**+
      * Send trigger KPIs to the next activity(FeedbackActivity) to be sent back to the server
      */
     @Override
