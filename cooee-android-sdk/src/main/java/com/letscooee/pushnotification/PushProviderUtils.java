@@ -15,7 +15,14 @@ import java.util.Map;
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class PushProviderUtils {
 
-    public static void pushTokenRefresh(String token) {
+    private static String lastSentToken;
+
+    public static synchronized void pushTokenRefresh(String token) {
+        if (lastSentToken != null && lastSentToken.equals(token)) {
+            return;
+        }
+
+        lastSentToken = token;
         Map<String, Object> requestData = new HashMap<>();
         requestData.put("firebaseToken", token);
 
