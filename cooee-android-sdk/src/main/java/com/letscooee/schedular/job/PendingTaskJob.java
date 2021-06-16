@@ -8,7 +8,6 @@ import com.letscooee.CooeeFactory;
 import com.letscooee.retrofit.UserAuthService;
 import com.letscooee.room.CooeeDatabase;
 import com.letscooee.room.task.PendingTask;
-import com.letscooee.room.task.PendingTaskService;
 import com.letscooee.task.CooeeExecutors;
 import com.letscooee.utils.Constants;
 
@@ -43,7 +42,7 @@ public class PendingTaskJob extends JobService {
 
         // As job was running on main thread so all the network call were getting break
         CooeeExecutors.getInstance().singleThreadExecutor().execute(() ->
-                PendingTaskService.getInstance(context).processTasks(taskList, this)
+                CooeeFactory.getPendingTaskService().processTasks(taskList, this)
         );
 
         return true;

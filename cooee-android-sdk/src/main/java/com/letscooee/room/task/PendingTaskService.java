@@ -5,7 +5,6 @@ import android.util.Log;
 import androidx.annotation.RestrictTo;
 import com.google.gson.Gson;
 import com.letscooee.ContextAware;
-import com.letscooee.CooeeFactory;
 import com.letscooee.models.Event;
 import com.letscooee.room.CooeeDatabase;
 import com.letscooee.room.task.processor.*;
@@ -26,8 +25,6 @@ import java.util.*;
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class PendingTaskService extends ContextAware {
 
-    private static PendingTaskService INSTANCE;
-
     private static final ArrayList<PendingTaskProcessor> PROCESSORS = new ArrayList<>();
     private static final Set<Long> CURRENT_PROCESSING_TASKS = Collections.synchronizedSet(new HashSet<>());
 
@@ -35,22 +32,10 @@ public class PendingTaskService extends ContextAware {
     private final CooeeDatabase database;
     private final Gson gson = new Gson();
 
-    public static PendingTaskService getInstance(Context context) {
-        if (INSTANCE == null) {
-            synchronized (PendingTaskService.class) {
-                if (INSTANCE == null) {
-                    INSTANCE = new PendingTaskService(context);
-                }
-            }
-        }
-
-        return INSTANCE;
-    }
-
-    private PendingTaskService(Context context) {
+    public PendingTaskService(Context context, SentryHelper sentryHelper) {
         super(context);
         this.database = CooeeDatabase.getInstance(this.context);
-        this.sentryHelper = CooeeFactory.getSentryHelper();
+        this.sentryHelper = sentryHelper;
         this.instantiateProcessors(context);
     }
 

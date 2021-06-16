@@ -1,19 +1,17 @@
 package com.letscooee;
 
 import android.content.Context;
-
 import androidx.annotation.RestrictTo;
-
 import com.letscooee.device.AppInfo;
 import com.letscooee.device.DeviceInfo;
 import com.letscooee.network.BaseHTTPService;
 import com.letscooee.network.SafeHTTPService;
 import com.letscooee.retrofit.UserAuthService;
+import com.letscooee.room.task.PendingTaskService;
 import com.letscooee.user.SessionManager;
 import com.letscooee.utils.ManifestReader;
 import com.letscooee.utils.RuntimeData;
 import com.letscooee.utils.SentryHelper;
-
 import io.sentry.ITransaction;
 import io.sentry.Sentry;
 
@@ -36,6 +34,7 @@ public class CooeeFactory {
     private static BaseHTTPService baseHTTPService;
     private static SafeHTTPService safeHTTPService;
     private static UserAuthService userAuthService;
+    private static PendingTaskService pendingTaskService;
 
     private CooeeFactory() {
     }
@@ -54,13 +53,17 @@ public class CooeeFactory {
         // Sentry should be initialized first
         ITransaction transaction = Sentry.startTransaction("CooeeFactory.init()", "task");
 
+        baseHTTPService = new BaseHTTPService(context);
+
+        // This is required in PendingTaskService (ultimately). TODO make this a strong dependency
+        userAuthService = new UserAuthService(context, sentryHelper);
+        userAuthService.populateUserDataFromStorage();
+
+        pendingTaskService = new PendingTaskService(context, sentryHelper);
         runtimeData = RuntimeData.getInstance(context);
         sessionManager = SessionManager.getInstance(context);
-        baseHTTPService = new BaseHTTPService(context);
-        safeHTTPService = new SafeHTTPService(context);
-        userAuthService = UserAuthService.getInstance(context);
+        safeHTTPService = new SafeHTTPService(context, pendingTaskService, sessionManager, runtimeData);
 
-        userAuthService.populateUserDataFromStorage();
         transaction.finish();
 
         initialized = true;
@@ -100,5 +103,9 @@ public class CooeeFactory {
 
     public static UserAuthService getUserAuthService() {
         return userAuthService;
+    }
+
+    public static PendingTaskService getPendingTaskService() {
+        return pendingTaskService;
     }
 }

@@ -4,10 +4,8 @@ import android.content.Context;
 import android.os.Build;
 import android.text.TextUtils;
 import android.util.Log;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
-
 import com.letscooee.BuildConfig;
 import com.letscooee.CooeeFactory;
 import com.letscooee.models.AuthenticationRequestBody;
@@ -34,8 +32,6 @@ import java.util.Date;
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class UserAuthService {
 
-    private static UserAuthService INSTANCE;
-
     private final Context context;
     private final SentryHelper sentryHelper;
     private final APIService apiService;
@@ -43,10 +39,10 @@ public class UserAuthService {
     private String sdkToken;
     private String userID;
 
-    private UserAuthService(Context context) {
+    public UserAuthService(Context context, SentryHelper sentryHelper) {
         this.context = context.getApplicationContext();
         this.apiService = APIClient.getAPIService();
-        this.sentryHelper = CooeeFactory.getSentryHelper();
+        this.sentryHelper = sentryHelper;
     }
 
     public boolean hasToken() {
@@ -74,20 +70,6 @@ public class UserAuthService {
         }
 
         this.updateAPIClient();
-    }
-
-    /**
-     * Initializes the singleton instance for RegisterUser
-     */
-    public static UserAuthService getInstance(Context context) {
-        if (INSTANCE == null) {
-            synchronized (UserAuthService.class) {
-                if (INSTANCE == null) {
-                    INSTANCE = new UserAuthService(context);
-                }
-            }
-        }
-        return INSTANCE;
     }
 
     /**
