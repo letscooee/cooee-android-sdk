@@ -4,15 +4,14 @@ import android.content.Context;
 import android.os.Build;
 import android.text.TextUtils;
 import android.util.Log;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
-
 import com.letscooee.BuildConfig;
 import com.letscooee.CooeeFactory;
 import com.letscooee.models.AuthenticationRequestBody;
 import com.letscooee.models.DeviceData;
 import com.letscooee.models.UserAuthResponse;
+import com.letscooee.schedular.CooeeJobUtils;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.LocalStorageHelper;
 import com.letscooee.utils.ManifestReader;
@@ -33,8 +32,6 @@ import java.util.Date;
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class UserAuthService {
 
-    private static UserAuthService INSTANCE;
-
     private final Context context;
     private final SentryHelper sentryHelper;
     private final APIService apiService;
@@ -42,10 +39,10 @@ public class UserAuthService {
     private String sdkToken;
     private String userID;
 
-    private UserAuthService(Context context) {
+    public UserAuthService(Context context, SentryHelper sentryHelper) {
         this.context = context.getApplicationContext();
         this.apiService = APIClient.getAPIService();
-        this.sentryHelper = CooeeFactory.getSentryHelper();
+        this.sentryHelper = sentryHelper;
     }
 
     public boolean hasToken() {
@@ -76,20 +73,6 @@ public class UserAuthService {
     }
 
     /**
-     * Initializes the singleton instance for RegisterUser
-     */
-    public static UserAuthService getInstance(Context context) {
-        if (INSTANCE == null) {
-            synchronized (UserAuthService.class) {
-                if (INSTANCE == null) {
-                    INSTANCE = new UserAuthService(context);
-                }
-            }
-        }
-        return INSTANCE;
-    }
-
-    /**
      * Method will ensure that the SDK has acquired the token. If on the first time, token can't be pulled
      * from the server, calling this method will reattempt the same maximum within 1 minute.
      */
@@ -98,6 +81,7 @@ public class UserAuthService {
             return;
         }
 
+        Log.d(Constants.LOG_PREFIX, "Attempt to acquire SDK token");
         long lastCheckTime = LocalStorageHelper.getLong(context, Constants.STORAGE_LAST_TOKEN_ATTEMPT, 0);
 
         // We are attempting first time
@@ -127,6 +111,9 @@ public class UserAuthService {
                 if (response.isSuccessful()) {
                     assert response.body() != null;
                     UserAuthService.this.saveUserDataInStorage(response.body());
+
+                    // Start the job immediately to make sure the pending tasks can be sent
+                    CooeeJobUtils.triggerPendingTaskJobImmediately(UserAuthService.this.context);
                 } else {
                     UserAuthService.this.sentryHelper.captureMessage("Unable to acquire token- " + response.code());
                 }

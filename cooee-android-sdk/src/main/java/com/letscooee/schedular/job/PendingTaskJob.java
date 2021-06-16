@@ -4,15 +4,13 @@ import android.app.job.JobParameters;
 import android.app.job.JobService;
 import android.content.Context;
 import android.util.Log;
-
-import com.letscooee.BuildConfig;
+import com.letscooee.CooeeFactory;
+import com.letscooee.retrofit.UserAuthService;
 import com.letscooee.room.CooeeDatabase;
 import com.letscooee.room.task.PendingTask;
-import com.letscooee.room.task.PendingTaskService;
 import com.letscooee.task.CooeeExecutors;
 import com.letscooee.utils.Constants;
 
-import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -29,28 +27,25 @@ public class PendingTaskJob extends JobService {
     public boolean onStartJob(JobParameters params) {
         jobParameters = params;
         Context context = getApplicationContext();
+        Log.v(Constants.LOG_PREFIX, "PendingTaskJob running");
 
-        if (BuildConfig.DEBUG) {
-            Log.v(Constants.LOG_PREFIX, "PendingTaskJob running");
+        UserAuthService userAuthService = CooeeFactory.getUserAuthService();
+        if (!userAuthService.hasToken()) {
+            Log.d(Constants.LOG_PREFIX, "Abort PendingTaskJob. Do not have the SDK token");
+            return false;       // Job is finished
         }
 
         List<PendingTask> taskList = CooeeDatabase.getInstance(context)
                 .pendingTaskDAO()
-                .fetchBeforeTime(this.getTMinusTwoMinutes());
+                .fetchPending();
 
         // As job was running on main thread so all the network call were getting break
         CooeeExecutors.getInstance().singleThreadExecutor().execute(() ->
-                PendingTaskService.getInstance(context).processTasks(taskList, this)
+                CooeeFactory.getPendingTaskService().processTasks(taskList, this)
         );
+
         return true;
     }
-
-    private long getTMinusTwoMinutes() {
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.MINUTE, -2);
-        return calendar.getTimeInMillis();
-    }
-
     @Override
     public boolean onStopJob(JobParameters params) {
         // Returning false to let job get finish

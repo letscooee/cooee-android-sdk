@@ -6,6 +6,7 @@ import com.letscooee.CooeeFactory;
 import com.letscooee.exceptions.HttpRequestFailedException;
 import com.letscooee.network.BaseHTTPService;
 import com.letscooee.network.ConnectionManager;
+import com.letscooee.retrofit.UserAuthService;
 import com.letscooee.room.task.PendingTask;
 import com.letscooee.utils.Constants;
 import org.jetbrains.annotations.NotNull;
@@ -20,10 +21,12 @@ import org.jetbrains.annotations.NotNull;
 public abstract class HttpTaskProcessor<T> extends AbstractPendingTaskProcessor<T> {
 
     protected final BaseHTTPService baseHTTPService;
+    protected final UserAuthService userAuthService;
 
     protected HttpTaskProcessor(Context context) {
         super(context);
         this.baseHTTPService = CooeeFactory.getBaseHTTPService();
+        this.userAuthService = CooeeFactory.getUserAuthService();
     }
 
     /**
@@ -47,6 +50,11 @@ public abstract class HttpTaskProcessor<T> extends AbstractPendingTaskProcessor<
 
         if (!ConnectionManager.isNetworkAvailable(context)) {
             Log.i(Constants.LOG_PREFIX, "Device does not have internet");
+            return;
+        }
+
+        if (!this.userAuthService.hasToken()) {
+            Log.i(Constants.LOG_PREFIX, "Don't have SDK token. Abort processing " + task);
             return;
         }
 

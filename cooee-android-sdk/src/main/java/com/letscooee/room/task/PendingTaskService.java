@@ -2,28 +2,19 @@ package com.letscooee.room.task;
 
 import android.content.Context;
 import android.util.Log;
-
 import androidx.annotation.RestrictTo;
-
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.letscooee.ContextAware;
-import com.letscooee.CooeeFactory;
-import com.letscooee.utils.Timer;
 import com.letscooee.models.Event;
 import com.letscooee.room.CooeeDatabase;
 import com.letscooee.room.task.processor.*;
 import com.letscooee.schedular.CooeeJobUtils;
 import com.letscooee.schedular.job.PendingTaskJob;
 import com.letscooee.utils.Constants;
-import com.letscooee.utils.GsonDateAdapter;
 import com.letscooee.utils.SentryHelper;
+import com.letscooee.utils.Timer;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.TimerTask;
+import java.util.*;
 
 /**
  * A singleton service for utility over {@link PendingTask}.
@@ -34,30 +25,17 @@ import java.util.TimerTask;
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class PendingTaskService extends ContextAware {
 
-    private static PendingTaskService INSTANCE;
-
     private static final ArrayList<PendingTaskProcessor> PROCESSORS = new ArrayList<>();
+    private static final Set<Long> CURRENT_PROCESSING_TASKS = Collections.synchronizedSet(new HashSet<>());
 
     private final SentryHelper sentryHelper;
     private final CooeeDatabase database;
     private final Gson gson = new Gson();
 
-    public static PendingTaskService getInstance(Context context) {
-        if (INSTANCE == null) {
-            synchronized (PendingTaskService.class) {
-                if (INSTANCE == null) {
-                    INSTANCE = new PendingTaskService(context);
-                }
-            }
-        }
-
-        return INSTANCE;
-    }
-
-    private PendingTaskService(Context context) {
+    public PendingTaskService(Context context, SentryHelper sentryHelper) {
         super(context);
         this.database = CooeeDatabase.getInstance(this.context);
-        this.sentryHelper = CooeeFactory.getSentryHelper();
+        this.sentryHelper = sentryHelper;
         this.instantiateProcessors(context);
     }
 
@@ -106,7 +84,6 @@ public class PendingTaskService extends ContextAware {
      */
     public void processTasks(List<PendingTask> pendingTasks, PendingTaskJob pendingTaskJob) {
         if (pendingTasks == null || pendingTasks.isEmpty()) {
-            reScheduleJob(pendingTaskJob);
             return;
         }
 
@@ -120,7 +97,7 @@ public class PendingTaskService extends ContextAware {
      * Stops the current running job and reschedule job with the help of
      * {@link CooeeJobUtils}
      *
-     * @param pendingTaskJob is instamce of {@link PendingTaskJob}
+     * @param pendingTaskJob is instance of {@link PendingTaskJob}
      */
     private void reScheduleJob(PendingTaskJob pendingTaskJob) {
         pendingTaskJob.jobFinished(pendingTaskJob.getJobParameters(), false);
@@ -141,6 +118,13 @@ public class PendingTaskService extends ContextAware {
             throw new IllegalArgumentException("pendingTask can't be null");
         }
 
+        if (CURRENT_PROCESSING_TASKS.contains(pendingTask.id)) {
+            Log.d(Constants.LOG_PREFIX, "Already processing " + pendingTask);
+            return;
+        }
+
+        CURRENT_PROCESSING_TASKS.add(pendingTask.id);
+
         for (PendingTaskProcessor taskProcessor : PROCESSORS) {
             if (taskProcessor.canProcess(pendingTask)) {
 
@@ -149,6 +133,8 @@ public class PendingTaskService extends ContextAware {
                 } catch (Throwable t) {
                     this.sentryHelper.captureException(t);
                     // Suppress the exception to prevent app crash. It's already logged to Sentry
+                } finally {
+                    CURRENT_PROCESSING_TASKS.remove(pendingTask.id);
                 }
             }
         }

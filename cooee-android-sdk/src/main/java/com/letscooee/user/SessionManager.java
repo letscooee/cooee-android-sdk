@@ -75,7 +75,11 @@ public class SessionManager {
         return currentSessionID;
     }
 
-    private void startNewSession() {
+    public void startNewSession() {
+        if (!TextUtils.isEmpty(currentSessionID)) {
+            return;
+        }
+
         currentSessionStartTime = new Date();
         currentSessionID = new ObjectId().toHexString();
 
@@ -84,7 +88,7 @@ public class SessionManager {
 
     /**
      * When the app come back from background (B) to foreground (F) and if the user's ideal time
-     * {@link Constants.IDLE_TIME_IN_SECONDS} is elapsed; this method will return the duration (in seconds)
+     * {@link Constants#IDLE_TIME_IN_SECONDS} is elapsed; this method will return the duration (in seconds)
      * from the session start to the time app went to background.
      * <p>
      * Hence this method will throw an exception if the app is not coming from the backend,

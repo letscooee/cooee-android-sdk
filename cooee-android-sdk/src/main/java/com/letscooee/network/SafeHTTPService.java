@@ -29,11 +29,12 @@ public class SafeHTTPService extends ContextAware {
     private final SessionManager sessionManager;
     private final RuntimeData runtimeData;
 
-    public SafeHTTPService(Context context) {
+    public SafeHTTPService(Context context, PendingTaskService pendingTaskService, SessionManager sessionManager,
+                           RuntimeData runtimeData) {
         super(context);
-        this.pendingTaskService = PendingTaskService.getInstance(context);
-        this.sessionManager = SessionManager.getInstance(context);
-        this.runtimeData = RuntimeData.getInstance(context);
+        this.pendingTaskService = pendingTaskService;
+        this.sessionManager = sessionManager;
+        this.runtimeData = runtimeData;
     }
 
     /**

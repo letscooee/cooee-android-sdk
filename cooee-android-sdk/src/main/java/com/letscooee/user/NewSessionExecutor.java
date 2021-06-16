@@ -2,9 +2,8 @@ package com.letscooee.user;
 
 import android.content.Context;
 import android.os.Build;
-
+import android.util.Log;
 import androidx.annotation.RestrictTo;
-
 import com.letscooee.BuildConfig;
 import com.letscooee.ContextAware;
 import com.letscooee.CooeeFactory;
@@ -14,7 +13,6 @@ import com.letscooee.models.Event;
 import com.letscooee.network.SafeHTTPService;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.LocalStorageHelper;
-
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Date;
@@ -46,6 +44,7 @@ public class NewSessionExecutor extends ContextAware {
         this.sessionManager = SessionManager.getInstance(context);
         this.appInfo = CooeeFactory.getAppInfo();
         this.safeHTTPService = CooeeFactory.getSafeHTTPService();
+        this.sessionManager.startNewSession();
     }
 
     public void execute() {
@@ -79,11 +78,7 @@ public class NewSessionExecutor extends ContextAware {
         userProperties.put("CE Installed Time", defaultUserPropertiesCollector.getInstalledTime());
         sendDefaultUserProperties(userProperties);
 
-        Map<String, Object> eventProperties = new HashMap<>();
-        eventProperties.put("CE Source", "SYSTEM");
-        eventProperties.put("CE App Version", appInfo.getVersion());
-        Event event = new Event("CE App Installed", eventProperties);
-
+        Event event = new Event("CE App Installed", getCommonEventProperties());
         safeHTTPService.sendEvent(event);
     }
 
@@ -91,15 +86,19 @@ public class NewSessionExecutor extends ContextAware {
      * Runs every time when app is opened for a new session
      */
     private void sendSuccessiveLaunchEvent() {
-        Map<String, Object> userProperties = new HashMap<>();
-        userProperties.put("CE Session Count", sessionManager.getCurrentSessionNumber());
-        sendDefaultUserProperties(userProperties);
+        sendDefaultUserProperties(null);
 
+        Event event = new Event("CE App Launched", getCommonEventProperties());
+        safeHTTPService.sendEvent(event);
+    }
+
+    private Map<String, Object> getCommonEventProperties() {
+        String sdkVersion = BuildConfig.VERSION_NAME + "+" + BuildConfig.VERSION_CODE;
         String[] networkData = defaultUserPropertiesCollector.getNetworkData();
+
         Map<String, Object> eventProperties = new HashMap<>();
-        eventProperties.put("CE Source", "SYSTEM");
         eventProperties.put("CE App Version", appInfo.getVersion());
-        eventProperties.put("CE SDK Version", BuildConfig.VERSION_NAME);
+        eventProperties.put("CE SDK Version", sdkVersion);
         eventProperties.put("CE OS Version", Build.VERSION.RELEASE);
         eventProperties.put("CE Network Provider", networkData[0]);
         eventProperties.put("CE Network Type", networkData[1]);
@@ -107,30 +106,25 @@ public class NewSessionExecutor extends ContextAware {
         eventProperties.put("CE Wifi Connected", defaultUserPropertiesCollector.isConnectedToWifi());
         eventProperties.put("CE Device Battery", defaultUserPropertiesCollector.getBatteryLevel());
 
-        Event event = new Event("CE App Launched", eventProperties);
-        safeHTTPService.sendEvent(event);
+        return eventProperties;
     }
 
     /**
      * Sends default user properties to the server
      *
-     * @param userProps additional user properties
+     * @param userProperties additional user properties
      */
-    private void sendDefaultUserProperties(Map<String, Object> userProps) {
+    private void sendDefaultUserProperties(Map<String, Object> userProperties) {
         double[] location = defaultUserPropertiesCollector.getLocation();
         String[] networkData = defaultUserPropertiesCollector.getNetworkData();
 
-        Map<String, Object> userProperties;
-        if (userProps != null) {
-            userProperties = new HashMap<>(userProps);
-        } else {
+        if (userProperties == null) {
             userProperties = new HashMap<>();
         }
 
+        userProperties.put("CE Session Count", sessionManager.getCurrentSessionNumber());
+        userProperties.put("CE Source", "ANDROID SDK");
         userProperties.put("CE OS", "ANDROID");
-        userProperties.put("CE SDK Version", BuildConfig.VERSION_NAME);
-        userProperties.put("CE SDK Version Code", BuildConfig.VERSION_CODE);
-        userProperties.put("CE App Version", appInfo.getVersion());
         userProperties.put("CE OS Version", Build.VERSION.RELEASE);
         userProperties.put("CE Device Manufacturer", Build.MANUFACTURER);
         userProperties.put("CE Device Model", Build.MODEL);

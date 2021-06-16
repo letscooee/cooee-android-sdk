@@ -1,7 +1,9 @@
 package com.letscooee.pushnotification;
 
+import android.util.Log;
 import androidx.annotation.RestrictTo;
 import com.letscooee.CooeeFactory;
+import com.letscooee.utils.Constants;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,6 +21,7 @@ public class PushProviderUtils {
 
     public static synchronized void pushTokenRefresh(String token) {
         if (lastSentToken != null && lastSentToken.equals(token)) {
+            Log.d(Constants.LOG_PREFIX, "Not sending the same FCM token");
             return;
         }
 

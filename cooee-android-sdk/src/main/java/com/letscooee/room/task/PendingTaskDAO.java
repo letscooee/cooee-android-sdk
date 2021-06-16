@@ -18,8 +18,8 @@ import java.util.List;
 @Dao
 public interface PendingTaskDAO {
 
-    @Query("SELECT * FROM PendingTask WHERE date_created < :date and attempts < 20")
-    List<PendingTask> fetchBeforeTime(long date);
+    @Query("SELECT * FROM PendingTask WHERE attempts < 20")
+    List<PendingTask> fetchPending();
 
     @Insert
     long insert(PendingTask task);
