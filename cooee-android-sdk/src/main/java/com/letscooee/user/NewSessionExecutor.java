@@ -2,6 +2,7 @@ package com.letscooee.user;
 
 import android.content.Context;
 import android.os.Build;
+import android.util.Log;
 import androidx.annotation.RestrictTo;
 import com.letscooee.BuildConfig;
 import com.letscooee.ContextAware;
@@ -43,6 +44,7 @@ public class NewSessionExecutor extends ContextAware {
         this.sessionManager = SessionManager.getInstance(context);
         this.appInfo = CooeeFactory.getAppInfo();
         this.safeHTTPService = CooeeFactory.getSafeHTTPService();
+        this.sessionManager.startNewSession();
     }
 
     public void execute() {
