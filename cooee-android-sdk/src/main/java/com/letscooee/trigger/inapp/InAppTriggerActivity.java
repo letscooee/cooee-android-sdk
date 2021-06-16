@@ -20,7 +20,6 @@ import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.*;
 import android.widget.*;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -28,7 +27,6 @@ import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.RoundedBitmapDrawable;
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
-
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
@@ -38,7 +36,9 @@ import com.letscooee.CooeeSDK;
 import com.letscooee.R;
 import com.letscooee.models.*;
 import com.letscooee.network.SafeHTTPService;
-import com.letscooee.utils.*;
+import com.letscooee.utils.Constants;
+import com.letscooee.utils.SentryHelper;
+import jp.wasabeef.blurry.Blurry;
 
 import java.lang.ref.WeakReference;
 import java.util.Date;
@@ -47,8 +47,6 @@ import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-
-import jp.wasabeef.blurry.Blurry;
 
 public class InAppTriggerActivity extends AppCompatActivity implements PreventBlurActivity {
 
@@ -70,7 +68,8 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
     private int watchedTill;
     private int videoSeenCounter = 0;
     private boolean isVideoUnmuted;
-    public boolean isManualClose = true;
+    private boolean isManualClose;
+
     private final SafeHTTPService safeHTTPService;
     private final SentryHelper sentryHelper;
 
@@ -108,9 +107,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
 
         closeImageButton = findViewById(R.id.buttonClose);
         closeImageButton.setOnClickListener(view -> {
-            closeBehaviour = "Close Button";
-            isManualClose = true;
-            finish();
+            this.manualCloseTrigger("Close Button");
         });
 
         secondParentLayout = findViewById(R.id.secondParentRelative);
@@ -123,7 +120,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
                     .getParcelable(Constants.INTENT_TRIGGER_DATA_KEY);
 
             if (triggerData == null) {
-                finish();
+                throw new Exception("Couldn't render In-App because trigger data is null");
             }
 
             updateFill();
@@ -140,6 +137,12 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
         } catch (Exception e) {
             sentryHelper.captureException(e);
         }
+    }
+
+    private void manualCloseTrigger(String behaviour) {
+        this.isManualClose = true;
+        this.closeBehaviour = behaviour;
+        this.finish();
     }
 
     /**
@@ -189,9 +192,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
 
         button.setOnClickListener(view -> {
             didClick(triggerButton.getAction());
-            closeBehaviour = "Action Button";
-            isManualClose = true;
-            finish();
+            this.manualCloseTrigger("Action Button");
         });
 
         button.setOnTouchListener((v, event) -> {
@@ -286,10 +287,10 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
             closeImageButton.setVisibility(View.GONE);
             textViewTimer.setVisibility(View.GONE);
             handler = new Handler();
-            runnable = this::finish;
+            runnable = () -> {
+                this.manualCloseTrigger("Auto Closed");
+            };
             handler.postDelayed(runnable, autoClose * 1000);
-
-            closeBehaviour = "Auto";
         }
     }
 
@@ -380,9 +381,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
         if (triggerData.getBackground().getAction() != null) {
             secondParentLayout.setOnClickListener(v -> {
                 didClick(triggerData.getBackground().getAction());
-                closeBehaviour = "Trigger Touch";
-                isManualClose = true;
-                finish();
+                this.manualCloseTrigger("Trigger Touch");
             });
         }
 
@@ -517,9 +516,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
             }
             secondParentLayout.setOnClickListener(v -> {
                 didClick(triggerData.getSidePopSetting().getAction());
-                closeBehaviour = "Action Button";
-                isManualClose = true;
-                finish();
+                this.manualCloseTrigger("Action Button");
             });
         }
     }
@@ -810,7 +807,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
     @Override
     protected void onResume() {
         super.onResume();
-        isManualClose = false;
+    }
 
     private void setL1Background() {
         if (triggerData.getTriggerBackground().getType() == TriggerBehindBackground.Type.BLURRED) {
@@ -843,7 +840,8 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
     public void onBackPressed() {
     }
 
-    /**+
+    /**
+     * +
      * Send trigger KPIs to the next activity(FeedbackActivity) to be sent back to the server
      */
     @Override
