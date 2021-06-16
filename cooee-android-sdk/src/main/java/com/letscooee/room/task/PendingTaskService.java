@@ -99,7 +99,6 @@ public class PendingTaskService extends ContextAware {
      */
     public void processTasks(List<PendingTask> pendingTasks, PendingTaskJob pendingTaskJob) {
         if (pendingTasks == null || pendingTasks.isEmpty()) {
-            reScheduleJob(pendingTaskJob);
             return;
         }
 
