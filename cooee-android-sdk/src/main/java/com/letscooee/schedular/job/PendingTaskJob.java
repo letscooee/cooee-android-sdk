@@ -11,7 +11,6 @@ import com.letscooee.room.task.PendingTask;
 import com.letscooee.task.CooeeExecutors;
 import com.letscooee.utils.Constants;
 
-import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -32,7 +31,7 @@ public class PendingTaskJob extends JobService {
 
         UserAuthService userAuthService = CooeeFactory.getUserAuthService();
         if (!userAuthService.hasToken()) {
-            Log.d(Constants.LOG_PREFIX, "Do not have the SDK token");
+            Log.d(Constants.LOG_PREFIX, "Abort PendingTaskJob. Do not have the SDK token");
             return false;       // Job is finished
         }
 
@@ -47,13 +46,6 @@ public class PendingTaskJob extends JobService {
 
         return true;
     }
-
-    private long getTMinusTwoMinutes() {
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.MINUTE, -2);
-        return calendar.getTimeInMillis();
-    }
-
     @Override
     public boolean onStopJob(JobParameters params) {
         // Returning false to let job get finish
