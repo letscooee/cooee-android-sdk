@@ -107,7 +107,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
 
         closeImageButton = findViewById(R.id.buttonClose);
         closeImageButton.setOnClickListener(view -> {
-            this.manualCloseTrigger("Close Button");
+            this.manualCloseTrigger("Close Button", null);
         });
 
         secondParentLayout = findViewById(R.id.secondParentRelative);
@@ -139,10 +139,15 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
         }
     }
 
-    private void manualCloseTrigger(String behaviour) {
+    private void manualCloseTrigger(String behaviour, TriggerButtonAction action) {
         this.isManualClose = true;
         this.closeBehaviour = behaviour;
         this.finish();
+
+        if (action != null) {
+            // Invoke the CTA only after this activity is finished
+            nonCloseActionTaken(action);
+        }
     }
 
     /**
@@ -191,8 +196,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
         button.setBackground(drawable);
 
         button.setOnClickListener(view -> {
-            didClick(triggerButton.getAction());
-            this.manualCloseTrigger("Action Button");
+            this.manualCloseTrigger("Action Button", triggerButton.getAction());
         });
 
         button.setOnTouchListener((v, event) -> {
@@ -214,9 +218,9 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
     }
 
     /**
-     * Action/data to be sent to application will be defined here
+     * Action/data to be sent to application i.e. the callback of CTA.
      */
-    private void didClick(TriggerButtonAction action) {
+    private void nonCloseActionTaken(TriggerButtonAction action) {
         InAppListener listener = inAppListenerWeakReference.get();
         if (action.getKv() != null) {
             listener.inAppNotificationDidClick(action.getKv());
@@ -288,7 +292,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
             textViewTimer.setVisibility(View.GONE);
             handler = new Handler();
             runnable = () -> {
-                this.manualCloseTrigger("Auto Closed");
+                this.manualCloseTrigger("Auto Closed", null);
             };
             handler.postDelayed(runnable, autoClose * 1000);
         }
@@ -380,8 +384,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
 
         if (triggerData.getBackground().getAction() != null) {
             secondParentLayout.setOnClickListener(v -> {
-                didClick(triggerData.getBackground().getAction());
-                this.manualCloseTrigger("Trigger Touch");
+                this.manualCloseTrigger("Trigger Touch", triggerData.getBackground().getAction());
             });
         }
 
@@ -487,8 +490,6 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
             findViewById(R.id.textViewContent).setVisibility(View.GONE);
 
             setActionLayout();
-
-
         }
 
         secondParentLayout.setLayoutParams(layoutParams);
@@ -515,8 +516,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
                 ((RelativeLayout) findViewById(R.id.actionLayout)).addView(imageView);
             }
             secondParentLayout.setOnClickListener(v -> {
-                didClick(triggerData.getSidePopSetting().getAction());
-                this.manualCloseTrigger("Action Button");
+                this.manualCloseTrigger("Action Button", triggerData.getSidePopSetting().getAction());
             });
         }
     }
