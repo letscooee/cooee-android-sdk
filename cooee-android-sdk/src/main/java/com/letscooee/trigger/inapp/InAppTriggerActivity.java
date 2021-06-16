@@ -17,7 +17,6 @@ import android.os.CountDownTimer;
 import android.os.Handler;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.*;
 import android.widget.*;
@@ -49,17 +48,17 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import io.sentry.Sentry;
 import jp.wasabeef.blurry.Blurry;
 
 public class InAppTriggerActivity extends AppCompatActivity implements PreventBlurActivity {
+
+    // TODO: 16/06/21 Remove static reference of ViewGroup once Flutter blurry is solved to prevent memory leak
+    private static ViewGroup viewGroupForBlurry;
 
     private TriggerData triggerData;
     ImageButton closeImageButton;
     RelativeLayout secondParentLayout;
     TextView textViewTimer;
-
-    private static Window _window;
 
     private WeakReference<InAppListener> inAppListenerWeakReference;
 
@@ -73,11 +72,12 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
     private boolean isVideoUnmuted;
     public boolean isManualClose = true;
     private final SafeHTTPService safeHTTPService;
+    private final SentryHelper sentryHelper;
 
     public InAppTriggerActivity() {
         safeHTTPService = CooeeFactory.getSafeHTTPService();
+        sentryHelper = CooeeFactory.getSentryHelper();
     }
-
 
     public interface InAppListener {
         void inAppNotificationDidClick(HashMap<String, Object> payload);
@@ -94,7 +94,11 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
             return;
         }
 
-        _window = activity.getWindow();
+        captureViewForBlurry((ViewGroup) activity.getWindow().getDecorView());
+    }
+
+    public static void captureViewForBlurry(ViewGroup viewGroup) {
+        viewGroupForBlurry = viewGroup;
     }
 
     @Override
@@ -132,10 +136,9 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
             updateMessage();
             updateTextPosition();
             createActionButtons();
+            setL1Background();
         } catch (Exception e) {
-
-            Log.e(Constants.TAG, "InApp Trigger Failed", e);
-            Sentry.captureException(e);
+            sentryHelper.captureException(e);
         }
     }
 
@@ -325,10 +328,6 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
      * eg. SOLID_COLOR, IMAGE and BLURRED
      */
     private void updateBackground() {
-        if (_window == null) {
-            finish();
-        }
-
         if (triggerData.getBackground().getType() == TriggerBackground.TriggerType.SOLID_COLOR) {
             String color = triggerData.getBackground().getColor() == null || triggerData.getBackground().getColor().isEmpty()
                     ? "#DDDDDD"
@@ -359,7 +358,6 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
                 secondParentLayout.setBackgroundColor(getResources().getColor(R.color.colorBackground));
                 return;
             }
-
 
             Glide.with(this)
                     .asBitmap()
@@ -814,13 +812,14 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
         super.onResume();
         isManualClose = false;
 
+    private void setL1Background() {
         if (triggerData.getTriggerBackground().getType() == TriggerBehindBackground.Type.BLURRED) {
             Blurry.with(getApplicationContext())
                     .radius(triggerData.getTriggerBackground().getBlurRadius())
                     .color(triggerData.getTriggerBackground().getParsedColor())
                     .sampling(2)
                     .animate(500)
-                    .onto((ViewGroup) _window.getDecorView());
+                    .onto(viewGroupForBlurry);
 
         } else if (triggerData.getTriggerBackground().getType() == TriggerBehindBackground.Type.SOLID_COLOR) {
             ImageView imageView = findViewById(R.id.blurImage);
@@ -832,7 +831,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
     @Override
     protected void onPause() {
         super.onPause();
-        Blurry.delete((ViewGroup) _window.getDecorView());
+        Blurry.delete(viewGroupForBlurry);
     }
 
     @Override
