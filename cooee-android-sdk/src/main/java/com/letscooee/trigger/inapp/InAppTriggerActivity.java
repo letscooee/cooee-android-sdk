@@ -69,6 +69,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
     private int videoSeenCounter = 0;
     private boolean isVideoUnmuted;
     private boolean isManualClose;
+    private boolean isSuccessfullyStarted;
 
     private final SafeHTTPService safeHTTPService;
     private final SentryHelper sentryHelper;
@@ -136,6 +137,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
             setL1Background();
         } catch (Exception e) {
             sentryHelper.captureException(e);
+            finish();
         }
     }
 
@@ -521,22 +523,33 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
         }
     }
 
+    private void hideMediaLayout() {
+        RelativeLayout mediaRelativeLayout = findViewById(R.id.mediaRelativeLayout);
+        mediaRelativeLayout.setVisibility(View.GONE);
+    }
+
     /**
      * Create the media view given by server
      * eg. IMAGE, VIDEO (as of now)
      */
     private void addMediaView() {
         if (triggerData.getType() == TriggerData.Type.IMAGE) {
-            if (triggerData.getImageUrl() == null || triggerData.getImageUrl().isEmpty()) {
-                finish();
+            if (TextUtils.isEmpty(triggerData.getImageUrl())) {
+                hideMediaLayout();
+                return;
+            } else {
+                createImageView();
             }
-            createImageView();
+
         } else if (triggerData.getType() == TriggerData.Type.VIDEO) {
-            if (triggerData.getVideoUrl() == null || triggerData.getVideoUrl().isEmpty()) {
-                finish();
+            if (TextUtils.isEmpty(triggerData.getVideoUrl())) {
+                hideMediaLayout();
+                return;
+            } else {
+                createVideoView();
             }
-            createVideoView();
         }
+
         CardView mediaFrameLayout = findViewById(R.id.mediaFrameLayout);
         if (triggerData.isShowImageShadow()) {
             if (triggerData.getImageShadow() != null) {
@@ -799,6 +812,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
     protected void onStart() {
         super.onStart();
         startTime = new Date();
+        isSuccessfullyStarted = true;
 
         Event event = new Event("CE Trigger Displayed", triggerData);
         safeHTTPService.sendEvent(event);
@@ -852,6 +866,10 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
     @Override
     public void finish() {
         super.finish();
+        if (!isSuccessfullyStarted) {
+            return;
+        }
+
         int duration = (int) ((new Date().getTime() - startTime.getTime()) / 1000);
         int totalWatched = videoDuration * videoSeenCounter + watchedTill;
 
