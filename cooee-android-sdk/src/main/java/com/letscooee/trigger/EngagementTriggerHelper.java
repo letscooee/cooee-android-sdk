@@ -45,7 +45,7 @@ public class EngagementTriggerHelper {
 
         activeTriggers.add(newActiveTrigger);
         if (BuildConfig.DEBUG) {
-            Log.d(Constants.LOG_PREFIX, "Current active triggers: " + activeTriggers.toString());
+            Log.d(Constants.TAG, "Current active triggers: " + activeTriggers.toString());
         }
 
         LocalStorageHelper.putListImmediately(context, Constants.STORAGE_ACTIVE_TRIGGERS, activeTriggers);
@@ -104,7 +104,7 @@ public class EngagementTriggerHelper {
 
     public static void renderInAppTriggerFromJSONString(Context context, String rawTriggerData) {
         if (TextUtils.isEmpty(rawTriggerData)) {
-            Log.i(Constants.LOG_PREFIX, "Empty/null trigger data received");
+            Log.i(Constants.TAG, "Empty/null trigger data received");
             return;
         }
 
@@ -135,7 +135,7 @@ public class EngagementTriggerHelper {
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(intent);
         } catch (Exception ex) {
-            Log.d(Constants.LOG_PREFIX, "Couldn't show Engagement Trigger " + ex.toString());
+            Log.d(Constants.TAG, "Couldn't show Engagement Trigger " + ex.toString());
             Sentry.captureException(ex);
         }
     }

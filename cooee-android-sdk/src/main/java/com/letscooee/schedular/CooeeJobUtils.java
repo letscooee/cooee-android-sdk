@@ -83,7 +83,7 @@ public class CooeeJobUtils {
      * @param context the application context.
      */
     public static void triggerPendingTaskJobImmediately(Context context) {
-        Log.v(Constants.LOG_PREFIX, "Run PendingTaskJob immediately");
+        Log.v(Constants.TAG, "Run PendingTaskJob immediately");
         scheduleJob(context, PendingTaskJob.class, Constants.PENDING_TASK_JOB_ID, null);
     }
 

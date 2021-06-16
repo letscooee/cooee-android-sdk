@@ -52,7 +52,7 @@ class AppLifecycleCallback implements DefaultLifecycleObserver {
             sessionManager.conclude();
 
             new NewSessionExecutor(context).execute();
-            Log.d(Constants.LOG_PREFIX, "After 30 min of App Background " + "Session Concluded");
+            Log.d(Constants.TAG, "After 30 min of App Background " + "Session Concluded");
         } else {
             Map<String, Object> eventProps = new HashMap<>();
             eventProps.put("Background Duration", backgroundDuration);

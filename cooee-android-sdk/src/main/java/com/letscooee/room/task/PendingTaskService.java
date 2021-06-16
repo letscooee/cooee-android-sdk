@@ -72,7 +72,7 @@ public class PendingTaskService extends ContextAware {
 
         task.id = this.database.pendingTaskDAO().insert(task);
 
-        Log.v(Constants.LOG_PREFIX, "Created " + task);
+        Log.v(Constants.TAG, "Created " + task);
         return task;
     }
 
@@ -112,14 +112,14 @@ public class PendingTaskService extends ContextAware {
      * @param pendingTask The task to process.
      */
     public void processTask(PendingTask pendingTask) {
-        Log.d(Constants.LOG_PREFIX, "Attempt processing " + pendingTask);
+        Log.d(Constants.TAG, "Attempt processing " + pendingTask);
 
         if (pendingTask == null) {
             throw new IllegalArgumentException("pendingTask can't be null");
         }
 
         if (CURRENT_PROCESSING_TASKS.contains(pendingTask.id)) {
-            Log.d(Constants.LOG_PREFIX, "Already processing " + pendingTask);
+            Log.d(Constants.TAG, "Already processing " + pendingTask);
             return;
         }
 

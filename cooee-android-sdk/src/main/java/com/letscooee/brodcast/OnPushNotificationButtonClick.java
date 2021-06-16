@@ -126,7 +126,7 @@ public class OnPushNotificationButtonClick extends BroadcastReceiver {
         if (title == null) {
             return;
         }
-        Log.d(Constants.LOG_PREFIX, "showCarouselNotification: Position " + position);
+        Log.d(Constants.TAG, "showCarouselNotification: Position " + position);
         NotificationManager notificationManager = (NotificationManager) context
                 .getSystemService(Context.NOTIFICATION_SERVICE);
 

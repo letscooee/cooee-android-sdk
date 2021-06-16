@@ -82,7 +82,7 @@ public class FeedbackActivity extends AppCompatActivity {
         super.finish();
         Bundle bundle = getIntent().getExtras().getBundle("review");
         if (bundle == null) {
-            Log.d(Constants.LOG_PREFIX, "review null");
+            Log.d(Constants.TAG, "review null");
             return;
         }
 

@@ -19,7 +19,7 @@ public class Constants {
     public static final String STORAGE_LAST_TOKEN_ATTEMPT = "last_token_check_attempt";
     // endregion
 
-    public static final String LOG_PREFIX = "CooeeSDK";
+    public static final String TAG = "CooeeSDK";
     public static final int IDLE_TIME_IN_SECONDS = 30 * 60;
     public static final int KEEP_ALIVE_TIME_IN_MS = 5 * 60 * 1000;
 

@@ -3,13 +3,11 @@ package com.letscooee.room.task.processor;
 import android.content.Context;
 import android.util.Log;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
 import com.google.gson.reflect.TypeToken;
 import com.letscooee.room.CooeeDatabase;
 import com.letscooee.room.task.PendingTask;
 import com.letscooee.utils.Constants;
-import com.letscooee.utils.GsonDateAdapter;
 
 import java.util.Date;
 
@@ -48,7 +46,7 @@ public abstract class AbstractPendingTaskProcessor<T> implements PendingTaskProc
      * @param task Task to delete.
      */
     void deleteTask(PendingTask task) {
-        Log.v(Constants.LOG_PREFIX, "Deleting " + task);
+        Log.v(Constants.TAG, "Deleting " + task);
         this.appDatabase.pendingTaskDAO().delete(task);
     }
 
@@ -62,6 +60,6 @@ public abstract class AbstractPendingTaskProcessor<T> implements PendingTaskProc
         task.lastAttempted = new Date().getTime();
         appDatabase.pendingTaskDAO().updateByObject(task);
 
-        Log.v(Constants.LOG_PREFIX, "" + task + " attempted " + task.attempts);
+        Log.v(Constants.TAG, "" + task + " attempted " + task.attempts);
     }
 }

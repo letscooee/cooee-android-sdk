@@ -50,7 +50,7 @@ public class SentryHelper extends ContextAware {
     }
 
     public void init() {
-        Log.d(Constants.LOG_PREFIX, "Initializing Sentry: " + enabled.toString());
+        Log.d(Constants.TAG, "Initializing Sentry: " + enabled.toString());
         if (!enabled) {
             return;
         }
@@ -91,7 +91,7 @@ public class SentryHelper extends ContextAware {
     private void setupFilterToExcludeNonCooeeEvents(SentryOptions options) {
         options.setBeforeSend((event, hint) -> {
             if (!containsWordCooee(event)) {
-                Log.d(Constants.LOG_PREFIX, "Skipping Sentry event with message: " + event.getMessage());
+                Log.d(Constants.TAG, "Skipping Sentry event with message: " + event.getMessage());
                 return null;
             }
 
@@ -156,8 +156,8 @@ public class SentryHelper extends ContextAware {
      * @param message Any custom message to send.
      */
     public void captureMessage(String message) {
-        Log.e(Constants.LOG_PREFIX, message);
-        Sentry.captureMessage(Constants.LOG_PREFIX + ": " + message);
+        Log.e(Constants.TAG, message);
+        Sentry.captureMessage(Constants.TAG + ": " + message);
     }
 
     /**
@@ -170,14 +170,14 @@ public class SentryHelper extends ContextAware {
     }
 
     public void captureException(String message, Throwable throwable) {
-        Log.e(Constants.LOG_PREFIX, message, throwable);
+        Log.e(Constants.TAG, message, throwable);
 
         if (!enabled) {
             return;
         }
 
         SentryId id = Sentry.captureException(throwable);
-        Log.d(Constants.LOG_PREFIX, "Sentry id of the exception: " + id.toString());
+        Log.d(Constants.TAG, "Sentry id of the exception: " + id.toString());
     }
 
     /**

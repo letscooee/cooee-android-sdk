@@ -45,16 +45,16 @@ public abstract class HttpTaskProcessor<T> extends AbstractPendingTaskProcessor<
      * @param task Task to process.
      */
     public void process(@NotNull PendingTask task) {
-        Log.d(Constants.LOG_PREFIX, "Processing " + task);
+        Log.d(Constants.TAG, "Processing " + task);
         T data = deserialize(task);
 
         if (!ConnectionManager.isNetworkAvailable(context)) {
-            Log.i(Constants.LOG_PREFIX, "Device does not have internet");
+            Log.i(Constants.TAG, "Device does not have internet");
             return;
         }
 
         if (!this.userAuthService.hasToken()) {
-            Log.i(Constants.LOG_PREFIX, "Don't have SDK token. Abort processing " + task);
+            Log.i(Constants.TAG, "Don't have SDK token. Abort processing " + task);
             return;
         }
 

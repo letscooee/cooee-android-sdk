@@ -19,7 +19,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
-import static com.letscooee.utils.Constants.LOG_PREFIX;
+import static com.letscooee.utils.Constants.TAG;
 
 /**
  * The APIClient class will help in sending request to server
@@ -73,7 +73,7 @@ public class APIClient {
                     requestBuilder.addHeader("sdk-version", BuildConfig.VERSION_NAME);
                     requestBuilder.addHeader("sdk-version-code", String.valueOf(BuildConfig.VERSION_CODE));
 
-                    Log.d(LOG_PREFIX, "Request: " + requestBuilder.build().toString());
+                    Log.d(TAG, "Request: " + requestBuilder.build().toString());
                     return chain.proceed(requestBuilder.build());
                 })
                 .build();

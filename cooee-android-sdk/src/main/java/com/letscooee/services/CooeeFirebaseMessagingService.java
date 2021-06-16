@@ -21,7 +21,6 @@ import com.google.firebase.messaging.RemoteMessage;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
-import com.letscooee.BuildConfig;
 import com.letscooee.CooeeFactory;
 import com.letscooee.R;
 import com.letscooee.brodcast.OnPushNotificationButtonClick;
@@ -71,7 +70,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
 
     private void handleTriggerData(String rawTriggerData) {
         if (TextUtils.isEmpty(rawTriggerData)) {
-            Log.d(Constants.LOG_PREFIX, "No triggerData found on the notification payload");
+            Log.d(Constants.TAG, "No triggerData found on the notification payload");
             return;
         }
 
@@ -91,7 +90,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
 
             Double version = (Double) baseTriggerData.get("version");
             if (version == null || version >= 3) {
-                Log.d(Constants.LOG_PREFIX, "Unsupported version received " + version);
+                Log.d(Constants.TAG, "Unsupported version received " + version);
                 return;
             }
 
@@ -265,7 +264,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
      * @param token received from Firebase
      */
     private void sendTokenToServer(String token) {
-        Log.d(Constants.LOG_PREFIX, "FCM token received- " + token);
+        Log.d(Constants.TAG, "FCM token received- " + token);
         PushProviderUtils.pushTokenRefresh(token);
     }
 

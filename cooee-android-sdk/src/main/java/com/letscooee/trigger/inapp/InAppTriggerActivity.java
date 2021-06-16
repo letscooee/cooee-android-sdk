@@ -5,7 +5,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.Typeface;
@@ -46,7 +45,6 @@ import java.lang.ref.WeakReference;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -136,7 +134,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
             createActionButtons();
         } catch (Exception e) {
 
-            Log.e(Constants.LOG_PREFIX, "InApp Trigger Failed", e);
+            Log.e(Constants.TAG, "InApp Trigger Failed", e);
             Sentry.captureException(e);
         }
     }

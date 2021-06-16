@@ -21,7 +21,7 @@ public class PushProviderUtils {
 
     public static synchronized void pushTokenRefresh(String token) {
         if (lastSentToken != null && lastSentToken.equals(token)) {
-            Log.d(Constants.LOG_PREFIX, "Not sending the same FCM token");
+            Log.d(Constants.TAG, "Not sending the same FCM token");
             return;
         }
 

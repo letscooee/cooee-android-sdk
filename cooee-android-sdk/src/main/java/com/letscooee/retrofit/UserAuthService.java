@@ -61,12 +61,12 @@ public class UserAuthService {
     public void populateUserDataFromStorage() {
         sdkToken = LocalStorageHelper.getString(context, Constants.STORAGE_SDK_TOKEN, null);
         if (TextUtils.isEmpty(sdkToken)) {
-            Log.d(Constants.LOG_PREFIX, "No SDK token found in preference");
+            Log.d(Constants.TAG, "No SDK token found in preference");
         }
 
         userID = LocalStorageHelper.getString(context, Constants.STORAGE_USER_ID, null);
         if (TextUtils.isEmpty(userID)) {
-            Log.d(Constants.LOG_PREFIX, "No user ID found in preference");
+            Log.d(Constants.TAG, "No user ID found in preference");
         }
 
         this.updateAPIClient();
@@ -81,7 +81,7 @@ public class UserAuthService {
             return;
         }
 
-        Log.d(Constants.LOG_PREFIX, "Attempt to acquire SDK token");
+        Log.d(Constants.TAG, "Attempt to acquire SDK token");
         long lastCheckTime = LocalStorageHelper.getLong(context, Constants.STORAGE_LAST_TOKEN_ATTEMPT, 0);
 
         // We are attempting first time
@@ -121,7 +121,7 @@ public class UserAuthService {
 
             @Override
             public void onFailure(@NonNull Call<UserAuthResponse> call, @NonNull Throwable t) {
-                Log.e(Constants.LOG_PREFIX, "Unable to acquire token", t);
+                Log.e(Constants.TAG, "Unable to acquire token", t);
             }
         });
 
@@ -140,8 +140,8 @@ public class UserAuthService {
 
     private void updateAPIClient() {
         if (BuildConfig.DEBUG) {
-            Log.i(Constants.LOG_PREFIX, "SDK Token: " + sdkToken);
-            Log.i(Constants.LOG_PREFIX, "User ID: " + userID);
+            Log.i(Constants.TAG, "SDK Token: " + sdkToken);
+            Log.i(Constants.TAG, "User ID: " + userID);
         }
 
         APIClient.setAPIToken(sdkToken);

@@ -60,7 +60,7 @@ public class CooeeBootstrap {
     private void getAndUpdateFirebaseToken() {
         FirebaseMessaging.getInstance().getToken().addOnSuccessListener(token -> {
             if (BuildConfig.DEBUG) {
-                Log.d(Constants.LOG_PREFIX, "FCM token fetched- " + token);
+                Log.d(Constants.TAG, "FCM token fetched- " + token);
             }
 
             PushProviderUtils.pushTokenRefresh(token);

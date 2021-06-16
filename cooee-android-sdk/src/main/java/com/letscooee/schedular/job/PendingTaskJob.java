@@ -27,11 +27,11 @@ public class PendingTaskJob extends JobService {
     public boolean onStartJob(JobParameters params) {
         jobParameters = params;
         Context context = getApplicationContext();
-        Log.v(Constants.LOG_PREFIX, "PendingTaskJob running");
+        Log.v(Constants.TAG, "PendingTaskJob running");
 
         UserAuthService userAuthService = CooeeFactory.getUserAuthService();
         if (!userAuthService.hasToken()) {
-            Log.d(Constants.LOG_PREFIX, "Abort PendingTaskJob. Do not have the SDK token");
+            Log.d(Constants.TAG, "Abort PendingTaskJob. Do not have the SDK token");
             return false;       // Job is finished
         }
 
