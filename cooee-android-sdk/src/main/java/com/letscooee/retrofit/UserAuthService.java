@@ -129,7 +129,9 @@ public class UserAuthService {
                 if (response.isSuccessful()) {
                     assert response.body() != null;
                     UserAuthService.this.saveUserDataInStorage(response.body());
-                    CooeeJobUtils.schedulePendingTaskJob(UserAuthService.this.context);
+
+                    // Start the job immediately to make sure the pending tasks can be sent
+                    CooeeJobUtils.triggerPendingTaskJobImmediately(UserAuthService.this.context);
                 } else {
                     UserAuthService.this.sentryHelper.captureMessage("Unable to acquire token- " + response.code());
                 }
