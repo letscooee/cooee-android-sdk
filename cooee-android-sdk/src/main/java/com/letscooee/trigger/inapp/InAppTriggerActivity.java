@@ -828,12 +828,17 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
     @Override
     protected void onPause() {
         super.onPause();
-        Blurry.delete(viewGroupForBlurry);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
+    }
+
+    @Override
+    protected void onDestroy() {
+        Blurry.delete(viewGroupForBlurry);
+        super.onDestroy();
     }
 
     @Override
