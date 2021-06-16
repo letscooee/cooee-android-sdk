@@ -8,19 +8,6 @@
     android:background="@drawable/banner"
     tools:context=".HomeActivity">
 
-    <ImageView
-        android:id="@+id/ivSplash"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@android:color/black"
-        android:elevation="10dp"
-        android:src="@drawable/logo"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/btnSendVideoEvent"
         style="@style/PrimaryButton"
