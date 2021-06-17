@@ -6,6 +6,7 @@ apply plugin: 'com.jfrog.artifactory'
 //region Release configuration
 
 artifactoryPublish.dependsOn('build')
+publishToMavenLocal.dependsOn('build')
 
 publishing {
     publications {
@@ -38,6 +39,23 @@ publishing {
                         dependency.appendNode("artifactId", it.moduleName)
                         dependency.appendNode("version", it.moduleVersion)
                     }
+                }
+            }
+        }
+
+        myLocalMaven(MavenPublication) {
+            groupId project.group.toString()
+            artifactId project.getName()
+            version project.version.toString()
+            artifact("$buildDir/outputs/aar/${project.getName()}-debug.aar")
+
+            pom.withXml {
+                def dependencies = asNode().appendNode("dependencies")
+                configurations.getByName("releaseCompileClasspath").getResolvedConfiguration().getFirstLevelModuleDependencies().each {
+                    def dependency = dependencies.appendNode("dependency")
+                    dependency.appendNode("groupId", it.moduleGroup)
+                    dependency.appendNode("artifactId", it.moduleName)
+                    dependency.appendNode("version", it.moduleVersion)
                 }
             }
         }
@@ -84,7 +102,8 @@ android {
         targetSdkVersion 30
         renderscriptTargetApi 29
         renderscriptSupportModeEnabled true
-        versionCode project.version.toString().tokenize('.').collect { it.padLeft(2, '0') }.join('').toInteger()
+        versionCode project.version.toString()
+                .replace("-SNAPSHOT", "").tokenize('.').collect { it.padLeft(2, '0') }.join('').toInteger()
         versionName project.version.toString()
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
