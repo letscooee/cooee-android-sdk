@@ -50,11 +50,11 @@ import java.util.concurrent.TimeUnit;
 
 public class InAppTriggerActivity extends AppCompatActivity implements PreventBlurActivity {
 
-    // TODO: 16/06/21 Remove static reference of ViewGroup once Flutter blurry is solved to prevent memory leak
-    private static ViewGroup viewGroupForBlurry;
+    private static Window lastActiveWindow;
 
     private TriggerData triggerData;
     private Bitmap bitmapForBlurry;
+    private ViewGroup viewGroupForBlurry;
 
     ImageButton closeImageButton;
     RelativeLayout secondParentLayout;
@@ -96,11 +96,19 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
             return;
         }
 
-        captureViewForBlurry((ViewGroup) activity.getWindow().getDecorView());
+        lastActiveWindow = activity.getWindow();
     }
 
-    public static void captureViewForBlurry(ViewGroup viewGroup) {
-        viewGroupForBlurry = viewGroup;
+    public void setViewGroupForBlurry(ViewGroup viewGroup) {
+       this.viewGroupForBlurry = viewGroup;
+    }
+
+    /**
+     * Set Bitmap which can be used by {@link Blurry}. Mostly used by Flutter plugin.
+     * @param bitmap
+     */
+    public void setBitmapForBlurry(Bitmap bitmap) {
+        this.bitmapForBlurry = bitmap;
     }
 
     @Override
@@ -820,6 +828,8 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
         ImageView imageView = findViewById(R.id.blurImage);
 
         if (triggerData.getTriggerBackground().getType() == TriggerBehindBackground.Type.BLURRED) {
+            this.setViewGroupForBlurry((ViewGroup) lastActiveWindow.getDecorView());
+
             Blurry.Composer blurryComposer = Blurry.with(getApplicationContext())
                     .radius(triggerData.getTriggerBackground().getBlurRadius())
                     .color(triggerData.getTriggerBackground().getParsedColor())
@@ -894,10 +904,6 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
         }
 
         updateExit();
-    }
-
-    public void setBitmap(Bitmap bitmap) {
-        this.bitmapForBlurry = bitmap;
     }
 
     public TriggerData getTriggerData() {
