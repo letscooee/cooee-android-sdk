@@ -185,8 +185,8 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
         TextView button = new TextView(this);
         button.setLayoutParams(params);
         button.setText(triggerButton.getText());
-        String color = triggerButton.getColor().isEmpty() ? "#0000FF" : triggerButton.getColor();
-        button.setTextColor(Color.parseColor(color));
+
+        button.setTextColor(triggerButton.getParsedColor());
         button.setPadding(30, 20, 25, 25);
         button.setTypeface(Typeface.DEFAULT_BOLD);
         //button.setElevation(20);
@@ -336,9 +336,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
      */
     private void updateBackground() {
         if (triggerData.getBackground().getType() == TriggerBackground.TriggerType.SOLID_COLOR) {
-            String color = triggerData.getBackground().getColor() == null || triggerData.getBackground().getColor().isEmpty()
-                    ? "#DDDDDD"
-                    : triggerData.getBackground().getColor();
+            String color = triggerData.getBackground().getColor();
 
             int z;
 
@@ -720,33 +718,26 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
      * eg. TOP_LEFT(default), TOP_RIGHT, DOWN_RIGHT and DOWN_LEFT
      */
     private void closeButtonPosition() {
-
+        TriggerCloseBehaviour closeBehaviour = triggerData.getCloseBehaviour();
         RelativeLayout relativeLayoutClose = findViewById(R.id.relativeLayoutClose);
 
         ProgressBar progressBarClose = findViewById(R.id.progressBarClose);
         progressBarClose.setProgress(100);
-        int progressTextColor = TextUtils.isEmpty(triggerData.getCloseBehaviour().getCountDownTextColor()) ? Color.parseColor("#000000")
-                : Color.parseColor(triggerData.getCloseBehaviour().getCountDownTextColor());
-        textViewTimer.setTextColor(progressTextColor);
+        textViewTimer.setTextColor(closeBehaviour.getParsedCountDownTextColor());
 
+        progressBarClose.getIndeterminateDrawable().setColorFilter(closeBehaviour.getParsedProgressBarColor(), PorterDuff.Mode.SRC_IN);
 
-        int progressColor = TextUtils.isEmpty(triggerData.getCloseBehaviour().getProgressBarColor()) ? Color.parseColor("#4285f4") :
-                Color.parseColor(triggerData.getCloseBehaviour().getProgressBarColor());
-        progressBarClose.getIndeterminateDrawable().setColorFilter(progressColor, PorterDuff.Mode.SRC_IN);
+        closeImageButton.setColorFilter(closeBehaviour.getParsedCloseButtonColor(), android.graphics.PorterDuff.Mode.SRC_IN);
 
-        int closeButtonColor = TextUtils.isEmpty(triggerData.getCloseBehaviour().getCloseButtonColor()) ? Color.parseColor("#000000")
-                : Color.parseColor(triggerData.getCloseBehaviour().getCloseButtonColor());
-        closeImageButton.setColorFilter(closeButtonColor, android.graphics.PorterDuff.Mode.SRC_IN);
-
-        if (triggerData.getCloseBehaviour().shouldShowButton()) {
-            if (!triggerData.getCloseBehaviour().isAuto() || triggerData.getCloseBehaviour().getTimeToClose() != 0) {
+        if (closeBehaviour.shouldShowButton()) {
+            if (!closeBehaviour.isAuto() || closeBehaviour.getTimeToClose() != 0) {
                 closeImageButton.setVisibility(View.INVISIBLE);
                 closeImageButton.setEnabled(false);
-                new CountDownTimer(triggerData.getCloseBehaviour().getTimeToClose() * 1000, 1000) {
+                new CountDownTimer(closeBehaviour.getTimeToClose() * 1000, 1000) {
 
                     public void onTick(long millisUntilFinished) {
                         textViewTimer.setText(String.valueOf((millisUntilFinished / 1000) + 1));
-                        progressBarClose.setProgress(progressBarClose.getProgress() - (100 / triggerData.getCloseBehaviour().getTimeToClose() + 1));
+                        progressBarClose.setProgress(progressBarClose.getProgress() - (100 / closeBehaviour.getTimeToClose() + 1));
                     }
 
                     public void onFinish() {
@@ -767,12 +758,12 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
 
         RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 
-        if (triggerData.getCloseBehaviour().getPosition() == TriggerCloseBehaviour.Position.TOP_RIGHT) {
+        if (closeBehaviour.getPosition() == TriggerCloseBehaviour.Position.TOP_RIGHT) {
             layoutParams.addRule(RelativeLayout.ALIGN_PARENT_END);
-        } else if (triggerData.getCloseBehaviour().getPosition() == TriggerCloseBehaviour.Position.DOWN_RIGHT) {
+        } else if (closeBehaviour.getPosition() == TriggerCloseBehaviour.Position.DOWN_RIGHT) {
             layoutParams.addRule(RelativeLayout.ALIGN_PARENT_END);
             layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-        } else if (triggerData.getCloseBehaviour().getPosition() == TriggerCloseBehaviour.Position.DOWN_LEFT) {
+        } else if (closeBehaviour.getPosition() == TriggerCloseBehaviour.Position.DOWN_LEFT) {
             layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
         }
 
