@@ -24,13 +24,6 @@ Let’s Cooee powers hyper-personalized and real time engagements for mobile app
 3. Rendering engagement triggers - SDK will render the campaign trigger at real-time with the help of server http calls.
 4. Average SDK size – 5-6 MB(including dependency SDK’s).
 
-## Development
-
-There are two projects-
-
-1. `cooee-android-sdk` - This contains the code of actual Android SDK/library which will be shipped.
-2. `app` - This contains an Android app which can be used to run the SDK.
-
 ## Installation
 
 Following are the guidelines for installing Cooee SDK on to your Android mobile app.
@@ -123,4 +116,19 @@ userData.put("mobile", "9876543210");
 userData.put("email", "john@example.com");
 
 sdkInstance.updateUserProfile(userData, userProperties);
+```
+
+## Development
+
+There are two projects-
+
+1. `cooee-android-sdk` - This contains the code of actual Android SDK/library which will be shipped.
+2. `app` - This contains an Android app which can be used to run the SDK.
+
+### Publishing in Maven Local
+
+Run-
+
+```shell script
+./gradlew cooee-android-sdk:publishToMavenLocal
 ```

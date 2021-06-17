@@ -17,11 +17,9 @@ import android.os.CountDownTimer;
 import android.os.Handler;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.*;
 import android.widget.*;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -29,7 +27,6 @@ import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.RoundedBitmapDrawable;
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
-
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
@@ -39,7 +36,9 @@ import com.letscooee.CooeeSDK;
 import com.letscooee.R;
 import com.letscooee.models.*;
 import com.letscooee.network.SafeHTTPService;
-import com.letscooee.utils.*;
+import com.letscooee.utils.Constants;
+import com.letscooee.utils.SentryHelper;
+import jp.wasabeef.blurry.Blurry;
 
 import java.lang.ref.WeakReference;
 import java.util.Date;
@@ -49,17 +48,17 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import io.sentry.Sentry;
-import jp.wasabeef.blurry.Blurry;
-
 public class InAppTriggerActivity extends AppCompatActivity implements PreventBlurActivity {
 
+    private static Window lastActiveWindow;
+
     private TriggerData triggerData;
+    private Bitmap bitmapForBlurry;
+    private ViewGroup viewGroupForBlurry;
+
     ImageButton closeImageButton;
     RelativeLayout secondParentLayout;
     TextView textViewTimer;
-
-    private static Window _window;
 
     private WeakReference<InAppListener> inAppListenerWeakReference;
 
@@ -71,13 +70,16 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
     private int watchedTill;
     private int videoSeenCounter = 0;
     private boolean isVideoUnmuted;
-    public boolean isManualClose = true;
+    private boolean isManualClose;
+    private boolean isSuccessfullyStarted;
+
     private final SafeHTTPService safeHTTPService;
+    private final SentryHelper sentryHelper;
 
     public InAppTriggerActivity() {
         safeHTTPService = CooeeFactory.getSafeHTTPService();
+        sentryHelper = CooeeFactory.getSentryHelper();
     }
-
 
     public interface InAppListener {
         void inAppNotificationDidClick(HashMap<String, Object> payload);
@@ -94,7 +96,19 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
             return;
         }
 
-        _window = activity.getWindow();
+        lastActiveWindow = activity.getWindow();
+    }
+
+    public void setViewGroupForBlurry(ViewGroup viewGroup) {
+       this.viewGroupForBlurry = viewGroup;
+    }
+
+    /**
+     * Set Bitmap which can be used by {@link Blurry}. Mostly used by Flutter plugin.
+     * @param bitmap
+     */
+    public void setBitmapForBlurry(Bitmap bitmap) {
+        this.bitmapForBlurry = bitmap;
     }
 
     @Override
@@ -104,9 +118,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
 
         closeImageButton = findViewById(R.id.buttonClose);
         closeImageButton.setOnClickListener(view -> {
-            closeBehaviour = "Close Button";
-            isManualClose = true;
-            finish();
+            this.manualCloseTrigger("Close Button", null);
         });
 
         secondParentLayout = findViewById(R.id.secondParentRelative);
@@ -119,7 +131,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
                     .getParcelable(Constants.INTENT_TRIGGER_DATA_KEY);
 
             if (triggerData == null) {
-                finish();
+                throw new Exception("Couldn't render In-App because trigger data is null");
             }
 
             updateFill();
@@ -132,10 +144,21 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
             updateMessage();
             updateTextPosition();
             createActionButtons();
+            setL1Background();
         } catch (Exception e) {
+            sentryHelper.captureException(e);
+            finish();
+        }
+    }
 
-            Log.e(Constants.TAG, "InApp Trigger Failed", e);
-            Sentry.captureException(e);
+    private void manualCloseTrigger(String behaviour, TriggerButtonAction action) {
+        this.isManualClose = true;
+        this.closeBehaviour = behaviour;
+        this.finish();
+
+        if (action != null) {
+            // Invoke the CTA only after this activity is finished
+            nonCloseActionTaken(action);
         }
     }
 
@@ -172,11 +195,11 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
         TextView button = new TextView(this);
         button.setLayoutParams(params);
         button.setText(triggerButton.getText());
-        String color = triggerButton.getColor().isEmpty() ? "#0000FF" : triggerButton.getColor();
-        button.setTextColor(Color.parseColor(color));
+
+        button.setTextColor(triggerButton.getParsedColor());
         button.setPadding(30, 20, 25, 25);
         button.setTypeface(Typeface.DEFAULT_BOLD);
-        button.setElevation(20);
+        //button.setElevation(20);
         button.setTranslationZ(20);
 
         GradientDrawable drawable = new GradientDrawable();
@@ -185,10 +208,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
         button.setBackground(drawable);
 
         button.setOnClickListener(view -> {
-            didClick(triggerButton.getAction());
-            closeBehaviour = "Action Button";
-            isManualClose = true;
-            finish();
+            this.manualCloseTrigger("Action Button", triggerButton.getAction());
         });
 
         button.setOnTouchListener((v, event) -> {
@@ -210,9 +230,9 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
     }
 
     /**
-     * Action/data to be sent to application will be defined here
+     * Action/data to be sent to application i.e. the callback of CTA.
      */
-    private void didClick(TriggerButtonAction action) {
+    private void nonCloseActionTaken(TriggerButtonAction action) {
         InAppListener listener = inAppListenerWeakReference.get();
         if (action.getKv() != null) {
             listener.inAppNotificationDidClick(action.getKv());
@@ -283,10 +303,10 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
             closeImageButton.setVisibility(View.GONE);
             textViewTimer.setVisibility(View.GONE);
             handler = new Handler();
-            runnable = this::finish;
+            runnable = () -> {
+                this.manualCloseTrigger("Auto Closed", null);
+            };
             handler.postDelayed(runnable, autoClose * 1000);
-
-            closeBehaviour = "Auto";
         }
     }
 
@@ -325,14 +345,8 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
      * eg. SOLID_COLOR, IMAGE and BLURRED
      */
     private void updateBackground() {
-        if (_window == null) {
-            finish();
-        }
-
         if (triggerData.getBackground().getType() == TriggerBackground.TriggerType.SOLID_COLOR) {
-            String color = triggerData.getBackground().getColor() == null || triggerData.getBackground().getColor().isEmpty()
-                    ? "#DDDDDD"
-                    : triggerData.getBackground().getColor();
+            String color = triggerData.getBackground().getColor();
 
             int z;
 
@@ -360,7 +374,6 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
                 return;
             }
 
-
             Glide.with(this)
                     .asBitmap()
                     .load(triggerData.getBackground().getImage())
@@ -381,10 +394,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
 
         if (triggerData.getBackground().getAction() != null) {
             secondParentLayout.setOnClickListener(v -> {
-                didClick(triggerData.getBackground().getAction());
-                closeBehaviour = "Trigger Touch";
-                isManualClose = true;
-                finish();
+                this.manualCloseTrigger("Trigger Touch", triggerData.getBackground().getAction());
             });
         }
 
@@ -490,8 +500,6 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
             findViewById(R.id.textViewContent).setVisibility(View.GONE);
 
             setActionLayout();
-
-
         }
 
         secondParentLayout.setLayoutParams(layoutParams);
@@ -518,12 +526,14 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
                 ((RelativeLayout) findViewById(R.id.actionLayout)).addView(imageView);
             }
             secondParentLayout.setOnClickListener(v -> {
-                didClick(triggerData.getSidePopSetting().getAction());
-                closeBehaviour = "Action Button";
-                isManualClose = true;
-                finish();
+                this.manualCloseTrigger("Action Button", triggerData.getSidePopSetting().getAction());
             });
         }
+    }
+
+    private void hideMediaLayout() {
+        RelativeLayout mediaRelativeLayout = findViewById(R.id.mediaRelativeLayout);
+        mediaRelativeLayout.setVisibility(View.GONE);
     }
 
     /**
@@ -532,16 +542,22 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
      */
     private void addMediaView() {
         if (triggerData.getType() == TriggerData.Type.IMAGE) {
-            if (triggerData.getImageUrl() == null || triggerData.getImageUrl().isEmpty()) {
-                finish();
+            if (TextUtils.isEmpty(triggerData.getImageUrl())) {
+                hideMediaLayout();
+                return;
+            } else {
+                createImageView();
             }
-            createImageView();
+
         } else if (triggerData.getType() == TriggerData.Type.VIDEO) {
-            if (triggerData.getVideoUrl() == null || triggerData.getVideoUrl().isEmpty()) {
-                finish();
+            if (TextUtils.isEmpty(triggerData.getVideoUrl())) {
+                hideMediaLayout();
+                return;
+            } else {
+                createVideoView();
             }
-            createVideoView();
         }
+
         CardView mediaFrameLayout = findViewById(R.id.mediaFrameLayout);
         if (triggerData.isShowImageShadow()) {
             if (triggerData.getImageShadow() != null) {
@@ -712,33 +728,26 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
      * eg. TOP_LEFT(default), TOP_RIGHT, DOWN_RIGHT and DOWN_LEFT
      */
     private void closeButtonPosition() {
-
+        TriggerCloseBehaviour closeBehaviour = triggerData.getCloseBehaviour();
         RelativeLayout relativeLayoutClose = findViewById(R.id.relativeLayoutClose);
 
         ProgressBar progressBarClose = findViewById(R.id.progressBarClose);
         progressBarClose.setProgress(100);
-        int progressTextColor = TextUtils.isEmpty(triggerData.getCloseBehaviour().getCountDownTextColor()) ? Color.parseColor("#000000")
-                : Color.parseColor(triggerData.getCloseBehaviour().getCountDownTextColor());
-        textViewTimer.setTextColor(progressTextColor);
+        textViewTimer.setTextColor(closeBehaviour.getParsedCountDownTextColor());
 
+        progressBarClose.getIndeterminateDrawable().setColorFilter(closeBehaviour.getParsedProgressBarColor(), PorterDuff.Mode.SRC_IN);
 
-        int progressColor = TextUtils.isEmpty(triggerData.getCloseBehaviour().getProgressBarColor()) ? Color.parseColor("#4285f4") :
-                Color.parseColor(triggerData.getCloseBehaviour().getProgressBarColor());
-        progressBarClose.getIndeterminateDrawable().setColorFilter(progressColor, PorterDuff.Mode.SRC_IN);
+        closeImageButton.setColorFilter(closeBehaviour.getParsedCloseButtonColor(), android.graphics.PorterDuff.Mode.SRC_IN);
 
-        int closeButtonColor = TextUtils.isEmpty(triggerData.getCloseBehaviour().getCloseButtonColor()) ? Color.parseColor("#000000")
-                : Color.parseColor(triggerData.getCloseBehaviour().getCloseButtonColor());
-        closeImageButton.setColorFilter(closeButtonColor, android.graphics.PorterDuff.Mode.SRC_IN);
-
-        if (triggerData.getCloseBehaviour().shouldShowButton()) {
-            if (!triggerData.getCloseBehaviour().isAuto() || triggerData.getCloseBehaviour().getTimeToClose() != 0) {
+        if (closeBehaviour.shouldShowButton()) {
+            if (!closeBehaviour.isAuto() || closeBehaviour.getTimeToClose() != 0) {
                 closeImageButton.setVisibility(View.INVISIBLE);
                 closeImageButton.setEnabled(false);
-                new CountDownTimer(triggerData.getCloseBehaviour().getTimeToClose() * 1000, 1000) {
+                new CountDownTimer(closeBehaviour.getTimeToClose() * 1000, 1000) {
 
                     public void onTick(long millisUntilFinished) {
                         textViewTimer.setText(String.valueOf((millisUntilFinished / 1000) + 1));
-                        progressBarClose.setProgress(progressBarClose.getProgress() - (100 / triggerData.getCloseBehaviour().getTimeToClose() + 1));
+                        progressBarClose.setProgress(progressBarClose.getProgress() - (100 / closeBehaviour.getTimeToClose() + 1));
                     }
 
                     public void onFinish() {
@@ -759,12 +768,12 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
 
         RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 
-        if (triggerData.getCloseBehaviour().getPosition() == TriggerCloseBehaviour.Position.TOP_RIGHT) {
+        if (closeBehaviour.getPosition() == TriggerCloseBehaviour.Position.TOP_RIGHT) {
             layoutParams.addRule(RelativeLayout.ALIGN_PARENT_END);
-        } else if (triggerData.getCloseBehaviour().getPosition() == TriggerCloseBehaviour.Position.DOWN_RIGHT) {
+        } else if (closeBehaviour.getPosition() == TriggerCloseBehaviour.Position.DOWN_RIGHT) {
             layoutParams.addRule(RelativeLayout.ALIGN_PARENT_END);
             layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-        } else if (triggerData.getCloseBehaviour().getPosition() == TriggerCloseBehaviour.Position.DOWN_LEFT) {
+        } else if (closeBehaviour.getPosition() == TriggerCloseBehaviour.Position.DOWN_LEFT) {
             layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
         }
 
@@ -804,6 +813,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
     protected void onStart() {
         super.onStart();
         startTime = new Date();
+        isSuccessfullyStarted = true;
 
         Event event = new Event("CE Trigger Displayed", triggerData);
         safeHTTPService.sendEvent(event);
@@ -812,19 +822,31 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
     @Override
     protected void onResume() {
         super.onResume();
-        isManualClose = false;
+    }
+
+    private void setL1Background() {
+        ImageView imageView = findViewById(R.id.blurImage);
 
         if (triggerData.getTriggerBackground().getType() == TriggerBehindBackground.Type.BLURRED) {
-            Blurry.with(getApplicationContext())
+            this.setViewGroupForBlurry((ViewGroup) lastActiveWindow.getDecorView());
+
+            Blurry.Composer blurryComposer = Blurry.with(getApplicationContext())
                     .radius(triggerData.getTriggerBackground().getBlurRadius())
                     .color(triggerData.getTriggerBackground().getParsedColor())
-                    .sampling(2)
-                    .animate(500)
-                    .onto((ViewGroup) _window.getDecorView());
+                    .sampling(triggerData.getTriggerBackground().getBlurSampling())
+                    .animate(500);
+
+            if (bitmapForBlurry != null) {
+                blurryComposer
+                        .from(bitmapForBlurry)
+                        .into(findViewById(R.id.blurImage));
+            } else {
+                blurryComposer
+                        .capture(viewGroupForBlurry)
+                        .into(findViewById(R.id.blurImage));
+            }
 
         } else if (triggerData.getTriggerBackground().getType() == TriggerBehindBackground.Type.SOLID_COLOR) {
-            ImageView imageView = findViewById(R.id.blurImage);
-
             imageView.setBackgroundColor(triggerData.getTriggerBackground().getParsedColor());
         }
     }
@@ -832,7 +854,6 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
     @Override
     protected void onPause() {
         super.onPause();
-        Blurry.delete((ViewGroup) _window.getDecorView());
     }
 
     @Override
@@ -841,15 +862,25 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
     }
 
     @Override
+    protected void onDestroy() {
+        super.onDestroy();
+    }
+
+    @Override
     public void onBackPressed() {
     }
 
-    /**+
+    /**
+     * +
      * Send trigger KPIs to the next activity(FeedbackActivity) to be sent back to the server
      */
     @Override
     public void finish() {
         super.finish();
+        if (!isSuccessfullyStarted) {
+            return;
+        }
+
         int duration = (int) ((new Date().getTime() - startTime.getTime()) / 1000);
         int totalWatched = videoDuration * videoSeenCounter + watchedTill;
 

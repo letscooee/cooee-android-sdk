@@ -1,7 +1,9 @@
 package com.letscooee.models;
 
+import android.graphics.Color;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.text.TextUtils;
 
 /**
  * @author Abhishek Taparia
@@ -81,8 +83,9 @@ public class TriggerButton implements Parcelable {
         return background;
     }
 
-    public String getColor() {
-        return color;
+    public int getParsedColor() {
+        String color = TextUtils.isEmpty(this.color) ? "#0000FF" : this.color;
+        return Color.parseColor(color);
     }
 
     public TriggerButtonAction getAction() {

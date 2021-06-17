@@ -15,9 +15,7 @@ import com.letscooee.trigger.CooeeEmptyActivity;
 import com.letscooee.trigger.EngagementTriggerHelper;
 import com.letscooee.trigger.inapp.InAppTriggerActivity;
 import com.letscooee.utils.Constants;
-import com.letscooee.utils.LocalStorageHelper;
 
-import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
 

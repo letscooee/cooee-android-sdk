@@ -10,7 +10,8 @@ import android.text.TextUtils;
  */
 public class TriggerBehindBackground implements Parcelable {
 
-    private final static int DEFAULT_BLUR_RADIUS = 25;
+    private final static int DEFAULT_BLUR_RADIUS = 15;
+    private final static int DEFAULT_BLUR_SAMPLING = 8;
     private final static String DEFAULT_COLOR = "#828282";     // Default colour- Gray
 
     public enum Type {
@@ -19,12 +20,14 @@ public class TriggerBehindBackground implements Parcelable {
 
     private final Type type;
     private final int blur;
+    private final int sampling;
     private final String color;
 
     protected TriggerBehindBackground(Parcel in) {
         blur = in.readInt();
         type = Type.valueOf(in.readString());
         color = in.readString();
+        sampling = in.readInt();
     }
 
     @Override
@@ -32,6 +35,7 @@ public class TriggerBehindBackground implements Parcelable {
         dest.writeInt(blur);
         dest.writeString(type.name());
         dest.writeString(color);
+        dest.writeInt(sampling);
     }
 
     @Override
@@ -62,6 +66,10 @@ public class TriggerBehindBackground implements Parcelable {
 
     public int getBlurRadius() {
         return blur == 0 ? DEFAULT_BLUR_RADIUS : blur;
+    }
+
+    public int getBlurSampling() {
+        return sampling == 0 ? DEFAULT_BLUR_SAMPLING : sampling;
     }
 
     public String getColor() {

@@ -1,7 +1,9 @@
 package com.letscooee.models;
 
+import android.graphics.Color;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.text.TextUtils;
 
 /**
  * @author Abhishek Taparia
@@ -70,16 +72,19 @@ public class TriggerCloseBehaviour implements Parcelable {
         return timeToClose;
     }
 
-    public String getCloseButtonColor() {
-        return closeButtonColor;
+    public int getParsedCloseButtonColor() {
+        String color = TextUtils.isEmpty(closeButtonColor) ? "#000000" : closeButtonColor;
+        return Color.parseColor(color);
     }
 
-    public String getCountDownTextColor() {
-        return countDownTextColor;
+    public int getParsedCountDownTextColor() {
+        String color = TextUtils.isEmpty(countDownTextColor) ? "#000000" : countDownTextColor;
+        return Color.parseColor(color);
     }
 
-    public String getProgressBarColor() {
-        return progressBarColor;
+    public int getParsedProgressBarColor() {
+        String color = TextUtils.isEmpty(progressBarColor) ? "#4285f4" : progressBarColor;
+        return Color.parseColor(color);
     }
 
     public boolean shouldShowButton() {

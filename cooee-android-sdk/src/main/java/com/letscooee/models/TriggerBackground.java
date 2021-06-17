@@ -2,6 +2,7 @@ package com.letscooee.models;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.text.TextUtils;
 
 /**
  * Model class for storing engagement data from server
@@ -69,7 +70,7 @@ public class TriggerBackground implements Parcelable {
     }
 
     public String getColor() {
-        return color;
+        return TextUtils.isEmpty(color) ? "#DDDDDD" : color;
     }
 
     public void setColor(String color) {
