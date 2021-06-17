@@ -4,20 +4,11 @@ import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
 import android.os.Bundle;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-
-import com.letscooee.CooeeFactory;
-import com.letscooee.models.Event;
-import com.letscooee.models.TriggerData;
 import com.letscooee.trigger.CooeeEmptyActivity;
 import com.letscooee.trigger.EngagementTriggerHelper;
 import com.letscooee.trigger.inapp.InAppTriggerActivity;
-import com.letscooee.utils.Constants;
-
-import java.util.Timer;
-import java.util.TimerTask;
 
 /**
  * Register callbacks of different lifecycle of all the activities.
@@ -44,7 +35,7 @@ public class ActivityLifecycleCallback implements Application.ActivityLifecycleC
 
     @Override
     public void onActivityResumed(@NonNull Activity activity) {
-        handleTriggerDataFromActivity(activity);
+        EngagementTriggerHelper.renderInAppFromPushNotification(context, activity);
 
         if (activity instanceof CooeeEmptyActivity) {
             activity.finish();
@@ -65,37 +56,5 @@ public class ActivityLifecycleCallback implements Application.ActivityLifecycleC
 
     @Override
     public void onActivityDestroyed(@NonNull Activity activity) {
-    }
-
-    /**
-     * Handles the creation of triggers
-     *
-     * @param activity
-     */
-    private void handleTriggerDataFromActivity(Activity activity) {
-        Bundle bundle = activity.getIntent().getBundleExtra(Constants.INTENT_BUNDLE_KEY);
-
-        // Should not go ahead if bundle is null
-        if (bundle == null) {
-            return;
-        }
-
-        TriggerData triggerData = bundle.getParcelable(Constants.INTENT_TRIGGER_DATA_KEY);
-
-        // Should not go ahead if triggerData is null or triggerData's id is null
-        if (triggerData == null || triggerData.getId() == null) {
-            return;
-        }
-
-        new Timer().schedule(
-                new TimerTask() {
-                    @Override
-                    public void run() {
-                        EngagementTriggerHelper.renderInAppTrigger(context, triggerData);
-
-                        Event event = new Event("CE Notification Clicked", triggerData);
-                        CooeeFactory.getSafeHTTPService().sendEvent(event);
-                    }
-                }, 6000);
     }
 }
