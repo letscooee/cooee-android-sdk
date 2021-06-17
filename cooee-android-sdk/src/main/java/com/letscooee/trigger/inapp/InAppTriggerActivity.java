@@ -189,7 +189,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
         button.setTextColor(Color.parseColor(color));
         button.setPadding(30, 20, 25, 25);
         button.setTypeface(Typeface.DEFAULT_BOLD);
-        button.setElevation(20);
+        //button.setElevation(20);
         button.setTranslationZ(20);
 
         GradientDrawable drawable = new GradientDrawable();
