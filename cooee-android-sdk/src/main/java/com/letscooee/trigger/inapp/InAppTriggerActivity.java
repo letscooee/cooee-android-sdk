@@ -54,6 +54,8 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
     private static ViewGroup viewGroupForBlurry;
 
     private TriggerData triggerData;
+    private Bitmap bitmapForBlurry;
+
     ImageButton closeImageButton;
     RelativeLayout secondParentLayout;
     TextView textViewTimer;
@@ -815,17 +817,26 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
     }
 
     private void setL1Background() {
+        ImageView imageView = findViewById(R.id.blurImage);
+
         if (triggerData.getTriggerBackground().getType() == TriggerBehindBackground.Type.BLURRED) {
-            Blurry.with(getApplicationContext())
+            Blurry.Composer blurryComposer = Blurry.with(getApplicationContext())
                     .radius(triggerData.getTriggerBackground().getBlurRadius())
                     .color(triggerData.getTriggerBackground().getParsedColor())
                     .sampling(triggerData.getTriggerBackground().getBlurSampling())
-                    .animate(500)
-                    .onto(viewGroupForBlurry);
+                    .animate(500);
+
+            if (bitmapForBlurry != null) {
+                blurryComposer
+                        .from(bitmapForBlurry)
+                        .into(findViewById(R.id.blurImage));
+            } else {
+                blurryComposer
+                        .capture(viewGroupForBlurry)
+                        .into(findViewById(R.id.blurImage));
+            }
 
         } else if (triggerData.getTriggerBackground().getType() == TriggerBehindBackground.Type.SOLID_COLOR) {
-            ImageView imageView = findViewById(R.id.blurImage);
-
             imageView.setBackgroundColor(triggerData.getTriggerBackground().getParsedColor());
         }
     }
@@ -842,7 +853,6 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
 
     @Override
     protected void onDestroy() {
-        Blurry.delete(viewGroupForBlurry);
         super.onDestroy();
     }
 
@@ -884,6 +894,10 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
         }
 
         updateExit();
+    }
+
+    public void setBitmap(Bitmap bitmap) {
+        this.bitmapForBlurry = bitmap;
     }
 
     public TriggerData getTriggerData() {
