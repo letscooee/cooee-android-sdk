@@ -17,9 +17,13 @@ import com.letscooee.trigger.inapp.InAppTriggerActivity;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.LocalStorageHelper;
 import com.letscooee.utils.RuntimeData;
+import com.letscooee.utils.Timer;
 import io.sentry.Sentry;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * A small helper class for any kind of engagement trigger like caching or retriving from local storage.
@@ -29,6 +33,8 @@ import java.util.*;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class EngagementTriggerHelper {
+
+    private static final long TIME_TO_WAIT_MILLIS = 6 * 1000;
 
     /**
      * Store the current active trigger details in local storage for "late engagement tracking".
@@ -154,13 +160,7 @@ public class EngagementTriggerHelper {
             return;
         }
 
-        new Timer().schedule(
-                new TimerTask() {
-                    @Override
-                    public void run() {
-                        renderInAppFromPushNotification(context, triggerData);
-                    }
-                }, 6000);
+        new Timer().schedule(() -> renderInAppFromPushNotification(context, triggerData), TIME_TO_WAIT_MILLIS);
     }
 
     /**
