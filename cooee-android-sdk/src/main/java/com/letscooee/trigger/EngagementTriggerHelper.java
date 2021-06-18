@@ -1,18 +1,23 @@
 package com.letscooee.trigger;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import com.google.gson.Gson;
 import com.letscooee.BuildConfig;
+import com.letscooee.CooeeFactory;
+import com.letscooee.models.Event;
 import com.letscooee.models.TriggerData;
 import com.letscooee.trigger.inapp.InAppTriggerActivity;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.LocalStorageHelper;
 import com.letscooee.utils.RuntimeData;
+import com.letscooee.utils.Timer;
 import io.sentry.Sentry;
 
 import java.util.ArrayList;
@@ -28,6 +33,8 @@ import java.util.Map;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class EngagementTriggerHelper {
+
+    private static final long TIME_TO_WAIT_MILLIS = 6 * 1000;
 
     /**
      * Store the current active trigger details in local storage for "late engagement tracking".
@@ -122,7 +129,7 @@ public class EngagementTriggerHelper {
      * @param triggerData received and parsed trigger data.
      */
     public static void renderInAppTrigger(Context context, TriggerData triggerData) {
-        RuntimeData runtimeData = RuntimeData.getInstance(context);
+        RuntimeData runtimeData = CooeeFactory.getRuntimeData();
         if (runtimeData.isInBackground()) {
             return;
         }
@@ -138,5 +145,42 @@ public class EngagementTriggerHelper {
             Log.d(Constants.TAG, "Couldn't show Engagement Trigger " + ex.toString());
             Sentry.captureException(ex);
         }
+    }
+
+    public static void renderInAppFromPushNotification(Context context, @NonNull Activity activity) {
+        Bundle bundle = activity.getIntent().getBundleExtra(Constants.INTENT_BUNDLE_KEY);
+        // Should not go ahead if bundle is null
+        if (bundle == null) {
+            return;
+        }
+
+        TriggerData triggerData = bundle.getParcelable(Constants.INTENT_TRIGGER_DATA_KEY);
+        // Should not go ahead if triggerData is null or triggerData's id is null
+        if (triggerData == null || triggerData.getId() == null) {
+            return;
+        }
+
+        RuntimeData runtimeData = CooeeFactory.getRuntimeData();
+        // If app is being launched from the "cold state"
+        if (runtimeData.isFirstForeground()) {
+            // Then wait for some time before showing the in-app
+            new Timer().schedule(() -> renderInAppFromPushNotification(context, triggerData), TIME_TO_WAIT_MILLIS);
+        } else {
+            // Otherwise show it instantly
+            renderInAppFromPushNotification(context, triggerData);
+        }
+    }
+
+    /**
+     * Render the In-App trigger when a push notification was clicked.
+     *
+     * @param context     The application's context.
+     * @param triggerData Data to render in-app.
+     */
+    public static void renderInAppFromPushNotification(Context context, TriggerData triggerData) {
+        renderInAppTrigger(context, triggerData);
+
+        Event event = new Event("CE Notification Clicked", triggerData);
+        CooeeFactory.getSafeHTTPService().sendEvent(event);
     }
 }
