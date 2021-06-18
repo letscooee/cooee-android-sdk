@@ -17,6 +17,7 @@ import android.os.CountDownTimer;
 import android.os.Handler;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.*;
 import android.widget.*;
@@ -72,6 +73,11 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
     private boolean isVideoUnmuted;
     private boolean isManualClose;
     private boolean isSuccessfullyStarted;
+    /**
+     * This flag tells that this In-App activity was created for the first time and not when Android re-created the activity
+     * because of certain configuration change like orientation, background <-> foreground.
+     */
+    private boolean isFreshLaunch;
 
     private final SafeHTTPService safeHTTPService;
     private final SentryHelper sentryHelper;
@@ -114,6 +120,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        this.isFreshLaunch = savedInstanceState == null;
         setContentView(R.layout.activity_engagement_trigger);
 
         closeImageButton = findViewById(R.id.buttonClose);
@@ -145,6 +152,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
             updateTextPosition();
             createActionButtons();
             setL1Background();
+            sendTriggerDisplayedEvent();
         } catch (Exception e) {
             sentryHelper.captureException(e);
             finish();
@@ -814,6 +822,12 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
         super.onStart();
         startTime = new Date();
         isSuccessfullyStarted = true;
+    }
+
+    private void sendTriggerDisplayedEvent() {
+        if (!this.isFreshLaunch) {
+            return;
+        }
 
         Event event = new Event("CE Trigger Displayed", triggerData);
         safeHTTPService.sendEvent(event);
