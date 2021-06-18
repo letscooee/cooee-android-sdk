@@ -160,7 +160,15 @@ public class EngagementTriggerHelper {
             return;
         }
 
-        new Timer().schedule(() -> renderInAppFromPushNotification(context, triggerData), TIME_TO_WAIT_MILLIS);
+        RuntimeData runtimeData = CooeeFactory.getRuntimeData();
+        // If app is being launched from the "cold state"
+        if (runtimeData.isFirstForeground()) {
+            // Then wait for some time before showing the in-app
+            new Timer().schedule(() -> renderInAppFromPushNotification(context, triggerData), TIME_TO_WAIT_MILLIS);
+        } else {
+            // Otherwise show it instantly
+            renderInAppFromPushNotification(context, triggerData);
+        }
     }
 
     /**
