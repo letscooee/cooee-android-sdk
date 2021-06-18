@@ -167,7 +167,9 @@ public class EngagementTriggerHelper {
             new Timer().schedule(() -> renderInAppFromPushNotification(context, triggerData), TIME_TO_WAIT_MILLIS);
         } else {
             // Otherwise show it instantly
-            renderInAppFromPushNotification(context, triggerData);
+            // TODO Using 2 seconds delay as "App Foreground" is not called yet that means the below call be treated
+            // as "App in Background" and it will now render the in-app. Need to use Database
+            new Timer().schedule(() -> renderInAppFromPushNotification(context, triggerData), 2 * 1000);
         }
     }
 
