@@ -1,5 +1,32 @@
 # Change Log
 
+## v0.3.0
+
+### Internal Features
+1. Added offline compatibility to handle outgoing events.
+2. Add payload v2 check.
+3. Configurable importance, lights, sound & vibration in push triggers.
+4. Support of colours in glassmorphism.
+
+### Improvements
+
+1. Code refactored from the ground up to make it maintainable and modular.
+2. Handle push notification according to its importance.
+3. Glassmorphism effect now works properly and is configurable.
+4. Introduced `Timer` class to handle background thread.
+5. Removed Flutter specific code.
+6. Sentry related improvements.
+7. Log more KPIs from push notifications.
+8. Updated KPIs in app launches.
+9. Improved In-App display time when app is already in background/foreground.
+
+### Bug Fixes
+
+1. Fixed ability to show push notification without image.
+2. Fixed ability to show In-app trigger without image/video.
+3. Fixed sending duplicate KPIs when the app is going/coming to/from the background/foreground.
+4. Fixed sending FCM token multiple times.
+
 ## v0.2.11
 
 ### Improvements
