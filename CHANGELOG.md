@@ -1,5 +1,24 @@
 # Change Log
 
+## v0.3.0
+
+### Improvements
+
+1. Code Refactored.
+2. Add payload version support
+3. Added offline compatibility to handle outgoing events.
+4. Handle push notification according to it's importance.
+5. Glassmorphism effect is configurable.
+6. Introduced Timer class to handle background thread.
+7. Decoupled flutter specific code.
+
+### Bug Fixes
+
+1. Handling push notification if there is not image.
+2. Handling In-App Trigger if no image or video to display.
+3. Fixed Trigger events while performing foreground and background of activity.
+4. Fixed Firebase Token event to run once on app launch.
+
 ## v0.2.11
 
 ### Improvements
