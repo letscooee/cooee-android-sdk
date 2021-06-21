@@ -105,12 +105,12 @@ As the user launches the app for the first time, Cooee will create a user profil
 ```java
 CooeeSDK sdkInstance = CooeeSDK.getDefaultInstance(context);
 
-Map<String, String> userProperties = new HashMap<>();
+Map<String, Object> userProperties = new HashMap<>();
 userProperties.put("purchased_before", "yes");
 userProperties.put("foo", "bar");
 userProperties.put("product_viewed", 5);
 
-Map<String, String> userData = new HashMap<>();
+Map<String, Object> userData = new HashMap<>();
 userData.put("name", "John Doe");
 userData.put("mobile", "9876543210");
 userData.put("email", "john@example.com");
