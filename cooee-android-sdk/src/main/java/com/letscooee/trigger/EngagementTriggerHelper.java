@@ -164,7 +164,7 @@ public class EngagementTriggerHelper {
         // If app is being launched from the "cold state"
         if (runtimeData.isFirstForeground()) {
             // Then wait for some time before showing the in-app
-            new Timer().schedule(() -> renderInAppFromPushNotification(context, triggerData), TIME_TO_WAIT_MILLIS);
+            new Timer().schedule(() -> renderInAppFromPushNotification(context, triggerData), 1 * 1000);
         } else {
             // Otherwise show it instantly
             // TODO Using 2 seconds delay as "App Foreground" is not called yet that means the below call be treated

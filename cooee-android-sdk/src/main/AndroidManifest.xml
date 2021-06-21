@@ -27,7 +27,7 @@
         <activity
                 android:name=".trigger.inapp.InAppTriggerActivity"
                 android:configChanges="orientation|keyboardHidden"
-                android:theme="@style/AppTheme.PopUp" />
+                android:theme="@style/CooeeTheme.InApp" />
         <activity android:name=".trigger.CooeeEmptyActivity" />
 
         <service

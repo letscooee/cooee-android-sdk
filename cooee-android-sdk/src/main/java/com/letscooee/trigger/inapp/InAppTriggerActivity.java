@@ -7,7 +7,7 @@ import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
-import android.graphics.Typeface;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.media.AudioManager;
@@ -17,7 +17,6 @@ import android.os.CountDownTimer;
 import android.os.Handler;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.*;
 import android.widget.*;
@@ -32,6 +31,8 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.google.android.flexbox.FlexboxLayout;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.card.MaterialCardView;
 import com.letscooee.CooeeFactory;
 import com.letscooee.CooeeSDK;
 import com.letscooee.R;
@@ -39,6 +40,7 @@ import com.letscooee.models.*;
 import com.letscooee.network.SafeHTTPService;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.SentryHelper;
+import com.letscooee.utils.Timer;
 import jp.wasabeef.blurry.Blurry;
 
 import java.lang.ref.WeakReference;
@@ -106,11 +108,12 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
     }
 
     public void setViewGroupForBlurry(ViewGroup viewGroup) {
-       this.viewGroupForBlurry = viewGroup;
+        this.viewGroupForBlurry = viewGroup;
     }
 
     /**
      * Set Bitmap which can be used by {@link Blurry}. Mostly used by Flutter plugin.
+     *
      * @param bitmap
      */
     public void setBitmapForBlurry(Bitmap bitmap) {
@@ -144,7 +147,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
             updateFill();
             addMediaView();
             closeButtonPosition();
-            updateBackground();
+            //updateBackground();
             updateEntrance();
             updateClose();
             updateText();
@@ -200,20 +203,20 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
         FlexboxLayout.LayoutParams params = new FlexboxLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         params.setMargins(15, 15, 15, 15);
 
-        TextView button = new TextView(this);
-        button.setLayoutParams(params);
+        Button button = new MaterialButton(this);
+        //button.setLayoutParams(params);
         button.setText(triggerButton.getText());
 
-        button.setTextColor(triggerButton.getParsedColor());
-        button.setPadding(30, 20, 25, 25);
-        button.setTypeface(Typeface.DEFAULT_BOLD);
+        //button.setTextColor(triggerButton.getParsedColor());
+        //button.setPadding(30, 20, 25, 25);
+        //button.setTypeface(Typeface.DEFAULT_BOLD);
         //button.setElevation(20);
-        button.setTranslationZ(20);
+        //button.setTranslationZ(20);
 
         GradientDrawable drawable = new GradientDrawable();
         drawable.setCornerRadius(triggerButton.getRadius());
         drawable.setColor(Color.parseColor(triggerButton.getBackground()));
-        button.setBackground(drawable);
+        //button.setBackground(drawable);
 
         button.setOnClickListener(view -> {
             this.manualCloseTrigger("Action Button", triggerButton.getAction());
@@ -221,15 +224,15 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
 
         button.setOnTouchListener((v, event) -> {
             if (MotionEvent.ACTION_DOWN == event.getAction()) {
-                drawable.setCornerRadius(triggerButton.getRadius());
+                /*drawable.setCornerRadius(triggerButton.getRadius());
                 drawable.setStroke(1, Color.BLACK);
                 drawable.setColor(ContextCompat.getColor(this, R.color.colorPrimary));
-                button.setBackground(drawable);
+                button.setBackground(drawable);*/
             } else if (MotionEvent.ACTION_UP == event.getAction()) {
-                drawable.setCornerRadius(triggerButton.getRadius());
+                /*drawable.setCornerRadius(triggerButton.getRadius());
                 drawable.setStroke(0, Color.BLACK);
                 drawable.setColor(Color.parseColor(triggerButton.getBackground()));
-                button.setBackground(drawable);
+                button.setBackground(drawable);*/
             }
             return false;
         });
@@ -282,7 +285,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
                 ? getResources().getColor(R.color.colorText)
                 : Color.parseColor(triggerData.getTitle().getColor());
         textView.setTextColor(color);
-        textView.setTextSize(triggerData.getTitle().getSize());
+        //textView.setTextSize(triggerData.getTitle().getSize());
     }
 
     /**
@@ -295,9 +298,9 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
                 ? getResources().getColor(R.color.colorText)
                 : Color.parseColor(triggerData.getMessage().getColor());
         textView.setTextColor(color);
-        textView.setTextSize(triggerData.getMessage().getSize());
+        //textView.setTextSize(triggerData.getMessage().getSize());
         if (TextUtils.isEmpty(triggerData.getMessage().getText()) && TextUtils.isEmpty(triggerData.getTitle().getText())) {
-            findViewById(R.id.textLayout).setVisibility(View.GONE);
+            //findViewById(R.id.textLayout).setVisibility(View.GONE);
         }
     }
 
@@ -398,6 +401,24 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
 
                         }
                     });
+        } else {
+
+            MaterialCardView view = findViewById(R.id.card);
+            //view.setBackgroundColor(Color.parseColor("#73ffffff"));
+            view.setBackgroundColor(Color.parseColor("#00000000"));
+
+            ViewGroup viewGroup = (ViewGroup) ((ViewGroup) this
+                    .findViewById(android.R.id.content)).getChildAt(0);
+
+            Bitmap bitmap = Blurry.with(getApplicationContext())
+                    .radius(triggerData.getTriggerBackground().getBlurRadius())
+                    .color(Color.parseColor("red"))
+                    .sampling(triggerData.getTriggerBackground().getBlurSampling())
+                    //.animate(500)
+                    .capture(findViewById(R.id.blurImage))
+                    .get();
+
+            view.setBackground(new BitmapDrawable(getApplicationContext().getResources(), bitmap));
         }
 
         if (triggerData.getBackground().getAction() != null) {
@@ -582,25 +603,25 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
         RelativeLayout insideMediaFrameLayout = findViewById(R.id.insideMediaFrameLayout);
         RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
 
-        ImageView imageView = new ImageView(InAppTriggerActivity.this);
-        imageView.setLayoutParams(layoutParams);
-        imageView.setScaleType(ImageView.ScaleType.FIT_XY);
+        ImageView imageView = findViewById(R.id.imageView);
+        //imageView.setLayoutParams(layoutParams);
+        //imageView.setScaleType(ImageView.ScaleType.FIT_XY);
 
         Glide.with(getApplicationContext()).load(triggerData.getImageUrl()).into(new CustomTarget<Drawable>() {
             @Override
             public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
                 if (triggerData.getFill() != TriggerData.Fill.HALF_INTERSTITIAL) {
-                    if (resource.getIntrinsicHeight() > resource.getIntrinsicWidth()) {
+                    /*if (resource.getIntrinsicHeight() > resource.getIntrinsicWidth()) {
                         imageView.setScaleType(ImageView.ScaleType.FIT_XY);
                     } else {
                         imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                    }
+                    }*/
                 } else {
-                    if (resource.getIntrinsicHeight() > resource.getIntrinsicWidth()) {
+                    /*if (resource.getIntrinsicHeight() > resource.getIntrinsicWidth()) {
                         imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
                     } else {
                         imageView.setScaleType(ImageView.ScaleType.FIT_XY);
-                    }
+                    }*/
                 }
                 imageView.setImageDrawable(resource);
             }
@@ -611,19 +632,19 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
             }
         });
 
-        ImageView layeredImageView = new ImageView(InAppTriggerActivity.this);
+        /*ImageView layeredImageView = new ImageView(InAppTriggerActivity.this);
         layeredImageView.setLayoutParams(layoutParams);
         layeredImageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
         if (triggerData.getFill() == TriggerData.Fill.SIDE_POP) {
             layeredImageView.setScaleType(ImageView.ScaleType.FIT_XY);
-        }
+        }*/
 
-        Glide.with(getApplicationContext()).load(triggerData.getImageUrl()).into(imageView);
-        Glide.with(getApplicationContext()).load(triggerData.getLayeredImageUrl()).into(layeredImageView);
+        //Glide.with(getApplicationContext()).load(triggerData.getImageUrl()).into(imageView);
+        //Glide.with(getApplicationContext()).load(triggerData.getLayeredImageUrl()).into(layeredImageView);
 
-        layeredImageView.setLayoutParams(layoutParams);
+        /*layeredImageView.setLayoutParams(layoutParams);
         insideMediaFrameLayout.addView(imageView);
-        insideMediaFrameLayout.addView(layeredImageView);
+        insideMediaFrameLayout.addView(layeredImageView);*/
     }
 
     private void createVideoView() {
@@ -822,6 +843,13 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
         super.onStart();
         startTime = new Date();
         isSuccessfullyStarted = true;
+
+        try {
+            new Timer().schedule(this::updateBackground, 2 * 1000);
+        } catch (Exception e) {
+            sentryHelper.captureException(e);
+            finish();
+        }
     }
 
     private void sendTriggerDisplayedEvent() {
