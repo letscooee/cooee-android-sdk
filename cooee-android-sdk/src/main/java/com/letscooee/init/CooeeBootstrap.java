@@ -5,6 +5,8 @@ import android.content.Context;
 import android.util.Log;
 import androidx.annotation.RestrictTo;
 import androidx.lifecycle.ProcessLifecycleOwner;
+
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.letscooee.BuildConfig;
 import com.letscooee.CooeeFactory;
@@ -58,6 +60,7 @@ public class CooeeBootstrap {
     }
 
     private void getAndUpdateFirebaseToken() {
+        FirebaseApp.initializeApp(context);
         FirebaseMessaging.getInstance().getToken().addOnSuccessListener(token -> {
             if (BuildConfig.DEBUG) {
                 Log.d(Constants.TAG, "FCM token fetched- " + token);
