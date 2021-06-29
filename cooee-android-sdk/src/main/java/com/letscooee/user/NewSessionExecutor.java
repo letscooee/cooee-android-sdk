@@ -13,6 +13,8 @@ import com.letscooee.models.Event;
 import com.letscooee.network.SafeHTTPService;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.LocalStorageHelper;
+import com.unity3d.player.UnityPlayerActivity;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Date;
@@ -76,6 +78,7 @@ public class NewSessionExecutor extends ContextAware {
         Map<String, Object> userProperties = new HashMap<>();
         userProperties.put("CE First Launch Time", new Date());
         userProperties.put("CE Installed Time", defaultUserPropertiesCollector.getInstalledTime());
+        userProperties.put("CE AR Supported", UnityPlayerActivity.isARSupported(context));
         sendDefaultUserProperties(userProperties);
 
         Event event = new Event("CE App Installed", getCommonEventProperties());
