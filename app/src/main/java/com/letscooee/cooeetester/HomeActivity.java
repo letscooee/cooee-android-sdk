@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import com.letscooee.CooeeSDK;
 import com.letscooee.cooeetester.databinding.ActivityHomeBinding;
@@ -59,5 +61,9 @@ public class HomeActivity extends AppCompatActivity implements InAppNotification
         for (String key : hashMap.keySet()) {
             Log.d("Type ::", key + " -> " + hashMap.get(key).getClass().getName());
         }
+        new AlertDialog.Builder(this).setTitle("CTA Response")
+                .setMessage(hashMap.toString())
+                .setPositiveButton("close", (dialog, which) -> dialog.dismiss())
+                .show();
     }
 }
