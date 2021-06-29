@@ -14,6 +14,7 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.RemoteViews;
@@ -25,14 +26,20 @@ import androidx.core.app.NotificationCompat;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.letscooee.CooeeFactory;
+import com.letscooee.CooeeSDK;
 import com.letscooee.R;
+import com.letscooee.ar.ARHelper;
 import com.letscooee.models.CarouselData;
 import com.letscooee.models.Event;
 import com.letscooee.models.TriggerData;
 import com.letscooee.utils.Constants;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import io.sentry.Sentry;
 
@@ -50,8 +57,15 @@ public class OnPushNotificationButtonClick extends BroadcastReceiver {
         String intentType = intent.getStringExtra("intentType");
 
         try {
-            if (intentType.equals("moveCarousel"))
+            if (intentType.equals("moveCarousel")) {
                 processCarouselData(context, intent);
+            } else if (intentType.equals("arResponse")) {
+
+                WeakReference<ARHelper.ARResponseListener> listener = new WeakReference<>(CooeeSDK.getDefaultInstance(context));
+                HashMap<String, Object> action = new Gson().fromJson(intent.getStringExtra("arData"), new TypeToken<HashMap<String, Object>>() {
+                }.getType());
+                new Handler().postAtTime(() -> listener.get().onARResponse(action), 3000);
+            }
         } catch (Exception e) {
             CooeeFactory.getSentryHelper().captureException(e);
         }

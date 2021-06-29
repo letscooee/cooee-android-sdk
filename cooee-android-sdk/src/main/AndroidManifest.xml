@@ -44,7 +44,12 @@
                 android:exported="false"
                 android:permission="android.permission.BIND_JOB_SERVICE" />
 
-        <receiver android:name=".brodcast.OnPushNotificationButtonClick" />
+        <receiver android:name=".brodcast.OnPushNotificationButtonClick" android:exported="true"
+            android:enabled="true" >
+            <intent-filter>
+                <action android:name="com.letscooee.arResponse" />
+            </intent-filter>
+        </receiver>
         <receiver android:name=".brodcast.CooeeJobSchedulerBroadcast">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
