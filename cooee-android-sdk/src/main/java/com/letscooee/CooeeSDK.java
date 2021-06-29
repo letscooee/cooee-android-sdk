@@ -1,6 +1,8 @@
 package com.letscooee;
 
 import android.content.Context;
+
+import com.letscooee.ar.ARHelper;
 import com.letscooee.models.Event;
 import com.letscooee.network.SafeHTTPService;
 import com.letscooee.retrofit.UserAuthService;
@@ -22,7 +24,7 @@ import java.util.Map;
  *
  * @author Abhishek Taparia
  */
-public class CooeeSDK implements InAppTriggerActivity.InAppListener {
+public class CooeeSDK implements InAppTriggerActivity.InAppListener, ARHelper.ARResponseListener {
 
     private static final String SYSTEM_DATA_PREFIX = "CE ";
 
@@ -171,6 +173,13 @@ public class CooeeSDK implements InAppTriggerActivity.InAppListener {
 
     @Override
     public void inAppNotificationDidClick(HashMap<String, Object> payload) {
+        if (payload != null) {
+            inAppNotificationClickListener.get().onInAppButtonClick(payload);
+        }
+    }
+
+    @Override
+    public void onARResponse(HashMap<String, Object> payload) {
         if (payload != null) {
             inAppNotificationClickListener.get().onInAppButtonClick(payload);
         }
