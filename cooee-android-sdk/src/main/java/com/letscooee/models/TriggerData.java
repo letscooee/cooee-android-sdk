@@ -3,7 +3,7 @@ package com.letscooee.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import java.util.Map;
+import com.letscooee.models.ar.ARData;
 
 /**
  * Model class for storing engagement data from server
@@ -17,7 +17,7 @@ public class TriggerData implements Parcelable {
     }
 
     public enum Fill {
-        COVER, INTERSTITIAL, HALF_INTERSTITIAL, HEADER, FOOTER, SIDE_POP
+        COVER, INTERSTITIAL, HALF_INTERSTITIAL, HEADER, FOOTER, SIDE_POP, AR
     }
 
     public enum EntranceAnimation {
@@ -59,6 +59,7 @@ public class TriggerData implements Parcelable {
     private boolean showImageShadow;
     protected String imageUrl1;
     private int carouselOffset = 1;
+    private ARData arData;
 
     public SidePopSetting getSidePopSetting() {
         return sidePopSetting;
@@ -111,6 +112,7 @@ public class TriggerData implements Parcelable {
         showImageShadow = in.readByte() != 0;
         imageUrl1 = in.readString();
         carouselOffset = in.readInt();
+        arData = in.readParcelable(ARData.class.getClassLoader());
     }
 
     @Override
@@ -138,6 +140,7 @@ public class TriggerData implements Parcelable {
         dest.writeByte((byte) (showImageShadow ? 1 : 0));
         dest.writeString(imageUrl1);
         dest.writeInt(carouselOffset);
+        dest.writeParcelable(arData, flags);
     }
 
     @Override
@@ -264,6 +267,10 @@ public class TriggerData implements Parcelable {
 
     public boolean isShowImageShadow() {
         return showImageShadow;
+    }
+
+    public ARData getArData() {
+        return arData;
     }
 
     @Override
