@@ -23,6 +23,7 @@ import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import com.letscooee.CooeeFactory;
 import com.letscooee.R;
+import com.letscooee.ar.ARHelper;
 import com.letscooee.brodcast.OnPushNotificationButtonClick;
 import com.letscooee.loader.http.RemoteImageLoader;
 import com.letscooee.models.CarouselData;
@@ -122,6 +123,8 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
             } else {
                 showNotification((PushNotificationTrigger) triggerData);
             }
+        } else if (triggerData.getFill() == TriggerData.Fill.AR) {
+            ARHelper.showAR(getApplicationContext(), triggerData);
         } else {
             EngagementTriggerHelper.renderInAppTrigger(getApplicationContext(), triggerData);
         }
