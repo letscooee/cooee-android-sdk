@@ -10,6 +10,7 @@ import androidx.annotation.RestrictTo;
 
 import com.google.gson.Gson;
 import com.letscooee.CooeeFactory;
+import com.letscooee.models.Event;
 import com.letscooee.models.TriggerData;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.RuntimeData;
@@ -39,7 +40,7 @@ public class ARHelper {
             return;
         }
 
-        if (!UnityPlayerActivity.isARSupported(context)){
+        if (!UnityPlayerActivity.isARSupported(context)) {
             Log.d(Constants.TAG, "Phone does not support AR");
             return;
         }
@@ -47,13 +48,13 @@ public class ARHelper {
         String arData = new Gson().toJson(triggerData.getArData());
         Intent intent = new Intent(context, UnityPlayerActivity.class);
         intent.putExtra("arguments", arData);
-        intent.putExtra("app_package",CooeeFactory.getAppInfo().getPackageName());
+        intent.putExtra("app_package", CooeeFactory.getAppInfo().getPackageName());
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
         try {
             context.startActivity(intent);
-
-
+            Event event = new Event("CE AR Displayed", triggerData);
+            CooeeFactory.getSafeHTTPService().sendEvent(event);
         } catch (ActivityNotFoundException exception) {
             CooeeFactory.getSentryHelper().captureException(exception);
         }
@@ -61,7 +62,7 @@ public class ARHelper {
     }
 
 
-    public interface ARResponseListener{
+    public interface ARResponseListener {
         void onARResponse(HashMap<String, Object> payload);
     }
 

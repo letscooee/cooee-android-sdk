@@ -40,6 +40,7 @@ import com.letscooee.utils.Constants;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 import io.sentry.Sentry;
 
@@ -65,6 +66,10 @@ public class OnPushNotificationButtonClick extends BroadcastReceiver {
                 HashMap<String, Object> action = new Gson().fromJson(intent.getStringExtra("arData"), new TypeToken<HashMap<String, Object>>() {
                 }.getType());
                 new Handler().postAtTime(() -> listener.get().onARResponse(action), 3000);
+
+                Map<String, Object> userProperty = (Map<String, Object>) action.get("userProperty");
+                Event event = new Event("CE AR Closed", userProperty);
+                CooeeFactory.getSafeHTTPService().sendEvent(event);
             }
         } catch (Exception e) {
             CooeeFactory.getSentryHelper().captureException(e);
