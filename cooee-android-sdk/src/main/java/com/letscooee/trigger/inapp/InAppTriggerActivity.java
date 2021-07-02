@@ -31,6 +31,7 @@ import androidx.core.graphics.drawable.RoundedBitmapDrawable;
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.google.android.flexbox.FlexboxLayout;
@@ -39,6 +40,7 @@ import com.letscooee.CooeeSDK;
 import com.letscooee.R;
 import com.letscooee.models.*;
 import com.letscooee.network.SafeHTTPService;
+import com.letscooee.trigger.inapp.ui.CooeeImageView;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.SentryHelper;
 
@@ -603,17 +605,17 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
             }
         });
 
-        ImageView layeredImageView = new ImageView(InAppTriggerActivity.this);
-        layeredImageView.setLayoutParams(layoutParams);
+        ImageView layeredImageView =  CooeeImageView.generateImageView(InAppTriggerActivity.this,triggerData.getLayeredImage());
+        /*layeredImageView.setLayoutParams(layoutParams);
         layeredImageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
         if (triggerData.getFill() == TriggerData.Fill.SIDE_POP) {
             layeredImageView.setScaleType(ImageView.ScaleType.FIT_XY);
-        }
+        }*/
 
         Glide.with(getApplicationContext()).load(triggerData.getImageUrl()).into(imageView);
         Glide.with(getApplicationContext()).load(triggerData.getLayeredImageUrl()).into(layeredImageView);
 
-        layeredImageView.setLayoutParams(layoutParams);
+        //layeredImageView.setLayoutParams(layoutParams);
         insideMediaFrameLayout.addView(imageView);
         insideMediaFrameLayout.addView(layeredImageView);
     }
@@ -874,6 +876,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
 
     @Override
     public void onBackPressed() {
+        super.onBackPressed();
     }
 
     /**

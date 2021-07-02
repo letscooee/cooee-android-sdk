@@ -49,6 +49,16 @@ import java.util.HashMap;
  */
 public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
 
+    private Context context;
+
+    public CooeeFirebaseMessagingService() {
+
+    }
+
+    public CooeeFirebaseMessagingService(Context context) {
+        this.context = context;
+    }
+
     @Override
     public void onNewToken(@NonNull String token) {
         sendTokenToServer(token);
@@ -57,6 +67,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
     @Override
     public void onMessageReceived(@NonNull RemoteMessage remoteMessage) {
         super.onMessageReceived(remoteMessage);
+        context=getApplicationContext();
         if (remoteMessage.getData().size() == 0) {
             return;
         }
@@ -68,14 +79,14 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
 
     private RemoteImageLoader imageLoader;
 
-    private void handleTriggerData(String rawTriggerData) {
+    public void handleTriggerData(String rawTriggerData) {
         if (TextUtils.isEmpty(rawTriggerData)) {
             Log.d(Constants.TAG, "No triggerData found on the notification payload");
             return;
         }
 
         if (imageLoader == null) {
-            imageLoader = new RemoteImageLoader(getApplicationContext());
+            imageLoader = new RemoteImageLoader(context);
         }
 
         TriggerData triggerData;
@@ -111,7 +122,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
             return;
         }
 
-        EngagementTriggerHelper.storeActiveTriggerDetails(getApplicationContext(), triggerData.getId(), triggerData.getDuration());
+        EngagementTriggerHelper.storeActiveTriggerDetails(context, triggerData.getId(), triggerData.getDuration());
 
         if (triggerData instanceof PushNotificationTrigger) {
             Event event = new Event("CE Notification Received", triggerData);
@@ -123,7 +134,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
                 showNotification((PushNotificationTrigger) triggerData);
             }
         } else {
-            EngagementTriggerHelper.renderInAppTrigger(getApplicationContext(), triggerData);
+            EngagementTriggerHelper.renderInAppTrigger(context, triggerData);
         }
     }
 
@@ -151,7 +162,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
             return;
         }
 
-        Context context = getApplicationContext();
+        //Context context = getApplicationContext();
         NotificationRenderer renderer = new CarouselNotificationRenderer(context, triggerData);
 
         RemoteViews views = renderer.getBigContentView();
@@ -194,7 +205,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
             CarouselData data = triggerData.getCarouselData()[i];
 
             PackageManager packageManager = getPackageManager();
-            Intent appLaunchIntent = packageManager.getLaunchIntentForPackage(getApplicationContext().getPackageName());
+            Intent appLaunchIntent = packageManager.getLaunchIntentForPackage(context.getPackageName());
             appLaunchIntent.putExtra("carouselData", data);
 
             TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
@@ -228,7 +239,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
      * @param triggerData received from data payload
      */
     private void showNotification(PushNotificationTrigger triggerData) {
-        Context context = getApplicationContext();
+        //Context context = getApplicationContext();
         NotificationRenderer renderer = new SimpleNotificationRenderer(context, triggerData);
         NotificationCompat.Builder notificationBuilder = renderer.getBuilder();
 
@@ -288,12 +299,12 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
             }
 
             if (triggerButton.isShowInPN()) {
-                Intent actionButtonIntent = new Intent(getApplicationContext(), PushNotificationIntentService.class);
+                Intent actionButtonIntent = new Intent(context, PushNotificationIntentService.class);
                 actionButtonIntent.setAction(Constants.ACTION_PUSH_BUTTON_CLICK);
                 actionButtonIntent.putExtra(Constants.INTENT_TRIGGER_DATA_KEY, triggerData);
                 actionButtonIntent.putExtra("notificationId", notificationId);
                 PendingIntent pendingIntent = PendingIntent.getService(
-                        getApplicationContext(),
+                        context,
                         requestCode++,
                         actionButtonIntent,
                         PendingIntent.FLAG_ONE_SHOT);

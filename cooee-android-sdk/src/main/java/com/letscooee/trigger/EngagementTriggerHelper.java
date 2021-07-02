@@ -31,7 +31,7 @@ import java.util.Map;
  * @author Shashank Agrawal
  * @version 0.3.0
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
+//@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class EngagementTriggerHelper {
 
     private static final long TIME_TO_WAIT_MILLIS = 6 * 1000;
