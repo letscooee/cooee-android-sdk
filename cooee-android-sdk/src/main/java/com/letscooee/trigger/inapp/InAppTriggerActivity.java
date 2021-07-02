@@ -592,7 +592,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
         Glide.with(getApplicationContext()).load(triggerData.getImageUrl()).into(new CustomTarget<Drawable>() {
             @Override
             public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
-                imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
                 imageView.setImageDrawable(resource);
             }
 
