@@ -21,6 +21,7 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.view.*;
 import android.widget.*;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -28,6 +29,7 @@ import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.RoundedBitmapDrawable;
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
+
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
@@ -39,6 +41,7 @@ import com.letscooee.models.*;
 import com.letscooee.network.SafeHTTPService;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.SentryHelper;
+
 import jp.wasabeef.blurry.Blurry;
 
 import java.lang.ref.WeakReference;
@@ -106,11 +109,12 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
     }
 
     public void setViewGroupForBlurry(ViewGroup viewGroup) {
-       this.viewGroupForBlurry = viewGroup;
+        this.viewGroupForBlurry = viewGroup;
     }
 
     /**
      * Set Bitmap which can be used by {@link Blurry}. Mostly used by Flutter plugin.
+     *
      * @param bitmap
      */
     public void setBitmapForBlurry(Bitmap bitmap) {
@@ -584,24 +588,11 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
 
         ImageView imageView = new ImageView(InAppTriggerActivity.this);
         imageView.setLayoutParams(layoutParams);
-        imageView.setScaleType(ImageView.ScaleType.FIT_XY);
 
         Glide.with(getApplicationContext()).load(triggerData.getImageUrl()).into(new CustomTarget<Drawable>() {
             @Override
             public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
-                if (triggerData.getFill() != TriggerData.Fill.HALF_INTERSTITIAL) {
-                    if (resource.getIntrinsicHeight() > resource.getIntrinsicWidth()) {
-                        imageView.setScaleType(ImageView.ScaleType.FIT_XY);
-                    } else {
-                        imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                    }
-                } else {
-                    if (resource.getIntrinsicHeight() > resource.getIntrinsicWidth()) {
-                        imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                    } else {
-                        imageView.setScaleType(ImageView.ScaleType.FIT_XY);
-                    }
-                }
+                imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
                 imageView.setImageDrawable(resource);
             }
 
