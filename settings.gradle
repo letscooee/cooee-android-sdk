@@ -2,4 +2,4 @@ include ':cooee-android-sdk'
 include ':app'
 rootProject.name = "Cooee SDK"
 include ':unityLibrary'
-project(':unityLibrary').projectDir=new File('../android-otf-library/unityLibrary')
+project(':unityLibrary').projectDir=new File('../unityLibrary')
