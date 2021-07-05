@@ -37,6 +37,7 @@ import com.letscooee.CooeeSDK;
 import com.letscooee.R;
 import com.letscooee.models.*;
 import com.letscooee.network.SafeHTTPService;
+import com.letscooee.trigger.inapp.ui.CooeeImageView;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.SentryHelper;
 import jp.wasabeef.blurry.Blurry;
@@ -106,11 +107,12 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
     }
 
     public void setViewGroupForBlurry(ViewGroup viewGroup) {
-       this.viewGroupForBlurry = viewGroup;
+        this.viewGroupForBlurry = viewGroup;
     }
 
     /**
      * Set Bitmap which can be used by {@link Blurry}. Mostly used by Flutter plugin.
+     *
      * @param bitmap
      */
     public void setBitmapForBlurry(Bitmap bitmap) {
@@ -593,24 +595,12 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
 
         ImageView imageView = new ImageView(InAppTriggerActivity.this);
         imageView.setLayoutParams(layoutParams);
-        imageView.setScaleType(ImageView.ScaleType.FIT_XY);
 
         Glide.with(getApplicationContext()).load(triggerData.getImageUrl()).into(new CustomTarget<Drawable>() {
             @Override
             public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
-                if (triggerData.getFill() != TriggerData.Fill.HALF_INTERSTITIAL) {
-                    if (resource.getIntrinsicHeight() > resource.getIntrinsicWidth()) {
-                        imageView.setScaleType(ImageView.ScaleType.FIT_XY);
-                    } else {
-                        imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                    }
-                } else {
-                    if (resource.getIntrinsicHeight() > resource.getIntrinsicWidth()) {
-                        imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                    } else {
-                        imageView.setScaleType(ImageView.ScaleType.FIT_XY);
-                    }
-                }
+                // https://stackoverflow.com/a/19286130
+                imageView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
                 imageView.setImageDrawable(resource);
             }
 
@@ -620,17 +610,17 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
             }
         });
 
-        ImageView layeredImageView = new ImageView(InAppTriggerActivity.this);
-        layeredImageView.setLayoutParams(layoutParams);
+        ImageView layeredImageView = CooeeImageView.generateImageView(InAppTriggerActivity.this, triggerData.getLayeredImage());
+        /*layeredImageView.setLayoutParams(layoutParams);
         layeredImageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
         if (triggerData.getFill() == TriggerData.Fill.SIDE_POP) {
             layeredImageView.setScaleType(ImageView.ScaleType.FIT_XY);
-        }
+        }*/
 
         Glide.with(getApplicationContext()).load(triggerData.getImageUrl()).into(imageView);
         Glide.with(getApplicationContext()).load(triggerData.getLayeredImageUrl()).into(layeredImageView);
 
-        layeredImageView.setLayoutParams(layoutParams);
+        //layeredImageView.setLayoutParams(layoutParams);
         insideMediaFrameLayout.addView(imageView);
         insideMediaFrameLayout.addView(layeredImageView);
     }
@@ -891,6 +881,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
 
     @Override
     public void onBackPressed() {
+        super.onBackPressed();
     }
 
     /**
