@@ -3,13 +3,15 @@ package com.letscooee.models.ar;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.letscooee.models.TriggerButtonAction;
+
 public class ARData implements Parcelable {
 
     private String triggerName;
     private String customerName;
     private String greeting;
     private String offer;
-    private String action;
+    private TriggerButtonAction action;
 
 
     protected ARData(Parcel in) {
@@ -17,7 +19,7 @@ public class ARData implements Parcelable {
         customerName = in.readString();
         greeting = in.readString();
         offer = in.readString();
-        action = in.readString();
+        action = in.readParcelable(TriggerButtonAction.class.getClassLoader());
     }
 
     public static final Creator<ARData> CREATOR = new Creator<ARData>() {
@@ -43,7 +45,7 @@ public class ARData implements Parcelable {
         dest.writeString(customerName);
         dest.writeString(greeting);
         dest.writeString(offer);
-        dest.writeString(action);
+        dest.writeParcelable(action, flags);
     }
 
     public String getTriggerName() {
@@ -62,7 +64,7 @@ public class ARData implements Parcelable {
         return offer;
     }
 
-    public String getAction() {
+    public TriggerButtonAction getAction() {
         return action;
     }
 
