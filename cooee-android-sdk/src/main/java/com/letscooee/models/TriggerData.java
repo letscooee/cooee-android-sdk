@@ -60,6 +60,7 @@ public class TriggerData implements Parcelable {
     protected String imageUrl1;
     private int carouselOffset = 1;
     private ARData arData;
+    private DataBlock layeredImage;
 
     public SidePopSetting getSidePopSetting() {
         return sidePopSetting;
@@ -113,6 +114,7 @@ public class TriggerData implements Parcelable {
         imageUrl1 = in.readString();
         carouselOffset = in.readInt();
         arData = in.readParcelable(ARData.class.getClassLoader());
+        layeredImage=in.readParcelable(DataBlock.class.getClassLoader());
     }
 
     @Override
@@ -141,6 +143,7 @@ public class TriggerData implements Parcelable {
         dest.writeString(imageUrl1);
         dest.writeInt(carouselOffset);
         dest.writeParcelable(arData, flags);
+        dest.writeParcelable(layeredImage,flags);
     }
 
     @Override
@@ -271,6 +274,10 @@ public class TriggerData implements Parcelable {
 
     public ARData getArData() {
         return arData;
+    }
+
+    public DataBlock getLayeredImage() {
+        return layeredImage;
     }
 
     @Override
