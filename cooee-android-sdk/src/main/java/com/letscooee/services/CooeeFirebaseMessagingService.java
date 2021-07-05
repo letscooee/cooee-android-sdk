@@ -80,7 +80,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
 
     private RemoteImageLoader imageLoader;
 
-    private void handleTriggerData(String rawTriggerData) {
+    public void handleTriggerData(String rawTriggerData) {
         if (TextUtils.isEmpty(rawTriggerData)) {
             Log.d(Constants.TAG, "No triggerData found on the notification payload");
             return;
