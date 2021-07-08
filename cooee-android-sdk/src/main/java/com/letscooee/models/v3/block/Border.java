@@ -7,13 +7,12 @@ public class Border implements Parcelable {
 
     // TODO: 07/07/21 Discus for dash type stroke
     protected Border(Parcel in) {
-        radius = in.readInt();
-        width = in.readInt();
-        dashWidth = in.readInt();
-        dashGap = in.readInt();
+        radius = in.readString();
+        width = in.readString();
+        dashWidth = in.readString();
+        dashGap = in.readString();
         color = in.readParcelable(Color.class.getClassLoader());
         style = Style.valueOf(in.readString());
-        unit = Unit.valueOf(in.readString());
     }
 
     public static final Creator<Border> CREATOR = new Creator<Border>() {
@@ -35,44 +34,23 @@ public class Border implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeInt(radius);
-        dest.writeInt(width);
-        dest.writeInt(dashWidth);
-        dest.writeInt(dashGap);
+        dest.writeString(radius);
+        dest.writeString(width);
+        dest.writeString(dashWidth);
+        dest.writeString(dashGap);
         dest.writeParcelable(color, flags);
         dest.writeString(style.name());
-        dest.writeString(unit.name());
     }
 
     public enum Style {SOLID, DASH}
 
-    private int radius;
-    private Unit unit;
-    private int width;
-    private int dashWidth;
-    private int dashGap;
+    private String radius;
+    private String width;
+    private String dashWidth;
+    private String dashGap;
     private Color color;
     private Style style;
 
-    public int getRadius() {
-        return radius;
-    }
-
-    public Unit getUnit() {
-        return unit;
-    }
-
-    public int getWidth() {
-        return width;
-    }
-
-    public int getDashWidth() {
-        return dashWidth;
-    }
-
-    public int getDashGap() {
-        return dashGap;
-    }
 
     public Color getColor() {
         return color;
@@ -80,5 +58,21 @@ public class Border implements Parcelable {
 
     public Style getStyle() {
         return style;
+    }
+
+    public String getRadius() {
+        return radius;
+    }
+
+    public String getWidth() {
+        return width;
+    }
+
+    public String getDashWidth() {
+        return dashWidth;
+    }
+
+    public String getDashGap() {
+        return dashGap;
     }
 }

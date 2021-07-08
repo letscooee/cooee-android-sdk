@@ -5,31 +5,31 @@ import android.os.Parcelable;
 
 public class Spacing implements Parcelable {
 
-    private Unit unit;
-    private int padding;
-    private int paddingLeft;
-    private int paddingRight;
-    private int paddingTop;
-    private int paddingBottom;
-    private int margin;
-    private int marginLeft;
-    private int marginRight;
-    private int marginTop;
-    private int marginBottom;
+
+    private String padding;
+    private String paddingLeft;
+    private String paddingRight;
+    private String paddingTop;
+    private String paddingBottom;
+    private String margin;
+    private String marginLeft;
+    private String marginRight;
+    private String marginTop;
+    private String marginBottom;
 
     protected Spacing(Parcel in) {
-        padding = in.readInt();
-        paddingLeft = in.readInt();
-        paddingRight = in.readInt();
-        paddingTop = in.readInt();
-        paddingBottom = in.readInt();
-        margin = in.readInt();
-        marginLeft = in.readInt();
-        marginRight = in.readInt();
-        marginTop = in.readInt();
-        marginBottom = in.readInt();
-        unit = Unit.valueOf(in.readString());
+        padding = in.readString();
+        paddingLeft = in.readString();
+        paddingRight = in.readString();
+        paddingTop = in.readString();
+        paddingBottom = in.readString();
+        margin = in.readString();
+        marginLeft = in.readString();
+        marginRight = in.readString();
+        marginTop = in.readString();
+        marginBottom = in.readString();
     }
+
 
     public static final Creator<Spacing> CREATOR = new Creator<Spacing>() {
         @Override
@@ -43,47 +43,43 @@ public class Spacing implements Parcelable {
         }
     };
 
-    public Unit getUnit() {
-        return unit;
-    }
-
-    public int getPadding() {
+    public String getPadding() {
         return padding;
     }
 
-    public int getPaddingLeft() {
+    public String getPaddingLeft() {
         return paddingLeft;
     }
 
-    public int getPaddingRight() {
+    public String getPaddingRight() {
         return paddingRight;
     }
 
-    public int getPaddingTop() {
+    public String getPaddingTop() {
         return paddingTop;
     }
 
-    public int getPaddingBottom() {
+    public String getPaddingBottom() {
         return paddingBottom;
     }
 
-    public int getMargin() {
+    public String getMargin() {
         return margin;
     }
 
-    public int getMarginLeft() {
+    public String getMarginLeft() {
         return marginLeft;
     }
 
-    public int getMarginRight() {
+    public String getMarginRight() {
         return marginRight;
     }
 
-    public int getMarginTop() {
+    public String getMarginTop() {
         return marginTop;
     }
 
-    public int getMarginBottom() {
+    public String getMarginBottom() {
         return marginBottom;
     }
 
@@ -94,16 +90,18 @@ public class Spacing implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeInt(padding);
-        dest.writeInt(paddingLeft);
-        dest.writeInt(paddingRight);
-        dest.writeInt(paddingTop);
-        dest.writeInt(paddingBottom);
-        dest.writeInt(margin);
-        dest.writeInt(marginLeft);
-        dest.writeInt(marginRight);
-        dest.writeInt(marginTop);
-        dest.writeInt(marginBottom);
-        dest.writeString(unit.name());
+
+        dest.writeString(padding);
+        dest.writeString(paddingLeft);
+        dest.writeString(paddingRight);
+        dest.writeString(paddingTop);
+        dest.writeString(paddingBottom);
+        dest.writeString(margin);
+        dest.writeString(marginLeft);
+        dest.writeString(marginRight);
+        dest.writeString(marginTop);
+        dest.writeString(marginBottom);
     }
+
+
 }

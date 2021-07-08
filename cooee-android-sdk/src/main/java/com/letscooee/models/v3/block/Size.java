@@ -6,12 +6,11 @@ import android.os.Parcelable;
 public class Size implements Parcelable {
 
     protected Size(Parcel in) {
-        width = in.readDouble();
-        height = in.readDouble();
-        maxWidth = in.readDouble();
-        maxHeight = in.readDouble();
+        width = in.readString();
+        height = in.readString();
+        maxWidth = in.readString();
+        maxHeight = in.readString();
         display = Display.valueOf(in.readString());
-        unit = Unit.valueOf(in.readString());
     }
 
     public static final Creator<Size> CREATOR = new Creator<Size>() {
@@ -33,44 +32,38 @@ public class Size implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeDouble(width);
-        dest.writeDouble(height);
-        dest.writeDouble(maxWidth);
-        dest.writeDouble(maxHeight);
+        dest.writeString(width);
+        dest.writeString(height);
+        dest.writeString(maxWidth);
+        dest.writeString(maxHeight);
         dest.writeString(display.name());
-        dest.writeString(unit.name());
     }
 
     public enum Display {BLOCK, INLINE_BLOCK}
 
-    private double width;
-    private double height;
-    private double maxWidth;
-    private double maxHeight;
+    private String width;
+    private String height;
+    private String maxWidth;
+    private String maxHeight;
     private Display display;
-    private Unit unit;
-
-    public double getWidth() {
-        return width;
-    }
-
-    public double getHeight() {
-        return height;
-    }
-
-    public double getMaxWidth() {
-        return maxWidth;
-    }
-
-    public double getMaxHeight() {
-        return maxHeight;
-    }
 
     public Display getDisplay() {
         return display;
     }
 
-    public Unit getUnit() {
-        return unit;
+    public String getWidth() {
+        return width;
+    }
+
+    public String getHeight() {
+        return height;
+    }
+
+    public String getMaxWidth() {
+        return maxWidth;
+    }
+
+    public String getMaxHeight() {
+        return maxHeight;
     }
 }

@@ -6,10 +6,10 @@ import android.os.Parcelable;
 public class Position implements Parcelable {
 
     protected Position(Parcel in) {
-        top = in.readInt();
-        left = in.readInt();
-        bottom = in.readInt();
-        right = in.readInt();
+        top = in.readString();
+        left = in.readString();
+        bottom = in.readString();
+        right = in.readString();
         type = PositionType.valueOf(in.readString());
         gravity = Gravity.valueOf(in.readString());
     }
@@ -33,10 +33,10 @@ public class Position implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeInt(top);
-        dest.writeInt(left);
-        dest.writeInt(bottom);
-        dest.writeInt(right);
+        dest.writeString(top);
+        dest.writeString(left);
+        dest.writeString(bottom);
+        dest.writeString(right);
         dest.writeString(type.name());
         dest.writeString(gravity.name());
     }
@@ -47,10 +47,10 @@ public class Position implements Parcelable {
 
     private PositionType type;
     private Gravity gravity;
-    private int top;
-    private int left;
-    private int bottom;
-    private int right;
+    private String top;
+    private String left;
+    private String bottom;
+    private String right;
 
     public PositionType getType() {
         return type;
@@ -60,19 +60,19 @@ public class Position implements Parcelable {
         return gravity;
     }
 
-    public int getTop() {
+    public String getTop() {
         return top;
     }
 
-    public int getLeft() {
+    public String getLeft() {
         return left;
     }
 
-    public int getBottom() {
+    public String getBottom() {
         return bottom;
     }
 
-    public int getRight() {
+    public String getRight() {
         return right;
     }
 }
