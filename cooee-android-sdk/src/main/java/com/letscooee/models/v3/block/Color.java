@@ -6,12 +6,10 @@ import android.os.Parcelable;
 public class Color implements Parcelable {
 
     private String hex;
-    private double alpha;
     private Gradient grad;
 
     protected Color(Parcel in) {
         hex = in.readString();
-        alpha = in.readDouble();
         grad = in.readParcelable(Gradient.class.getClassLoader());
     }
 
@@ -35,16 +33,11 @@ public class Color implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(hex);
-        dest.writeDouble(alpha);
         dest.writeParcelable(grad, flags);
     }
 
     public String getHex() {
         return hex;
-    }
-
-    public double getAlpha() {
-        return alpha;
     }
 
     public Gradient getGrad() {
