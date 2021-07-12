@@ -29,6 +29,10 @@
                 android:configChanges="orientation|keyboardHidden"
                 android:theme="@style/AppTheme.PopUp" />
         <activity android:name=".trigger.CooeeEmptyActivity" />
+        <activity
+            android:name=".trigger.inapp.InAppTriggerActivityNew"
+            android:configChanges="orientation|keyboardHidden"
+            android:theme="@style/AppTheme.PopUp" />
 
         <service
                 android:name=".services.CooeeFirebaseMessagingService"
