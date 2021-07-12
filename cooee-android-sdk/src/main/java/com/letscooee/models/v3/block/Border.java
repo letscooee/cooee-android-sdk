@@ -3,6 +3,14 @@ package com.letscooee.models.v3.block;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.letscooee.utils.ValueUtil;
+
+import static com.letscooee.utils.Constants.PERCENT;
+import static com.letscooee.utils.Constants.PIXEL;
+import static com.letscooee.utils.Constants.VIEWPORT_HEIGHT;
+import static com.letscooee.utils.Constants.VIEWPORT_WIDTH;
+import static com.letscooee.utils.ValueUtil.getCalculatedValue;
+
 public class Border implements Parcelable {
 
     // TODO: 07/07/21 Discus for dash type stroke
@@ -60,19 +68,21 @@ public class Border implements Parcelable {
         return style;
     }
 
-    public String getRadius() {
-        return radius;
+    public int getRadius() {
+        return ValueUtil.getCalculatedValue(radius);
     }
 
-    public String getWidth() {
-        return width;
+    public int getWidth(int deviceWidth, int deviceHeight) {
+        return getCalculatedValue(deviceWidth, deviceHeight, width);
     }
 
-    public String getDashWidth() {
-        return dashWidth;
+    public int getDashWidth(int deviceWidth, int deviceHeight) {
+        return getCalculatedValue(deviceWidth, deviceHeight, dashWidth);
     }
 
-    public String getDashGap() {
-        return dashGap;
+    public int getDashGap(int deviceWidth, int deviceHeight) {
+        return getCalculatedValue(deviceWidth, deviceHeight, dashGap);
     }
+
+
 }

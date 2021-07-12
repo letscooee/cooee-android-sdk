@@ -5,7 +5,7 @@ import android.os.Parcelable;
 
 import com.letscooee.models.v3.elemeent.Element;
 
-public class PushNotificationData implements Parcelable {
+public class PushNotificationData extends CoreTriggerData implements Parcelable {
 
     private Element title;
     private Element body;

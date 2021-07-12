@@ -3,6 +3,14 @@ package com.letscooee.models.v3.block;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.letscooee.utils.Constants;
+
+import static com.letscooee.utils.Constants.PERCENT;
+import static com.letscooee.utils.Constants.PIXEL;
+import static com.letscooee.utils.Constants.VIEWPORT_HEIGHT;
+import static com.letscooee.utils.Constants.VIEWPORT_WIDTH;
+import static com.letscooee.utils.ValueUtil.getCalculatedValue;
+
 public class Size implements Parcelable {
 
     protected Size(Parcel in) {
@@ -39,6 +47,17 @@ public class Size implements Parcelable {
         dest.writeString(display.name());
     }
 
+    public int getCalculatedHeight(int deviceWidth, int deviceHeight) {
+
+        return getCalculatedValue(deviceWidth, deviceHeight, getHeight());
+    }
+
+
+    public int getCalculatedWidth(int deviceWidth, int deviceHeight) {
+
+        return getCalculatedValue(deviceWidth, deviceHeight, getWidth());
+    }
+
     public enum Display {BLOCK, INLINE_BLOCK}
 
     private String width;
@@ -56,7 +75,7 @@ public class Size implements Parcelable {
     }
 
     public String getHeight() {
-        return height;
+        return height.toLowerCase();
     }
 
     public String getMaxWidth() {

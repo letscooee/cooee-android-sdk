@@ -13,7 +13,9 @@ import com.letscooee.BuildConfig;
 import com.letscooee.CooeeFactory;
 import com.letscooee.models.Event;
 import com.letscooee.models.TriggerData;
+import com.letscooee.models.v3.CoreTriggerData;
 import com.letscooee.trigger.inapp.InAppTriggerActivity;
+import com.letscooee.trigger.inapp.InAppTriggerActivityNew;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.LocalStorageHelper;
 import com.letscooee.utils.RuntimeData;
@@ -128,6 +130,7 @@ public class EngagementTriggerHelper {
      * @param context     context of the application.
      * @param triggerData received and parsed trigger data.
      */
+    // TODO: 09/07/21 Delete afterDone
     public static void renderInAppTrigger(Context context, TriggerData triggerData) {
         RuntimeData runtimeData = CooeeFactory.getRuntimeData();
         if (runtimeData.isInBackground()) {
@@ -136,6 +139,30 @@ public class EngagementTriggerHelper {
 
         try {
             Intent intent = new Intent(context, InAppTriggerActivity.class);
+            Bundle sendBundle = new Bundle();
+            sendBundle.putParcelable(Constants.INTENT_TRIGGER_DATA_KEY, triggerData);
+            intent.putExtra("bundle", sendBundle);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(intent);
+        } catch (Exception ex) {
+            Log.d(Constants.TAG, "Couldn't show Engagement Trigger " + ex.toString());
+            Sentry.captureException(ex);
+        }
+    }
+    /**
+     * Start rendering the in-app trigger.
+     *
+     * @param context     context of the application.
+     * @param triggerData received and parsed trigger data.
+     */
+    public static void renderInAppTriggerNew(Context context, CoreTriggerData triggerData) {
+        RuntimeData runtimeData = CooeeFactory.getRuntimeData();
+        if (runtimeData.isInBackground()) {
+            return;
+        }
+
+        try {
+            Intent intent = new Intent(context, InAppTriggerActivityNew.class);
             Bundle sendBundle = new Bundle();
             sendBundle.putParcelable(Constants.INTENT_TRIGGER_DATA_KEY, triggerData);
             intent.putExtra("bundle", sendBundle);

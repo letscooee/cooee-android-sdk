@@ -43,4 +43,8 @@ public class Color implements Parcelable {
     public Gradient getGrad() {
         return grad;
     }
+
+    public int getSolidColor() {
+        return android.graphics.Color.parseColor(hex);
+    }
 }
