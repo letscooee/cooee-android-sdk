@@ -6,7 +6,6 @@ import android.app.job.JobService;
 import android.content.ComponentName;
 import android.content.Context;
 import android.util.Log;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import com.letscooee.schedular.job.PendingTaskJob;
 import com.letscooee.utils.Constants;
@@ -61,13 +60,11 @@ public class CooeeJobUtils {
      * @param latencyMillis Optional latency/delay for the job execution.
      */
     public static void scheduleJob(Context context, Class<? extends JobService> clazz, int jobID,
-                                   @Nullable Long latencyMillis) {
+                                   Long latencyMillis) {
         ComponentName serviceComponent = new ComponentName(context, clazz);
         JobInfo.Builder builder = new JobInfo.Builder(jobID, serviceComponent);
 
-        if (latencyMillis != null) {
-            builder.setMinimumLatency(latencyMillis);
-        }
+        builder.setMinimumLatency(latencyMillis);
 
         getJobScheduler(context).schedule(builder.build());
     }
@@ -84,7 +81,7 @@ public class CooeeJobUtils {
      */
     public static void triggerPendingTaskJobImmediately(Context context) {
         Log.v(Constants.TAG, "Run PendingTaskJob immediately");
-        scheduleJob(context, PendingTaskJob.class, Constants.PENDING_TASK_JOB_ID, null);
+        scheduleJob(context, PendingTaskJob.class, Constants.PENDING_TASK_JOB_ID, 0L);
     }
 
     public static void schedulePendingTaskJob(Context context) {
