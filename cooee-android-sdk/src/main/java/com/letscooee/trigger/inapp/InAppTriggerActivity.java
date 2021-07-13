@@ -587,7 +587,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
 
     private void createImageView() {
         RelativeLayout insideMediaFrameLayout = findViewById(R.id.insideMediaFrameLayout);
-        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 
         ImageView imageView = new ImageView(InAppTriggerActivity.this);
         imageView.setLayoutParams(layoutParams);
@@ -595,6 +595,17 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
         Glide.with(getApplicationContext()).load(triggerData.getImageUrl()).into(new CustomTarget<Drawable>() {
             @Override
             public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
+                // While loading vertical images, action button goes outside the layout if image height is big
+                // so this condition fixes the height issue
+                if (resource.getMinimumHeight() > resource.getMinimumWidth()) {
+                    LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.MATCH_PARENT,
+                            0,
+                            1.0f
+                    );
+                    findViewById(R.id.mediaRelativeLayout).setLayoutParams(param);
+                }
+
                 // https://stackoverflow.com/a/19286130
                 imageView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
                 imageView.setImageDrawable(resource);
@@ -613,7 +624,6 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
             layeredImageView.setScaleType(ImageView.ScaleType.FIT_XY);
         }
 
-        Glide.with(getApplicationContext()).load(triggerData.getImageUrl()).into(imageView);
         Glide.with(getApplicationContext()).load(triggerData.getLayeredImageUrl()).into(layeredImageView);
 
         layeredImageView.setLayoutParams(layoutParams);
