@@ -68,6 +68,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
 
     private Date startTime;
     private String closeBehaviour;
+    private String ctaPressed;
     private Handler handler;
     private Runnable runnable;
     private int videoDuration;
@@ -129,7 +130,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
 
         closeImageButton = findViewById(R.id.buttonClose);
         closeImageButton.setOnClickListener(view -> {
-            this.manualCloseTrigger("Close Button", null);
+            this.manualCloseTrigger("Close Button", null, null);
         });
 
         secondParentLayout = findViewById(R.id.secondParentRelative);
@@ -163,9 +164,10 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
         }
     }
 
-    private void manualCloseTrigger(String behaviour, TriggerButtonAction action) {
+    private void manualCloseTrigger(String behaviour, String ctaPressed, TriggerButtonAction action) {
         this.isManualClose = true;
         this.closeBehaviour = behaviour;
+        this.ctaPressed = ctaPressed;
         this.finish();
 
         if (action != null) {
@@ -220,7 +222,8 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
         button.setBackground(drawable);
 
         button.setOnClickListener(view -> {
-            this.manualCloseTrigger("Action Button", triggerButton.getAction());
+            // Sending the text of button which is clicked as event props
+            this.manualCloseTrigger("Action Button", triggerButton.getText(), triggerButton.getAction());
         });
 
         button.setOnTouchListener((v, event) -> {
@@ -316,7 +319,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
             textViewTimer.setVisibility(View.GONE);
             handler = new Handler();
             runnable = () -> {
-                this.manualCloseTrigger("Auto Closed", null);
+                this.manualCloseTrigger("Auto Closed", null, null);
             };
             handler.postDelayed(runnable, autoClose * 1000);
         }
@@ -406,7 +409,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
 
         if (triggerData.getBackground().getAction() != null) {
             secondParentLayout.setOnClickListener(v -> {
-                this.manualCloseTrigger("Trigger Touch", triggerData.getBackground().getAction());
+                this.manualCloseTrigger("Trigger Touch", null, triggerData.getBackground().getAction());
             });
         }
 
@@ -538,7 +541,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
                 ((RelativeLayout) findViewById(R.id.actionLayout)).addView(imageView);
             }
             secondParentLayout.setOnClickListener(v -> {
-                this.manualCloseTrigger("Action Button", triggerData.getSidePopSetting().getAction());
+                this.manualCloseTrigger("Action Button", null, triggerData.getSidePopSetting().getAction());
             });
         }
     }
@@ -893,6 +896,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
         Map<String, Object> kpiMap = new HashMap<>();
         kpiMap.put("Duration", duration);
         kpiMap.put("Close Behaviour", closeBehaviour);
+        kpiMap.put("CTA Pressed", this.ctaPressed);
 
         if (triggerData.getType() == TriggerData.Type.VIDEO) {
             kpiMap.put("Video Duration", videoDuration);
