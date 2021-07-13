@@ -43,7 +43,8 @@
             android:padding="7dp"
             android:layout_margin="13dp"
             android:background="@android:color/transparent"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:gravity="center">
 
             <RelativeLayout
                 android:id="@+id/textLayout"
@@ -72,11 +73,12 @@
 
             </RelativeLayout>
 
+            <!--Making height property to wrap_content to remove white space-->
             <RelativeLayout
                 android:id="@+id/mediaRelativeLayout"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1">
+                android:layout_height="wrap_content"
+                android:gravity="center">
 
                 <androidx.cardview.widget.CardView
                     android:id="@+id/mediaFrameLayout"
@@ -90,7 +92,7 @@
                     <RelativeLayout
                         android:id="@+id/insideMediaFrameLayout"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
+                        android:layout_height="wrap_content"
                         android:layout_gravity="center">
 
                     </RelativeLayout>

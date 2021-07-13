@@ -17,7 +17,6 @@ import android.os.CountDownTimer;
 import android.os.Handler;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.*;
 import android.widget.*;
@@ -68,6 +67,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
 
     private Date startTime;
     private String closeBehaviour;
+    private String ctaLabel;
     private Handler handler;
     private Runnable runnable;
     private int videoDuration;
@@ -164,8 +164,13 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
     }
 
     private void manualCloseTrigger(String behaviour, TriggerButtonAction action) {
+        manualCloseTrigger(behaviour, null, action);
+    }
+
+    private void manualCloseTrigger(String behaviour, String ctaPressed, TriggerButtonAction action) {
         this.isManualClose = true;
         this.closeBehaviour = behaviour;
+        this.ctaLabel = ctaPressed;
         this.finish();
 
         if (action != null) {
@@ -220,7 +225,8 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
         button.setBackground(drawable);
 
         button.setOnClickListener(view -> {
-            this.manualCloseTrigger("Action Button", triggerButton.getAction());
+            // Sending the text of button which is clicked as event props
+            this.manualCloseTrigger("Action Button", triggerButton.getText(), triggerButton.getAction());
         });
 
         button.setOnTouchListener((v, event) -> {
@@ -584,7 +590,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
 
     private void createImageView() {
         RelativeLayout insideMediaFrameLayout = findViewById(R.id.insideMediaFrameLayout);
-        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 
         ImageView imageView = new ImageView(InAppTriggerActivity.this);
         imageView.setLayoutParams(layoutParams);
@@ -592,6 +598,17 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
         Glide.with(getApplicationContext()).load(triggerData.getImageUrl()).into(new CustomTarget<Drawable>() {
             @Override
             public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
+                // While loading vertical images, action button goes outside the layout if image height is big
+                // so this condition fixes the height issue
+                if (resource.getMinimumHeight() > resource.getMinimumWidth()) {
+                    LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.MATCH_PARENT,
+                            0,
+                            1.0f
+                    );
+                    findViewById(R.id.mediaRelativeLayout).setLayoutParams(param);
+                }
+
                 // https://stackoverflow.com/a/19286130
                 imageView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
                 imageView.setImageDrawable(resource);
@@ -610,7 +627,6 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
             layeredImageView.setScaleType(ImageView.ScaleType.FIT_XY);
         }
 
-        Glide.with(getApplicationContext()).load(triggerData.getImageUrl()).into(imageView);
         Glide.with(getApplicationContext()).load(triggerData.getLayeredImageUrl()).into(layeredImageView);
 
         layeredImageView.setLayoutParams(layoutParams);
@@ -893,6 +909,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
         Map<String, Object> kpiMap = new HashMap<>();
         kpiMap.put("Duration", duration);
         kpiMap.put("Close Behaviour", closeBehaviour);
+        kpiMap.put("CTA Label", this.ctaLabel);
 
         if (triggerData.getType() == TriggerData.Type.VIDEO) {
             kpiMap.put("Video Duration", videoDuration);
