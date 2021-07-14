@@ -1,5 +1,13 @@
 # Change Log
 
+## v0.3.1
+
+### Bug Fixes
+
+1. Fixed occassional `IllegalArgumentException` on first launch.
+2. Fixed InApp image distortion in terms of aspect ratio.
+3. Added CTA Label property in Trigger Closed event.
+
 ## v0.3.0
 
 ### Internal Features
