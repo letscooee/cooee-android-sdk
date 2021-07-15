@@ -1,5 +1,6 @@
 package com.letscooee.services;
 
+import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -23,6 +24,12 @@ import org.jetbrains.annotations.NotNull;
 import java.util.HashMap;
 
 public class CooeeFirebaseMessagingServiceNew extends FirebaseMessagingService {
+
+    Context context;
+
+    public CooeeFirebaseMessagingServiceNew(Context context) {
+        this.context = context;
+    }
 
     @Override
     public void onNewToken(@NonNull @NotNull String token) {
@@ -51,14 +58,14 @@ public class CooeeFirebaseMessagingServiceNew extends FirebaseMessagingService {
 
     private RemoteImageLoader imageLoader;
 
-    private void handleTriggerData(String rawTriggerData) {
+    public void handleTriggerData(String rawTriggerData) {
         if (TextUtils.isEmpty(rawTriggerData)) {
             Log.d(Constants.TAG, "No triggerData found on the notification payload");
             return;
         }
 
         if (imageLoader == null) {
-            imageLoader = new RemoteImageLoader(getApplicationContext());
+            imageLoader = new RemoteImageLoader(context);
         }
 
         CoreTriggerData triggerData;
@@ -93,7 +100,7 @@ public class CooeeFirebaseMessagingServiceNew extends FirebaseMessagingService {
             return;
         }
 
-        EngagementTriggerHelper.storeActiveTriggerDetails(getApplicationContext(), triggerData.getId(), triggerData.getDuration());
+        EngagementTriggerHelper.storeActiveTriggerDetails(context, triggerData.getId(), triggerData.getDuration());
 
         if (triggerData instanceof PushNotificationData) {
             //Event event = new Event("CE Notification Received", triggerData);
@@ -105,7 +112,7 @@ public class CooeeFirebaseMessagingServiceNew extends FirebaseMessagingService {
             //   showNotification((PushNotificationTrigger) triggerData);
             //}
         } else {
-             EngagementTriggerHelper.renderInAppTriggerNew(getApplicationContext(), triggerData);
+            EngagementTriggerHelper.renderInAppTriggerNew(context, triggerData);
         }
     }
 }
