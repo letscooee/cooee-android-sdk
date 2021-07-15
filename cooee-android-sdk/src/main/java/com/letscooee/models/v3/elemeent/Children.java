@@ -13,12 +13,16 @@ import com.letscooee.models.v3.elemeent.property.Alignment;
 import com.letscooee.models.v3.elemeent.property.Font;
 import com.letscooee.models.v3.elemeent.property.Transform;
 
-public class Element implements Parcelable {
+import java.util.ArrayList;
 
-    protected Element(Parcel in) {
+public class Children implements Parcelable {
+
+
+    protected Children(Parcel in) {
         text = in.readString();
         alignment = in.readParcelable(Alignment.class.getClassLoader());
-        color = in.readParcelable(Color.class.getClassLoader());
+        font = in.readParcelable(Font.class.getClassLoader());
+        colour = in.readParcelable(Color.class.getClassLoader());
         size = in.readParcelable(Size.class.getClassLoader());
         bg = in.readParcelable(Background.class.getClassLoader());
         border = in.readParcelable(Border.class.getClassLoader());
@@ -29,18 +33,19 @@ public class Element implements Parcelable {
         flexGrow = in.readInt();
         flexShrink = in.readInt();
         group = in.readParcelable(Group.class.getClassLoader());
+        children = in.createTypedArrayList(Children.CREATOR);
         type = ElementType.valueOf(in.readString());
     }
 
-    public static final Creator<Element> CREATOR = new Creator<Element>() {
+    public static final Creator<Children> CREATOR = new Creator<Children>() {
         @Override
-        public Element createFromParcel(Parcel in) {
-            return new Element(in);
+        public Children createFromParcel(Parcel in) {
+            return new Children(in);
         }
 
         @Override
-        public Element[] newArray(int size) {
-            return new Element[size];
+        public Children[] newArray(int size) {
+            return new Children[size];
         }
     };
 
@@ -53,7 +58,8 @@ public class Element implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(text);
         dest.writeParcelable(alignment, flags);
-        dest.writeParcelable(color, flags);
+        dest.writeParcelable(font, flags);
+        dest.writeParcelable(colour, flags);
         dest.writeParcelable(size, flags);
         dest.writeParcelable(bg, flags);
         dest.writeParcelable(border, flags);
@@ -64,6 +70,7 @@ public class Element implements Parcelable {
         dest.writeInt(flexGrow);
         dest.writeInt(flexShrink);
         dest.writeParcelable(group, flags);
+        dest.writeTypedList(children);
         dest.writeString(type.name());
     }
 
@@ -73,7 +80,7 @@ public class Element implements Parcelable {
     private String text;
     private Alignment alignment;
     private Font font;
-    private Color color;
+    private Color colour;
     private Size size;
     private Background bg;
     private Border border;
@@ -84,6 +91,11 @@ public class Element implements Parcelable {
     private int flexGrow;
     private int flexShrink;
     private Group group;
+    private ArrayList<Children> children;
+
+    public ArrayList<Children> getChildren() {
+        return children;
+    }
 
     public ElementType getType() {
         return type;
@@ -102,7 +114,7 @@ public class Element implements Parcelable {
     }
 
     public Color getColor() {
-        return color;
+        return colour;
     }
 
     public Size getSize() {

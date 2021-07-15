@@ -2,13 +2,10 @@ package com.letscooee.models.v3.block;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.text.TextUtils;
 
 import com.letscooee.utils.ValueUtil;
 
-import static com.letscooee.utils.Constants.PERCENT;
-import static com.letscooee.utils.Constants.PIXEL;
-import static com.letscooee.utils.Constants.VIEWPORT_HEIGHT;
-import static com.letscooee.utils.Constants.VIEWPORT_WIDTH;
 import static com.letscooee.utils.ValueUtil.getCalculatedValue;
 
 public class Border implements Parcelable {
@@ -19,7 +16,7 @@ public class Border implements Parcelable {
         width = in.readString();
         dashWidth = in.readString();
         dashGap = in.readString();
-        color = in.readParcelable(Color.class.getClassLoader());
+        colour = in.readParcelable(Color.class.getClassLoader());
         style = Style.valueOf(in.readString());
     }
 
@@ -46,8 +43,11 @@ public class Border implements Parcelable {
         dest.writeString(width);
         dest.writeString(dashWidth);
         dest.writeString(dashGap);
-        dest.writeParcelable(color, flags);
-        dest.writeString(style.name());
+        dest.writeParcelable(colour, flags);
+        if (style == null)
+            dest.writeString(Style.SOLID.name());
+        else
+            dest.writeString(style.name());
     }
 
     public enum Style {SOLID, DASH}
@@ -56,12 +56,12 @@ public class Border implements Parcelable {
     private String width;
     private String dashWidth;
     private String dashGap;
-    private Color color;
+    private Color colour;
     private Style style;
 
 
     public Color getColor() {
-        return color;
+        return colour;
     }
 
     public Style getStyle() {
@@ -69,7 +69,7 @@ public class Border implements Parcelable {
     }
 
     public int getRadius() {
-        return ValueUtil.getCalculatedValue(radius);
+        return !TextUtils.isEmpty(radius) ? ValueUtil.getCalculatedValue(radius) : 0;
     }
 
     public int getWidth(int deviceWidth, int deviceHeight) {

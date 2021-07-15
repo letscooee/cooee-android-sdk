@@ -29,8 +29,14 @@ public class Alignment implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(align.name());
-        dest.writeString(direction.name());
+        if (align == null)
+            dest.writeString(Align.CENTER.name());
+        else
+            dest.writeString(align.name());
+        if (direction == null)
+            dest.writeString(Direction.ltr.name());
+        else
+            dest.writeString(direction.name());
     }
 
     public enum Align {LEFT, CENTER, RIGHT}

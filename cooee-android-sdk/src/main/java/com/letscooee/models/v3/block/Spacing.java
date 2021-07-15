@@ -3,18 +3,42 @@ package com.letscooee.models.v3.block;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
+import static com.letscooee.utils.ValueUtil.getCalculatedValue;
+
 public class Spacing implements Parcelable {
 
-
+    @SerializedName("p")
+    @Expose
     private String padding;
+    @SerializedName("pl")
+    @Expose
     private String paddingLeft;
+    @SerializedName("pr")
+    @Expose
     private String paddingRight;
+    @SerializedName("pt")
+    @Expose
     private String paddingTop;
+    @SerializedName("pb")
+    @Expose
     private String paddingBottom;
+    @SerializedName("m")
+    @Expose
     private String margin;
+    @SerializedName("ml")
+    @Expose
     private String marginLeft;
+    @SerializedName("mr")
+    @Expose
     private String marginRight;
+    @SerializedName("mt")
+    @Expose
     private String marginTop;
+    @SerializedName("mb")
+    @Expose
     private String marginBottom;
 
     protected Spacing(Parcel in) {
@@ -43,44 +67,44 @@ public class Spacing implements Parcelable {
         }
     };
 
-    public String getPadding() {
-        return padding;
+    public int getPadding(int deviceWidth, int deviceHeight) {
+        return getCalculatedValue(deviceWidth, deviceHeight, padding);
     }
 
-    public String getPaddingLeft() {
-        return paddingLeft;
+    public int getPaddingLeft(int deviceWidth, int deviceHeight) {
+        return getCalculatedValue(deviceWidth, deviceHeight, paddingLeft);
     }
 
-    public String getPaddingRight() {
-        return paddingRight;
+    public int getPaddingRight(int deviceWidth, int deviceHeight) {
+        return getCalculatedValue(deviceWidth, deviceHeight, paddingRight);
     }
 
-    public String getPaddingTop() {
-        return paddingTop;
+    public int getPaddingTop(int deviceWidth, int deviceHeight) {
+        return getCalculatedValue(deviceWidth, deviceHeight, paddingTop, true);
     }
 
-    public String getPaddingBottom() {
-        return paddingBottom;
+    public int getPaddingBottom(int deviceWidth, int deviceHeight) {
+        return getCalculatedValue(deviceWidth, deviceHeight, paddingBottom, true);
     }
 
-    public String getMargin() {
-        return margin;
+    public int getMargin(int deviceWidth, int deviceHeight) {
+        return getCalculatedValue(deviceWidth, deviceHeight, margin);
     }
 
-    public String getMarginLeft() {
-        return marginLeft;
+    public int getMarginLeft(int deviceWidth, int deviceHeight) {
+        return getCalculatedValue(deviceWidth, deviceHeight, marginLeft);
     }
 
-    public String getMarginRight() {
-        return marginRight;
+    public int getMarginRight(int deviceWidth, int deviceHeight) {
+        return getCalculatedValue(deviceWidth, deviceHeight, marginRight);
     }
 
-    public String getMarginTop() {
-        return marginTop;
+    public int getMarginTop(int deviceWidth, int deviceHeight) {
+        return getCalculatedValue(deviceWidth, deviceHeight, marginTop, true);
     }
 
-    public String getMarginBottom() {
-        return marginBottom;
+    public int getMarginBottom(int deviceWidth, int deviceHeight) {
+        return getCalculatedValue(deviceWidth, deviceHeight, marginBottom, true);
     }
 
     @Override

@@ -3,18 +3,19 @@ package com.letscooee.models.v3;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.letscooee.models.v3.elemeent.Element;
+import com.letscooee.models.v3.elemeent.Children;
 
 public class PushNotificationData extends CoreTriggerData implements Parcelable {
 
-    private Element title;
-    private Element body;
+    private Children title;
+    private Children body;
     private String smallImage;
     private String largeImage;
 
     protected PushNotificationData(Parcel in) {
-        title = in.readParcelable(Element.class.getClassLoader());
-        body = in.readParcelable(Element.class.getClassLoader());
+        super(in);
+        title = in.readParcelable(Children.class.getClassLoader());
+        body = in.readParcelable(Children.class.getClassLoader());
         smallImage = in.readString();
         largeImage = in.readString();
     }
@@ -31,11 +32,11 @@ public class PushNotificationData extends CoreTriggerData implements Parcelable 
         }
     };
 
-    public Element getTitle() {
+    public Children getTitle() {
         return title;
     }
 
-    public Element getBody() {
+    public Children getBody() {
         return body;
     }
 

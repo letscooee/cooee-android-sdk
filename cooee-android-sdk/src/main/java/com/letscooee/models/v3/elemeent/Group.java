@@ -14,7 +14,7 @@ public class Group implements Parcelable {
     private String justifyContent;
     private String alignItems;
     private String alignContent;
-    private ArrayList<Element> elements;
+    private ArrayList<Children> children;
 
     protected Group(Parcel in) {
         wrap = in.readString();
@@ -22,7 +22,7 @@ public class Group implements Parcelable {
         alignItems = in.readString();
         alignContent = in.readString();
         direction = Direction.valueOf(in.readString());
-        elements = in.readArrayList(null);
+        children = in.readArrayList(null);
     }
 
     public static final Creator<Group> CREATOR = new Creator<Group>() {
@@ -49,7 +49,7 @@ public class Group implements Parcelable {
         dest.writeString(alignItems);
         dest.writeString(alignContent);
         dest.writeString(direction.name());
-        dest.writeList(elements);
+        dest.writeList(children);
     }
 
     public Direction getDirection() {
@@ -72,7 +72,7 @@ public class Group implements Parcelable {
         return alignContent;
     }
 
-    public ArrayList<Element> getElements() {
-        return elements;
+    public ArrayList<Children> getElements() {
+        return children;
     }
 }

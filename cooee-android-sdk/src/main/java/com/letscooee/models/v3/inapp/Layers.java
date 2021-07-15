@@ -9,28 +9,28 @@ import com.letscooee.models.v3.block.ClickAction;
 import com.letscooee.models.v3.block.Position;
 import com.letscooee.models.v3.block.Size;
 import com.letscooee.models.v3.block.Spacing;
-import com.letscooee.models.v3.elemeent.Element;
+import com.letscooee.models.v3.elemeent.Children;
 
 import java.util.ArrayList;
 
-public class Layers  implements Parcelable {
+public class Layers implements Parcelable {
 
     private Size size;
     private Background bg;
-    private Border bor;
+    private Border border;
     private Spacing spacing;
     private Position position;
     private ClickAction click;
-    private ArrayList<Element> elements;
+    private ArrayList<Children> children;
 
     protected Layers(Parcel in) {
         size = in.readParcelable(Size.class.getClassLoader());
         bg = in.readParcelable(Background.class.getClassLoader());
-        bor = in.readParcelable(Border.class.getClassLoader());
+        border = in.readParcelable(Border.class.getClassLoader());
         spacing = in.readParcelable(Spacing.class.getClassLoader());
         position = in.readParcelable(Position.class.getClassLoader());
         click = in.readParcelable(ClickAction.class.getClassLoader());
-        elements = in.createTypedArrayList(Element.CREATOR);
+        children = in.createTypedArrayList(Children.CREATOR);
     }
 
     public static final Creator<Layers> CREATOR = new Creator<Layers>() {
@@ -53,8 +53,8 @@ public class Layers  implements Parcelable {
         return bg;
     }
 
-    public Border getBor() {
-        return bor;
+    public Border getBorder() {
+        return border;
     }
 
     public Spacing getSpacing() {
@@ -69,8 +69,8 @@ public class Layers  implements Parcelable {
         return click;
     }
 
-    public ArrayList<Element> getElements() {
-        return elements;
+    public ArrayList<Children> getElements() {
+        return children;
     }
 
     @Override
@@ -82,10 +82,10 @@ public class Layers  implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeParcelable(size, flags);
         dest.writeParcelable(bg, flags);
-        dest.writeParcelable(bor, flags);
+        dest.writeParcelable(border, flags);
         dest.writeParcelable(spacing, flags);
         dest.writeParcelable(position, flags);
         dest.writeParcelable(click, flags);
-        dest.writeTypedList(elements);
+        dest.writeTypedList(children);
     }
 }

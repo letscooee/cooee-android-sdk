@@ -2,6 +2,9 @@ package com.letscooee.models.v3.block;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.text.TextUtils;
+
+import com.letscooee.utils.ValueUtil;
 
 public class Position implements Parcelable {
 
@@ -38,7 +41,10 @@ public class Position implements Parcelable {
         dest.writeString(bottom);
         dest.writeString(right);
         dest.writeString(type.name());
-        dest.writeString(gravity.name());
+        if (gravity == null)
+            dest.writeString(Gravity.CENTER.name());
+        else
+            dest.writeString(gravity.name());
     }
 
     public enum PositionType {STATIC, RELATIVE, ABSOLUTE, FIXED}
@@ -60,19 +66,27 @@ public class Position implements Parcelable {
         return gravity;
     }
 
-    public String getTop() {
-        return top;
+    public int getTop(int deviceWidth, int deviceHeight) {
+
+        return !TextUtils.isEmpty(top) ?
+                ValueUtil.getCalculatedValue(deviceWidth, deviceHeight, top.toLowerCase(), true)
+                : 0;
     }
 
-    public String getLeft() {
-        return left;
+    public int getLeft(int deviceWidth, int deviceHeight) {
+        return !TextUtils.isEmpty(left) ?
+                ValueUtil.getCalculatedValue(deviceWidth, deviceHeight, left.toLowerCase()) : 0;
     }
 
-    public String getBottom() {
-        return bottom;
+    public int getBottom(int deviceWidth, int deviceHeight) {
+        return !TextUtils.isEmpty(bottom) ?
+                ValueUtil.getCalculatedValue(deviceWidth, deviceHeight, bottom.toLowerCase(), true)
+                : 0;
     }
 
-    public String getRight() {
-        return right;
+    public int getRight(int deviceWidth, int deviceHeight) {
+        return !TextUtils.isEmpty(right) ?
+                ValueUtil.getCalculatedValue(deviceWidth, deviceHeight, right.toLowerCase(), true)
+                : 0;
     }
 }
