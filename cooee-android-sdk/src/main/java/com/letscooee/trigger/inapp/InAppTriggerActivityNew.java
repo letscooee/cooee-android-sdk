@@ -162,6 +162,7 @@ public class InAppTriggerActivityNew extends AppCompatActivity implements Preven
 
             } else if (children.getType() == Children.ElementType.VIDEO) {
                 view = new RelativeLayout(this);
+                ((RelativeLayout) view).setGravity(Gravity.CENTER);
                 createVideoView(children, view);
 
 
@@ -194,6 +195,7 @@ public class InAppTriggerActivityNew extends AppCompatActivity implements Preven
                 ((FlexboxLayout) layout).addView(view);
         }
     }
+
 
     private void createVideoView(Children children, View view) {
 
