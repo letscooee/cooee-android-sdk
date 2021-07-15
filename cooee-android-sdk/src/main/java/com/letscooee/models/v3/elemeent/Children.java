@@ -5,6 +5,7 @@ import android.os.Parcelable;
 
 import com.letscooee.models.v3.block.Background;
 import com.letscooee.models.v3.block.Border;
+import com.letscooee.models.v3.block.ClickAction;
 import com.letscooee.models.v3.block.Color;
 import com.letscooee.models.v3.block.Position;
 import com.letscooee.models.v3.block.Size;
@@ -35,6 +36,7 @@ public class Children implements Parcelable {
         group = in.readParcelable(Group.class.getClassLoader());
         children = in.createTypedArrayList(Children.CREATOR);
         type = ElementType.valueOf(in.readString());
+        action=in.readParcelable(ClickAction.class.getClassLoader());
     }
 
     public static final Creator<Children> CREATOR = new Creator<Children>() {
@@ -72,6 +74,7 @@ public class Children implements Parcelable {
         dest.writeParcelable(group, flags);
         dest.writeTypedList(children);
         dest.writeString(type.name());
+        dest.writeParcelable(action,flags);
     }
 
     public enum ElementType {TEXT, BUTTON, IMAGE, VIDEO, GROUP}
@@ -92,6 +95,11 @@ public class Children implements Parcelable {
     private int flexShrink;
     private Group group;
     private ArrayList<Children> children;
+    private ClickAction action;
+
+    public ClickAction getAction() {
+        return action;
+    }
 
     public ArrayList<Children> getChildren() {
         return children;

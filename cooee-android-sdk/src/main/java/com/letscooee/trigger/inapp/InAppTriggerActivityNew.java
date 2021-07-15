@@ -1,16 +1,21 @@
 package com.letscooee.trigger.inapp;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -30,6 +35,7 @@ import com.letscooee.CooeeFactory;
 import com.letscooee.CooeeSDK;
 import com.letscooee.R;
 import com.letscooee.models.v3.CoreTriggerData;
+import com.letscooee.models.v3.block.ClickAction;
 import com.letscooee.models.v3.elemeent.Children;
 import com.letscooee.models.v3.elemeent.property.Alignment;
 import com.letscooee.models.v3.inapp.Container;
@@ -43,6 +49,7 @@ import com.letscooee.utils.UIUtil;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -113,7 +120,10 @@ public class InAppTriggerActivityNew extends AppCompatActivity implements Preven
                         uiUtil.processBackground(layers, viewGroupForBlurry) :
                         uiUtil.processBackground(layers, bitmapForBlurry);
                 layout.setBackground(backgroundImage);
-
+                if (layers.getAction() != null) {
+                    ClickAction action = layers.getAction();
+                    addAction(layout, action);
+                }
                 addChildren(layers.getElements(), layout);
                 viewInAppTriggerRoot.addView(layout);
             }
@@ -188,6 +198,10 @@ public class InAppTriggerActivityNew extends AppCompatActivity implements Preven
                 uiUtil.setOnImageLoad(view::setBackground);
             }
             uiUtil.processSpacing(view, children.getSpacing());
+            if (children.getAction() != null) {
+                ClickAction action = children.getAction();
+                addAction(view, action);
+            }
             if (layout instanceof RelativeLayout)
 
                 ((RelativeLayout) layout).addView(view);
@@ -336,9 +350,69 @@ public class InAppTriggerActivityNew extends AppCompatActivity implements Preven
         uiUtil.processSpacing(viewInAppTriggerRoot, container.getSpacing());
         ImageView imageView = new ImageView(this);
         imageView.setImageDrawable(backgroundImage);
+        if (container.getAction() != null) {
+            ClickAction action = container.getAction();
+            addAction(viewInAppTriggerRoot, action);
+        }
         viewInAppTriggerRoot.addView(imageView);
 
     }
 
+    private void addAction(View view, ClickAction action) {
+        view.setOnClickListener(v -> {
+            if (action.getExternal() != null) {
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(action.getExternal().getUrl()));
+                startActivity(browserIntent);
+            } else if (action.getIab() != null) {
+                RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+                WebView webView = new WebView(this);
 
+                webView.getSettings().setJavaScriptEnabled(true);
+                webView.setLayoutParams(layoutParams);
+                webView.setWebViewClient(new WebViewClient());
+                webView.setTranslationZ(5);
+                webView.setId(R.id.web_view);
+                viewInAppTriggerRoot.addView(webView);
+                webView.loadUrl(action.getIab().getUrl());
+            } else if (action.getUpdateApp() != null) {
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(action.getUpdateApp().getUrl()));
+                startActivity(browserIntent);
+            } else if (action.getShare() != null) {
+                Intent intent = new Intent(Intent.ACTION_SEND);
+                String shareBody = action.getShare().get("text").toString();
+                intent.setType("text/plain");
+                intent.putExtra(Intent.EXTRA_TEXT, shareBody);
+                startActivity(Intent.createChooser(intent, "Share with"));
+            } else if (action.getPrompts() != null && action.getPrompts().length != 0) {
+                List<String> permissionList = new ArrayList<>();
+                for (String permission : action.getPrompts()) {
+                    if (permission.equalsIgnoreCase("location")) {
+                        permissionList.add(Manifest.permission.ACCESS_FINE_LOCATION);
+                        permissionList.add(Manifest.permission.ACCESS_COARSE_LOCATION);
+
+                    } else if (permission.equalsIgnoreCase("camera")) {
+                        permissionList.add(Manifest.permission.CAMERA);
+                    } else if (permission.equalsIgnoreCase("phone_state")) {
+                        permissionList.add(Manifest.permission.READ_PHONE_STATE);
+                    }
+                }
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    requestPermissions(permissionList.toArray(new String[0]), Constants.REQUEST_LOCATION);
+                }
+            }
+            if (action.isClose()) {
+                finish();
+            }
+        });
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (findViewById(R.id.web_view) != null) {
+            viewInAppTriggerRoot.removeView(findViewById(R.id.web_view));
+            return;
+        }
+        super.onBackPressed();
+    }
 }

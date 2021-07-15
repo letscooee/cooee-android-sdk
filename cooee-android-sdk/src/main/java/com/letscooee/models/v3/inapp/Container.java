@@ -19,7 +19,7 @@ public class Container  implements Parcelable {
     private Spacing spacing;
     private Position position;
     private Animation animation;
-    private ClickAction click;
+    private ClickAction action;
 
     protected Container(Parcel in) {
         size = in.readParcelable(Size.class.getClassLoader());
@@ -28,7 +28,7 @@ public class Container  implements Parcelable {
         spacing = in.readParcelable(Spacing.class.getClassLoader());
         position = in.readParcelable(Position.class.getClassLoader());
         animation = in.readParcelable(Animation.class.getClassLoader());
-        click = in.readParcelable(ClickAction.class.getClassLoader());
+        action = in.readParcelable(ClickAction.class.getClassLoader());
     }
 
     public static final Creator<Container> CREATOR = new Creator<Container>() {
@@ -67,8 +67,8 @@ public class Container  implements Parcelable {
         return animation;
     }
 
-    public ClickAction getClick() {
-        return click;
+    public ClickAction getAction() {
+        return action;
     }
 
     @Override
@@ -84,7 +84,7 @@ public class Container  implements Parcelable {
         dest.writeParcelable(spacing, flags);
         dest.writeParcelable(position, flags);
         dest.writeParcelable(animation, flags);
-        dest.writeParcelable(click, flags);
+        dest.writeParcelable(action, flags);
     }
 
 

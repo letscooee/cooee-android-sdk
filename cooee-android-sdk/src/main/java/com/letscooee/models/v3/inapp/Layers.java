@@ -20,7 +20,7 @@ public class Layers implements Parcelable {
     private Border border;
     private Spacing spacing;
     private Position position;
-    private ClickAction click;
+    private ClickAction action;
     private ArrayList<Children> children;
 
     protected Layers(Parcel in) {
@@ -29,7 +29,7 @@ public class Layers implements Parcelable {
         border = in.readParcelable(Border.class.getClassLoader());
         spacing = in.readParcelable(Spacing.class.getClassLoader());
         position = in.readParcelable(Position.class.getClassLoader());
-        click = in.readParcelable(ClickAction.class.getClassLoader());
+        action = in.readParcelable(ClickAction.class.getClassLoader());
         children = in.createTypedArrayList(Children.CREATOR);
     }
 
@@ -65,8 +65,8 @@ public class Layers implements Parcelable {
         return position;
     }
 
-    public ClickAction getClick() {
-        return click;
+    public ClickAction getAction() {
+        return action;
     }
 
     public ArrayList<Children> getElements() {
@@ -85,7 +85,7 @@ public class Layers implements Parcelable {
         dest.writeParcelable(border, flags);
         dest.writeParcelable(spacing, flags);
         dest.writeParcelable(position, flags);
-        dest.writeParcelable(click, flags);
+        dest.writeParcelable(action, flags);
         dest.writeTypedList(children);
     }
 }
