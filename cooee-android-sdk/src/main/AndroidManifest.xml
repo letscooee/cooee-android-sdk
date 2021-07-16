@@ -35,7 +35,7 @@
             android:theme="@style/AppTheme.PopUp" />
 
         <service
-                android:name=".services.CooeeFirebaseMessagingService"
+                android:name=".services.CooeeFirebaseMessagingServiceNew"
                 android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />

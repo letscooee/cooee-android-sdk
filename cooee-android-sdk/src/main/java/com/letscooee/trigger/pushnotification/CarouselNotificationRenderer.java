@@ -3,7 +3,7 @@ package com.letscooee.trigger.pushnotification;
 import android.content.Context;
 import com.letscooee.R;
 import com.letscooee.models.TriggerData;
-import com.letscooee.models.trigger.PushNotificationTrigger;
+import com.letscooee.models.v3.CoreTriggerData;
 
 /**
  * Class to build and render a carousel based push notification from the received {@link TriggerData}.
@@ -13,7 +13,7 @@ import com.letscooee.models.trigger.PushNotificationTrigger;
  */
 public class CarouselNotificationRenderer extends NotificationRenderer {
 
-    public CarouselNotificationRenderer(Context context, PushNotificationTrigger triggerData) {
+    public CarouselNotificationRenderer(Context context, CoreTriggerData triggerData) {
         super(context, triggerData);
     }
 
