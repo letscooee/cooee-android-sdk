@@ -203,7 +203,7 @@ public class InAppTriggerActivityNew extends AppCompatActivity implements Preven
         overridePendingTransition(R.anim.slide_in_down, transitionId);
     }
 
-    private void manualCloseTrigger(String behaviour, TriggerButtonAction action) {
+    private void manualCloseTrigger(String behaviour, ClickAction action) {
 
         this.closeBehaviour = behaviour;
         this.finish();
@@ -216,17 +216,18 @@ public class InAppTriggerActivityNew extends AppCompatActivity implements Preven
 
     /**
      * Action/data to be sent to application i.e. the callback of CTA.
+     * @param action
      */
-    private void nonCloseActionTaken(TriggerButtonAction action) {
+    private void nonCloseActionTaken(ClickAction action) {
         InAppTriggerActivity.InAppListener listener = inAppListenerWeakReference.get();
         if (action.getKv() != null) {
-            listener.inAppNotificationDidClick(action.getKv());
+            listener.inAppNotificationDidClick((HashMap<String, Object>) action.getKv());
         }
 
-        if (action.getUserProperty() != null) {
+        if (action.getUp() != null) {
             Map<String, Object> userProfile = new HashMap<>();
             userProfile.put("userData", new HashMap<>());
-            userProfile.put("userProperties", action.getUserProperty());
+            userProfile.put("userProperties", action.getUp());
             CooeeFactory.getSafeHTTPService().updateUserProfile(userProfile);
         }
     }
@@ -524,7 +525,8 @@ public class InAppTriggerActivityNew extends AppCompatActivity implements Preven
                 }
             }
             if (action.isClose()) {
-                finish();
+                closeBehaviour="Action Press";
+                manualCloseTrigger("Action Press",action);
             }
         });
     }
@@ -534,8 +536,10 @@ public class InAppTriggerActivityNew extends AppCompatActivity implements Preven
         if (findViewById(R.id.web_view) != null) {
             viewInAppTriggerRoot.removeView(findViewById(R.id.web_view));
             return;
+        }else {
+
+           manualCloseTrigger("Back Press",null);
         }
-        super.onBackPressed();
     }
 
     /**
