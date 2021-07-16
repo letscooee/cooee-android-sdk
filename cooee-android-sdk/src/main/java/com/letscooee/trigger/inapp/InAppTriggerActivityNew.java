@@ -34,6 +34,8 @@ import com.google.android.flexbox.FlexboxLayout;
 import com.letscooee.CooeeFactory;
 import com.letscooee.CooeeSDK;
 import com.letscooee.R;
+import com.letscooee.models.Event;
+import com.letscooee.models.TriggerButtonAction;
 import com.letscooee.models.v3.CoreTriggerData;
 import com.letscooee.models.v3.block.ClickAction;
 import com.letscooee.models.v3.elemeent.Children;
@@ -49,12 +51,17 @@ import com.letscooee.utils.UIUtil;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+import jp.wasabeef.blurry.Blurry;
+
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class InAppTriggerActivityNew extends AppCompatActivity implements PreventBlurActivity {
 
     private static Window lastActiveWindow;
@@ -75,10 +82,17 @@ public class InAppTriggerActivityNew extends AppCompatActivity implements Preven
     private int watchedTill;
     private int videoSeenCounter = 0;
     private boolean isVideoUnmuted;
+    private String closeBehaviour;
+    private Date startTime;
+    private boolean isSuccessfullyStarted;
 
     public InAppTriggerActivityNew() {
         safeHTTPService = CooeeFactory.getSafeHTTPService();
         sentryHelper = CooeeFactory.getSentryHelper();
+    }
+
+    public interface InAppListener {
+        void inAppNotificationDidClick(HashMap<String, Object> payload);
     }
 
     @Override
@@ -102,11 +116,119 @@ public class InAppTriggerActivityNew extends AppCompatActivity implements Preven
             this.setViewGroupForBlurry((ViewGroup) lastActiveWindow.getDecorView());
             generateContainer();
             loadLayers();
+            updateEntrance();
+            sendTriggerDisplayedEvent();
         } catch (Exception e) {
             sentryHelper.captureException(e);
             finish();
         }
 
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        startTime = new Date();
+        isSuccessfullyStarted = true;
+    }
+
+    private void sendTriggerDisplayedEvent() {
+        if (!this.isFreshLaunch) {
+            return;
+        }
+
+        Event event = new Event("CE Trigger Displayed", triggerData);
+        safeHTTPService.sendEvent(event);
+    }
+
+    /**
+     * Update the trigger entrance
+     */
+    private void updateEntrance() {
+        int transitionId = R.anim.slide_in_right;
+        if (inAppData.getContainer().getAnimation() != null) {
+
+
+            switch (inAppData.getContainer().getAnimation().getEnter()) {
+                case SLIDE_IN_LEFT: {
+                    transitionId = android.R.anim.slide_in_left;
+                    break;
+                }
+                case SLIDE_IN_RIGHT: {
+                    transitionId = R.anim.slide_in_right;
+                    break;
+                }
+                case SLIDE_IN_TOP: {
+                    transitionId = R.anim.slide_in_up;
+                    break;
+                }
+                case SLIDE_IN_DOWN: {
+                    transitionId = R.anim.slide_in_down;
+                    break;
+                }
+                default: {
+                    transitionId = R.anim.slide_in_right;
+                    break;
+                }
+            }
+        }
+        overridePendingTransition(transitionId, R.anim.no_change);
+    }
+
+    private void updateExit() {
+        int transitionId = R.anim.slide_out_right;
+        if (inAppData.getContainer().getAnimation() != null)
+            switch (inAppData.getContainer().getAnimation().getExit()) {
+                case SLIDE_OUT_LEFT: {
+                    transitionId = R.anim.slide_out_left;
+                    break;
+                }
+                case SLIDE_OUT_RIGHT: {
+                    transitionId = R.anim.slide_out_right;
+                    break;
+                }
+                case SLIDE_OUT_TOP: {
+                    transitionId = R.anim.slide_out_up;
+                    break;
+                }
+                case SLIDE_OUT_DOWN: {
+                    transitionId = R.anim.slide_out_down;
+                    break;
+                }
+                default: {
+                    transitionId = R.anim.slide_out_right;
+                    break;
+                }
+            }
+        overridePendingTransition(R.anim.slide_in_down, transitionId);
+    }
+
+    private void manualCloseTrigger(String behaviour, TriggerButtonAction action) {
+
+        this.closeBehaviour = behaviour;
+        this.finish();
+
+        if (action != null) {
+            // Invoke the CTA only after this activity is finished
+            nonCloseActionTaken(action);
+        }
+    }
+
+    /**
+     * Action/data to be sent to application i.e. the callback of CTA.
+     */
+    private void nonCloseActionTaken(TriggerButtonAction action) {
+        InAppTriggerActivity.InAppListener listener = inAppListenerWeakReference.get();
+        if (action.getKv() != null) {
+            listener.inAppNotificationDidClick(action.getKv());
+        }
+
+        if (action.getUserProperty() != null) {
+            Map<String, Object> userProfile = new HashMap<>();
+            userProfile.put("userData", new HashMap<>());
+            userProfile.put("userProperties", action.getUserProperty());
+            CooeeFactory.getSafeHTTPService().updateUserProfile(userProfile);
+        }
     }
 
     private void loadLayers() {
@@ -414,5 +536,47 @@ public class InAppTriggerActivityNew extends AppCompatActivity implements Preven
             return;
         }
         super.onBackPressed();
+    }
+
+    /**
+     * +
+     * Send trigger KPIs to the next activity(FeedbackActivity) to be sent back to the server
+     */
+    @Override
+    public void finish() {
+        super.finish();
+        if (!isSuccessfullyStarted) {
+            return;
+        }
+
+        int duration = (int) ((new Date().getTime() - startTime.getTime()) / 1000);
+        int totalWatched = videoDuration * videoSeenCounter + watchedTill;
+
+        Map<String, Object> kpiMap = new HashMap<>();
+        kpiMap.put("Duration", duration);
+        kpiMap.put("Close Behaviour", closeBehaviour);
+
+        // TODO: 16/07/21 need to discuss these point for video parameters
+        //if (triggerData.getType() == TriggerData.Type.VIDEO) {
+        kpiMap.put("Video Duration", videoDuration);
+        kpiMap.put("Watched Till", watchedTill);
+        kpiMap.put("Total Watched", totalWatched);
+        kpiMap.put("Video Unmuted", isVideoUnmuted);
+        //}
+
+        Event event = new Event("CE Trigger Closed", kpiMap);
+        event.withTrigger(triggerData);
+        safeHTTPService.sendEvent(event);
+
+        updateExit();
+    }
+
+    /**
+     * Set Bitmap which can be used by {@link Blurry}. Mostly used by Flutter plugin.
+     *
+     * @param bitmap
+     */
+    public void setBitmapForBlurry(Bitmap bitmap) {
+        this.bitmapForBlurry = bitmap;
     }
 }
