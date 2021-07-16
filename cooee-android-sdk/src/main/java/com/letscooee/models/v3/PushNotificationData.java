@@ -3,21 +3,36 @@ package com.letscooee.models.v3;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.letscooee.models.trigger.PushNotification;
+import com.letscooee.models.trigger.PushNotificationImportance;
 import com.letscooee.models.v3.elemeent.Children;
 
-public class PushNotificationData extends CoreTriggerData implements Parcelable {
+import java.util.ArrayList;
+
+public class PushNotificationData implements Parcelable {
 
     private Children title;
     private Children body;
     private String smallImage;
     private String largeImage;
+    private ArrayList<Children> buttons;
+    public PushNotification pn;
+
+    public PushNotificationImportance getImportance() {
+        if (pn == null || pn.importance == null) {
+            return PushNotificationImportance.HIGH;
+        }
+        return pn.importance;
+    }
+
 
     protected PushNotificationData(Parcel in) {
-        super(in);
         title = in.readParcelable(Children.class.getClassLoader());
         body = in.readParcelable(Children.class.getClassLoader());
         smallImage = in.readString();
         largeImage = in.readString();
+        buttons = in.createTypedArrayList(Children.CREATOR);
+        pn = in.readParcelable(PushNotificationImportance.class.getClassLoader());
     }
 
     public static final Creator<PushNotificationData> CREATOR = new Creator<PushNotificationData>() {
@@ -48,6 +63,9 @@ public class PushNotificationData extends CoreTriggerData implements Parcelable 
         return largeImage;
     }
 
+    public ArrayList<Children> getButtons() {
+        return buttons;
+    }
 
     @Override
     public int describeContents() {
@@ -60,5 +78,7 @@ public class PushNotificationData extends CoreTriggerData implements Parcelable 
         dest.writeParcelable(body, flags);
         dest.writeString(smallImage);
         dest.writeString(largeImage);
+        dest.writeTypedList(buttons);
+        dest.writeParcelable(pn, flags);
     }
 }

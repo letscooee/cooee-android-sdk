@@ -11,12 +11,15 @@ public class CoreTriggerData implements Parcelable {
     private double version;
     private long duration;
     private InAppData ian;
+    private PushNotificationData pn;
+
 
     protected CoreTriggerData(Parcel in) {
         id = in.readString();
         version = in.readDouble();
-        ian = in.readParcelable(InAppData.class.getClassLoader());
         duration = in.readLong();
+        ian = in.readParcelable(InAppData.class.getClassLoader());
+        pn = in.readParcelable(PushNotificationData.class.getClassLoader());
     }
 
     public static final Creator<CoreTriggerData> CREATOR = new Creator<CoreTriggerData>() {
@@ -30,6 +33,10 @@ public class CoreTriggerData implements Parcelable {
             return new CoreTriggerData[size];
         }
     };
+
+    public PushNotificationData getPn() {
+        return pn;
+    }
 
     public String getId() {
         return id;
@@ -56,7 +63,8 @@ public class CoreTriggerData implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(id);
         dest.writeDouble(version);
-        dest.writeParcelable(ian, flags);
         dest.writeLong(duration);
+        dest.writeParcelable(ian, flags);
+        dest.writeParcelable(pn, flags);
     }
 }
