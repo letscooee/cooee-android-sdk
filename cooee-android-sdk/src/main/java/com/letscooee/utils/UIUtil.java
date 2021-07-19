@@ -7,6 +7,7 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -93,7 +94,7 @@ public class UIUtil {
                 else
                     layoutParams = new RelativeLayout.LayoutParams(calculatedWidth, calculatedHeight);
             }
-            if (!TextUtils.isEmpty(size.getAlignItems()) && !TextUtils.isEmpty(size.getJustifyContent())) {
+            if (!TextUtils.isEmpty(size.getAlignItems()) || !TextUtils.isEmpty(size.getJustifyContent())) {
                 if (size.getAlignItems().toLowerCase().equals("center")) {
                     layoutParams.addRule(CENTER_IN_PARENT);
                 }
@@ -174,7 +175,9 @@ public class UIUtil {
                         BitmapDrawable drawable = new BitmapDrawable(context.getResources(), resource);
                         // TODO: 16/07/21 discuss on border when load image
                         //addBorder(border);
+                        Log.d(Constants.TAG, "onResourceReady 177: Image Loaded");
                         if (onImageLoad != null) {
+                            Log.d(Constants.TAG, "onResourceReady 180: Drawable sent");
                             onImageLoad.onImageLoad(drawable);
                         }
                     }

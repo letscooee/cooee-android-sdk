@@ -6,7 +6,7 @@ import android.os.Parcelable;
 public class Alignment implements Parcelable {
 
     protected Alignment(Parcel in) {
-        align = Align.valueOf(in.readString());
+        align = in.readString();
         direction = Direction.valueOf(in.readString());
     }
 
@@ -29,10 +29,8 @@ public class Alignment implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        if (align == null)
-            dest.writeString(Align.CENTER.name());
-        else
-            dest.writeString(align.name());
+
+        dest.writeString(align);
         if (direction == null)
             dest.writeString(Direction.ltr.name());
         else
@@ -43,10 +41,10 @@ public class Alignment implements Parcelable {
 
     public enum Direction {ltr, rtl, ttb, btt}
 
-    private Align align;
+    private String align;
     private Direction direction;
 
-    public Align getAlign() {
+    public String getAlign() {
         return align;
     }
 

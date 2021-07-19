@@ -216,6 +216,7 @@ public class InAppTriggerActivityNew extends AppCompatActivity implements Preven
 
     /**
      * Action/data to be sent to application i.e. the callback of CTA.
+     *
      * @param action
      */
     private void nonCloseActionTaken(ClickAction action) {
@@ -273,10 +274,11 @@ public class InAppTriggerActivityNew extends AppCompatActivity implements Preven
                             .getDisplayMetrics().scaledDensity;
                     ((Button) view).setTextSize(fontSizeInSP);
                 }
-                if (children.getAlignment()!=null)
-                ((Button) view).setGravity(
-                        children.getAlignment().getAlign() == Alignment.Align.LEFT ?
-                                Gravity.START : Gravity.END);
+                if (children.getAlignment() != null)
+                    if (children.getAlignment().getAlign().equalsIgnoreCase("left"))
+                        ((TextView) view).setGravity(Gravity.START);
+                    else if (children.getAlignment().getAlign().equalsIgnoreCase("right"))
+                        ((TextView) view).setGravity(Gravity.END);
 
             } else if (children.getType() == Children.ElementType.TEXT) {
                 view = new TextView(this);
@@ -290,9 +292,10 @@ public class InAppTriggerActivityNew extends AppCompatActivity implements Preven
                     ((TextView) view).setTextSize(fontSizeInSP);
                 }
                 if (children.getAlignment() != null)
-                    ((TextView) view).setGravity(
-                            children.getAlignment().getAlign() == Alignment.Align.LEFT ?
-                                    Gravity.START : Gravity.END);
+                    if (children.getAlignment().getAlign().equalsIgnoreCase("center"))
+                        ((TextView) view).setGravity(Gravity.CENTER);
+                    else if (children.getAlignment().getAlign().equalsIgnoreCase("right"))
+                        ((TextView) view).setGravity(Gravity.END);
 
             } else if (children.getType() == Children.ElementType.VIDEO) {
                 view = new RelativeLayout(this);
@@ -316,11 +319,14 @@ public class InAppTriggerActivityNew extends AppCompatActivity implements Preven
             Drawable backgroundDrawable = bitmapForBlurry == null ?
                     uiUtil.processBackground(children, viewGroupForBlurry) :
                     uiUtil.processBackground(children, bitmapForBlurry);
+
+            if (children.getBg() != null)
+                if (children.getBg().getImage() != null) {
+                    uiUtil.setOnImageLoad(view::setBackground);
+                }
             view.setLayoutParams(layoutParams);
             view.setBackground(backgroundDrawable);
-            if (backgroundDrawable == null) {
-                uiUtil.setOnImageLoad(view::setBackground);
-            }
+
             uiUtil.processSpacing(view, children.getSpacing());
             if (children.getAction() != null) {
                 ClickAction action = children.getAction();
@@ -526,8 +532,8 @@ public class InAppTriggerActivityNew extends AppCompatActivity implements Preven
                 }
             }
             if (action.isClose()) {
-                closeBehaviour="Action Press";
-                manualCloseTrigger("Action Press",action);
+                closeBehaviour = "Action Press";
+                manualCloseTrigger("Action Press", action);
             }
         });
     }
@@ -537,9 +543,9 @@ public class InAppTriggerActivityNew extends AppCompatActivity implements Preven
         if (findViewById(R.id.web_view) != null) {
             viewInAppTriggerRoot.removeView(findViewById(R.id.web_view));
             return;
-        }else {
+        } else {
 
-           manualCloseTrigger("Back Press",null);
+            manualCloseTrigger("Back Press", null);
         }
     }
 
