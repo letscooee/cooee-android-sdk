@@ -493,17 +493,14 @@ public class InAppTriggerActivityNew extends AppCompatActivity implements Preven
                 Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(action.getExternal().getUrl()));
                 startActivity(browserIntent);
             } else if (action.getIab() != null) {
-                RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-                WebView webView = new WebView(this);
 
-                webView.getSettings().setJavaScriptEnabled(true);
-                webView.setLayoutParams(layoutParams);
-                webView.setWebViewClient(new WebViewClient());
-                webView.setTranslationZ(5);
-                webView.setId(R.id.web_view);
-                viewInAppTriggerRoot.addView(webView);
-                webView.loadUrl(action.getIab().getUrl());
+                if (!TextUtils.isEmpty(action.getIab().getUrl())) {
+                    Intent intent = new Intent(this, InAppBrowserActivity.class);
+                    Bundle bundle = new Bundle();
+                    bundle.putParcelable(Constants.INTENT_BUNDLE_KEY, action.getIab());
+                    intent.putExtras(bundle);
+                    startActivity(intent);
+                }
             } else if (action.getUpdateApp() != null) {
                 Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(action.getUpdateApp().getUrl()));
                 startActivity(browserIntent);
@@ -539,13 +536,9 @@ public class InAppTriggerActivityNew extends AppCompatActivity implements Preven
 
     @Override
     public void onBackPressed() {
-        if (findViewById(R.id.web_view) != null) {
-            viewInAppTriggerRoot.removeView(findViewById(R.id.web_view));
-            return;
-        } else {
 
-            manualCloseTrigger("Back Press", null);
-        }
+        manualCloseTrigger("Back Press", null);
+
     }
 
     /**
