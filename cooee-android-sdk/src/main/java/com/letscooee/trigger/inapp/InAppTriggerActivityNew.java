@@ -10,12 +10,11 @@ import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -35,11 +34,9 @@ import com.letscooee.CooeeFactory;
 import com.letscooee.CooeeSDK;
 import com.letscooee.R;
 import com.letscooee.models.Event;
-import com.letscooee.models.TriggerButtonAction;
 import com.letscooee.models.v3.CoreTriggerData;
 import com.letscooee.models.v3.block.ClickAction;
 import com.letscooee.models.v3.elemeent.Children;
-import com.letscooee.models.v3.elemeent.property.Alignment;
 import com.letscooee.models.v3.inapp.Container;
 import com.letscooee.models.v3.inapp.InAppData;
 import com.letscooee.models.v3.inapp.Layers;
@@ -55,6 +52,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -217,7 +215,7 @@ public class InAppTriggerActivityNew extends AppCompatActivity implements Preven
     /**
      * Action/data to be sent to application i.e. the callback of CTA.
      *
-     * @param action
+     * @param action instance of {@link ClickAction}
      */
     private void nonCloseActionTaken(ClickAction action) {
         InAppTriggerActivity.InAppListener listener = inAppListenerWeakReference.get();
@@ -480,6 +478,7 @@ public class InAppTriggerActivityNew extends AppCompatActivity implements Preven
         uiUtil.processSpacing(viewInAppTriggerRoot, container.getSpacing());
         ImageView imageView = new ImageView(this);
         imageView.setImageDrawable(backgroundImage);
+        imageView.setLayoutParams(layoutParams);
         if (container.getAction() != null) {
             ClickAction action = container.getAction();
             addAction(viewInAppTriggerRoot, action);
@@ -510,7 +509,7 @@ public class InAppTriggerActivityNew extends AppCompatActivity implements Preven
                 startActivity(browserIntent);
             } else if (action.getShare() != null) {
                 Intent intent = new Intent(Intent.ACTION_SEND);
-                String shareBody = action.getShare().get("text").toString();
+                String shareBody = Objects.requireNonNull(action.getShare().get("text")).toString();
                 intent.setType("text/plain");
                 intent.putExtra(Intent.EXTRA_TEXT, shareBody);
                 startActivity(Intent.createChooser(intent, "Share with"));
