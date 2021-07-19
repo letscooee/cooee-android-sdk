@@ -72,7 +72,7 @@ public class Size implements Parcelable {
             return getCalculatedValue(deviceWidth, deviceHeight, getWidth());
     }
 
-    public enum Display {BLOCK, INLINE_BLOCK}
+    public enum Display {BLOCK, INLINE_BLOCK, FLEX}
 
     private String width;
     private String height;

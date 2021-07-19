@@ -19,6 +19,7 @@ import androidx.annotation.RestrictTo;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
+import com.letscooee.R;
 import com.letscooee.models.v3.block.Background;
 import com.letscooee.models.v3.block.Border;
 import com.letscooee.models.v3.block.Color;
@@ -50,7 +51,7 @@ public class UIUtil {
     private final Context context;
     private final int deviceHeight;
     private final int deviceWidth;
-    private Drawable drawable;
+
     private OnImageLoad onImageLoad;
 
     public interface OnImageLoad {
@@ -76,7 +77,10 @@ public class UIUtil {
             if (size.getDisplay() == Size.Display.BLOCK) {
                 layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                         ViewGroup.LayoutParams.MATCH_PARENT);
-            } else {
+            } else if(size.getDisplay() == Size.Display.FLEX){
+                layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT);
+            }else{
                 int calculatedHeight = size.getCalculatedHeight(deviceWidth, deviceHeight);
                 int calculatedWidth = size.getCalculatedWidth(deviceWidth, deviceHeight);
 
@@ -135,7 +139,7 @@ public class UIUtil {
     public Drawable processBackground(Object container, Object imageContainer) {
         Background background;
         Border border;
-
+        Drawable drawable;
         if (container instanceof Container) {
             background = ((Container) container).getBg();
             border = ((Container) container).getBorder();
@@ -147,19 +151,18 @@ public class UIUtil {
             border = ((Layers) container).getBorder();
         }
 
-
+        drawable = new GradientDrawable();
         if (background != null) {
             if (background.getSolid() != null) {
-                drawable = new GradientDrawable();
                 if (border == null)
-                    processesSolid(background.getSolid());
+                    processesSolid(drawable,background.getSolid());
                 else
-                    processesSolidWithBorder(background.getSolid(), border);
+                    processesSolidWithBorder(drawable,background.getSolid(), border);
 
             } else if (background.getGlossy() != null) {
                 //ImageView imageView = new ImageView(context);
 
-                processesGlassMorphism(background.getGlossy(),
+                processesGlassMorphism(drawable,background.getGlossy(),
                         border, imageContainer);
 
             } else if (background.getImage() != null) {
@@ -169,7 +172,8 @@ public class UIUtil {
                     @Override
                     public void onResourceReady(@NonNull @NotNull Bitmap resource, @Nullable @org.jetbrains.annotations.Nullable Transition<? super Bitmap> transition) {
                         BitmapDrawable drawable = new BitmapDrawable(context.getResources(), resource);
-                        addBorder(border);
+                        // TODO: 16/07/21 discuss on border when load image
+                        //addBorder(border);
                         if (onImageLoad != null) {
                             onImageLoad.onImageLoad(drawable);
                         }
@@ -184,13 +188,13 @@ public class UIUtil {
             }
         } else {
             drawable = new GradientDrawable();
-            addBorder(border);
+            addBorder(drawable,border);
 
         }
         return drawable;
     }
 
-    private void processesGlassMorphism(Glossy glossy,
+    private void processesGlassMorphism(Drawable drawable, Glossy glossy,
                                         Border border, Object imageContainer) {
         ImageView imageView = new ImageView(context);
         Blurry.Composer blurryComposer = Blurry.with(context)
@@ -217,12 +221,12 @@ public class UIUtil {
 
         if (border != null) {
             //GradientDrawable drawable = new GradientDrawable();
-            addBorder(border);
-            imageView.setBackground(drawable);
+            //addBorder(border);
+            //imageView.setBackground(drawable);
         }
     }
 
-    private void processesSolidWithBorder(Color color, Border border) {
+    private void processesSolidWithBorder(Drawable drawable, Color color, Border border) {
         //GradientDrawable drawable;
 
         if (color.getGrad() == null) {
@@ -231,15 +235,19 @@ public class UIUtil {
             drawable = color.getGrad().getGradient();
         }
 
-        addBorder(border);
+        addBorder(drawable, border);
         //imageView.setBackground(drawable);
     }
 
-    private void addBorder(Border border) {
+    private void addBorder(Drawable drawable, Border border) {
         if (border != null) {
             if (border.getStyle() == Border.Style.SOLID) {
+                if (border.getColor()!=null)
                 ((GradientDrawable) drawable).setStroke(border.getWidth(deviceWidth, deviceHeight),
                         border.getColor().getSolidColor());
+                else
+                    ((GradientDrawable) drawable).setStroke(border.getWidth(deviceWidth, deviceHeight),
+                        context.getResources().getColor(R.color.colorPrimary));
             } else {
                 ((GradientDrawable) drawable).setStroke(border.getWidth(deviceWidth, deviceHeight),
                         border.getColor().getSolidColor(),
@@ -252,7 +260,7 @@ public class UIUtil {
         }
     }
 
-    private void processesSolid(Color solid) {
+    private void processesSolid(Drawable drawable, Color solid) {
         if (solid.getGrad() == null) {
             ((GradientDrawable) drawable).setColor(solid.getSolidColor());
         } else {

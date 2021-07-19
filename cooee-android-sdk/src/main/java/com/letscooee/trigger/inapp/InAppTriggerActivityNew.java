@@ -273,6 +273,7 @@ public class InAppTriggerActivityNew extends AppCompatActivity implements Preven
                             .getDisplayMetrics().scaledDensity;
                     ((Button) view).setTextSize(fontSizeInSP);
                 }
+                if (children.getAlignment()!=null)
                 ((Button) view).setGravity(
                         children.getAlignment().getAlign() == Alignment.Align.LEFT ?
                                 Gravity.START : Gravity.END);
