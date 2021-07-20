@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Build;
@@ -29,12 +30,14 @@ import androidx.core.content.ContextCompat;
 import com.bumptech.glide.Glide;
 import com.google.android.flexbox.FlexDirection;
 import com.google.android.flexbox.FlexboxLayout;
+import com.google.android.material.card.MaterialCardView;
 import com.letscooee.CooeeFactory;
 import com.letscooee.CooeeSDK;
 import com.letscooee.R;
 import com.letscooee.models.Event;
 import com.letscooee.models.v3.CoreTriggerData;
 import com.letscooee.models.v3.block.ClickAction;
+import com.letscooee.models.v3.block.Size;
 import com.letscooee.models.v3.elemeent.Children;
 import com.letscooee.models.v3.inapp.Container;
 import com.letscooee.models.v3.inapp.InAppData;
@@ -82,6 +85,7 @@ public class InAppTriggerActivityNew extends AppCompatActivity implements Preven
     private String closeBehaviour;
     private Date startTime;
     private boolean isSuccessfullyStarted;
+    private View baseView;
 
     public InAppTriggerActivityNew() {
         safeHTTPService = CooeeFactory.getSafeHTTPService();
@@ -239,13 +243,17 @@ public class InAppTriggerActivityNew extends AppCompatActivity implements Preven
                 layout.setLayoutParams(layoutParams);
                 uiUtil.processSpacing(layout, layers.getSpacing());
 
-                ImageView backgroundImage = bitmapForBlurry == null ?
+                MaterialCardView backgroundImage = bitmapForBlurry == null ?
                         uiUtil.processBackground(layers, viewGroupForBlurry) :
                         uiUtil.processBackground(layers, bitmapForBlurry);
 
                 if (backgroundImage != null) {
                     backgroundImage.setLayoutParams(layoutParams);
                     uiUtil.processSpacing(backgroundImage, layers.getSpacing());
+                    Drawable drawable = backgroundImage.getBackground();
+                    if (drawable != null) {
+                        layout.setBackground(drawable);
+                    }
                 }
 
                 if (layers.getAction() != null) {
@@ -253,9 +261,22 @@ public class InAppTriggerActivityNew extends AppCompatActivity implements Preven
                     addAction(layout, action);
                 }
                 addChildren(layers.getElements(), layout);
-                if (backgroundImage != null)
-                    viewInAppTriggerRoot.addView(backgroundImage);
-                viewInAppTriggerRoot.addView(layout);
+
+                layout.setClipToOutline(true);
+
+                if (baseView instanceof FlexboxLayout) {
+                    if (backgroundImage != null) {
+                        ((RelativeLayout) backgroundImage.getChildAt(0)).addView(layout);
+                        ((FlexboxLayout) baseView).addView(backgroundImage);
+                    } else
+                        ((FlexboxLayout) baseView).addView(layout);
+                } else {
+                    if (backgroundImage != null) {
+                        ((RelativeLayout) backgroundImage.getChildAt(0)).addView(layout);
+                        ((RelativeLayout) baseView).addView(backgroundImage);
+                    } else
+                        ((RelativeLayout) baseView).addView(layout);
+                }
             }
         }
     }
@@ -268,6 +289,7 @@ public class InAppTriggerActivityNew extends AppCompatActivity implements Preven
             if (children.getType() == Children.ElementType.IMAGE) {
                 view = new ImageView(this);
                 ((ImageView) view).setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+
                 Glide.with(this).load(children.getUrl()).into((ImageView) view);
 
             } else if (children.getType() == Children.ElementType.BUTTON) {
@@ -321,34 +343,38 @@ public class InAppTriggerActivityNew extends AppCompatActivity implements Preven
             if (children.getTransform() != null)
                 view.setRotation(children.getTransform().getRotate());
 
-            RelativeLayout.LayoutParams layoutParams = uiUtil.generateLayoutParams(children.getSize(), children.getPosition());
+            RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) uiUtil.generateLayoutParams(children.getSize(), children.getPosition());
 
-            ImageView backgroundImage = bitmapForBlurry == null ?
+            MaterialCardView backgroundImage = bitmapForBlurry == null ?
                     uiUtil.processBackground(children, viewGroupForBlurry) :
                     uiUtil.processBackground(children, bitmapForBlurry);
 
 
             view.setLayoutParams(layoutParams);
-            if (backgroundImage != null) {
-                backgroundImage.setLayoutParams(layoutParams);
-                uiUtil.processSpacing(backgroundImage, children.getSpacing());
-            }
-
             uiUtil.processSpacing(view, children.getSpacing());
-
 
             if (children.getAction() != null) {
                 ClickAction action = children.getAction();
                 addAction(view, action);
             }
 
-            if (layout instanceof RelativeLayout) {
-                if (backgroundImage != null)
+            if (backgroundImage != null) {
+                backgroundImage.setLayoutParams(layoutParams);
+                uiUtil.processSpacing(backgroundImage, children.getSpacing());
+                if (layout instanceof RelativeLayout) {
+                    ((RelativeLayout) backgroundImage.getChildAt(0)).addView(view);
                     ((RelativeLayout) layout).addView(backgroundImage);
-                ((RelativeLayout) layout).addView(view);
+                } else {
+                    ((FlexboxLayout) layout).addView(view);
+                }
             } else {
-                ((FlexboxLayout) layout).addView(view);
+                if (layout instanceof RelativeLayout) {
+                    ((RelativeLayout) layout).addView(view);
+                } else {
+                    ((FlexboxLayout) layout).addView(view);
+                }
             }
+
         }
     }
 
@@ -482,10 +508,19 @@ public class InAppTriggerActivityNew extends AppCompatActivity implements Preven
      */
     private void generateContainer() {
         Container container = inAppData.getContainer();
-        RelativeLayout.LayoutParams layoutParams = uiUtil.generateLayoutParams(container.getSize(),
+
+        baseView = viewInAppTriggerRoot;
+
+        if (container.getSize() != null) {
+            if (container.getSize().getDisplay() == Size.Display.FLEX) {
+                baseView = new FlexboxLayout(this);
+            }
+        }
+        ViewGroup.MarginLayoutParams layoutParams = uiUtil.generateLayoutParams(container.getSize(),
                 container.getPosition());
 
-        ImageView backgroundImage = bitmapForBlurry == null ?
+
+        MaterialCardView backgroundImage = bitmapForBlurry == null ?
                 uiUtil.processBackground(container, viewGroupForBlurry) :
                 uiUtil.processBackground(container, bitmapForBlurry);
 
@@ -494,11 +529,23 @@ public class InAppTriggerActivityNew extends AppCompatActivity implements Preven
         if (backgroundImage != null)
             backgroundImage.setLayoutParams(layoutParams);
 
+        viewInAppTriggerRoot.addView(backgroundImage);
+
+        if (baseView instanceof FlexboxLayout) {
+            baseView.setLayoutParams(layoutParams);
+            uiUtil.addFlexProperty((FlexboxLayout) baseView, container.getSize());
+            if (backgroundImage != null)
+                ((RelativeLayout) backgroundImage.getChildAt(0)).addView(baseView);
+            else
+                viewInAppTriggerRoot.addView(baseView);
+        }
+
+
         if (container.getAction() != null) {
             ClickAction action = container.getAction();
-            addAction(viewInAppTriggerRoot, action);
+            addAction(baseView, action);
         }
-        viewInAppTriggerRoot.addView(backgroundImage);
+
 
     }
 

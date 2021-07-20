@@ -3,23 +3,24 @@ package com.letscooee.utils;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
-import android.text.TextUtils;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.target.CustomTarget;
-import com.bumptech.glide.request.transition.Transition;
+import com.google.android.flexbox.AlignContent;
+import com.google.android.flexbox.AlignItems;
+import com.google.android.flexbox.FlexDirection;
+import com.google.android.flexbox.FlexWrap;
+import com.google.android.flexbox.FlexboxLayout;
+import com.google.android.flexbox.JustifyContent;
+import com.google.android.material.card.MaterialCardView;
 import com.letscooee.R;
 import com.letscooee.models.v3.block.Background;
 import com.letscooee.models.v3.block.Border;
@@ -31,8 +32,6 @@ import com.letscooee.models.v3.block.Spacing;
 import com.letscooee.models.v3.elemeent.Children;
 import com.letscooee.models.v3.inapp.Container;
 import com.letscooee.models.v3.inapp.Layers;
-
-import org.jetbrains.annotations.NotNull;
 
 import jp.wasabeef.blurry.Blurry;
 
@@ -71,17 +70,30 @@ public class UIUtil {
         deviceWidth = displayMetrics.widthPixels;
     }
 
-    public RelativeLayout.LayoutParams generateLayoutParams(Size size, Position position) {
+    public ViewGroup.MarginLayoutParams generateLayoutParams(Size size, Position position) {
 
-        RelativeLayout.LayoutParams layoutParams;
+        ViewGroup.MarginLayoutParams layoutParams;
 
         if (size != null) {
             if (size.getDisplay() == Size.Display.BLOCK) {
                 layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                         ViewGroup.LayoutParams.MATCH_PARENT);
             } else if (size.getDisplay() == Size.Display.FLEX) {
-                layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                layoutParams = new FlexboxLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                         ViewGroup.LayoutParams.WRAP_CONTENT);
+
+                int calculatedHeight = size.getCalculatedHeight(deviceWidth, deviceHeight);
+                int calculatedWidth = size.getCalculatedWidth(deviceWidth, deviceHeight);
+
+                if (calculatedHeight == 0 && calculatedWidth == 0)
+                    layoutParams = new FlexboxLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                else if (calculatedHeight == 0 && calculatedWidth > 0)
+                    layoutParams = new FlexboxLayout.LayoutParams(calculatedWidth, ViewGroup.LayoutParams.WRAP_CONTENT);
+                else if (calculatedHeight > 0 && calculatedWidth == 0)
+                    layoutParams = new FlexboxLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, calculatedHeight);
+                else
+                    layoutParams = new FlexboxLayout.LayoutParams(calculatedWidth, calculatedHeight);
+
             } else {
                 int calculatedHeight = size.getCalculatedHeight(deviceWidth, deviceHeight);
                 int calculatedWidth = size.getCalculatedWidth(deviceWidth, deviceHeight);
@@ -95,17 +107,12 @@ public class UIUtil {
                 else
                     layoutParams = new RelativeLayout.LayoutParams(calculatedWidth, calculatedHeight);
             }
-            if (!TextUtils.isEmpty(size.getAlignItems()) || !TextUtils.isEmpty(size.getJustifyContent())) {
-                if (size.getAlignItems().toLowerCase().equals("center")) {
-                    layoutParams.addRule(CENTER_IN_PARENT);
-                }
-            }
+
         } else {
             layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT);
         }
 
-        processPosition(position, layoutParams);
 
         return layoutParams;
     }
@@ -139,10 +146,12 @@ public class UIUtil {
     }
 
     @Nullable
-    public ImageView processBackground(Object container, Object imageContainer) {
+    public MaterialCardView processBackground(Object container, Object imageContainer) {
         Background background;
         Border border;
         ImageView imageView = new ImageView(context);
+        MaterialCardView materialCardView = new MaterialCardView(context);
+        materialCardView.setCardBackgroundColor(android.graphics.Color.parseColor("#00ffffff"));
 
         if (container instanceof Container) {
             background = ((Container) container).getBg();
@@ -159,26 +168,35 @@ public class UIUtil {
             if (background.getSolid() != null) {
 
                 processesSolid(imageView, background.getSolid(), border);
-
+                if (border != null)
+                    addBorder(materialCardView, imageView, border);
             } else if (background.getGlossy() != null) {
 
                 processesGlassMorphism(imageView, background.getGlossy(),
                         border, imageContainer);
+                if (border != null) {
+
+                    addBorder(materialCardView, imageView, border);
+                    //imageView.setBackground(drawable);
+                }
 
             } else if (background.getImage() != null) {
 
                 Glide.with(context).asBitmap().load(background.getImage().getUrl()).into(imageView);
-                addBorder(imageView, border);
+                addBorder(materialCardView, imageView, border);
             }
         } else {
 
-            addBorder(imageView, border);
+            addBorder(materialCardView, imageView, border);
 
         }
         if (background == null && border == null) {
-            imageView = null;
+            return null;
         }
-        return imageView;
+        RelativeLayout relativeLayout = new RelativeLayout(context);
+        relativeLayout.addView(imageView);
+        materialCardView.addView(relativeLayout);
+        return materialCardView;
     }
 
     private void processesGlassMorphism(ImageView imageView, Glossy glossy,
@@ -205,12 +223,6 @@ public class UIUtil {
                     .into(imageView);
         }
 
-
-        if (border != null) {
-
-            addBorder(imageView, border);
-            //imageView.setBackground(drawable);
-        }
     }
 
     // Removed as it was duplicate code
@@ -227,27 +239,25 @@ public class UIUtil {
         //imageView.setBackground(drawable);
     }*/
 
-    private void addBorder(ImageView imageView, Border border) {
+    private void addBorder(MaterialCardView materialCardView, ImageView imageView, Border border) {
         if (border != null) {
             GradientDrawable drawable = new GradientDrawable();
-            if (border.getStyle() == Border.Style.SOLID) {
-                if (border.getColor() != null)
-                    drawable.setStroke(border.getWidth(deviceWidth, deviceHeight),
-                            border.getColor().getSolidColor());
-                else
-                    drawable.setStroke(border.getWidth(deviceWidth, deviceHeight),
-                            context.getResources().getColor(R.color.colorPrimary));
-            } else {
-                drawable.setStroke(border.getWidth(deviceWidth, deviceHeight),
-                        border.getColor().getSolidColor(),
-                        border.getDashWidth(deviceWidth, deviceHeight),
-                        border.getDashGap(deviceWidth, deviceHeight));
+
+            if (border.getColor() != null)
+                materialCardView.setStrokeColor(border.getColor().getSolidColor());
+            else
+                materialCardView.setStrokeColor(context.getResources().getColor(R.color.colorPrimary));
+
+            if (border.getWidth(deviceWidth, deviceHeight) != 0) {
+                materialCardView.setStrokeWidth(border.getWidth(deviceWidth, deviceHeight));
             }
+
             if (border.getRadius() > 0) {
-                drawable.setCornerRadius(border.getRadius());
+                materialCardView.setRadius(border.getRadius());
             }
-            imageView.setBackground(drawable);
+
         }
+
     }
 
     private void processesSolid(ImageView imageView, Color solid, Border border) {
@@ -258,9 +268,6 @@ public class UIUtil {
             drawable = solid.getGrad().getGradient();
         }
         imageView.setImageDrawable(drawable);
-
-        if (border != null)
-            addBorder(imageView, border);
 
     }
 
