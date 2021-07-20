@@ -8,6 +8,7 @@ import static com.letscooee.utils.ValueUtil.getCalculatedValue;
 
 public class Size implements Parcelable {
 
+
     protected Size(Parcel in) {
         width = in.readString();
         height = in.readString();
@@ -15,15 +16,10 @@ public class Size implements Parcelable {
         maxHeight = in.readString();
         justifyContent = in.readString();
         alignItems = in.readString();
+        wrap = in.readString();
+        alignContent = in.readString();
+        direction = in.readString();
         display = Display.valueOf(in.readString());
-    }
-
-    public String getJustifyContent() {
-        return justifyContent;
-    }
-
-    public String getAlignItems() {
-        return alignItems;
     }
 
     public static final Creator<Size> CREATOR = new Creator<Size>() {
@@ -38,23 +34,12 @@ public class Size implements Parcelable {
         }
     };
 
-    @Override
-    public int describeContents() {
-        return 0;
+    public String getJustifyContent() {
+        return justifyContent;
     }
 
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(width);
-        dest.writeString(height);
-        dest.writeString(maxWidth);
-        dest.writeString(maxHeight);
-        dest.writeString(justifyContent);
-        dest.writeString(alignItems);
-        if (display == null)
-            dest.writeString(Display.INLINE_BLOCK.name());
-        else
-            dest.writeString(display.name());
+    public String getAlignItems() {
+        return alignItems;
     }
 
     public int getCalculatedHeight(int deviceWidth, int deviceHeight) {
@@ -72,6 +57,28 @@ public class Size implements Parcelable {
             return getCalculatedValue(deviceWidth, deviceHeight, getWidth());
     }
 
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(width);
+        dest.writeString(height);
+        dest.writeString(maxWidth);
+        dest.writeString(maxHeight);
+        dest.writeString(justifyContent);
+        dest.writeString(alignItems);
+        dest.writeString(wrap);
+        dest.writeString(alignContent);
+        dest.writeString(direction);
+        if (display == null)
+            dest.writeString(Display.INLINE_BLOCK.name());
+        else
+            dest.writeString(display.name());
+    }
+
     public enum Display {BLOCK, INLINE_BLOCK, FLEX}
 
     private String width;
@@ -81,6 +88,13 @@ public class Size implements Parcelable {
     private Display display;
     private String justifyContent;
     private String alignItems;
+    private String wrap;
+    private String alignContent;
+    private String direction;
+
+    public String getDirection() {
+        return direction;
+    }
 
     public Display getDisplay() {
         return display;
@@ -114,5 +128,13 @@ public class Size implements Parcelable {
             return null;
         else
             return maxHeight.toLowerCase();
+    }
+
+    public String getWrap() {
+        return wrap;
+    }
+
+    public String getAlignContent() {
+        return alignContent;
     }
 }
