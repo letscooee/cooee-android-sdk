@@ -5,7 +5,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Build;
@@ -236,17 +235,26 @@ public class InAppTriggerActivityNew extends AppCompatActivity implements Preven
             for (Layers layers : inAppData.getLayers()) {
                 RelativeLayout layout = new RelativeLayout(this);
                 ViewGroup.LayoutParams layoutParams = uiUtil.generateLayoutParams(layers.getSize(), layers.getPosition());
+
                 layout.setLayoutParams(layoutParams);
                 uiUtil.processSpacing(layout, layers.getSpacing());
-                Drawable backgroundImage = bitmapForBlurry == null ?
+
+                ImageView backgroundImage = bitmapForBlurry == null ?
                         uiUtil.processBackground(layers, viewGroupForBlurry) :
                         uiUtil.processBackground(layers, bitmapForBlurry);
-                layout.setBackground(backgroundImage);
+
+                if (backgroundImage != null) {
+                    backgroundImage.setLayoutParams(layoutParams);
+                    uiUtil.processSpacing(backgroundImage, layers.getSpacing());
+                }
+
                 if (layers.getAction() != null) {
                     ClickAction action = layers.getAction();
                     addAction(layout, action);
                 }
                 addChildren(layers.getElements(), layout);
+                if (backgroundImage != null)
+                    viewInAppTriggerRoot.addView(backgroundImage);
                 viewInAppTriggerRoot.addView(layout);
             }
         }
@@ -259,7 +267,7 @@ public class InAppTriggerActivityNew extends AppCompatActivity implements Preven
             View view = null;
             if (children.getType() == Children.ElementType.IMAGE) {
                 view = new ImageView(this);
-
+                ((ImageView) view).setScaleType(ImageView.ScaleType.CENTER_INSIDE);
                 Glide.with(this).load(children.getUrl()).into((ImageView) view);
 
             } else if (children.getType() == Children.ElementType.BUTTON) {
@@ -312,29 +320,35 @@ public class InAppTriggerActivityNew extends AppCompatActivity implements Preven
             assert view != null;
             if (children.getTransform() != null)
                 view.setRotation(children.getTransform().getRotate());
+
             RelativeLayout.LayoutParams layoutParams = uiUtil.generateLayoutParams(children.getSize(), children.getPosition());
 
-            Drawable backgroundDrawable = bitmapForBlurry == null ?
+            ImageView backgroundImage = bitmapForBlurry == null ?
                     uiUtil.processBackground(children, viewGroupForBlurry) :
                     uiUtil.processBackground(children, bitmapForBlurry);
 
-            if (children.getBg() != null)
-                if (children.getBg().getImage() != null) {
-                    uiUtil.setOnImageLoad(view::setBackground);
-                }
+
             view.setLayoutParams(layoutParams);
-            view.setBackground(backgroundDrawable);
+            if (backgroundImage != null) {
+                backgroundImage.setLayoutParams(layoutParams);
+                uiUtil.processSpacing(backgroundImage, children.getSpacing());
+            }
 
             uiUtil.processSpacing(view, children.getSpacing());
+
+
             if (children.getAction() != null) {
                 ClickAction action = children.getAction();
                 addAction(view, action);
             }
-            if (layout instanceof RelativeLayout)
 
+            if (layout instanceof RelativeLayout) {
+                if (backgroundImage != null)
+                    ((RelativeLayout) layout).addView(backgroundImage);
                 ((RelativeLayout) layout).addView(view);
-            else
+            } else {
                 ((FlexboxLayout) layout).addView(view);
+            }
         }
     }
 
@@ -471,19 +485,20 @@ public class InAppTriggerActivityNew extends AppCompatActivity implements Preven
         RelativeLayout.LayoutParams layoutParams = uiUtil.generateLayoutParams(container.getSize(),
                 container.getPosition());
 
-        Drawable backgroundImage = bitmapForBlurry == null ?
+        ImageView backgroundImage = bitmapForBlurry == null ?
                 uiUtil.processBackground(container, viewGroupForBlurry) :
                 uiUtil.processBackground(container, bitmapForBlurry);
 
         uiUtil.processSpacing(viewInAppTriggerRoot, container.getSpacing());
-        ImageView imageView = new ImageView(this);
-        imageView.setImageDrawable(backgroundImage);
-        imageView.setLayoutParams(layoutParams);
+
+        if (backgroundImage != null)
+            backgroundImage.setLayoutParams(layoutParams);
+
         if (container.getAction() != null) {
             ClickAction action = container.getAction();
             addAction(viewInAppTriggerRoot, action);
         }
-        viewInAppTriggerRoot.addView(imageView);
+        viewInAppTriggerRoot.addView(backgroundImage);
 
     }
 
