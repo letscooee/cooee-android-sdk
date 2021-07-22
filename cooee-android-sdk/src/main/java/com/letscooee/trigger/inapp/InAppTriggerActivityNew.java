@@ -298,7 +298,15 @@ public class InAppTriggerActivityNew extends AppCompatActivity implements Preven
         }
     }
 
-    private void addChildren(ArrayList<Children> elements, View layout) {
+    /**
+     * loops arraylist of {@link Children} to generate view accordingly and apply then properties.
+     *
+     * @param elements {@link ArrayList} of {@link Children}
+     * @param layout   instance of parent {@link View} in which all element to be added
+     * @param layers   it can be {@link Container}, {@link Layers}, {@link Children} came
+     *                 for instance of layout
+     */
+    private void addChildren(ArrayList<Children> elements, View layout, Object layers) {
         for (Children children : elements) {
 
 
@@ -418,7 +426,12 @@ public class InAppTriggerActivityNew extends AppCompatActivity implements Preven
         }
     }
 
-
+    /**
+     * Create a view to render video on In-App
+     *
+     * @param children instance of {@link Children} which holds all properties of view
+     * @param view     instance of {@link View} in which newly generated view to add
+     */
     private void createVideoView(Children children, View view) {
 
         RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(
