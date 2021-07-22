@@ -47,7 +47,7 @@ public class Position implements Parcelable {
             dest.writeString(gravity.name());
     }
 
-    public enum PositionType {STATIC, RELATIVE, ABSOLUTE, FIXED}
+    public enum PositionType {STATIC, ABSOLUTE, FIXED}
 
     public enum Gravity {CENTER, TOP, BOTTOM}
 
