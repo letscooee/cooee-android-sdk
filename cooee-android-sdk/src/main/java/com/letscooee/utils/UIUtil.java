@@ -36,11 +36,6 @@ import com.letscooee.models.v3.inapp.Layers;
 import jp.wasabeef.blurry.Blurry;
 
 import static android.text.TextUtils.isEmpty;
-import static android.widget.RelativeLayout.ALIGN_PARENT_BOTTOM;
-import static android.widget.RelativeLayout.ALIGN_PARENT_END;
-import static android.widget.RelativeLayout.ALIGN_PARENT_START;
-import static android.widget.RelativeLayout.ALIGN_PARENT_TOP;
-import static android.widget.RelativeLayout.CENTER_IN_PARENT;
 
 /**
  * @author Ashish Gaikwad 09/07/21
@@ -117,32 +112,47 @@ public class UIUtil {
         return layoutParams;
     }
 
-    private void processPosition(Position position, RelativeLayout.LayoutParams layoutParams) {
-        if (position != null) {
-            int top = position.getTop(deviceWidth, deviceHeight);
-            int bottom = position.getBottom(deviceWidth, deviceHeight);
-            int left = position.getLeft(deviceWidth, deviceHeight);
-            int right = position.getRight(deviceWidth, deviceHeight);
-
-
-            if (top != 0 && bottom != 0 && left != 0 && right != 0) {
-                layoutParams.addRule(CENTER_IN_PARENT);
-            }
-            if (top != 0) {
-                layoutParams.addRule(ALIGN_PARENT_TOP);
-            }
-            if (bottom != 0) {
-                layoutParams.addRule(ALIGN_PARENT_BOTTOM);
-            }
-            if (left != 0) {
-                layoutParams.addRule(ALIGN_PARENT_START);
-            }
-            if (right != 0) {
-                layoutParams.addRule(ALIGN_PARENT_END);
-            }
-
-            layoutParams.setMargins(left, top, right, bottom);
+    public void processPosition(Position position, View currentView, View parent,
+                                Object parentProperty) {
+        if (position == null) {
+            return;
         }
+
+        int top = position.getTop(deviceWidth, deviceHeight);
+        int bottom = position.getBottom(deviceWidth, deviceHeight);
+        int left = position.getLeft(deviceWidth, deviceHeight);
+        int right = position.getRight(deviceWidth, deviceHeight);
+
+        float parentX = parent.getX();
+        float parentY = parent.getY();
+        float parentHeight = parent.getMeasuredHeight();
+        float parentWidth = parent.getMeasuredWidth();
+
+        float currentHeight = currentView.getMeasuredHeight();
+        float currentWidth = currentView.getMeasuredWidth();
+
+        if (top != 0) {
+            currentView.setY(top);
+            //currentView.setTop(top);
+        }
+        if (left != 0) {
+            currentView.setX(left);
+            //currentView.setLeft(left);
+
+        }
+        if (bottom != 0) {
+            float parentBottom = parentY + parentHeight;
+            float currentViewBottom = parentBottom - bottom;
+            currentView.setY(currentViewBottom - currentHeight);
+            //currentView.setBottom(bottom);
+        }
+        if (right != 0) {
+            float parentRight = parentX + parentWidth;
+            float currentViewRight = parentRight - right;
+            currentView.setX(currentViewRight - currentWidth);
+            //currentView.setRight(right);
+        }
+
     }
 
     @Nullable
