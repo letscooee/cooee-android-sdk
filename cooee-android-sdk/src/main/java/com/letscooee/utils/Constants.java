@@ -41,4 +41,8 @@ public class Constants {
     public static final String INTENT_TRIGGER_DATA_KEY = "cooeeTriggerData";
 
     public static final int PENDING_TASK_JOB_ID = 2663;
+    public static final String PIXEL = "px";
+    public static final String PERCENT = "%";
+    public static final String VIEWPORT_HEIGHT = "vh";
+    public static final String VIEWPORT_WIDTH = "vw";
 }

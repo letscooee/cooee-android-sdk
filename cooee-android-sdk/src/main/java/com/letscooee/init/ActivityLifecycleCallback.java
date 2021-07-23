@@ -4,11 +4,14 @@ import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
 import android.os.Bundle;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
 import com.letscooee.trigger.CooeeEmptyActivity;
 import com.letscooee.trigger.EngagementTriggerHelper;
 import com.letscooee.trigger.inapp.InAppTriggerActivity;
+import com.letscooee.trigger.inapp.InAppTriggerActivityNew;
 
 /**
  * Register callbacks of different lifecycle of all the activities.
@@ -27,6 +30,7 @@ public class ActivityLifecycleCallback implements Application.ActivityLifecycleC
     @Override
     public void onActivityCreated(@NonNull Activity activity, @Nullable Bundle savedInstanceState) {
         InAppTriggerActivity.captureWindowForBlurryEffect(activity);
+        InAppTriggerActivityNew.captureWindowForBlurryEffect(activity);
     }
 
     @Override

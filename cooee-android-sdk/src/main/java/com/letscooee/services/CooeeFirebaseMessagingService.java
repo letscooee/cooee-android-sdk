@@ -120,10 +120,10 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
             if (triggerData.isCarousel()) {
                 loadCarouselImages(triggerData.getCarouselData(), 0, (PushNotificationTrigger) triggerData);
             } else {
-                showNotification((PushNotificationTrigger) triggerData);
+                //showNotification((PushNotificationTrigger) triggerData);
             }
         } else {
-            EngagementTriggerHelper.renderInAppTrigger(getApplicationContext(), triggerData);
+          //  EngagementTriggerHelper.renderInAppTrigger(getApplicationContext(), triggerData);
         }
     }
 
@@ -136,11 +136,11 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
                 loadCarouselImages(triggerData.getCarouselData(), i + 1, triggerData);
             });
         } else {
-            showCarouselNotification(triggerData);
+           // showCarouselNotification(triggerData);
         }
     }
 
-    private void showCarouselNotification(PushNotificationTrigger triggerData) {
+    /*private void showCarouselNotification(PushNotificationTrigger triggerData) {
         String title = triggerData.getNotificationTitle();
         CarouselData[] images = triggerData.getCarouselData();
 
@@ -220,14 +220,14 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
         }
 
         renderer.render();
-    }
+    }*/
 
     /**
      * Show push notification engagement trigger
      *
      * @param triggerData received from data payload
      */
-    private void showNotification(PushNotificationTrigger triggerData) {
+    /*private void showNotification(PushNotificationTrigger triggerData) {
         Context context = getApplicationContext();
         NotificationRenderer renderer = new SimpleNotificationRenderer(context, triggerData);
         NotificationCompat.Builder notificationBuilder = renderer.getBuilder();
@@ -256,7 +256,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
                 renderer.render();
             });
         }
-    }
+    }*/
 
     /**
      * Send firebase token to server
