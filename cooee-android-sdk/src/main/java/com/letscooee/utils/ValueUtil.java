@@ -2,6 +2,7 @@ package com.letscooee.utils;
 
 import android.text.TextUtils;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
 import static com.letscooee.utils.Constants.PERCENT;
@@ -24,12 +25,18 @@ public class ValueUtil {
      * @param replaceUnit it can be "px,%,vh,vw"
      * @return int
      */
-    public static int parseToInt(String value, String replaceUnit) {
+    public static int parseToInt(@NonNull String value, @NonNull String replaceUnit) {
+        if (!value.contains(replaceUnit)) {
+            return 0;
+        }
         return Integer.parseInt(value.replace(replaceUnit, ""));
     }
 
-    public static int getCalculatedValue(String value) {
-        return parseToInt(value, PIXEL);
+    public static int getCalculatedPixel(@NonNull String pixelString) {
+        if (!pixelString.contains(PIXEL)) {
+            return 0;
+        }
+        return parseToInt(pixelString, PIXEL);
     }
 
     public static int getCalculatedValue(int deviceWidth, int deviceHeight, String value) {
@@ -41,7 +48,7 @@ public class ValueUtil {
             return 0;
         else if (value.contains(PIXEL)) {
 
-            return getCalculatedValue(value);
+            return getCalculatedPixel(value);
         } else if (value.contains(PERCENT)) {
             if (isHeight)
                 return ((parseToInt(value, PERCENT) * deviceHeight) / 100);

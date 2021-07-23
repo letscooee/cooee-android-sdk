@@ -68,6 +68,6 @@ public class Font implements Parcelable {
     }
 
     public float getSizeFloat() {
-        return ValueUtil.getCalculatedValue(size);
+        return ValueUtil.getCalculatedPixel(size);
     }
 }

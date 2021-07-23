@@ -342,7 +342,7 @@ public class InAppTriggerActivityNew extends AppCompatActivity implements Preven
                 if (children.getFont() != null) {
                     float fontSizeInSP = children.getFont().getSizeFloat() / getResources()
                             .getDisplayMetrics().scaledDensity;
-                    ((TextView) view).setTextSize(fontSizeInSP);
+                    ((TextView) view).setTextSize(children.getFont().getSizeFloat());
                 }
                 if (children.getAlignment() != null)
                     if (children.getAlignment().getAlign().equalsIgnoreCase("center"))

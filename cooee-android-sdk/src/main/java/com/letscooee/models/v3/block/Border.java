@@ -69,7 +69,7 @@ public class Border implements Parcelable {
     }
 
     public int getRadius() {
-        return !TextUtils.isEmpty(radius) ? ValueUtil.getCalculatedValue(radius) : 0;
+        return !TextUtils.isEmpty(radius) ? ValueUtil.getCalculatedPixel(radius) : 0;
     }
 
     public int getWidth(int deviceWidth, int deviceHeight) {
