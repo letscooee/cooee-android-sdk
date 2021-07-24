@@ -39,10 +39,10 @@ import com.letscooee.models.v3.CoreTriggerData;
 import com.letscooee.models.v3.block.ClickAction;
 import com.letscooee.models.v3.block.Position;
 import com.letscooee.models.v3.block.Size;
-import com.letscooee.models.v3.elemeent.Children;
+import com.letscooee.models.v3.element.TextElement;
 import com.letscooee.models.v3.inapp.Container;
 import com.letscooee.models.v3.inapp.InAppData;
-import com.letscooee.models.v3.inapp.Layers;
+import com.letscooee.models.v3.inapp.Layer;
 import com.letscooee.network.SafeHTTPService;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.SentryHelper;
@@ -237,7 +237,7 @@ public class InAppTriggerActivityNew extends AppCompatActivity implements Preven
 
     private void loadLayers() {
         if (inAppData.getLayers() != null) {
-            for (Layers layers : inAppData.getLayers()) {
+            for (Layer layers : inAppData.getLayers()) {
                 RelativeLayout layout = new RelativeLayout(this);
                 ViewGroup.LayoutParams layoutParams = uiUtil.generateLayoutParams(layers.getSize(),
                         layers.getPosition());
@@ -299,25 +299,25 @@ public class InAppTriggerActivityNew extends AppCompatActivity implements Preven
     }
 
     /**
-     * loops arraylist of {@link Children} to generate view accordingly and apply then properties.
+     * loops arraylist of {@link TextElement} to generate view accordingly and apply then properties.
      *
-     * @param elements {@link ArrayList} of {@link Children}
+     * @param elements {@link ArrayList} of {@link TextElement}
      * @param layout   instance of parent {@link View} in which all element to be added
-     * @param layers   it can be {@link Container}, {@link Layers}, {@link Children} came
+     * @param layers   it can be {@link Container}, {@link Layer}, {@link TextElement} came
      *                 for instance of layout
      */
-    private void addChildren(ArrayList<Children> elements, View layout, Object layers) {
-        for (Children children : elements) {
+    private void addChildren(ArrayList<TextElement> elements, View layout, Object layers) {
+        for (TextElement children : elements) {
 
 
             View view = null;
-            if (children.getType() == Children.ElementType.IMAGE) {
+            if (children.getType() == TextElement.ElementType.IMAGE) {
                 view = new ImageView(this);
                 ((ImageView) view).setScaleType(ImageView.ScaleType.CENTER_INSIDE);
 
                 Glide.with(this).load(children.getUrl()).into((ImageView) view);
 
-            } else if (children.getType() == Children.ElementType.BUTTON) {
+            } else if (children.getType() == TextElement.ElementType.BUTTON) {
                 view = new Button(this);
 
                 ((Button) view).setText(children.getText());
@@ -333,7 +333,7 @@ public class InAppTriggerActivityNew extends AppCompatActivity implements Preven
                     else if (children.getAlignment().getAlign().equalsIgnoreCase("right"))
                         ((TextView) view).setGravity(Gravity.END);
 
-            } else if (children.getType() == Children.ElementType.TEXT) {
+            } else if (children.getType() == TextElement.ElementType.TEXT) {
                 view = new TextView(this);
 
                 ((TextView) view).setText(children.getText());
@@ -350,13 +350,13 @@ public class InAppTriggerActivityNew extends AppCompatActivity implements Preven
                     else if (children.getAlignment().getAlign().equalsIgnoreCase("right"))
                         ((TextView) view).setGravity(Gravity.END);
 
-            } else if (children.getType() == Children.ElementType.VIDEO) {
+            } else if (children.getType() == TextElement.ElementType.VIDEO) {
                 view = new RelativeLayout(this);
                 ((RelativeLayout) view).setGravity(Gravity.CENTER);
                 createVideoView(children, view);
 
 
-            } else if (children.getType() == Children.ElementType.GROUP) {
+            } else if (children.getType() == TextElement.ElementType.GROUP) {
 
                 view = new FlexboxLayout(this);
                 ((FlexboxLayout) view).setFlexDirection(FlexDirection.COLUMN);
@@ -429,10 +429,10 @@ public class InAppTriggerActivityNew extends AppCompatActivity implements Preven
     /**
      * Create a view to render video on In-App
      *
-     * @param children instance of {@link Children} which holds all properties of view
+     * @param children instance of {@link TextElement} which holds all properties of view
      * @param view     instance of {@link View} in which newly generated view to add
      */
-    private void createVideoView(Children children, View view) {
+    private void createVideoView(TextElement children, View view) {
 
         RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
@@ -626,7 +626,7 @@ public class InAppTriggerActivityNew extends AppCompatActivity implements Preven
      * @param position       {@link Position} came with the current view
      * @param currentView    {@link View} to which we want to assign observer and apply position
      * @param parentView     is {@link View} to whome current view going to check for position
-     * @param parentProperty it can be {@link Container}, {@link Layers}, {@link Children} came
+     * @param parentProperty it can be {@link Container}, {@link Layer}, {@link TextElement} came
      *                       for instance of parentView
      */
     private void addObserver(Position position, View currentView, View parentView, Object parentProperty) {

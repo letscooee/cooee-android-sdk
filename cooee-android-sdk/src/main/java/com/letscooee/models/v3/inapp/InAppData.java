@@ -3,19 +3,16 @@ package com.letscooee.models.v3.inapp;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.letscooee.models.v3.inapp.Container;
-import com.letscooee.models.v3.inapp.Layers;
-
 import java.util.ArrayList;
 
 public class InAppData implements Parcelable {
 
     private Container container;
-    private ArrayList<Layers> layers;
+    private ArrayList<Layer> layers;
 
     protected InAppData(Parcel in) {
         container = in.readParcelable(Container.class.getClassLoader());
-        layers = in.createTypedArrayList(Layers.CREATOR);
+        layers = in.createTypedArrayList(Layer.CREATOR);
     }
 
     public static final Creator<InAppData> CREATOR = new Creator<InAppData>() {
@@ -34,7 +31,7 @@ public class InAppData implements Parcelable {
         return container;
     }
 
-    public ArrayList<Layers> getLayers() {
+    public ArrayList<Layer> getLayers() {
         return layers;
     }
 

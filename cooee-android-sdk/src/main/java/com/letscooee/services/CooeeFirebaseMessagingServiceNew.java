@@ -23,7 +23,7 @@ import com.letscooee.loader.http.RemoteImageLoader;
 import com.letscooee.models.Event;
 import com.letscooee.models.v3.CoreTriggerData;
 import com.letscooee.models.v3.PushNotificationData;
-import com.letscooee.models.v3.elemeent.Children;
+import com.letscooee.models.v3.element.TextElement;
 import com.letscooee.pushnotification.PushProviderUtils;
 import com.letscooee.trigger.CooeeEmptyActivity;
 import com.letscooee.trigger.EngagementTriggerHelper;
@@ -170,7 +170,7 @@ public class CooeeFirebaseMessagingServiceNew extends FirebaseMessagingService {
         NotificationCompat.Action[] actions = new NotificationCompat.Action[triggerData.getButtons().size()];
         int requestCode = 36644 + notificationID;
         int i = 0;
-        for (Children triggerButton : triggerData.getButtons()) {
+        for (TextElement triggerButton : triggerData.getButtons()) {
             String title = null;
             if (triggerButton.getText() != null) {
                 title = triggerButton.getText();

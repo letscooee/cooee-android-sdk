@@ -1,8 +1,7 @@
-package com.letscooee.models.v3.elemeent.property;
+package com.letscooee.models.v3.block;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-
 import com.letscooee.utils.ValueUtil;
 
 public class Font implements Parcelable {

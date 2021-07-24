@@ -3,7 +3,6 @@ package com.letscooee.models.v3.block;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
-
 import com.letscooee.utils.ValueUtil;
 
 import static com.letscooee.utils.ValueUtil.getCalculatedValue;
@@ -58,7 +57,6 @@ public class Border implements Parcelable {
     private String dashGap;
     private Color colour;
     private Style style;
-
 
     public Color getColor() {
         return colour;

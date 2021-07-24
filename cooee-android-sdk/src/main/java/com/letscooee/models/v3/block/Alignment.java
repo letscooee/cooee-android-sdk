@@ -1,4 +1,4 @@
-package com.letscooee.models.v3.elemeent.property;
+package com.letscooee.models.v3.block;
 
 import android.os.Parcel;
 import android.os.Parcelable;

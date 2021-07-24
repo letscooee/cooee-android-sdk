@@ -2,20 +2,19 @@ package com.letscooee.models.v3;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-
 import com.letscooee.models.trigger.PushNotification;
 import com.letscooee.models.trigger.PushNotificationImportance;
-import com.letscooee.models.v3.elemeent.Children;
+import com.letscooee.models.v3.element.TextElement;
 
 import java.util.ArrayList;
 
 public class PushNotificationData implements Parcelable {
 
-    private Children title;
-    private Children body;
+    private TextElement title;
+    private TextElement body;
     private String smallImage;
     private String largeImage;
-    private ArrayList<Children> buttons;
+    private ArrayList<TextElement> buttons;
     public PushNotification pn;
 
     public PushNotificationImportance getImportance() {
@@ -27,11 +26,11 @@ public class PushNotificationData implements Parcelable {
 
 
     protected PushNotificationData(Parcel in) {
-        title = in.readParcelable(Children.class.getClassLoader());
-        body = in.readParcelable(Children.class.getClassLoader());
+        title = in.readParcelable(TextElement.class.getClassLoader());
+        body = in.readParcelable(TextElement.class.getClassLoader());
         smallImage = in.readString();
         largeImage = in.readString();
-        buttons = in.createTypedArrayList(Children.CREATOR);
+        buttons = in.createTypedArrayList(TextElement.CREATOR);
         pn = in.readParcelable(PushNotificationImportance.class.getClassLoader());
     }
 
@@ -47,11 +46,11 @@ public class PushNotificationData implements Parcelable {
         }
     };
 
-    public Children getTitle() {
+    public TextElement getTitle() {
         return title;
     }
 
-    public Children getBody() {
+    public TextElement getBody() {
         return body;
     }
 
@@ -63,7 +62,7 @@ public class PushNotificationData implements Parcelable {
         return largeImage;
     }
 
-    public ArrayList<Children> getButtons() {
+    public ArrayList<TextElement> getButtons() {
         return buttons;
     }
 

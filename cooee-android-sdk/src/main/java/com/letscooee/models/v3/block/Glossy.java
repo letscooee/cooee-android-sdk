@@ -6,9 +6,9 @@ import android.os.Parcelable;
 public class Glossy implements Parcelable {
 
     // TODO: 07/07/21 Glassmorphism can also has color
-     private int radius;
-     private int sampling;
-     private Color color;
+    private int radius;
+    private int sampling;
+    private Color color;
 
     protected Glossy(Parcel in) {
         radius = in.readInt();

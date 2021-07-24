@@ -3,7 +3,6 @@ package com.letscooee.models.v3.block;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
-
 import com.letscooee.utils.ValueUtil;
 
 public class Position implements Parcelable {

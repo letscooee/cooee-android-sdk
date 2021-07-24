@@ -29,9 +29,9 @@ import com.letscooee.models.v3.block.Glossy;
 import com.letscooee.models.v3.block.Position;
 import com.letscooee.models.v3.block.Size;
 import com.letscooee.models.v3.block.Spacing;
-import com.letscooee.models.v3.elemeent.Children;
+import com.letscooee.models.v3.element.TextElement;
 import com.letscooee.models.v3.inapp.Container;
-import com.letscooee.models.v3.inapp.Layers;
+import com.letscooee.models.v3.inapp.Layer;
 
 import jp.wasabeef.blurry.Blurry;
 
@@ -166,12 +166,12 @@ public class UIUtil {
         if (container instanceof Container) {
             background = ((Container) container).getBg();
             border = ((Container) container).getBorder();
-        } else if (container instanceof Children) {
-            background = ((Children) container).getBg();
-            border = ((Children) container).getBorder();
+        } else if (container instanceof TextElement) {
+            background = ((TextElement) container).getBg();
+            border = ((TextElement) container).getBorder();
         } else {
-            background = ((Layers) container).getBg();
-            border = ((Layers) container).getBorder();
+            background = ((Layer) container).getBg();
+            border = ((Layer) container).getBorder();
         }
 
         if (background != null) {

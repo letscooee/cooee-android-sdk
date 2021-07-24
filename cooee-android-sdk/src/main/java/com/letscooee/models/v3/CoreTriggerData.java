@@ -2,7 +2,6 @@ package com.letscooee.models.v3;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-
 import com.letscooee.models.v3.inapp.InAppData;
 
 public class CoreTriggerData implements Parcelable {
@@ -12,7 +11,6 @@ public class CoreTriggerData implements Parcelable {
     private long duration;
     private InAppData ian;
     private PushNotificationData pn;
-
 
     protected CoreTriggerData(Parcel in) {
         id = in.readString();
