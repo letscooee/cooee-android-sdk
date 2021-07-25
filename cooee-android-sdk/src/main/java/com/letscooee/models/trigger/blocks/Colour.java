@@ -1,5 +1,6 @@
 package com.letscooee.models.trigger.blocks;
 
+import android.graphics.Color;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -45,6 +46,6 @@ public class Colour implements Parcelable {
     }
 
     public int getSolidColor() {
-        return android.graphics.Color.parseColor(hex);
+        return Color.parseColor(hex);
     }
 }

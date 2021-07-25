@@ -60,8 +60,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
 
     protected void processCommonBlocks() {
         this.processSizeBlock();
-        // TODO: 25/07/21 Pass bitmap or view group
-        this.processBackground(null);
+        this.processBackground();
         this.processBorderBlock();
         this.processSpacing();
         this.processPositionBlock();
@@ -87,35 +86,35 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         final Size size = elementData.getSize();
         ViewGroup.MarginLayoutParams layoutParams;
 
-            if (size.getDisplay() == Size.Display.BLOCK) {
-                layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.MATCH_PARENT);
-            } else if (size.getDisplay() == Size.Display.FLEX) {
-                int calculatedHeight = size.getCalculatedHeight(deviceWidth, deviceHeight);
-                int calculatedWidth = size.getCalculatedWidth(deviceWidth, deviceHeight);
+        if (size.getDisplay() == Size.Display.BLOCK) {
+            layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT);
+        } else if (size.getDisplay() == Size.Display.FLEX) {
+            int calculatedHeight = size.getCalculatedHeight(deviceWidth, deviceHeight);
+            int calculatedWidth = size.getCalculatedWidth(deviceWidth, deviceHeight);
 
-                if (calculatedHeight == 0 && calculatedWidth == 0)
-                    layoutParams = new FlexboxLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                else if (calculatedHeight == 0 && calculatedWidth > 0)
-                    layoutParams = new FlexboxLayout.LayoutParams(calculatedWidth, ViewGroup.LayoutParams.WRAP_CONTENT);
-                else if (calculatedHeight > 0 && calculatedWidth == 0)
-                    layoutParams = new FlexboxLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, calculatedHeight);
-                else
-                    layoutParams = new FlexboxLayout.LayoutParams(calculatedWidth, calculatedHeight);
+            if (calculatedHeight == 0 && calculatedWidth == 0)
+                layoutParams = new FlexboxLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            else if (calculatedHeight == 0 && calculatedWidth > 0)
+                layoutParams = new FlexboxLayout.LayoutParams(calculatedWidth, ViewGroup.LayoutParams.WRAP_CONTENT);
+            else if (calculatedHeight > 0 && calculatedWidth == 0)
+                layoutParams = new FlexboxLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, calculatedHeight);
+            else
+                layoutParams = new FlexboxLayout.LayoutParams(calculatedWidth, calculatedHeight);
 
-            } else {
-                int calculatedHeight = size.getCalculatedHeight(deviceWidth, deviceHeight);
-                int calculatedWidth = size.getCalculatedWidth(deviceWidth, deviceHeight);
+        } else {
+            int calculatedHeight = size.getCalculatedHeight(deviceWidth, deviceHeight);
+            int calculatedWidth = size.getCalculatedWidth(deviceWidth, deviceHeight);
 
-                if (calculatedHeight == 0 && calculatedWidth == 0)
-                    layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                else if (calculatedHeight == 0 && calculatedWidth > 0)
-                    layoutParams = new RelativeLayout.LayoutParams(calculatedWidth, ViewGroup.LayoutParams.WRAP_CONTENT);
-                else if (calculatedHeight > 0 && calculatedWidth == 0)
-                    layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, calculatedHeight);
-                else
-                    layoutParams = new RelativeLayout.LayoutParams(calculatedWidth, calculatedHeight);
-            }
+            if (calculatedHeight == 0 && calculatedWidth == 0)
+                layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            else if (calculatedHeight == 0 && calculatedWidth > 0)
+                layoutParams = new RelativeLayout.LayoutParams(calculatedWidth, ViewGroup.LayoutParams.WRAP_CONTENT);
+            else if (calculatedHeight > 0 && calculatedWidth == 0)
+                layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, calculatedHeight);
+            else
+                layoutParams = new RelativeLayout.LayoutParams(calculatedWidth, calculatedHeight);
+        }
 
         this.newElement.setLayoutParams(layoutParams);
         this.applyFlexProperties();
@@ -172,7 +171,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         }
     }
 
-    public void processBackground(Object objectToBlur) {
+    protected void processBackground() {
         Background background = elementData.getBg();
         materialCardView.setCardBackgroundColor(Color.parseColor("#00ffffff"));
 
@@ -182,7 +181,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
                 processSolidBackground(background.getSolid());
 
             } else if (background.getGlossy() != null) {
-                applyGlassmorphism(background.getGlossy(), objectToBlur);
+                applyGlassmorphism(background.getGlossy());
 
             } else if (background.getImage() != null) {
                 Glide.with(context).asBitmap().load(background.getImage().getUrl()).into(backgroundImage);
@@ -201,24 +200,24 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         parentElement.addView(materialCardView);
     }
 
-    private void applyGlassmorphism(Glossy glossy, Object objectToBlur) {
+    private void applyGlassmorphism(Glossy glossy) {
         Blurry.Composer blurryComposer = Blurry.with(context)
                 .animate(500);
 
-        if (glossy.getRadius() != 0)
-            blurryComposer.radius(glossy.getRadius());
+        blurryComposer.radius(glossy.getRadius());
+        blurryComposer.sampling(glossy.getSampling());
+
         if (glossy.getColor() != null)
             blurryComposer.color(glossy.getColor().getSolidColor());
-        if (glossy.getSampling() != 0)
-            blurryComposer.sampling(glossy.getSampling());
 
-        if (objectToBlur instanceof Bitmap) {
+        if (globalData.getBitmapForBlurry() != null) {
             blurryComposer
-                    .from((Bitmap) objectToBlur)
+                    .from((Bitmap) globalData.getBitmapForBlurry())
                     .into(backgroundImage);
-        } else {
+
+        } else if (globalData.getViewGroupForBlurry() != null) {
             blurryComposer
-                    .capture((ViewGroup) objectToBlur)
+                    .capture((ViewGroup) globalData.getViewGroupForBlurry())
                     .into(backgroundImage);
         }
 
@@ -256,10 +255,8 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
     }
 
     protected void processSpacing() {
-        this.processSpacing(this.newElement, this.elementData.getSpacing());
-    }
+        Spacing spacing = elementData.getSpacing();
 
-    public void processSpacing(View view, Spacing spacing) {
         // TODO: 25/07/21 Use guard clause
         if (spacing != null) {
             int margin = spacing.getMargin(deviceWidth, deviceHeight);
@@ -269,10 +266,11 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
             int marginBottom = spacing.getMarginBottom(deviceWidth, deviceHeight);
 
             if (margin > 0) {
-                ((RelativeLayout.LayoutParams) view.getLayoutParams()).setMargins(margin, margin, margin, margin);
-            } else if (marginTop > 0 || marginBottom > 0 || marginLeft > 0 || marginRight > 0) {
+                ((ViewGroup.MarginLayoutParams) this.newElement.getLayoutParams())
+                        .setMargins(margin, margin, margin, margin);
 
-                ((RelativeLayout.LayoutParams) view.getLayoutParams())
+            } else if (marginTop > 0 || marginBottom > 0 || marginLeft > 0 || marginRight > 0) {
+                ((ViewGroup.MarginLayoutParams) this.newElement.getLayoutParams())
                         .setMargins(marginLeft, marginTop, marginRight, marginBottom);
             }
 
@@ -281,15 +279,20 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
             int paddingRight = spacing.getPaddingRight(deviceWidth, deviceHeight);
             int paddingTop = spacing.getPaddingTop(deviceWidth, deviceHeight);
             int paddingBottom = spacing.getPaddingBottom(deviceWidth, deviceHeight);
+
             if (padding > 0) {
-                view.setPadding(padding, padding, padding, padding);
+                this.newElement.setPadding(padding, padding, padding, padding);
             } else if (paddingTop > 0 || paddingBottom > 0 || paddingLeft > 0 || paddingRight > 0) {
-                view.setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
+                this.newElement.setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
             }
         }
     }
 
     private void applyFlexProperties() {
+        if (!(newElement instanceof FlexboxLayout)) {
+            return;
+        }
+
         Size size = elementData.getSize();
         FlexboxLayout layout = (FlexboxLayout) newElement;
 

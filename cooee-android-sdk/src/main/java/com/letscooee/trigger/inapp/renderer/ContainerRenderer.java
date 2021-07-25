@@ -7,6 +7,7 @@ import android.widget.RelativeLayout;
 import com.google.android.flexbox.FlexboxLayout;
 import com.letscooee.models.trigger.blocks.Size;
 import com.letscooee.models.trigger.elements.BaseElement;
+import com.letscooee.trigger.inapp.InAppGlobalData;
 
 /**
  * Renders the top most container of the in-app.
@@ -16,8 +17,8 @@ import com.letscooee.models.trigger.elements.BaseElement;
  */
 public class ContainerRenderer extends AbstractInAppRenderer {
 
-    public ContainerRenderer(Context context, ViewGroup parentView, BaseElement element) {
-        super(context, parentView, element, null);
+    public ContainerRenderer(Context context, ViewGroup parentView, BaseElement element, InAppGlobalData globalData) {
+        super(context, parentView, element, globalData);
     }
 
     @Override

@@ -59,6 +59,10 @@ public class TextRenderer extends AbstractInAppRenderer {
     }
 
     protected void processColourBlock() {
+        if (textData.getColor() == null) {
+            return;
+        }
+
         ((TextView) newElement).setTextColor(textData.getColor().getSolidColor());
     }
 
