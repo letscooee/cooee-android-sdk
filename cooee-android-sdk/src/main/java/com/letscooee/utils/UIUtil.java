@@ -22,17 +22,14 @@ import com.google.android.flexbox.FlexboxLayout;
 import com.google.android.flexbox.JustifyContent;
 import com.google.android.material.card.MaterialCardView;
 import com.letscooee.R;
-import com.letscooee.models.v3.block.Background;
-import com.letscooee.models.v3.block.Border;
-import com.letscooee.models.v3.block.Color;
-import com.letscooee.models.v3.block.Glossy;
-import com.letscooee.models.v3.block.Position;
-import com.letscooee.models.v3.block.Size;
-import com.letscooee.models.v3.block.Spacing;
-import com.letscooee.models.v3.element.BaseElement;
-import com.letscooee.models.v3.element.TextElement;
-import com.letscooee.models.v3.inapp.Container;
-import com.letscooee.models.v3.inapp.Layer;
+import com.letscooee.models.trigger.blocks.Background;
+import com.letscooee.models.trigger.blocks.Border;
+import com.letscooee.models.trigger.blocks.Color;
+import com.letscooee.models.trigger.blocks.Glossy;
+import com.letscooee.models.trigger.blocks.Position;
+import com.letscooee.models.trigger.blocks.Size;
+import com.letscooee.models.trigger.blocks.Spacing;
+import com.letscooee.models.trigger.elements.BaseElement;
 
 import jp.wasabeef.blurry.Blurry;
 

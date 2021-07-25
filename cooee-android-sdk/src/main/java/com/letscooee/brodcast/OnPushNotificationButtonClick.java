@@ -4,37 +4,23 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.app.TaskStackBuilder;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.RemoteViews;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
-
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.target.CustomTarget;
-import com.bumptech.glide.request.transition.Transition;
 import com.letscooee.CooeeFactory;
 import com.letscooee.R;
-import com.letscooee.models.CarouselData;
 import com.letscooee.models.Event;
-import com.letscooee.models.TriggerData;
+import com.letscooee.models.trigger.TriggerData;
 import com.letscooee.utils.Constants;
 
 import java.util.ArrayList;
-
-import io.sentry.Sentry;
 
 /**
  * @author Ashish Gaikwad
@@ -73,7 +59,7 @@ public class OnPushNotificationButtonClick extends BroadcastReceiver {
         Event event = new Event("CE PN Carousel Move", triggerData);
         CooeeFactory.getSafeHTTPService().sendEventWithoutNewSession(event);
 
-        loadBitmapsForCarousel(triggerData.getCarouselData(), 0, triggerData, context, intent);
+        //loadBitmapsForCarousel(triggerData.getCarouselData(), 0, triggerData, context, intent);
     }
 
     /**
@@ -83,7 +69,8 @@ public class OnPushNotificationButtonClick extends BroadcastReceiver {
      * @param position     will be position for array pointing.
      * @param triggerData  will instance of TriggerData which will hold all other PN data
      */
-    private void loadBitmapsForCarousel(CarouselData[] carouselData, final int position, TriggerData triggerData, Context context, Intent intent) {
+    /*private void loadBitmapsForCarousel(CarouselData[] carouselData, final int position, CoreTriggerData triggerData,
+                                        Context context, Intent intent) {
         if (position < carouselData.length) {
 
             try {
@@ -108,7 +95,7 @@ public class OnPushNotificationButtonClick extends BroadcastReceiver {
             showCarouselNotification(context, triggerData, intent);
         }
 
-    }
+    }*/
 
     /**
      * This will get call after all image loading is done. It will show carousel notification
@@ -120,8 +107,8 @@ public class OnPushNotificationButtonClick extends BroadcastReceiver {
         int notificationId = intent.getExtras().getInt("notificationID", 0);
         int position = intent.getExtras().getInt("carouselPosition", 1);
         assert triggerData != null;
-        String title = getNotificationTitle(triggerData);
-        String body = getNotificationBody(triggerData);
+        String title = triggerData.getPn().getTitle().getText();
+        String body = triggerData.getPn().getBody().getText();
 
         if (title == null) {
             return;
@@ -153,8 +140,8 @@ public class OnPushNotificationButtonClick extends BroadcastReceiver {
         views.setTextViewText(R.id.textViewTitle, title);
         views.setTextViewText(R.id.textViewInfo, body);
 
-        int carouselOffset = triggerData.getCarouselOffset();
-        int totalImages = triggerData.getCarouselData().length;
+        int carouselOffset = 0;//triggerData.getCarouselOffset();
+        int totalImages = 0;//triggerData.getCarouselData().length;
 
         if (position + carouselOffset >= totalImages || position > totalImages) {
             views.setViewVisibility(R.id.right, View.INVISIBLE);
@@ -195,7 +182,7 @@ public class OnPushNotificationButtonClick extends BroadcastReceiver {
         views.setOnClickPendingIntent(R.id.left, pendingIntentLeft);
         views.setOnClickPendingIntent(R.id.right, pendingIntentRight);
 
-        for (int i = position; i < triggerData.getCarouselData().length; i++) {
+        /*for (int i = position; i < triggerData.getCarouselData().length; i++) {
             RemoteViews image = new RemoteViews(context.getPackageName(), R.layout.row_notification_list);
             image.setImageViewBitmap(R.id.caroselImage, bitmaps.get(i));
             CarouselData data = triggerData.getCarouselData()[i];
@@ -224,13 +211,11 @@ public class OnPushNotificationButtonClick extends BroadcastReceiver {
             }
 
             views.addView(R.id.lvNotificationList, image);
-        }
-
+        }*/
 
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(
                 context,
                 Constants.DEFAULT_CHANNEL_ID);
-
 
         notificationBuilder.setAutoCancel(false)
                 .setWhen(System.currentTimeMillis())
@@ -239,45 +224,9 @@ public class OnPushNotificationButtonClick extends BroadcastReceiver {
                 .setCustomContentView(smallNotification)
                 .setCustomBigContentView(views)
                 .setContentTitle(title)
-
                 .setContentText(body);
-
 
         Notification notification = notificationBuilder.build();
         notificationManager.notify(notificationId, notification);
-
-    }
-
-    /**
-     * Get Notification title from trigger data
-     *
-     * @param triggerData Trigger data
-     * @return title
-     */
-    private String getNotificationTitle(TriggerData triggerData) {
-        String title;
-        if (triggerData.getTitle().getNotificationText() != null && !triggerData.getTitle().getNotificationText().isEmpty()) {
-            title = triggerData.getTitle().getNotificationText();
-        } else {
-            title = triggerData.getTitle().getText();
-        }
-
-        return title;
-    }
-
-    /**
-     * Get Notification body from trigger data
-     *
-     * @param triggerData Trigger data
-     * @return body
-     */
-    private String getNotificationBody(TriggerData triggerData) {
-        String body = "";
-        if (triggerData.getMessage().getNotificationText() != null && !triggerData.getMessage().getNotificationText().isEmpty()) {
-            body = triggerData.getMessage().getNotificationText();
-        } else if (triggerData.getMessage().getText() != null && !triggerData.getMessage().getText().isEmpty()) {
-            body = triggerData.getMessage().getText();
-        }
-        return body;
     }
 }

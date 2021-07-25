@@ -11,16 +11,14 @@ import android.service.notification.StatusBarNotification;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.RemoteViews;
-
 import androidx.core.app.NotificationCompat;
-
 import com.letscooee.CooeeFactory;
 import com.letscooee.R;
 import com.letscooee.loader.http.RemoteImageLoader;
 import com.letscooee.models.Event;
-import com.letscooee.models.TriggerData;
-import com.letscooee.models.trigger.PushNotificationImportance;
-import com.letscooee.models.v3.CoreTriggerData;
+import com.letscooee.models.trigger.TriggerData;
+import com.letscooee.enums.trigger.PushNotificationImportance;
+import com.letscooee.models.trigger.push.PushNotificationTrigger;
 import com.letscooee.network.SafeHTTPService;
 import com.letscooee.services.PushNotificationIntentService;
 import com.letscooee.utils.Constants;
@@ -36,7 +34,8 @@ import java.util.Date;
 public abstract class NotificationRenderer {
 
     protected final Context context;
-    protected final CoreTriggerData triggerData;
+    protected final TriggerData triggerData;
+    protected final PushNotificationTrigger pushTrigger;
     protected final RemoteViews smallContentViews;
     protected final RemoteViews bigContentViews;
 
@@ -51,9 +50,10 @@ public abstract class NotificationRenderer {
 
     private final int notificationID = (int) new Date().getTime();
 
-    protected NotificationRenderer(Context context, CoreTriggerData triggerData) {
+    protected NotificationRenderer(Context context, TriggerData triggerData) {
         this.context = context;
         this.triggerData = triggerData;
+        this.pushTrigger = triggerData.getPn();
         this.imageLoader = new RemoteImageLoader(context);
         this.notificationImportance = this.triggerData.getPn().getImportance();
 
@@ -121,17 +121,16 @@ public abstract class NotificationRenderer {
                 .setStyle(new NotificationCompat.DecoratedCustomViewStyle());
 
         int defaults = 0;
-        if (this.triggerData.getPn().pn != null) {
-            if (this.triggerData.getPn().pn.lights) defaults |= NotificationCompat.DEFAULT_LIGHTS;
-            if (this.triggerData.getPn().pn.vibrate) defaults |= NotificationCompat.DEFAULT_VIBRATE;
+        if (this.pushTrigger.lights) defaults |= NotificationCompat.DEFAULT_LIGHTS;
+        if (this.pushTrigger.vibrate) defaults |= NotificationCompat.DEFAULT_VIBRATE;
 
-            if (this.triggerData.getPn().pn.sound) {
-                defaults |= NotificationCompat.DEFAULT_SOUND;
-                this.notificationSound.setSoundInNotification();
-            } else {
-                this.notificationBuilder.setSound(null);
-            }
+        if (this.pushTrigger.sound) {
+            defaults |= NotificationCompat.DEFAULT_SOUND;
+            this.notificationSound.setSoundInNotification();
+        } else {
+            this.notificationBuilder.setSound(null);
         }
+
         this.notificationBuilder.setDefaults(defaults);
 
         this.setTitleAndBody();
@@ -155,15 +154,10 @@ public abstract class NotificationRenderer {
             notificationChannel.setImportance(NotificationManager.IMPORTANCE_HIGH);
         }
 
-        if (this.triggerData.getPn().pn != null) {
-            // TODO: 15/06/21 This does not update if the channel is already created
-            if (this.triggerData.getPn().pn.lights) notificationChannel.enableLights(true);
-            if (this.triggerData.getPn().pn.vibrate) notificationChannel.enableVibration(true);
-
-            if (this.triggerData.getPn().pn.sound) {
-                this.notificationSound.setSoundInChannel(notificationChannel);
-            }
-        }
+        // TODO: 15/06/21 This following does not update if the channel is already created
+        if (this.pushTrigger.lights) notificationChannel.enableLights(true);
+        if (this.pushTrigger.vibrate) notificationChannel.enableVibration(true);
+        if (this.pushTrigger.sound) this.notificationSound.setSoundInChannel(notificationChannel);
 
         this.notificationManager.createNotificationChannel(notificationChannel);
     }

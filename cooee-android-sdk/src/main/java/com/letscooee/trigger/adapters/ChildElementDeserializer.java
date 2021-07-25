@@ -2,14 +2,14 @@ package com.letscooee.trigger.adapters;
 
 import com.google.gson.*;
 import com.letscooee.CooeeFactory;
-import com.letscooee.enums.ElementType;
-import com.letscooee.models.v3.element.BaseChildElement;
+import com.letscooee.enums.trigger.ElementType;
+import com.letscooee.models.trigger.elements.BaseChildElement;
 
 import java.lang.reflect.Type;
 
 /**
- * A Gson deserializer to deserialize the children of {@link com.letscooee.models.v3.inapp.Layer} or
- * {@link com.letscooee.models.v3.element.GroupElement}. This checks the {@code type} key in json and then idenifies
+ * A Gson deserializer to deserialize the children of {@link com.letscooee.models.trigger.inapp.Layer} or
+ * {@link com.letscooee.models.trigger.elements.GroupElement}. This checks the {@code type} key in json and then idenifies
  * based on {@link ElementType#elementClass}.
  *
  * @author Shashank Agrawal

@@ -13,10 +13,10 @@ import com.google.gson.GsonBuilder;
 import com.letscooee.BuildConfig;
 import com.letscooee.CooeeFactory;
 import com.letscooee.models.Event;
-import com.letscooee.models.v3.CoreTriggerData;
-import com.letscooee.models.v3.element.BaseChildElement;
+import com.letscooee.models.trigger.TriggerData;
+import com.letscooee.models.trigger.elements.BaseChildElement;
 import com.letscooee.trigger.adapters.ChildElementDeserializer;
-import com.letscooee.trigger.inapp.InAppTriggerActivityNew;
+import com.letscooee.trigger.inapp.InAppTriggerActivity;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.LocalStorageHelper;
 import com.letscooee.utils.RuntimeData;
@@ -122,7 +122,7 @@ public class EngagementTriggerHelper {
                 .registerTypeAdapter(BaseChildElement.class, new ChildElementDeserializer())
                 .create();
 
-        CoreTriggerData triggerData = gson.fromJson(rawTriggerData, CoreTriggerData.class);
+        TriggerData triggerData = gson.fromJson(rawTriggerData, TriggerData.class);
 
         storeActiveTriggerDetails(context, triggerData.getId(), triggerData.getDuration());
         renderInAppTrigger(context, triggerData);
@@ -135,14 +135,14 @@ public class EngagementTriggerHelper {
      * @param triggerData received and parsed trigger data.
      */
     // TODO: 09/07/21 Delete afterDone
-    public static void renderInAppTrigger(Context context, CoreTriggerData triggerData) {
+    public static void renderInAppTrigger(Context context, TriggerData triggerData) {
         RuntimeData runtimeData = CooeeFactory.getRuntimeData();
         if (runtimeData.isInBackground()) {
             return;
         }
 
         try {
-            Intent intent = new Intent(context, InAppTriggerActivityNew.class);
+            Intent intent = new Intent(context, InAppTriggerActivity.class);
             Bundle sendBundle = new Bundle();
             sendBundle.putParcelable(Constants.INTENT_TRIGGER_DATA_KEY, triggerData);
             intent.putExtra("bundle", sendBundle);
@@ -160,14 +160,14 @@ public class EngagementTriggerHelper {
      * @param context     context of the application.
      * @param triggerData received and parsed trigger data.
      */
-    public static void renderInAppTriggerNew(Context context, CoreTriggerData triggerData) {
+    public static void renderInAppTriggerNew(Context context, TriggerData triggerData) {
         RuntimeData runtimeData = CooeeFactory.getRuntimeData();
         if (runtimeData.isInBackground()) {
             return;
         }
 
         try {
-            Intent intent = new Intent(context, InAppTriggerActivityNew.class);
+            Intent intent = new Intent(context, InAppTriggerActivity.class);
             Bundle sendBundle = new Bundle();
             sendBundle.putParcelable(Constants.INTENT_TRIGGER_DATA_KEY, triggerData);
             intent.putExtra("bundle", sendBundle);
@@ -186,7 +186,7 @@ public class EngagementTriggerHelper {
             return;
         }
 
-        CoreTriggerData triggerData = bundle.getParcelable(Constants.INTENT_TRIGGER_DATA_KEY);
+        TriggerData triggerData = bundle.getParcelable(Constants.INTENT_TRIGGER_DATA_KEY);
         // Should not go ahead if triggerData is null or triggerData's id is null
         if (triggerData == null || triggerData.getId() == null) {
             return;
@@ -211,7 +211,7 @@ public class EngagementTriggerHelper {
      * @param context     The application's context.
      * @param triggerData Data to render in-app.
      */
-    public static void renderInAppFromPushNotification(Context context, CoreTriggerData triggerData) {
+    public static void renderInAppFromPushNotification(Context context, TriggerData triggerData) {
 
 
         Event event = new Event("CE Notification Clicked", triggerData);

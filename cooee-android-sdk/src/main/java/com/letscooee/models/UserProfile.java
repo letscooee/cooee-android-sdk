@@ -3,10 +3,12 @@ package com.letscooee.models;
 import java.util.Map;
 
 /**
- * @author Abhishek Taparia
  * UserProfile class will store user data from server
+ *
+ * @author Abhishek Taparia
  */
 public class UserProfile {
+
     Map<String, String> deviceData;
     Map<String, String> userData;
     Map<String, String> userProperties;

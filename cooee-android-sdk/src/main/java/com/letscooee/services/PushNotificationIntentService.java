@@ -12,7 +12,7 @@ import androidx.annotation.RestrictTo;
 
 import com.letscooee.CooeeFactory;
 import com.letscooee.models.Event;
-import com.letscooee.models.v3.CoreTriggerData;
+import com.letscooee.models.trigger.TriggerData;
 import com.letscooee.utils.Constants;
 
 /**
@@ -31,7 +31,7 @@ public class PushNotificationIntentService extends IntentService {
             return;
         }
 
-        CoreTriggerData triggerData = intent.getParcelableExtra(Constants.INTENT_TRIGGER_DATA_KEY);
+        TriggerData triggerData = intent.getParcelableExtra(Constants.INTENT_TRIGGER_DATA_KEY);
 
         switch (intent.getAction()) {
             case Constants.ACTION_PUSH_BUTTON_CLICK: {

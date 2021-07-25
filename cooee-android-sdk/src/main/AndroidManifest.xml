@@ -24,20 +24,15 @@
             android:value="true" />
 
         <activity
-            android:name=".trigger.inapp.FeedbackActivity"
-            android:theme="@style/AppTheme.PopUp" />
-        <activity
             android:name=".trigger.inapp.InAppTriggerActivity"
             android:configChanges="orientation|keyboardHidden"
             android:theme="@style/AppTheme.PopUp" />
-        <activity android:name=".trigger.CooeeEmptyActivity" />
+
         <activity
-            android:name=".trigger.inapp.InAppTriggerActivityNew"
-            android:configChanges="orientation|keyboardHidden"
-            android:theme="@style/AppTheme.PopUp" />
+            android:name=".trigger.CooeeEmptyActivity" />
 
         <service
-            android:name=".services.CooeeFirebaseMessagingServiceNew"
+            android:name=".services.CooeeFirebaseMessagingService"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
