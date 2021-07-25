@@ -39,7 +39,7 @@ import com.letscooee.models.v3.CoreTriggerData;
 import com.letscooee.models.v3.block.ClickAction;
 import com.letscooee.models.v3.block.Position;
 import com.letscooee.models.v3.block.Size;
-import com.letscooee.models.v3.element.TextElement;
+import com.letscooee.models.v3.element.*;
 import com.letscooee.models.v3.inapp.Container;
 import com.letscooee.models.v3.inapp.InAppData;
 import com.letscooee.models.v3.inapp.Layer;
@@ -237,25 +237,24 @@ public class InAppTriggerActivityNew extends AppCompatActivity implements Preven
 
     private void loadLayers() {
         if (inAppData.getLayers() != null) {
-            for (Layer layers : inAppData.getLayers()) {
+            for (Layer layer : inAppData.getLayers()) {
                 RelativeLayout layout = new RelativeLayout(this);
-                ViewGroup.LayoutParams layoutParams = uiUtil.generateLayoutParams(layers.getSize(),
-                        layers.getPosition());
+                ViewGroup.LayoutParams layoutParams = uiUtil.generateLayoutParams(layer.getSize(), layer.getPosition());
 
                 layout.setLayoutParams(layoutParams);
-                uiUtil.processSpacing(layout, layers.getSpacing());
+                uiUtil.processSpacing(layout, layer.getSpacing());
 
                 MaterialCardView backgroundImage = bitmapForBlurry == null ?
-                        uiUtil.processBackground(layers, viewGroupForBlurry) :
-                        uiUtil.processBackground(layers, bitmapForBlurry);
+                        uiUtil.processBackground(layer, viewGroupForBlurry) :
+                        uiUtil.processBackground(layer, bitmapForBlurry);
 
                 if (backgroundImage != null) {
                     backgroundImage.setLayoutParams(layoutParams);
-                    uiUtil.processSpacing(backgroundImage, layers.getSpacing());
+                    uiUtil.processSpacing(backgroundImage, layer.getSpacing());
                 }
 
-                if (layers.getAction() != null) {
-                    ClickAction action = layers.getAction();
+                if (layer.getAction() != null) {
+                    ClickAction action = layer.getAction();
                     addAction(layout, action);
                 }
                 if (baseView instanceof FlexboxLayout) {
@@ -273,25 +272,25 @@ public class InAppTriggerActivityNew extends AppCompatActivity implements Preven
                 }
 
                 if (backgroundImage != null) {
-                    if (layers.getPosition() != null)
-                        if (layers.getPosition().getType() == Position.PositionType.ABSOLUTE) {
-                            addObserver(layers.getPosition(), backgroundImage, baseView,
+                    if (layer.getPosition() != null)
+                        if (layer.getPosition().getType() == Position.PositionType.ABSOLUTE) {
+                            addObserver(layer.getPosition(), backgroundImage, baseView,
                                     inAppData.getContainer());
-                        } else if (layers.getPosition().getType() == Position.PositionType.FIXED) {
-                            addObserver(layers.getPosition(), backgroundImage, viewInAppTriggerRoot,
+                        } else if (layer.getPosition().getType() == Position.PositionType.FIXED) {
+                            addObserver(layer.getPosition(), backgroundImage, viewInAppTriggerRoot,
                                     inAppData.getContainer());
                         }
                 } else {
-                    if (layers.getPosition() != null)
-                        if (layers.getPosition().getType() == Position.PositionType.ABSOLUTE) {
-                            addObserver(layers.getPosition(), layout,
+                    if (layer.getPosition() != null)
+                        if (layer.getPosition().getType() == Position.PositionType.ABSOLUTE) {
+                            addObserver(layer.getPosition(), layout,
                                     baseView, inAppData.getContainer());
-                        } else if (layers.getPosition().getType() == Position.PositionType.FIXED) {
-                            addObserver(layers.getPosition(), layout,
+                        } else if (layer.getPosition().getType() == Position.PositionType.FIXED) {
+                            addObserver(layer.getPosition(), layout,
                                     viewInAppTriggerRoot, inAppData.getContainer());
                         }
                 }
-                addChildren(layers.getElements(), layout, layers);
+                addChildren(layer.getChildren(), layout, layer);
 
                 layout.setClipToOutline(true);
             }
@@ -301,91 +300,89 @@ public class InAppTriggerActivityNew extends AppCompatActivity implements Preven
     /**
      * loops arraylist of {@link TextElement} to generate view accordingly and apply then properties.
      *
-     * @param elements {@link ArrayList} of {@link TextElement}
+     * @param children {@link ArrayList} of {@link TextElement}
      * @param layout   instance of parent {@link View} in which all element to be added
      * @param layers   it can be {@link Container}, {@link Layer}, {@link TextElement} came
      *                 for instance of layout
      */
-    private void addChildren(ArrayList<TextElement> elements, View layout, Object layers) {
-        for (TextElement children : elements) {
-
-
+    private void addChildren(ArrayList<BaseElement> children, View layout, Object layers) {
+        for (BaseElement child : children) {
             View view = null;
-            if (children.getType() == TextElement.ElementType.IMAGE) {
+            if (child instanceof ImageElement) {
                 view = new ImageView(this);
                 ((ImageView) view).setScaleType(ImageView.ScaleType.CENTER_INSIDE);
 
-                Glide.with(this).load(children.getUrl()).into((ImageView) view);
+                Glide.with(this).load(((ImageElement) child).getUrl()).into((ImageView) view);
 
-            } else if (children.getType() == TextElement.ElementType.BUTTON) {
+            } else if (child instanceof ButtonElement) {
                 view = new Button(this);
+                ButtonElement element = (ButtonElement) child;
 
-                ((Button) view).setText(children.getText());
-                ((Button) view).setTextColor(children.getColor().getSolidColor());
-                if (children.getFont() != null) {
-                    float fontSizeInSP = children.getFont().getSizeFloat() / getResources()
+                ((Button) view).setText(element.getText());
+                ((Button) view).setTextColor(element.getColor().getSolidColor());
+                if (element.getFont() != null) {
+                    float fontSizeInSP = element.getFont().getSizeFloat() / getResources()
                             .getDisplayMetrics().scaledDensity;
                     ((Button) view).setTextSize(fontSizeInSP);
                 }
-                if (children.getAlignment() != null)
-                    if (children.getAlignment().getAlign().equalsIgnoreCase("left"))
+                if (element.getAlignment() != null)
+                    if (element.getAlignment().getAlign().equalsIgnoreCase("left"))
                         ((TextView) view).setGravity(Gravity.START);
-                    else if (children.getAlignment().getAlign().equalsIgnoreCase("right"))
+                    else if (element.getAlignment().getAlign().equalsIgnoreCase("right"))
                         ((TextView) view).setGravity(Gravity.END);
 
-            } else if (children.getType() == TextElement.ElementType.TEXT) {
+            } else if (child instanceof TextElement) {
                 view = new TextView(this);
+                TextElement element = (TextElement) child;
 
-                ((TextView) view).setText(children.getText());
-                if (children.getColor() != null)
-                    ((TextView) view).setTextColor(children.getColor().getSolidColor());
-                if (children.getFont() != null) {
-                    float fontSizeInSP = children.getFont().getSizeFloat() / getResources()
+                ((TextView) view).setText(element.getText());
+                if (element.getColor() != null)
+                    ((TextView) view).setTextColor(element.getColor().getSolidColor());
+                if (element.getFont() != null) {
+                    float fontSizeInSP = element.getFont().getSizeFloat() / getResources()
                             .getDisplayMetrics().scaledDensity;
-                    ((TextView) view).setTextSize(children.getFont().getSizeFloat());
+                    ((TextView) view).setTextSize(element.getFont().getSizeFloat());
                 }
-                if (children.getAlignment() != null)
-                    if (children.getAlignment().getAlign().equalsIgnoreCase("center"))
+                if (element.getAlignment() != null)
+                    if (element.getAlignment().getAlign().equalsIgnoreCase("center"))
                         ((TextView) view).setGravity(Gravity.CENTER);
-                    else if (children.getAlignment().getAlign().equalsIgnoreCase("right"))
+                    else if (element.getAlignment().getAlign().equalsIgnoreCase("right"))
                         ((TextView) view).setGravity(Gravity.END);
 
-            } else if (children.getType() == TextElement.ElementType.VIDEO) {
+            } else if (child instanceof VideoElement) {
                 view = new RelativeLayout(this);
+                VideoElement element = (VideoElement) child;
                 ((RelativeLayout) view).setGravity(Gravity.CENTER);
-                createVideoView(children, view);
+                createVideoView(element, view);
 
-
-            } else if (children.getType() == TextElement.ElementType.GROUP) {
-
+            } else if (child instanceof GroupElement) {
                 view = new FlexboxLayout(this);
+                GroupElement element = (GroupElement) child;
                 ((FlexboxLayout) view).setFlexDirection(FlexDirection.COLUMN);
-                addChildren(children.getChildren(), view, children);
-
-
+                addChildren(element.getChildren(), view, child);
             }
-            assert view != null;
-            if (children.getTransform() != null)
-                view.setRotation(children.getTransform().getRotate());
 
-            RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) uiUtil.generateLayoutParams(children.getSize(), children.getPosition());
+            assert view != null;
+            if (child.getTransform() != null)
+                view.setRotation(child.getTransform().getRotate());
+
+            RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) uiUtil.generateLayoutParams(child.getSize(), child.getPosition());
 
             MaterialCardView backgroundImage = bitmapForBlurry == null ?
-                    uiUtil.processBackground(children, viewGroupForBlurry) :
-                    uiUtil.processBackground(children, bitmapForBlurry);
-
+                    uiUtil.processBackground(child, viewGroupForBlurry) :
+                    uiUtil.processBackground(child, bitmapForBlurry);
 
             view.setLayoutParams(layoutParams);
-            uiUtil.processSpacing(view, children.getSpacing());
+            uiUtil.processSpacing(view, child.getSpacing());
 
-            if (children.getAction() != null) {
-                ClickAction action = children.getAction();
+            if (child.getAction() != null) {
+                ClickAction action = child.getAction();
                 addAction(view, action);
             }
 
             if (backgroundImage != null) {
                 backgroundImage.setLayoutParams(layoutParams);
-                uiUtil.processSpacing(backgroundImage, children.getSpacing());
+                uiUtil.processSpacing(backgroundImage, child.getSpacing());
                 if (layout instanceof RelativeLayout) {
                     ((RelativeLayout) backgroundImage.getChildAt(0)).addView(view);
                     ((RelativeLayout) layout).addView(backgroundImage);
@@ -405,20 +402,20 @@ public class InAppTriggerActivityNew extends AppCompatActivity implements Preven
             }
 
             if (backgroundImage != null) {
-                if (children.getPosition() != null)
-                    if (children.getPosition().getType() == Position.PositionType.ABSOLUTE) {
-                        addObserver(children.getPosition(), backgroundImage, layout, layers);
-                    } else if (children.getPosition().getType() == Position.PositionType.FIXED) {
-                        addObserver(children.getPosition(), backgroundImage, viewInAppTriggerRoot,
+                if (child.getPosition() != null)
+                    if (child.getPosition().getType() == Position.PositionType.ABSOLUTE) {
+                        addObserver(child.getPosition(), backgroundImage, layout, layers);
+                    } else if (child.getPosition().getType() == Position.PositionType.FIXED) {
+                        addObserver(child.getPosition(), backgroundImage, viewInAppTriggerRoot,
                                 inAppData.getContainer());
                     }
 
             } else {
-                if (children.getPosition() != null)
-                    if (children.getPosition().getType() == Position.PositionType.ABSOLUTE) {
-                        addObserver(children.getPosition(), view, layout, layers);
-                    } else if (children.getPosition().getType() == Position.PositionType.FIXED) {
-                        addObserver(children.getPosition(), view, viewInAppTriggerRoot,
+                if (child.getPosition() != null)
+                    if (child.getPosition().getType() == Position.PositionType.ABSOLUTE) {
+                        addObserver(child.getPosition(), view, layout, layers);
+                    } else if (child.getPosition().getType() == Position.PositionType.FIXED) {
+                        addObserver(child.getPosition(), view, viewInAppTriggerRoot,
                                 inAppData.getContainer());
                     }
             }
@@ -429,21 +426,19 @@ public class InAppTriggerActivityNew extends AppCompatActivity implements Preven
     /**
      * Create a view to render video on In-App
      *
-     * @param children instance of {@link TextElement} which holds all properties of view
+     * @param element instance of {@link TextElement} which holds all properties of view
      * @param view     instance of {@link View} in which newly generated view to add
      */
-    private void createVideoView(TextElement children, View view) {
-
+    private void createVideoView(VideoElement element, View view) {
         RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
 
         VideoView videoView = new VideoView(this);
 
         videoView.setLayoutParams(layoutParams);
-        videoView.setVideoPath(children.getUrl());
+        videoView.setVideoPath(element.getUrl());
         videoView.seekTo(30);
         videoView.start();
-
 
         ImageView playPauseImage = new ImageView(this);
         RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(

@@ -4,6 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import com.letscooee.models.trigger.PushNotification;
 import com.letscooee.models.trigger.PushNotificationImportance;
+import com.letscooee.models.v3.element.ButtonElement;
 import com.letscooee.models.v3.element.TextElement;
 
 import java.util.ArrayList;
@@ -14,7 +15,7 @@ public class PushNotificationData implements Parcelable {
     private TextElement body;
     private String smallImage;
     private String largeImage;
-    private ArrayList<TextElement> buttons;
+    private ArrayList<ButtonElement> buttons;
     public PushNotification pn;
 
     public PushNotificationImportance getImportance() {
@@ -30,7 +31,7 @@ public class PushNotificationData implements Parcelable {
         body = in.readParcelable(TextElement.class.getClassLoader());
         smallImage = in.readString();
         largeImage = in.readString();
-        buttons = in.createTypedArrayList(TextElement.CREATOR);
+        buttons = in.createTypedArrayList(ButtonElement.CREATOR);
         pn = in.readParcelable(PushNotificationImportance.class.getClassLoader());
     }
 
@@ -62,7 +63,7 @@ public class PushNotificationData implements Parcelable {
         return largeImage;
     }
 
-    public ArrayList<TextElement> getButtons() {
+    public ArrayList<ButtonElement> getButtons() {
         return buttons;
     }
 

@@ -2,7 +2,7 @@ package com.letscooee.models.v3.element;
 
 import android.os.Parcel;
 
-public class TextElement extends BaseChildElement {
+public class TextElement extends BaseTextElement {
 
     protected TextElement(Parcel in) {
         super(in);

@@ -23,7 +23,7 @@ import com.letscooee.loader.http.RemoteImageLoader;
 import com.letscooee.models.Event;
 import com.letscooee.models.v3.CoreTriggerData;
 import com.letscooee.models.v3.PushNotificationData;
-import com.letscooee.models.v3.element.TextElement;
+import com.letscooee.models.v3.element.ButtonElement;
 import com.letscooee.pushnotification.PushProviderUtils;
 import com.letscooee.trigger.CooeeEmptyActivity;
 import com.letscooee.trigger.EngagementTriggerHelper;
@@ -167,25 +167,21 @@ public class CooeeFirebaseMessagingServiceNew extends FirebaseMessagingService {
         if (triggerData.getButtons() == null) {
             return new NotificationCompat.Action[0];
         }
-        NotificationCompat.Action[] actions = new NotificationCompat.Action[triggerData.getButtons().size()];
-        int requestCode = 36644 + notificationID;
-        int i = 0;
-        for (TextElement triggerButton : triggerData.getButtons()) {
-            String title = null;
-            if (triggerButton.getText() != null) {
-                title = triggerButton.getText();
-            }
 
+        NotificationCompat.Action[] actions = new NotificationCompat.Action[triggerData.getButtons().size()];
+        int requestCode = notificationID;
+        int i = 0;
+        for (ButtonElement triggerButton : triggerData.getButtons()) {
+            String title = triggerButton.getText();
 
             Intent actionButtonIntent = new Intent(getApplicationContext(), PushNotificationIntentService.class);
             actionButtonIntent.setAction(Constants.ACTION_PUSH_BUTTON_CLICK);
             actionButtonIntent.putExtra(Constants.INTENT_TRIGGER_DATA_KEY, triggerData);
             actionButtonIntent.putExtra("notificationId", notificationID);
-            PendingIntent pendingIntent = PendingIntent.getService(
-                    getApplicationContext(),
-                    requestCode++,
-                    actionButtonIntent,
+
+            PendingIntent pendingIntent = PendingIntent.getService(getApplicationContext(), requestCode++, actionButtonIntent,
                     PendingIntent.FLAG_ONE_SHOT);
+
             actions[i++] = new NotificationCompat.Action(R.drawable.common_google_signin_btn_icon_dark, title, pendingIntent);
 
         }

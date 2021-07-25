@@ -10,9 +10,12 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import com.letscooee.CooeeSDK;
 import com.letscooee.cooeetester.databinding.ActivityHomeBinding;
+import com.letscooee.trigger.EngagementTriggerHelper;
 import com.letscooee.utils.InAppNotificationClickListener;
 
+import java.io.InputStream;
 import java.util.HashMap;
+import java.util.Scanner;
 
 public class HomeActivity extends AppCompatActivity implements InAppNotificationClickListener {
 
@@ -39,9 +42,10 @@ public class HomeActivity extends AppCompatActivity implements InAppNotification
             cooeeSDK.sendEvent("image", new HashMap<>());
         });
 
-        binding.btnSendVideoEvent.setOnClickListener(view -> {
-            cooeeSDK.sendEvent("video", new HashMap<>());
+        binding.inApp1.setOnClickListener(view -> {
+            this.openInApp(R.raw.sample_payload1);
         });
+
         binding.btnProfile.setOnClickListener(view -> {
             startActivity(new Intent(this, ProfileActivity.class));
         });
@@ -52,6 +56,15 @@ public class HomeActivity extends AppCompatActivity implements InAppNotification
             clipboard.setPrimaryClip(clip);
             Toast.makeText(context, "Copied!", Toast.LENGTH_SHORT).show();
         });
+    }
+
+    @SuppressWarnings("SameParameterValue")
+    private void openInApp(int rawRes) {
+        // https://stackoverflow.com/a/49507293/2405040
+        InputStream inputStream = context.getResources().openRawResource(rawRes);
+        String jsonString = new Scanner(inputStream).useDelimiter("\\A").next();
+
+        EngagementTriggerHelper.renderInAppTriggerFromJSONString(context, jsonString);
     }
 
     @Override
