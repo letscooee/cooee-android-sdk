@@ -5,10 +5,12 @@ import android.os.Parcelable;
 
 public class Glossy implements Parcelable {
 
-    // TODO: 07/07/21 Glassmorphism can also has color
-    private int radius;
-    private int sampling;
-    private Colour colour;
+    private static final int DEFAULT_RADIUS = 25;
+    private static final int DEFAULT_SAMPLING = 8;
+
+    private final int radius;
+    private final int sampling;
+    private final Colour colour;
 
     protected Glossy(Parcel in) {
         radius = in.readInt();
@@ -29,11 +31,11 @@ public class Glossy implements Parcelable {
     };
 
     public int getRadius() {
-        return radius;
+        return radius != 0 ? radius : DEFAULT_RADIUS;
     }
 
     public int getSampling() {
-        return sampling;
+        return sampling != 0 ? sampling : DEFAULT_SAMPLING;
     }
 
     public Colour getColor() {
