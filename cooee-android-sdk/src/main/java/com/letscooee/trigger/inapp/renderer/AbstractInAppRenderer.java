@@ -73,7 +73,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         ClickAction clickAction = elementData.getClickAction();
         if (clickAction == null) return;
 
-        new ClickActionExecutor(context, clickAction, globalData, newElement).registerListener();
+        newElement.setOnClickListener(v -> new ClickActionExecutor(context, clickAction, globalData).execute());
     }
 
     protected void processTransformBlock() {

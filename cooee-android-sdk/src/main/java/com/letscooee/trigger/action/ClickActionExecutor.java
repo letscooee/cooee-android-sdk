@@ -7,8 +7,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.view.View;
-import androidx.annotation.Nullable;
 import com.letscooee.CooeeFactory;
 import com.letscooee.CooeeSDK;
 import com.letscooee.models.trigger.blocks.ClickAction;
@@ -26,26 +24,13 @@ import java.util.*;
 public class ClickActionExecutor {
 
     private final Context context;
-    private final View element;
     private final ClickAction action;
     private final InAppGlobalData globalData;
 
-    public ClickActionExecutor(Context context, ClickAction clickAction, InAppGlobalData globalData,
-                               @Nullable View element) {
+    public ClickActionExecutor(Context context, ClickAction clickAction, InAppGlobalData globalData) {
         this.context = context;
-        this.element = element;
         this.action = clickAction;
         this.globalData = globalData;
-    }
-
-    public void registerListener() {
-        if (element == null) {
-            return;
-        }
-
-        element.setOnClickListener(v -> {
-            this.execute();
-        });
     }
 
     public void execute() {
