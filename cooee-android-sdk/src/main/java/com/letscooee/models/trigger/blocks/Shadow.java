@@ -7,11 +7,11 @@ public class Shadow implements Parcelable {
 
     // TODO: 07/07/21 Discus for transitionZ
     private int elevation;
-    private Color color;
+    private Colour colour;
 
     protected Shadow(Parcel in) {
         elevation = in.readInt();
-        color = in.readParcelable(Color.class.getClassLoader());
+        colour = in.readParcelable(Colour.class.getClassLoader());
     }
 
     public static final Creator<Shadow> CREATOR = new Creator<Shadow>() {
@@ -30,8 +30,8 @@ public class Shadow implements Parcelable {
         return elevation;
     }
 
-    public Color getColor() {
-        return color;
+    public Colour getColor() {
+        return colour;
     }
 
     @Override
@@ -42,6 +42,6 @@ public class Shadow implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(elevation);
-        dest.writeParcelable(color, flags);
+        dest.writeParcelable(colour, flags);
     }
 }

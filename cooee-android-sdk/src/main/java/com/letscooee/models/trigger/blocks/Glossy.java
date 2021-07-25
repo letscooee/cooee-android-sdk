@@ -8,12 +8,12 @@ public class Glossy implements Parcelable {
     // TODO: 07/07/21 Glassmorphism can also has color
     private int radius;
     private int sampling;
-    private Color color;
+    private Colour colour;
 
     protected Glossy(Parcel in) {
         radius = in.readInt();
         sampling = in.readInt();
-        color = in.readParcelable(Color.class.getClassLoader());
+        colour = in.readParcelable(Colour.class.getClassLoader());
     }
 
     public static final Creator<Glossy> CREATOR = new Creator<Glossy>() {
@@ -36,8 +36,8 @@ public class Glossy implements Parcelable {
         return sampling;
     }
 
-    public Color getColor() {
-        return color;
+    public Colour getColor() {
+        return colour;
     }
 
     @Override
@@ -49,6 +49,6 @@ public class Glossy implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(radius);
         dest.writeInt(sampling);
-        dest.writeParcelable(color, flags);
+        dest.writeParcelable(colour, flags);
     }
 }

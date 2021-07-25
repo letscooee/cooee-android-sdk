@@ -32,7 +32,6 @@ public class PushNotificationTrigger implements Parcelable {
     protected PushNotificationTrigger(Parcel in) {
         title = in.readParcelable(TextElement.class.getClassLoader());
         body = in.readParcelable(TextElement.class.getClassLoader());
-        click = in.readParcelable(getClass().getClassLoader());
         smallImage = in.readString();
         largeImage = in.readString();
         buttons = in.createTypedArrayList(ButtonElement.CREATOR);
@@ -79,7 +78,6 @@ public class PushNotificationTrigger implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeParcelable(title, flags);
         dest.writeParcelable(body, flags);
-        dest.writeParcelable(click, flags);
         dest.writeString(smallImage);
         dest.writeString(largeImage);
         dest.writeTypedList(buttons);

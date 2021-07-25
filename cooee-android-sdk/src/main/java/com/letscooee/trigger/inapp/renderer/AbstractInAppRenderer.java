@@ -1,36 +1,23 @@
-package com.letscooee.utils;
+package com.letscooee.trigger.inapp.renderer;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
+import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
-import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
-
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-
 import com.bumptech.glide.Glide;
-import com.google.android.flexbox.AlignContent;
-import com.google.android.flexbox.AlignItems;
-import com.google.android.flexbox.FlexDirection;
-import com.google.android.flexbox.FlexWrap;
-import com.google.android.flexbox.FlexboxLayout;
-import com.google.android.flexbox.JustifyContent;
+import com.google.android.flexbox.*;
 import com.google.android.material.card.MaterialCardView;
+import com.letscooee.CooeeFactory;
 import com.letscooee.R;
-import com.letscooee.models.trigger.blocks.Background;
-import com.letscooee.models.trigger.blocks.Border;
-import com.letscooee.models.trigger.blocks.Color;
-import com.letscooee.models.trigger.blocks.Glossy;
-import com.letscooee.models.trigger.blocks.Position;
-import com.letscooee.models.trigger.blocks.Size;
-import com.letscooee.models.trigger.blocks.Spacing;
+import com.letscooee.device.DeviceInfo;
+import com.letscooee.models.trigger.blocks.*;
 import com.letscooee.models.trigger.elements.BaseElement;
-
+import com.letscooee.trigger.inapp.InAppGlobalData;
 import jp.wasabeef.blurry.Blurry;
 
 import static android.text.TextUtils.isEmpty;
@@ -39,42 +26,69 @@ import static android.text.TextUtils.isEmpty;
  * @author Ashish Gaikwad 09/07/21
  * @since 1.0.0
  */
-
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public class UIUtil {
-    private final Context context;
+public abstract class AbstractInAppRenderer implements InAppRenderer {
+
     private final int deviceHeight;
     private final int deviceWidth;
 
-    private OnImageLoad onImageLoad;
+    protected final InAppGlobalData globalData;
+    protected final Context context;
+    protected final ViewGroup parentElement;
+    protected final BaseElement elementData;
 
-    public interface OnImageLoad {
-        void onImageLoad(BitmapDrawable drawable);
-    }
+    protected final ImageView backgroundImage;
+    protected final MaterialCardView materialCardView;
 
-    public void setOnImageLoad(OnImageLoad onImageLoad) {
-        this.onImageLoad = onImageLoad;
-    }
+    protected View newElement;
 
-    public UIUtil(Context context) {
+    protected AbstractInAppRenderer(Context context, ViewGroup parentElement, BaseElement element,
+                                    InAppGlobalData globalData) {
         this.context = context;
-        DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
-        deviceHeight = displayMetrics.heightPixels;
-        deviceWidth = displayMetrics.widthPixels;
+        this.parentElement = parentElement;
+        this.elementData = element;
+        this.globalData = globalData;
+
+        DeviceInfo deviceInfo = CooeeFactory.getDeviceInfo();
+        deviceHeight = deviceInfo.getDisplayHeight();
+        deviceWidth = deviceInfo.getDisplayWidth();
+
+        this.backgroundImage = new ImageView(context);
+        this.materialCardView = new MaterialCardView(context);
     }
 
-    public ViewGroup.MarginLayoutParams generateLayoutParams(Size size, Position position) {
+    protected void processCommonBlocks() {
+        this.processSizeBlock();
+        // TODO: 25/07/21 Pass bitmap or view group
+        this.processBackground(null);
+        this.processBorderBlock();
+        this.processSpacing();
+        this.processPositionBlock();
+        this.processTransformBlock();
+    }
 
+    protected void processClickBlock() {
+        ClickAction clickAction = elementData.getClickAction();
+        if (clickAction == null) return;
+
+
+    }
+
+    protected void processTransformBlock() {
+        Transform transform = elementData.getTransform();
+        if (transform == null) return;
+
+        newElement.setRotation(transform.getRotate());
+    }
+
+    protected void processSizeBlock() {
+        final Size size = elementData.getSize();
         ViewGroup.MarginLayoutParams layoutParams;
 
-        if (size != null) {
             if (size.getDisplay() == Size.Display.BLOCK) {
                 layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                         ViewGroup.LayoutParams.MATCH_PARENT);
             } else if (size.getDisplay() == Size.Display.FLEX) {
-                layoutParams = new FlexboxLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
-                        ViewGroup.LayoutParams.WRAP_CONTENT);
-
                 int calculatedHeight = size.getCalculatedHeight(deviceWidth, deviceHeight);
                 int calculatedWidth = size.getCalculatedWidth(deviceWidth, deviceHeight);
 
@@ -101,18 +115,23 @@ public class UIUtil {
                     layoutParams = new RelativeLayout.LayoutParams(calculatedWidth, calculatedHeight);
             }
 
-        } else {
-            layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT);
-        }
-
-
-        return layoutParams;
+        this.newElement.setLayoutParams(layoutParams);
+        this.applyFlexProperties();
     }
 
-    public void processPosition(Position position, View currentView, View parent,
-                                Object parentProperty) {
-        if (position == null) {
+    /**
+     * Directly applying absolute position parameters (top, left, right, bottom) does not work. So to achieve that,
+     * adding an observer to the new view to check once the view is rendered on a screen and then
+     * apply position to that view.
+     */
+    protected void processPositionBlock() {
+        // TODO: 25/07/21 remove this listener
+        newElement.getViewTreeObserver().addOnGlobalLayoutListener(this::applyPositionBlock);
+    }
+
+    private void applyPositionBlock() {
+        Position position = this.elementData.getPosition();
+        if (position == null || !position.isNonStatic()) {
             return;
         }
 
@@ -121,83 +140,66 @@ public class UIUtil {
         int left = position.getLeft(deviceWidth, deviceHeight);
         int right = position.getRight(deviceWidth, deviceHeight);
 
-        float parentX = parent.getX();
-        float parentY = parent.getY();
-        float parentHeight = parent.getMeasuredHeight();
-        float parentWidth = parent.getMeasuredWidth();
+        float parentX = parentElement.getX();
+        float parentY = parentElement.getY();
+        float parentHeight = parentElement.getMeasuredHeight();
+        float parentWidth = parentElement.getMeasuredWidth();
 
-        float currentHeight = currentView.getMeasuredHeight();
-        float currentWidth = currentView.getMeasuredWidth();
+        float currentHeight = newElement.getMeasuredHeight();
+        float currentWidth = newElement.getMeasuredWidth();
 
         if (top != 0) {
-            currentView.setY(top);
+            newElement.setY(top);
             //currentView.setTop(top);
         }
         if (left != 0) {
-            currentView.setX(left);
+            newElement.setX(left);
             //currentView.setLeft(left);
-
         }
         if (bottom != 0) {
             float parentBottom = parentY + parentHeight;
             float currentViewBottom = parentBottom - bottom;
-            currentView.setY(currentViewBottom - currentHeight);
+            newElement.setY(currentViewBottom - currentHeight);
             //currentView.setBottom(bottom);
         }
         if (right != 0) {
             float parentRight = parentX + parentWidth;
             float currentViewRight = parentRight - right;
-            currentView.setX(currentViewRight - currentWidth);
+            newElement.setX(currentViewRight - currentWidth);
             //currentView.setRight(right);
         }
     }
 
-    @Nullable
-    public MaterialCardView processBackground(BaseElement container, Object imageContainer) {
-        Background background = container.getBg();
-        Border border = container.getBorder();
-        ImageView imageView = new ImageView(context);
-        MaterialCardView materialCardView = new MaterialCardView(context);
-        materialCardView.setCardBackgroundColor(android.graphics.Color.parseColor("#00ffffff"));
+    public void processBackground(Object objectToBlur) {
+        Background background = elementData.getBg();
+        materialCardView.setCardBackgroundColor(Color.parseColor("#00ffffff"));
 
+        // ((RelativeLayout) backgroundImage.getChildAt(0)).addView(layout);
         if (background != null) {
             if (background.getSolid() != null) {
+                processSolidBackground(background.getSolid());
 
-                processesSolid(imageView, background.getSolid(), border);
-                if (border != null)
-                    addBorder(materialCardView, imageView, border);
             } else if (background.getGlossy() != null) {
-
-                processesGlassMorphism(imageView, background.getGlossy(),
-                        border, imageContainer);
-                if (border != null) {
-
-                    addBorder(materialCardView, imageView, border);
-                    //imageView.setBackground(drawable);
-                }
+                applyGlassmorphism(background.getGlossy(), objectToBlur);
 
             } else if (background.getImage() != null) {
-
-                Glide.with(context).asBitmap().load(background.getImage().getUrl()).into(imageView);
-                addBorder(materialCardView, imageView, border);
+                Glide.with(context).asBitmap().load(background.getImage().getUrl()).into(backgroundImage);
             }
-        } else {
-
-            addBorder(materialCardView, imageView, border);
-
         }
-        if (background == null && border == null) {
-            return null;
+
+        if (background == null) {
+            return;
         }
+
         RelativeLayout relativeLayout = new RelativeLayout(context);
-        relativeLayout.addView(imageView);
+        relativeLayout.addView(backgroundImage);
         materialCardView.addView(relativeLayout);
-        return materialCardView;
+
+        // TODO: 25/07/21 Not sure about flex layout
+        parentElement.addView(materialCardView);
     }
 
-    private void processesGlassMorphism(ImageView imageView, Glossy glossy,
-                                        Border border, Object imageContainer) {
-
+    private void applyGlassmorphism(Glossy glossy, Object objectToBlur) {
         Blurry.Composer blurryComposer = Blurry.with(context)
                 .animate(500);
 
@@ -208,37 +210,22 @@ public class UIUtil {
         if (glossy.getSampling() != 0)
             blurryComposer.sampling(glossy.getSampling());
 
-
-        if (imageContainer instanceof Bitmap) {
+        if (objectToBlur instanceof Bitmap) {
             blurryComposer
-                    .from((Bitmap) imageContainer)
-                    .into(imageView);
+                    .from((Bitmap) objectToBlur)
+                    .into(backgroundImage);
         } else {
             blurryComposer
-                    .capture((ViewGroup) imageContainer)
-                    .into(imageView);
+                    .capture((ViewGroup) objectToBlur)
+                    .into(backgroundImage);
         }
 
     }
 
-    // Removed as it was duplicate code
-    /*private void processesSolidWithBorder(Drawable drawable, Color color, Border border) {
-        //GradientDrawable drawable;
+    protected void processBorderBlock() {
+        Border border = this.elementData.getBorder();
 
-        if (color.getGrad() == null) {
-            ((GradientDrawable) drawable).setColor(color.getSolidColor());
-        } else {
-            drawable = color.getGrad().getGradient();
-        }
-
-        addBorder(drawable, border);
-        //imageView.setBackground(drawable);
-    }*/
-
-    private void addBorder(MaterialCardView materialCardView, ImageView imageView, Border border) {
         if (border != null) {
-            GradientDrawable drawable = new GradientDrawable();
-
             if (border.getColor() != null)
                 materialCardView.setStrokeColor(border.getColor().getSolidColor());
             else
@@ -251,29 +238,34 @@ public class UIUtil {
             if (border.getRadius() > 0) {
                 materialCardView.setRadius(border.getRadius());
             }
-
         }
-
     }
 
-    private void processesSolid(ImageView imageView, Color solid, Border border) {
-        GradientDrawable drawable = new GradientDrawable();
+    private void processSolidBackground(Colour solid) {
+        GradientDrawable drawable;
         if (solid.getGrad() == null) {
+            drawable = new GradientDrawable();
             drawable.setColor(solid.getSolidColor());
         } else {
             drawable = solid.getGrad().getGradient();
         }
-        imageView.setImageDrawable(drawable);
 
+        backgroundImage.setImageDrawable(drawable);
+    }
+
+    protected void processSpacing() {
+        this.processSpacing(this.newElement, this.elementData.getSpacing());
     }
 
     public void processSpacing(View view, Spacing spacing) {
+        // TODO: 25/07/21 Use guard clause
         if (spacing != null) {
             int margin = spacing.getMargin(deviceWidth, deviceHeight);
             int marginLeft = spacing.getMarginLeft(deviceWidth, deviceHeight);
             int marginRight = spacing.getMarginRight(deviceWidth, deviceHeight);
             int marginTop = spacing.getMarginTop(deviceWidth, deviceHeight);
             int marginBottom = spacing.getMarginBottom(deviceWidth, deviceHeight);
+
             if (margin > 0) {
                 ((RelativeLayout.LayoutParams) view.getLayoutParams()).setMargins(margin, margin, margin, margin);
             } else if (marginTop > 0 || marginBottom > 0 || marginLeft > 0 || marginRight > 0) {
@@ -295,10 +287,10 @@ public class UIUtil {
         }
     }
 
-    public void addFlexProperty(FlexboxLayout layout, Size size) {
+    private void applyFlexProperties() {
+        Size size = elementData.getSize();
+        FlexboxLayout layout = (FlexboxLayout) newElement;
 
-        if (size == null)
-            return;
         if (!isEmpty(size.getDirection())) {
             if (size.getDirection().equalsIgnoreCase("row")) {
                 layout.setFlexDirection(FlexDirection.ROW);
@@ -310,6 +302,7 @@ public class UIUtil {
                 layout.setFlexDirection(FlexDirection.COLUMN_REVERSE);
             }
         }
+
         if (!isEmpty(size.getWrap())) {
             if (size.getWrap().equalsIgnoreCase("wrap")) {
                 layout.setFlexWrap(FlexWrap.WRAP);

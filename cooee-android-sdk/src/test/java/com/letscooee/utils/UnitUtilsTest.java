@@ -1,10 +1,11 @@
 package com.letscooee.utils;
 
+import com.letscooee.utils.ui.UnitUtils;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-public class ValueUtilTest {
+public class UnitUtilsTest {
     String input = "2px";
     String px = "px";
     String percent = "%";
@@ -14,9 +15,7 @@ public class ValueUtilTest {
      */
     @Test
     public void parseToInt() {
-
-
-        int output = ValueUtil.parseToInt(input, px);
+        int output = UnitUtils.parseToInt(input, px);
         assertEquals(2, output);
     }
 
@@ -25,8 +24,7 @@ public class ValueUtilTest {
      */
     @Test
     public void parseToIntInvalidUnit() {
-
-        int output = ValueUtil.parseToInt(input, percent);
+        int output = UnitUtils.parseToInt(input, percent);
         assertEquals(0, output);
     }
 
@@ -35,8 +33,7 @@ public class ValueUtilTest {
      */
     @Test
     public void parseToIntInvalidInput() {
-
-        int output = ValueUtil.parseToInt("input", px);
+        int output = UnitUtils.parseToInt("input", px);
         assertEquals(0, output);
     }
 
@@ -46,7 +43,7 @@ public class ValueUtilTest {
      */
     @Test
     public void getCalculatedValue() {
-        int output = ValueUtil.getCalculatedPixel(input);
+        int output = UnitUtils.getCalculatedPixel(input);
         assertEquals(2, output);
     }
 
@@ -55,7 +52,7 @@ public class ValueUtilTest {
      */
     @Test
     public void getCalculatedValueInvalid() {
-        int output = ValueUtil.getCalculatedPixel("input");
+        int output = UnitUtils.getCalculatedPixel("input");
         assertEquals(0, output);
     }
 

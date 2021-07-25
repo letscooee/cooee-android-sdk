@@ -39,7 +39,7 @@ public class Alignment implements Parcelable {
 
     public enum Align {LEFT, CENTER, RIGHT}
 
-    public enum Direction {ltr, rtl, ttb, btt}
+    public enum Direction {ltr, rtl}
 
     private String align;
     private Direction direction;

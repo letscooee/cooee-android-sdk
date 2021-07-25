@@ -3,25 +3,25 @@ package com.letscooee.models.trigger.blocks;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-public class Color implements Parcelable {
+public class Colour implements Parcelable {
 
     private String hex;
     private Gradient grad;
 
-    protected Color(Parcel in) {
+    protected Colour(Parcel in) {
         hex = in.readString();
         grad = in.readParcelable(Gradient.class.getClassLoader());
     }
 
-    public static final Creator<Color> CREATOR = new Creator<Color>() {
+    public static final Creator<Colour> CREATOR = new Creator<Colour>() {
         @Override
-        public Color createFromParcel(Parcel in) {
-            return new Color(in);
+        public Colour createFromParcel(Parcel in) {
+            return new Colour(in);
         }
 
         @Override
-        public Color[] newArray(int size) {
-            return new Color[size];
+        public Colour[] newArray(int size) {
+            return new Colour[size];
         }
     };
 

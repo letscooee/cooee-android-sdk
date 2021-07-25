@@ -3,9 +3,9 @@ package com.letscooee.models.trigger.blocks;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
-import com.letscooee.utils.ValueUtil;
+import com.letscooee.utils.ui.UnitUtils;
 
-import static com.letscooee.utils.ValueUtil.getCalculatedValue;
+import static com.letscooee.utils.ui.UnitUtils.getCalculatedValue;
 
 public class Border implements Parcelable {
 
@@ -15,7 +15,7 @@ public class Border implements Parcelable {
         width = in.readString();
         dashWidth = in.readString();
         dashGap = in.readString();
-        colour = in.readParcelable(Color.class.getClassLoader());
+        colour = in.readParcelable(Colour.class.getClassLoader());
         style = Style.valueOf(in.readString());
     }
 
@@ -55,10 +55,10 @@ public class Border implements Parcelable {
     private String width;
     private String dashWidth;
     private String dashGap;
-    private Color colour;
+    private Colour colour;
     private Style style;
 
-    public Color getColor() {
+    public Colour getColor() {
         return colour;
     }
 
@@ -67,7 +67,7 @@ public class Border implements Parcelable {
     }
 
     public int getRadius() {
-        return !TextUtils.isEmpty(radius) ? ValueUtil.getCalculatedPixel(radius) : 0;
+        return !TextUtils.isEmpty(radius) ? UnitUtils.getCalculatedPixel(radius) : 0;
     }
 
     public int getWidth(int deviceWidth, int deviceHeight) {

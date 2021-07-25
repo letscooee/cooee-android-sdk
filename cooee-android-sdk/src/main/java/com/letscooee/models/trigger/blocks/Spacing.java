@@ -5,40 +5,49 @@ import android.os.Parcelable;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-import static com.letscooee.utils.ValueUtil.getCalculatedValue;
+import static com.letscooee.utils.ui.UnitUtils.getCalculatedValue;
 
 public class Spacing implements Parcelable {
 
     @SerializedName("p")
     @Expose
-    private String padding;
+    private final String padding;
+
     @SerializedName("pl")
     @Expose
-    private String paddingLeft;
+    private final String paddingLeft;
+
     @SerializedName("pr")
     @Expose
-    private String paddingRight;
+    private final String paddingRight;
+
     @SerializedName("pt")
     @Expose
-    private String paddingTop;
+    private final String paddingTop;
+
     @SerializedName("pb")
     @Expose
-    private String paddingBottom;
+    private final String paddingBottom;
+
     @SerializedName("m")
     @Expose
-    private String margin;
+    private final String margin;
+
     @SerializedName("ml")
     @Expose
-    private String marginLeft;
+    private final String marginLeft;
+
     @SerializedName("mr")
     @Expose
-    private String marginRight;
+    private final String marginRight;
+
     @SerializedName("mt")
     @Expose
-    private String marginTop;
+    private final String marginTop;
+
     @SerializedName("mb")
     @Expose
-    private String marginBottom;
+    private final String marginBottom;
 
     protected Spacing(Parcel in) {
         padding = in.readString();
@@ -52,7 +61,6 @@ public class Spacing implements Parcelable {
         marginTop = in.readString();
         marginBottom = in.readString();
     }
-
 
     public static final Creator<Spacing> CREATOR = new Creator<Spacing>() {
         @Override
@@ -113,7 +121,6 @@ public class Spacing implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-
         dest.writeString(padding);
         dest.writeString(paddingLeft);
         dest.writeString(paddingRight);
@@ -125,6 +132,4 @@ public class Spacing implements Parcelable {
         dest.writeString(marginTop);
         dest.writeString(marginBottom);
     }
-
-
 }

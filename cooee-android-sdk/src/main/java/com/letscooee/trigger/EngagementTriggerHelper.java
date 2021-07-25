@@ -217,7 +217,7 @@ public class EngagementTriggerHelper {
         Event event = new Event("CE Notification Clicked", triggerData);
         CooeeFactory.getSafeHTTPService().sendEvent(event);
 
-        if (triggerData.getIan() == null) {
+        if (triggerData.getInAppTrigger() == null) {
             return;
         }
 

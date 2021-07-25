@@ -46,7 +46,7 @@ public abstract class BaseElement implements Parcelable {
         dest.writeParcelable(transform, flags);
     }
 
-    public ClickAction getAction() {
+    public ClickAction getClickAction() {
         return click;
     }
 
@@ -55,7 +55,7 @@ public abstract class BaseElement implements Parcelable {
     }
 
     public Size getSize() {
-        return size;
+        return size != null ? size : new Size();
     }
 
     public Background getBg() {

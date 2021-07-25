@@ -2,7 +2,7 @@ package com.letscooee.models.trigger.blocks;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import com.letscooee.utils.ValueUtil;
+import com.letscooee.utils.ui.UnitUtils;
 
 public class Font implements Parcelable {
 
@@ -67,6 +67,6 @@ public class Font implements Parcelable {
     }
 
     public float getSizeFloat() {
-        return ValueUtil.getCalculatedPixel(size);
+        return UnitUtils.getCalculatedPixel(size);
     }
 }

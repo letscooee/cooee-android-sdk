@@ -4,10 +4,14 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
 
-import static com.letscooee.utils.ValueUtil.getCalculatedValue;
+import static com.letscooee.utils.ui.UnitUtils.getCalculatedValue;
 
 public class Size implements Parcelable {
 
+    // The default value constructor
+    public Size() {
+        this.display = Display.BLOCK;
+    }
 
     protected Size(Parcel in) {
         width = in.readString();
@@ -97,11 +101,10 @@ public class Size implements Parcelable {
     }
 
     public Display getDisplay() {
-        return display;
+        return display != null ? display : Display.BLOCK;
     }
 
     public String getWidth() {
-
         if (TextUtils.isEmpty(width))
             return null;
         else
@@ -116,7 +119,6 @@ public class Size implements Parcelable {
     }
 
     public String getMaxWidth() {
-
         if (TextUtils.isEmpty(maxWidth))
             return null;
         else

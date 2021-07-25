@@ -45,7 +45,7 @@ public class TriggerData implements Parcelable {
         return version;
     }
 
-    public InAppTrigger getIan() {
+    public InAppTrigger getInAppTrigger() {
         return ian;
     }
 
