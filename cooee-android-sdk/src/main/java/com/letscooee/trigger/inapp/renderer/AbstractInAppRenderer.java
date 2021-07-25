@@ -17,6 +17,7 @@ import com.letscooee.R;
 import com.letscooee.device.DeviceInfo;
 import com.letscooee.models.trigger.blocks.*;
 import com.letscooee.models.trigger.elements.BaseElement;
+import com.letscooee.trigger.action.ClickActionExecutor;
 import com.letscooee.trigger.inapp.InAppGlobalData;
 import jp.wasabeef.blurry.Blurry;
 
@@ -65,13 +66,14 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         this.processSpacing();
         this.processPositionBlock();
         this.processTransformBlock();
+        this.processClickBlock();
     }
 
     protected void processClickBlock() {
         ClickAction clickAction = elementData.getClickAction();
         if (clickAction == null) return;
 
-
+        new ClickActionExecutor(context, clickAction, globalData, newElement).registerListener();
     }
 
     protected void processTransformBlock() {

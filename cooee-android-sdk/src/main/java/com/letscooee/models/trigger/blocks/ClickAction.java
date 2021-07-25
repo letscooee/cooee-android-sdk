@@ -56,11 +56,11 @@ public class ClickAction implements Parcelable {
         return prompts;
     }
 
-    public Map<String, Object> getUp() {
+    public Map<String, Object> getUserPropertiesToUpdate() {
         return up;
     }
 
-    public Map<String, Object> getKv() {
+    public Map<String, Object> getKeyValue() {
         return kv;
     }
 
