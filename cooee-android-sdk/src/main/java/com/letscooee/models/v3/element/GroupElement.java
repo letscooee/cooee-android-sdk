@@ -6,11 +6,11 @@ import java.util.ArrayList;
 
 public class GroupElement extends BaseChildElement {
 
-    private final ArrayList<BaseElement> children;
+    private final ArrayList<BaseChildElement> children;
 
     protected GroupElement(Parcel in) {
         super(in);
-        children = in.readArrayList(null);
+        children = in.readArrayList(getClass().getClassLoader());
     }
 
     public static final Creator<GroupElement> CREATOR = new Creator<GroupElement>() {
@@ -31,7 +31,7 @@ public class GroupElement extends BaseChildElement {
         dest.writeList(children);
     }
 
-    public ArrayList<BaseElement> getChildren() {
+    public ArrayList<BaseChildElement> getChildren() {
         return children;
     }
 }

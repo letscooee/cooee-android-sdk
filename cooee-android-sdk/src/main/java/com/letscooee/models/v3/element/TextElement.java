@@ -19,10 +19,4 @@ public class TextElement extends BaseTextElement {
             return new TextElement[size];
         }
     };
-
-    public enum ElementType {TEXT, BUTTON, IMAGE, VIDEO, GROUP}
-
-    public ElementType getType() {
-        return null;
-    }
 }

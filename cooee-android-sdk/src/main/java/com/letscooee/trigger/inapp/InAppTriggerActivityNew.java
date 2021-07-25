@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -305,7 +306,7 @@ public class InAppTriggerActivityNew extends AppCompatActivity implements Preven
      * @param layers   it can be {@link Container}, {@link Layer}, {@link TextElement} came
      *                 for instance of layout
      */
-    private void addChildren(ArrayList<BaseElement> children, View layout, Object layers) {
+    private void addChildren(ArrayList<BaseChildElement> children, View layout, Object layers) {
         for (BaseElement child : children) {
             View view = null;
             if (child instanceof ImageElement) {

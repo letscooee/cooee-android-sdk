@@ -29,6 +29,7 @@ import com.letscooee.models.v3.block.Glossy;
 import com.letscooee.models.v3.block.Position;
 import com.letscooee.models.v3.block.Size;
 import com.letscooee.models.v3.block.Spacing;
+import com.letscooee.models.v3.element.BaseElement;
 import com.letscooee.models.v3.element.TextElement;
 import com.letscooee.models.v3.inapp.Container;
 import com.letscooee.models.v3.inapp.Layer;
@@ -152,27 +153,15 @@ public class UIUtil {
             currentView.setX(currentViewRight - currentWidth);
             //currentView.setRight(right);
         }
-
     }
 
     @Nullable
-    public MaterialCardView processBackground(Object container, Object imageContainer) {
-        Background background;
-        Border border;
+    public MaterialCardView processBackground(BaseElement container, Object imageContainer) {
+        Background background = container.getBg();
+        Border border = container.getBorder();
         ImageView imageView = new ImageView(context);
         MaterialCardView materialCardView = new MaterialCardView(context);
         materialCardView.setCardBackgroundColor(android.graphics.Color.parseColor("#00ffffff"));
-
-        if (container instanceof Container) {
-            background = ((Container) container).getBg();
-            border = ((Container) container).getBorder();
-        } else if (container instanceof TextElement) {
-            background = ((TextElement) container).getBg();
-            border = ((TextElement) container).getBorder();
-        } else {
-            background = ((Layer) container).getBg();
-            border = ((Layer) container).getBorder();
-        }
 
         if (background != null) {
             if (background.getSolid() != null) {

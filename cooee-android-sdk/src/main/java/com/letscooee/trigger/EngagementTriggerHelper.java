@@ -9,10 +9,13 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.letscooee.BuildConfig;
 import com.letscooee.CooeeFactory;
 import com.letscooee.models.Event;
 import com.letscooee.models.v3.CoreTriggerData;
+import com.letscooee.models.v3.element.BaseChildElement;
+import com.letscooee.trigger.adapters.ChildElementDeserializer;
 import com.letscooee.trigger.inapp.InAppTriggerActivityNew;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.LocalStorageHelper;
@@ -115,7 +118,10 @@ public class EngagementTriggerHelper {
             return;
         }
 
-        Gson gson = new Gson();
+        Gson gson = new GsonBuilder()
+                .registerTypeAdapter(BaseChildElement.class, new ChildElementDeserializer())
+                .create();
+
         CoreTriggerData triggerData = gson.fromJson(rawTriggerData, CoreTriggerData.class);
 
         storeActiveTriggerDetails(context, triggerData.getId(), triggerData.getDuration());

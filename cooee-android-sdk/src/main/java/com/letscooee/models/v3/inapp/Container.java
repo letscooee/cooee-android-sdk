@@ -10,7 +10,7 @@ public class Container extends BaseElement {
 
     protected Container(Parcel in) {
         super(in);
-        animation = in.readParcelable(Animation.class.getClassLoader());
+        animation = in.readParcelable(getClass().getClassLoader());
     }
 
     public static final Creator<Container> CREATOR = new Creator<Container>() {
@@ -31,6 +31,7 @@ public class Container extends BaseElement {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        super.writeToParcel(dest, flags);
         dest.writeParcelable(animation, flags);
     }
 }
