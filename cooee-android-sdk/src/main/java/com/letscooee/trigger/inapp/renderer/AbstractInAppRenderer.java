@@ -171,7 +171,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
      */
     protected void processPositionBlock() {
         // TODO: 25/07/21 remove this listener
-        newElement.getViewTreeObserver().addOnGlobalLayoutListener(this::applyPositionBlock);
+        materialCardView.getViewTreeObserver().addOnGlobalLayoutListener(this::applyPositionBlock);
     }
 
     private void applyPositionBlock() {
@@ -190,27 +190,27 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         float parentHeight = parentElement.getMeasuredHeight();
         float parentWidth = parentElement.getMeasuredWidth();
 
-        float currentHeight = newElement.getMeasuredHeight();
-        float currentWidth = newElement.getMeasuredWidth();
+        float currentHeight = materialCardView.getMeasuredHeight();
+        float currentWidth = materialCardView.getMeasuredWidth();
 
         if (top != 0) {
-            newElement.setY(top);
+            materialCardView.setY(top);
             //currentView.setTop(top);
         }
         if (left != 0) {
-            newElement.setX(left);
+            materialCardView.setX(left);
             //currentView.setLeft(left);
         }
         if (bottom != 0) {
             float parentBottom = parentY + parentHeight;
             float currentViewBottom = parentBottom - bottom;
-            newElement.setY(currentViewBottom - currentHeight);
+            materialCardView.setY(currentViewBottom - currentHeight);
             //currentView.setBottom(bottom);
         }
         if (right != 0) {
             float parentRight = parentX + parentWidth;
             float currentViewRight = parentRight - right;
-            newElement.setX(currentViewRight - currentWidth);
+            materialCardView.setX(currentViewRight - currentWidth);
             //currentView.setRight(right);
         }
     }
