@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -22,6 +23,7 @@ import com.letscooee.trigger.inapp.InAppGlobalData;
 import jp.wasabeef.blurry.Blurry;
 
 import static android.text.TextUtils.isEmpty;
+import static com.letscooee.utils.Constants.TAG;
 
 /**
  * @author Ashish Gaikwad 09/07/21
@@ -86,34 +88,28 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         final Size size = elementData.getSize();
         ViewGroup.MarginLayoutParams layoutParams;
 
-        if (size.getDisplay() == Size.Display.BLOCK) {
-            layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.MATCH_PARENT);
-        } else if (size.getDisplay() == Size.Display.FLEX) {
-            int calculatedHeight = size.getCalculatedHeight(deviceWidth, deviceHeight);
-            int calculatedWidth = size.getCalculatedWidth(deviceWidth, deviceHeight);
-
-            if (calculatedHeight == 0 && calculatedWidth == 0)
-                layoutParams = new FlexboxLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            else if (calculatedHeight == 0 && calculatedWidth > 0)
-                layoutParams = new FlexboxLayout.LayoutParams(calculatedWidth, ViewGroup.LayoutParams.WRAP_CONTENT);
-            else if (calculatedHeight > 0 && calculatedWidth == 0)
-                layoutParams = new FlexboxLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, calculatedHeight);
-            else
-                layoutParams = new FlexboxLayout.LayoutParams(calculatedWidth, calculatedHeight);
-
+        int width, height;
+        if (size.getDisplay() == Size.Display.BLOCK || size.getDisplay() == Size.Display.FLEX) {
+            width = ViewGroup.LayoutParams.MATCH_PARENT;
+            height = ViewGroup.LayoutParams.WRAP_CONTENT;
         } else {
-            int calculatedHeight = size.getCalculatedHeight(deviceWidth, deviceHeight);
-            int calculatedWidth = size.getCalculatedWidth(deviceWidth, deviceHeight);
+            width = ViewGroup.LayoutParams.WRAP_CONTENT;
+            height = ViewGroup.LayoutParams.WRAP_CONTENT;
+        }
 
-            if (calculatedHeight == 0 && calculatedWidth == 0)
-                layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            else if (calculatedHeight == 0 && calculatedWidth > 0)
-                layoutParams = new RelativeLayout.LayoutParams(calculatedWidth, ViewGroup.LayoutParams.WRAP_CONTENT);
-            else if (calculatedHeight > 0 && calculatedWidth == 0)
-                layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, calculatedHeight);
-            else
-                layoutParams = new RelativeLayout.LayoutParams(calculatedWidth, calculatedHeight);
+        if (size.getWidth() != null) {
+            width = size.getCalculatedWidth(deviceWidth, deviceHeight);
+        }
+        if (size.getHeight() != null) {
+            height = size.getCalculatedHeight(deviceWidth, deviceHeight);
+        }
+
+        if (parentElement instanceof FlexboxLayout) {
+            layoutParams = new FlexboxLayout.LayoutParams(width, height);
+        } else if (parentElement instanceof RelativeLayout) {
+            layoutParams = new RelativeLayout.LayoutParams(width, height);
+        } else {
+            throw new RuntimeException("Unknown type of parentElement- " + parentElement);
         }
 
         this.newElement.setLayoutParams(layoutParams);
@@ -192,6 +188,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
             return;
         }
 
+        backgroundImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
         RelativeLayout relativeLayout = new RelativeLayout(context);
         relativeLayout.addView(backgroundImage);
         materialCardView.addView(relativeLayout);
