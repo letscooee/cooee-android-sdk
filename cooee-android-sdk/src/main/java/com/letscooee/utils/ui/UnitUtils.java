@@ -15,6 +15,8 @@ import static com.letscooee.utils.Constants.*;
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class UnitUtils {
 
+    private static final int STANDARD_RESOLUTION = 720;
+
     /**
      * Use to remove unit character from string and will convert {@link String} to {@link Integer}
      *
@@ -41,7 +43,10 @@ public class UnitUtils {
 
         value = value.trim();
         if (value.contains(UNIT_PIXEL)) {
-            return getCalculatedPixel(value);
+            int webPixels = getCalculatedPixel(value);
+            // TODO: 26/07/21 Consider landscape mode here
+            return webPixels * deviceHeight / STANDARD_RESOLUTION;
+
         } else if (value.contains(UNIT_PERCENT)) {
             if (isHeight) {
                 return ((parseToInt(value, UNIT_PERCENT) * deviceHeight) / 100);
