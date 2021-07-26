@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -23,7 +22,6 @@ import com.letscooee.trigger.inapp.InAppGlobalData;
 import jp.wasabeef.blurry.Blurry;
 
 import static android.text.TextUtils.isEmpty;
-import static com.letscooee.utils.Constants.TAG;
 
 /**
  * @author Ashish Gaikwad 09/07/21
@@ -96,6 +94,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         this.processSizeBlock();
         this.processBackground();
         this.processBorderBlock();
+        this.processShadowBlock();
         this.processSpacing();
         this.processPositionBlock();
         this.processTransformBlock();
@@ -104,6 +103,17 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
 
     protected void insertNewElementInHierarchy() {
         this.parentLayoutOfNewElement.addView(newElement);
+    }
+
+    protected void processShadowBlock() {
+        Shadow shadow = this.elementData.getShadow();
+        if (shadow == null) {
+            materialCardView.setElevation(0);
+            return;
+        }
+
+        // TODO: 26/07/21 Use shadow
+        materialCardView.setElevation(2);
     }
 
     protected void processClickBlock() {

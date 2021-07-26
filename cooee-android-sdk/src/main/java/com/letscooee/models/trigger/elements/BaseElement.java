@@ -66,6 +66,10 @@ public abstract class BaseElement implements Parcelable {
         return border;
     }
 
+    public Shadow getShadow() {
+        return shadow;
+    }
+
     public Spacing getSpacing() {
         return spacing;
     }
