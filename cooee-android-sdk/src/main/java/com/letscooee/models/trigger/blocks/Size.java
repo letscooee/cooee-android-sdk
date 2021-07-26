@@ -53,7 +53,6 @@ public class Size implements Parcelable {
             return getCalculatedValue(deviceWidth, deviceHeight, getHeight(), true);
     }
 
-
     public int getCalculatedWidth(int deviceWidth, int deviceHeight) {
         if (TextUtils.isEmpty(width))
             return 0;

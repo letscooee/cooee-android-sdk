@@ -8,10 +8,14 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.letscooee.CooeeSDK;
 import com.letscooee.cooeetester.databinding.ActivityHomeBinding;
 import com.letscooee.trigger.EngagementTriggerHelper;
 import com.letscooee.utils.InAppNotificationClickListener;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.InputStream;
 import java.util.HashMap;
@@ -63,6 +67,16 @@ public class HomeActivity extends AppCompatActivity implements InAppNotification
         // https://stackoverflow.com/a/49507293/2405040
         InputStream inputStream = context.getResources().openRawResource(rawRes);
         String jsonString = new Scanner(inputStream).useDelimiter("\\A").next();
+
+        try {
+            JSONObject jsonObject = new JSONObject(jsonString);
+            // To prevent adding "id" everytime in the sample JSON
+            jsonObject.put("id", "TEST-1");
+            jsonString = jsonObject.toString();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
 
         EngagementTriggerHelper.renderInAppTriggerFromJSONString(context, jsonString);
     }
