@@ -29,7 +29,7 @@ public class ContainerRenderer extends AbstractInAppRenderer {
             newElement = new RelativeLayout(context);
         }
 
-        parentElement.addView(newElement);
+        insertNewElementInHierarchy();
         processCommonBlocks();
 
         return newElement;

@@ -29,7 +29,7 @@ public class GroupRenderer extends AbstractInAppRenderer {
             newElement = new RelativeLayout(context);
         }
 
-        parentElement.addView(newElement);
+        insertNewElementInHierarchy();
         processCommonBlocks();
         processChildren();
 

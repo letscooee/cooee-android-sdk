@@ -50,7 +50,7 @@ public class VideoRenderer extends AbstractInAppRenderer {
         newElement = videoView;
         this.renderVideoView();
 
-        parentElement.addView(newElement);
+        insertNewElementInHierarchy();
         processCommonBlocks();
 
         return newElement;

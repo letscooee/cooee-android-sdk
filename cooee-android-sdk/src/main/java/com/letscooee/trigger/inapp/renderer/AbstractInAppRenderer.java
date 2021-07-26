@@ -40,9 +40,13 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
     protected final ViewGroup parentElement;
     protected final BaseElement elementData;
 
-    protected final ImageView backgroundImage;
     protected final MaterialCardView materialCardView;
+    protected final RelativeLayout parentLayoutOfNewElement;
+    protected final ImageView backgroundImage;
 
+    /**
+     * The newest element that will be rendered by the instance of this renderer.
+     */
     protected View newElement;
 
     protected AbstractInAppRenderer(Context context, ViewGroup parentElement, BaseElement element,
@@ -56,8 +60,36 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         deviceHeight = deviceInfo.getDisplayHeight();
         deviceWidth = deviceInfo.getDisplayWidth();
 
-        this.backgroundImage = new ImageView(context);
         this.materialCardView = new MaterialCardView(context);
+        // First and only element inside MaterialCardView
+        this.parentLayoutOfNewElement = new RelativeLayout(context);
+        this.backgroundImage = new ImageView(context);
+        this.setupWrapperForNewElement();
+    }
+
+    /**
+     * To achieve background image, border stroke or corner radius for all the elements (container/layer/group/text
+     * etc.), we need to wrap every element in the following hierarchy-
+     *
+     * <pre>
+     *     |--- {@link #parentElement}
+     *              |
+     *              |--- {@link #materialCardView}
+     *                      |
+     *                      |--- {@link #parentLayoutOfNewElement} Relative Layout
+     *                              |
+     *                              |--- {@link #backgroundImage} Image View for Glossy/solid/image
+     *                              |--- {@link #newElement} Our new element being inserted by this class. This can
+     *                                      be {@link RelativeLayout}/{@link FlexboxLayout}/TextView/Button
+     *
+     * </pre>
+     */
+    private void setupWrapperForNewElement() {
+        parentLayoutOfNewElement.addView(backgroundImage);
+        materialCardView.addView(parentLayoutOfNewElement);
+
+        backgroundImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        parentElement.addView(materialCardView);
     }
 
     protected void processCommonBlocks() {
@@ -68,6 +100,10 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         this.processPositionBlock();
         this.processTransformBlock();
         this.processClickBlock();
+    }
+
+    protected void insertNewElementInHierarchy() {
+        this.parentLayoutOfNewElement.addView(newElement);
     }
 
     protected void processClickBlock() {
@@ -104,6 +140,8 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
             height = size.getCalculatedHeight(deviceWidth, deviceHeight);
         }
 
+        this.newElement.setLayoutParams(new RelativeLayout.LayoutParams(width, height));
+
         if (parentElement instanceof FlexboxLayout) {
             layoutParams = new FlexboxLayout.LayoutParams(width, height);
         } else if (parentElement instanceof RelativeLayout) {
@@ -112,7 +150,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
             throw new RuntimeException("Unknown type of parentElement- " + parentElement);
         }
 
-        this.newElement.setLayoutParams(layoutParams);
+        this.materialCardView.setLayoutParams(layoutParams);
         this.applyFlexProperties();
     }
 
@@ -183,18 +221,6 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
                 Glide.with(context).asBitmap().load(background.getImage().getUrl()).into(backgroundImage);
             }
         }
-
-        if (background == null) {
-            return;
-        }
-
-        backgroundImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        RelativeLayout relativeLayout = new RelativeLayout(context);
-        relativeLayout.addView(backgroundImage);
-        materialCardView.addView(relativeLayout);
-
-        // TODO: 25/07/21 Not sure about flex layout
-        parentElement.addView(materialCardView);
     }
 
     private void applyGlassmorphism(Glossy glossy) {

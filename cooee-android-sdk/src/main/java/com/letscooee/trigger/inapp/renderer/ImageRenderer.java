@@ -26,7 +26,7 @@ public class ImageRenderer extends AbstractInAppRenderer {
         Glide.with(context).load(((ImageElement) elementData).getUrl()).into(imageView);
 
         newElement = imageView;
-        parentElement.addView(newElement);
+        insertNewElementInHierarchy();
         processCommonBlocks();
 
         return newElement;

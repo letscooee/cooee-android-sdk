@@ -39,7 +39,7 @@ public class TextRenderer extends AbstractInAppRenderer {
         this.processColourBlock();
         this.processAlignmentBlock();
 
-        parentElement.addView(newElement);
+        insertNewElementInHierarchy();
         processCommonBlocks();
     }
 
