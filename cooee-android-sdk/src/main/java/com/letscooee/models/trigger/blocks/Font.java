@@ -32,10 +32,6 @@ public class Font implements Parcelable {
         }
     };
 
-    public String getSize() {
-        return size;
-    }
-
     public String getStyle() {
         return style;
     }
@@ -66,7 +62,7 @@ public class Font implements Parcelable {
         dest.writeString(lineHeight);
     }
 
-    public float getSizeFloat() {
+    public int getSize() {
         return UnitUtils.getCalculatedPixel(size);
     }
 }

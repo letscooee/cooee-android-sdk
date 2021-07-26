@@ -74,7 +74,7 @@ public class Position implements Parcelable {
 
     public int getRight(int deviceWidth, int deviceHeight) {
         return !TextUtils.isEmpty(right) ?
-                UnitUtils.getCalculatedValue(deviceWidth, deviceHeight, right.toLowerCase(), true)
+                UnitUtils.getCalculatedValue(deviceWidth, deviceHeight, right.toLowerCase())
                 : 0;
     }
 

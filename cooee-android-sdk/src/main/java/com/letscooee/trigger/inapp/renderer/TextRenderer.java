@@ -71,7 +71,7 @@ public class TextRenderer extends AbstractInAppRenderer {
             return;
         }
 
-        float fontSizeInSP = textData.getFont().getSizeFloat() / CooeeFactory.getDeviceInfo().getScaledDensity();
+        float fontSizeInSP = textData.getFont().getSize() / CooeeFactory.getDeviceInfo().getScaledDensity();
         ((TextView) newElement).setTextSize(fontSizeInSP);
     }
 }
