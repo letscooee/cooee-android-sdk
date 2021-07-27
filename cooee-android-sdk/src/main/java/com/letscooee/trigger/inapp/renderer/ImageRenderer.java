@@ -21,6 +21,7 @@ public class ImageRenderer extends AbstractInAppRenderer {
     @Override
     public View render() {
         ImageView imageView = new ImageView(context);
+        imageView.setAdjustViewBounds(true);
         imageView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
 
         Glide.with(context).load(((ImageElement) elementData).getUrl()).into(imageView);

@@ -1,9 +1,11 @@
 package com.letscooee.utils.ui;
 
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import com.letscooee.BuildConfig;
 import com.letscooee.CooeeFactory;
 
 import static com.letscooee.utils.Constants.*;
@@ -24,6 +26,10 @@ public class UnitUtils {
     static {
         DISPLAY_WIDTH = CooeeFactory.getDeviceInfo().getDisplayWidth();
         DISPLAY_HEIGHT = CooeeFactory.getDeviceInfo().getDisplayHeight();
+
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "Display width: " + DISPLAY_WIDTH + ", height: " + DISPLAY_HEIGHT);
+        }
     }
 
     /**
@@ -65,11 +71,16 @@ public class UnitUtils {
             return webPixels * DISPLAY_HEIGHT / STANDARD_RESOLUTION;
 
         } else if (value.contains(UNIT_PERCENT)) {
+            if (BuildConfig.DEBUG) {
+                Log.d(TAG, "Parent width: " + parentWidth + ", height: " + parentHeight);
+            }
+
             if (isHeight) {
                 return ((parseToInt(value, UNIT_PERCENT) * parentHeight) / 100);
             } else {
                 return ((parseToInt(value, UNIT_PERCENT) * parentWidth) / 100);
             }
+
         } else if (value.contains(UNIT_VIEWPORT_HEIGHT)) {
             return ((parseToInt(value, UNIT_VIEWPORT_HEIGHT) * DISPLAY_HEIGHT) / 100);
 

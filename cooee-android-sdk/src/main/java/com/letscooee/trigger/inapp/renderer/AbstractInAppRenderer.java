@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
@@ -14,6 +15,7 @@ import androidx.annotation.RestrictTo;
 import com.bumptech.glide.Glide;
 import com.google.android.flexbox.*;
 import com.google.android.material.card.MaterialCardView;
+import com.letscooee.BuildConfig;
 import com.letscooee.R;
 import com.letscooee.models.trigger.blocks.*;
 import com.letscooee.models.trigger.elements.BaseElement;
@@ -86,13 +88,22 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
 
         backgroundImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
         parentElement.addView(materialCardView);
+
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "Parent " + parentElement.getClass().getSimpleName());
+        }
     }
 
     protected void processCommonBlocks() {
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "Process blocks for " + elementData.getClass().getSimpleName());
+        }
+
+        this.newElement.setTag(this.getClass().getSimpleName());
         this.processBackground();
         this.processBorderBlock();
         this.processShadowBlock();
-        this.processPositionBlock();
+        this.registerViewTreeListener();
         this.processTransformBlock();
         this.processClickBlock();
         this.applyFlexParentProperties();
@@ -100,6 +111,10 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
     }
 
     protected void insertNewElementInHierarchy() {
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "Inserting new element " + newElement.getClass().getSimpleName());
+        }
+
         this.parentLayoutOfNewElement.addView(newElement);
     }
 
@@ -183,7 +198,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
      * adding an observer to the new view to check once the view is rendered on a screen and then
      * apply position to that view.
      */
-    protected void processPositionBlock() {
+    protected void registerViewTreeListener() {
         AbstractInAppRenderer _this = this;
 
         materialCardView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
