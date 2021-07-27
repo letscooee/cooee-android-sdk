@@ -21,7 +21,6 @@ import com.letscooee.utils.Constants;
 import com.letscooee.utils.LocalStorageHelper;
 import com.letscooee.utils.RuntimeData;
 import com.letscooee.utils.Timer;
-import io.sentry.Sentry;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -134,7 +133,6 @@ public class EngagementTriggerHelper {
      * @param context     context of the application.
      * @param triggerData received and parsed trigger data.
      */
-    // TODO: 09/07/21 Delete afterDone
     public static void renderInAppTrigger(Context context, TriggerData triggerData) {
         RuntimeData runtimeData = CooeeFactory.getRuntimeData();
         if (runtimeData.isInBackground()) {
@@ -149,33 +147,7 @@ public class EngagementTriggerHelper {
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(intent);
         } catch (Exception ex) {
-            Log.d(Constants.TAG, "Couldn't show Engagement Trigger " + ex.toString());
-            Sentry.captureException(ex);
-        }
-    }
-
-    /**
-     * Start rendering the in-app trigger.
-     *
-     * @param context     context of the application.
-     * @param triggerData received and parsed trigger data.
-     */
-    public static void renderInAppTriggerNew(Context context, TriggerData triggerData) {
-        RuntimeData runtimeData = CooeeFactory.getRuntimeData();
-        if (runtimeData.isInBackground()) {
-            return;
-        }
-
-        try {
-            Intent intent = new Intent(context, InAppTriggerActivity.class);
-            Bundle sendBundle = new Bundle();
-            sendBundle.putParcelable(Constants.INTENT_TRIGGER_DATA_KEY, triggerData);
-            intent.putExtra("bundle", sendBundle);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            context.startActivity(intent);
-        } catch (Exception ex) {
-            Log.d(Constants.TAG, "Couldn't show Engagement Trigger " + ex.toString());
-            Sentry.captureException(ex);
+            CooeeFactory.getSentryHelper().captureException("Couldn't show Engagement Trigger", ex);
         }
     }
 
