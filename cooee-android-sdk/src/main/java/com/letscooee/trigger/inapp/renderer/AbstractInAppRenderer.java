@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -96,11 +97,9 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
     }
 
     protected void processCommonBlocks() {
-        this.processSizeBlock();
         this.processBackground();
         this.processBorderBlock();
         this.processShadowBlock();
-        this.processSpacing();
         this.processPositionBlock();
         this.processTransformBlock();
         this.processClickBlock();
@@ -178,8 +177,17 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
      * apply position to that view.
      */
     protected void processPositionBlock() {
-        // TODO: 25/07/21 remove this listener
-        materialCardView.getViewTreeObserver().addOnGlobalLayoutListener(this::applyPositionBlock);
+        AbstractInAppRenderer _this = this;
+
+        materialCardView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                materialCardView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                _this.applyPositionBlock();
+                _this.processSizeBlock();
+                _this.processSpacing();
+            }
+        });
     }
 
     private void applyPositionBlock() {
