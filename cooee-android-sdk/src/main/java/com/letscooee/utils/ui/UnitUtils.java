@@ -1,8 +1,10 @@
 package com.letscooee.utils.ui;
 
 import android.text.TextUtils;
+import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import com.letscooee.CooeeFactory;
 
 import static com.letscooee.utils.Constants.*;
 
@@ -16,6 +18,13 @@ import static com.letscooee.utils.Constants.*;
 public class UnitUtils {
 
     private static final int STANDARD_RESOLUTION = 720;
+    private static final int DISPLAY_WIDTH;
+    private static final int DISPLAY_HEIGHT;
+
+    static {
+        DISPLAY_WIDTH = CooeeFactory.getDeviceInfo().getDisplayWidth();
+        DISPLAY_HEIGHT = CooeeFactory.getDeviceInfo().getDisplayHeight();
+    }
 
     /**
      * Use to remove unit character from string and will convert {@link String} to {@link Integer}
@@ -32,32 +41,42 @@ public class UnitUtils {
         return parseToInt(pixelString, UNIT_PIXEL);
     }
 
-    public static int getCalculatedValue(int deviceWidth, int deviceHeight, String value) {
-        return getCalculatedValue(deviceWidth, deviceHeight, value, false);
+    public static Integer getCalculatedValue(int parentWidth, int parentHeight, String value) {
+        return getCalculatedValue(parentWidth, parentHeight, value, false);
     }
 
-    public static int getCalculatedValue(int deviceWidth, int deviceHeight, String value, boolean isHeight) {
+    public static Integer getCalculatedValue(View parent, String value) {
+        return getCalculatedValue(parent, value, false);
+    }
+
+    public static Integer getCalculatedValue(View parent, String value, boolean isHeight) {
+        return getCalculatedValue(parent.getMeasuredWidth(), parent.getMeasuredHeight(), value, isHeight);
+    }
+
+    public static Integer getCalculatedValue(int parentWidth, int parentHeight, String value, boolean isHeight) {
         if (TextUtils.isEmpty(value)) {
-            return 0;
+            return null;
         }
 
-        value = value.trim();
+        value = value.trim().toLowerCase();
         if (value.contains(UNIT_PIXEL)) {
             int webPixels = getCalculatedPixel(value);
             // TODO: 26/07/21 Consider landscape mode here
-            return webPixels * deviceHeight / STANDARD_RESOLUTION;
+            return webPixels * DISPLAY_HEIGHT / STANDARD_RESOLUTION;
 
         } else if (value.contains(UNIT_PERCENT)) {
             if (isHeight) {
-                return ((parseToInt(value, UNIT_PERCENT) * deviceHeight) / 100);
+                return ((parseToInt(value, UNIT_PERCENT) * parentHeight) / 100);
             } else {
-                return ((parseToInt(value, UNIT_PERCENT) * deviceWidth) / 100);
+                return ((parseToInt(value, UNIT_PERCENT) * parentWidth) / 100);
             }
         } else if (value.contains(UNIT_VIEWPORT_HEIGHT)) {
-            return ((parseToInt(value, UNIT_VIEWPORT_HEIGHT) * deviceHeight) / 100);
+            return ((parseToInt(value, UNIT_VIEWPORT_HEIGHT) * DISPLAY_HEIGHT) / 100);
+
         } else if (value.contains(UNIT_VIEWPORT_WIDTH)) {
-            return ((parseToInt(value, UNIT_VIEWPORT_WIDTH) * deviceWidth) / 100);
+            return ((parseToInt(value, UNIT_VIEWPORT_WIDTH) * DISPLAY_WIDTH) / 100);
         }
+
         return 0;
     }
 }

@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import androidx.annotation.RestrictTo;
@@ -86,6 +87,10 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         parentLayoutOfNewElement.addView(backgroundImage);
         materialCardView.addView(parentLayoutOfNewElement);
 
+        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT);
+        parentLayoutOfNewElement.setLayoutParams(layoutParams);
+
         backgroundImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
         parentElement.addView(materialCardView);
     }
@@ -143,11 +148,14 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
             height = ViewGroup.LayoutParams.WRAP_CONTENT;
         }
 
-        if (size.getWidth() != null) {
-            width = size.getCalculatedWidth(deviceWidth, deviceHeight);
+        Integer calculatedWidth = size.getCalculatedWidth(parentElement);
+        if (calculatedWidth != null) {
+            width = calculatedWidth;
         }
-        if (size.getHeight() != null) {
-            height = size.getCalculatedHeight(deviceWidth, deviceHeight);
+
+        Integer calculatedHeight = size.getCalculatedHeight(parentElement);
+        if (calculatedHeight != null) {
+            height = calculatedHeight;
         }
 
         this.newElement.setLayoutParams(new RelativeLayout.LayoutParams(width, height));
@@ -180,10 +188,10 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
             return;
         }
 
-        int top = position.getTop(deviceWidth, deviceHeight);
-        int bottom = position.getBottom(deviceWidth, deviceHeight);
-        int left = position.getLeft(deviceWidth, deviceHeight);
-        int right = position.getRight(deviceWidth, deviceHeight);
+        int top = position.getTop(parentElement);
+        int bottom = position.getBottom(parentElement);
+        int left = position.getLeft(parentElement);
+        int right = position.getRight(parentElement);
 
         float parentX = parentElement.getX();
         float parentY = parentElement.getY();
@@ -265,8 +273,9 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
             else
                 materialCardView.setStrokeColor(context.getResources().getColor(R.color.colorPrimary));
 
-            if (border.getWidth(deviceWidth, deviceHeight) != 0) {
-                materialCardView.setStrokeWidth(border.getWidth(deviceWidth, deviceHeight));
+            Integer calculatedBorder = border.getWidth(parentElement);
+            if (calculatedBorder != null) {
+                materialCardView.setStrokeWidth(calculatedBorder);
             }
 
             if (border.getRadius() > 0) {
@@ -289,36 +298,26 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
 
     protected void processSpacing() {
         Spacing spacing = elementData.getSpacing();
-
-        // TODO: 25/07/21 Use guard clause
-        if (spacing != null) {
-            int margin = spacing.getMargin(deviceWidth, deviceHeight);
-            int marginLeft = spacing.getMarginLeft(deviceWidth, deviceHeight);
-            int marginRight = spacing.getMarginRight(deviceWidth, deviceHeight);
-            int marginTop = spacing.getMarginTop(deviceWidth, deviceHeight);
-            int marginBottom = spacing.getMarginBottom(deviceWidth, deviceHeight);
-
-            if (margin > 0) {
-                ((ViewGroup.MarginLayoutParams) this.newElement.getLayoutParams())
-                        .setMargins(margin, margin, margin, margin);
-
-            } else if (marginTop > 0 || marginBottom > 0 || marginLeft > 0 || marginRight > 0) {
-                ((ViewGroup.MarginLayoutParams) this.newElement.getLayoutParams())
-                        .setMargins(marginLeft, marginTop, marginRight, marginBottom);
-            }
-
-            int padding = spacing.getPadding(deviceWidth, deviceHeight);
-            int paddingLeft = spacing.getPaddingLeft(deviceWidth, deviceHeight);
-            int paddingRight = spacing.getPaddingRight(deviceWidth, deviceHeight);
-            int paddingTop = spacing.getPaddingTop(deviceWidth, deviceHeight);
-            int paddingBottom = spacing.getPaddingBottom(deviceWidth, deviceHeight);
-
-            if (padding > 0) {
-                this.newElement.setPadding(padding, padding, padding, padding);
-            } else if (paddingTop > 0 || paddingBottom > 0 || paddingLeft > 0 || paddingRight > 0) {
-                this.newElement.setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
-            }
+        if (spacing == null) {
+            return;
         }
+
+        spacing.calculatedPaddingAndMargin(parentElement);
+
+        int marginLeft = spacing.getMarginLeft(parentElement);
+        int marginRight = spacing.getMarginRight(parentElement);
+        int marginTop = spacing.getMarginTop(parentElement);
+        int marginBottom = spacing.getMarginBottom(parentElement);
+
+        ((ViewGroup.MarginLayoutParams) this.materialCardView.getLayoutParams())
+                .setMargins(marginLeft, marginTop, marginRight, marginBottom);
+
+        int paddingLeft = spacing.getPaddingLeft(parentElement);
+        int paddingRight = spacing.getPaddingRight(parentElement);
+        int paddingTop = spacing.getPaddingTop(parentElement);
+        int paddingBottom = spacing.getPaddingBottom(parentElement);
+
+        this.newElement.setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
     }
 
     private void applyFlexProperties() {

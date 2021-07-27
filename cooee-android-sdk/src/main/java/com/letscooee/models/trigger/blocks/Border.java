@@ -3,6 +3,7 @@ package com.letscooee.models.trigger.blocks;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
+import android.view.View;
 import com.letscooee.utils.ui.UnitUtils;
 
 import static com.letscooee.utils.ui.UnitUtils.getCalculatedValue;
@@ -70,17 +71,15 @@ public class Border implements Parcelable {
         return !TextUtils.isEmpty(radius) ? UnitUtils.getCalculatedPixel(radius) : 0;
     }
 
-    public int getWidth(int deviceWidth, int deviceHeight) {
-        return getCalculatedValue(deviceWidth, deviceHeight, width);
+    public Integer getWidth(View parent) {
+        return getCalculatedValue(parent, width);
     }
 
-    public int getDashWidth(int deviceWidth, int deviceHeight) {
-        return getCalculatedValue(deviceWidth, deviceHeight, dashWidth);
+    public Integer getDashWidth(View parent) {
+        return getCalculatedValue(parent, dashWidth);
     }
 
-    public int getDashGap(int deviceWidth, int deviceHeight) {
-        return getCalculatedValue(deviceWidth, deviceHeight, dashGap);
+    public Integer getDashGap(View parent) {
+        return getCalculatedValue(parent, dashGap);
     }
-
-
 }

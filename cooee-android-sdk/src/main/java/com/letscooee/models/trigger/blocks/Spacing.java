@@ -2,6 +2,8 @@ package com.letscooee.models.trigger.blocks;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.text.TextUtils;
+import android.view.View;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
@@ -49,6 +51,9 @@ public class Spacing implements Parcelable {
     @Expose
     private final String marginBottom;
 
+    private int calculatedMargin = 0;
+    private int calculatedPadding = 0;
+
     protected Spacing(Parcel in) {
         padding = in.readString();
         paddingLeft = in.readString();
@@ -74,44 +79,53 @@ public class Spacing implements Parcelable {
         }
     };
 
-    public int getPadding(int deviceWidth, int deviceHeight) {
-        return getCalculatedValue(deviceWidth, deviceHeight, padding);
+    public void calculatedPaddingAndMargin(View parent) {
+        if (!TextUtils.isEmpty(margin)) {
+            calculatedMargin = getCalculatedValue(parent, margin);
+        }
+        if (!TextUtils.isEmpty(padding)) {
+            calculatedPadding = getCalculatedValue(parent, padding);
+        }
     }
 
-    public int getPaddingLeft(int deviceWidth, int deviceHeight) {
-        return getCalculatedValue(deviceWidth, deviceHeight, paddingLeft);
+    public int getPaddingLeft(View parent) {
+        Integer calculatedValue = getCalculatedValue(parent, paddingLeft);
+        return calculatedValue != null ? calculatedValue : calculatedPadding;
     }
 
-    public int getPaddingRight(int deviceWidth, int deviceHeight) {
-        return getCalculatedValue(deviceWidth, deviceHeight, paddingRight);
+    public int getPaddingRight(View parent) {
+        Integer calculatedValue = getCalculatedValue(parent, paddingRight);
+        return calculatedValue != null ? calculatedValue : calculatedPadding;
     }
 
-    public int getPaddingTop(int deviceWidth, int deviceHeight) {
-        return getCalculatedValue(deviceWidth, deviceHeight, paddingTop, true);
+    public int getPaddingTop(View parent) {
+        Integer calculatedValue = getCalculatedValue(parent, paddingTop, true);
+        return calculatedValue != null ? calculatedValue : calculatedPadding;
     }
 
-    public int getPaddingBottom(int deviceWidth, int deviceHeight) {
-        return getCalculatedValue(deviceWidth, deviceHeight, paddingBottom, true);
+    public int getPaddingBottom(View parent) {
+        Integer calculatedValue = getCalculatedValue(parent, paddingBottom, true);
+        return calculatedValue != null ? calculatedValue : calculatedPadding;
     }
 
-    public int getMargin(int deviceWidth, int deviceHeight) {
-        return getCalculatedValue(deviceWidth, deviceHeight, margin);
+    public int getMarginLeft(View parent) {
+        Integer calculatedValue = getCalculatedValue(parent, marginLeft);
+        return calculatedValue != null ? calculatedValue : calculatedMargin;
     }
 
-    public int getMarginLeft(int deviceWidth, int deviceHeight) {
-        return getCalculatedValue(deviceWidth, deviceHeight, marginLeft);
+    public int getMarginRight(View parent) {
+        Integer calculatedValue = getCalculatedValue(parent, marginRight);
+        return calculatedValue != null ? calculatedValue : calculatedMargin;
     }
 
-    public int getMarginRight(int deviceWidth, int deviceHeight) {
-        return getCalculatedValue(deviceWidth, deviceHeight, marginRight);
+    public int getMarginTop(View parent) {
+        Integer calculatedValue = getCalculatedValue(parent, marginTop, true);
+        return calculatedValue != null ? calculatedValue : calculatedMargin;
     }
 
-    public int getMarginTop(int deviceWidth, int deviceHeight) {
-        return getCalculatedValue(deviceWidth, deviceHeight, marginTop, true);
-    }
-
-    public int getMarginBottom(int deviceWidth, int deviceHeight) {
-        return getCalculatedValue(deviceWidth, deviceHeight, marginBottom, true);
+    public int getMarginBottom(View parent) {
+        Integer calculatedValue = getCalculatedValue(parent, marginBottom, true);
+        return calculatedValue != null ? calculatedValue : calculatedMargin;
     }
 
     @Override

@@ -2,7 +2,7 @@ package com.letscooee.models.trigger.blocks;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.text.TextUtils;
+import android.view.View;
 import com.letscooee.utils.ui.UnitUtils;
 
 public class Position implements Parcelable {
@@ -55,27 +55,24 @@ public class Position implements Parcelable {
         return this.type == PositionType.ABSOLUTE || this.type == PositionType.FIXED;
     }
 
-    public int getTop(int deviceWidth, int deviceHeight) {
-        return !TextUtils.isEmpty(top) ?
-                UnitUtils.getCalculatedValue(deviceWidth, deviceHeight, top.toLowerCase(), true)
-                : 0;
+    public int getTop(View parent) {
+        Integer calculatedValue = UnitUtils.getCalculatedValue(parent, top, true);
+        return calculatedValue != null ? calculatedValue : 0;
     }
 
-    public int getLeft(int deviceWidth, int deviceHeight) {
-        return !TextUtils.isEmpty(left) ?
-                UnitUtils.getCalculatedValue(deviceWidth, deviceHeight, left.toLowerCase()) : 0;
+    public int getLeft(View parent) {
+        Integer calculatedValue = UnitUtils.getCalculatedValue(parent, left);
+        return calculatedValue != null ? calculatedValue : 0;
     }
 
-    public int getBottom(int deviceWidth, int deviceHeight) {
-        return !TextUtils.isEmpty(bottom) ?
-                UnitUtils.getCalculatedValue(deviceWidth, deviceHeight, bottom.toLowerCase(), true)
-                : 0;
+    public int getBottom(View parent) {
+        Integer calculatedValue = UnitUtils.getCalculatedValue(parent, bottom, true);
+        return calculatedValue != null ? calculatedValue : 0;
     }
 
-    public int getRight(int deviceWidth, int deviceHeight) {
-        return !TextUtils.isEmpty(right) ?
-                UnitUtils.getCalculatedValue(deviceWidth, deviceHeight, right.toLowerCase())
-                : 0;
+    public int getRight(View parent) {
+        Integer calculatedValue = UnitUtils.getCalculatedValue(parent, right);
+        return calculatedValue != null ? calculatedValue : 0;
     }
 
     public enum PositionType {STATIC, ABSOLUTE, FIXED}

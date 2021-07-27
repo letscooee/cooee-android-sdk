@@ -3,6 +3,7 @@ package com.letscooee.models.trigger.blocks;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
+import android.view.View;
 
 import static com.letscooee.utils.ui.UnitUtils.getCalculatedValue;
 
@@ -46,18 +47,12 @@ public class Size implements Parcelable {
         return alignItems;
     }
 
-    public int getCalculatedHeight(int deviceWidth, int deviceHeight) {
-        if (TextUtils.isEmpty(height))
-            return 0;
-        else
-            return getCalculatedValue(deviceWidth, deviceHeight, getHeight(), true);
+    public Integer getCalculatedHeight(View parent) {
+        return getCalculatedValue(parent, height, true);
     }
 
-    public int getCalculatedWidth(int deviceWidth, int deviceHeight) {
-        if (TextUtils.isEmpty(width))
-            return 0;
-        else
-            return getCalculatedValue(deviceWidth, deviceHeight, getWidth());
+    public Integer getCalculatedWidth(View parent) {
+        return getCalculatedValue(parent, width);
     }
 
     @Override
@@ -101,20 +96,6 @@ public class Size implements Parcelable {
 
     public Display getDisplay() {
         return display != null ? display : Display.BLOCK;
-    }
-
-    public String getWidth() {
-        if (TextUtils.isEmpty(width))
-            return null;
-        else
-            return width.toLowerCase();
-    }
-
-    public String getHeight() {
-        if (TextUtils.isEmpty(height))
-            return null;
-        else
-            return height.toLowerCase();
     }
 
     public String getMaxWidth() {
