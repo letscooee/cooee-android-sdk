@@ -16,6 +16,10 @@ public abstract class BaseElement implements Parcelable {
     protected Spacing spacing;
     protected Transform transform;
 
+    private final Integer flexGrow;
+    private final Integer flexShrink;
+    private final Integer flexOrder;
+
     protected BaseElement(Parcel in) {
         bg = in.readParcelable(Background.class.getClassLoader());
         border = in.readParcelable(Border.class.getClassLoader());
@@ -26,6 +30,10 @@ public abstract class BaseElement implements Parcelable {
         spacing = in.readParcelable(Spacing.class.getClassLoader());
         size = in.readParcelable(Size.class.getClassLoader());
         transform = in.readParcelable(Transform.class.getClassLoader());
+
+        flexGrow = (Integer) in.readSerializable();
+        flexShrink = (Integer) in.readSerializable();
+        flexOrder = (Integer) in.readSerializable();
     }
 
     @Override
@@ -44,6 +52,10 @@ public abstract class BaseElement implements Parcelable {
         dest.writeParcelable(spacing, flags);
         dest.writeParcelable(size, flags);
         dest.writeParcelable(transform, flags);
+
+        dest.writeSerializable(flexGrow);
+        dest.writeSerializable(flexShrink);
+        dest.writeSerializable(flexOrder);
     }
 
     public ClickAction getClickAction() {
@@ -76,5 +88,17 @@ public abstract class BaseElement implements Parcelable {
 
     public Transform getTransform() {
         return transform;
+    }
+
+    public Integer getFlexGrow() {
+        return flexGrow;
+    }
+
+    public Integer getFlexShrink() {
+        return flexShrink;
+    }
+
+    public Integer getFlexOrder() {
+        return flexOrder;
     }
 }

@@ -14,9 +14,7 @@ import androidx.annotation.RestrictTo;
 import com.bumptech.glide.Glide;
 import com.google.android.flexbox.*;
 import com.google.android.material.card.MaterialCardView;
-import com.letscooee.CooeeFactory;
 import com.letscooee.R;
-import com.letscooee.device.DeviceInfo;
 import com.letscooee.models.trigger.blocks.*;
 import com.letscooee.models.trigger.elements.BaseElement;
 import com.letscooee.trigger.action.ClickActionExecutor;
@@ -24,6 +22,7 @@ import com.letscooee.trigger.inapp.InAppGlobalData;
 import jp.wasabeef.blurry.Blurry;
 
 import static android.text.TextUtils.isEmpty;
+import static com.letscooee.utils.Constants.TAG;
 
 /**
  * @author Ashish Gaikwad 09/07/21
@@ -31,9 +30,6 @@ import static android.text.TextUtils.isEmpty;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public abstract class AbstractInAppRenderer implements InAppRenderer {
-
-    private final int deviceHeight;
-    private final int deviceWidth;
 
     protected final InAppGlobalData globalData;
     protected final Context context;
@@ -55,10 +51,6 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         this.parentElement = parentElement;
         this.elementData = element;
         this.globalData = globalData;
-
-        DeviceInfo deviceInfo = CooeeFactory.getDeviceInfo();
-        deviceHeight = deviceInfo.getDisplayHeight();
-        deviceWidth = deviceInfo.getDisplayWidth();
 
         this.materialCardView = new MaterialCardView(context);
         // First and only element inside MaterialCardView
@@ -103,10 +95,26 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         this.processPositionBlock();
         this.processTransformBlock();
         this.processClickBlock();
+        this.applyFlexParentProperties();
+        this.applyFlexItemProperties();
     }
 
     protected void insertNewElementInHierarchy() {
         this.parentLayoutOfNewElement.addView(newElement);
+    }
+
+    protected void applyFlexItemProperties() {
+        if (!(this.parentElement instanceof FlexboxLayout)) {
+            return;
+        }
+
+        FlexboxLayout.LayoutParams lp = (FlexboxLayout.LayoutParams) materialCardView.getLayoutParams();
+
+        if (elementData.getFlexGrow() != null) lp.setFlexGrow(elementData.getFlexGrow());
+        if (elementData.getFlexShrink() != null) lp.setFlexShrink(elementData.getFlexShrink());
+        if (elementData.getFlexOrder() != null) lp.setOrder(elementData.getFlexOrder());
+
+        materialCardView.setLayoutParams(lp);
     }
 
     protected void processShadowBlock() {
@@ -168,7 +176,6 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         }
 
         this.materialCardView.setLayoutParams(layoutParams);
-        this.applyFlexProperties();
     }
 
     /**
@@ -328,7 +335,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         this.newElement.setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
     }
 
-    private void applyFlexProperties() {
+    private void applyFlexParentProperties() {
         if (!(newElement instanceof FlexboxLayout)) {
             return;
         }
