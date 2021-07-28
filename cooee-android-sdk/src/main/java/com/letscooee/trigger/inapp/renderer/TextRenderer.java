@@ -49,12 +49,12 @@ public class TextRenderer extends AbstractInAppRenderer {
             return;
         }
 
-        // TODO: 25/07/21 clean this up
-        if (alignment.getAlign().equals(Alignment.Align.LEFT.name())) {
-            // TODO: 25/07/21 Why aren't we using setAlignment
+        if (alignment.getAlign() == Alignment.Align.LEFT) {
             ((TextView) newElement).setGravity(Gravity.START);
-        } else if (alignment.getAlign().equals(Alignment.Align.RIGHT.name())) {
+        } else if (alignment.getAlign() == Alignment.Align.RIGHT) {
             ((TextView) newElement).setGravity(Gravity.END);
+        } else if (alignment.getAlign() == Alignment.Align.CENTER) {
+            ((TextView) newElement).setGravity(Gravity.CENTER);
         }
     }
 
