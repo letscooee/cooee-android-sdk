@@ -1,17 +1,17 @@
 package com.letscooee.trigger.inapp.renderer;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+
 import androidx.annotation.RestrictTo;
+
 import com.bumptech.glide.Glide;
 import com.google.android.flexbox.*;
 import com.google.android.material.card.MaterialCardView;
@@ -21,6 +21,7 @@ import com.letscooee.models.trigger.blocks.*;
 import com.letscooee.models.trigger.elements.BaseElement;
 import com.letscooee.trigger.action.ClickActionExecutor;
 import com.letscooee.trigger.inapp.InAppGlobalData;
+
 import jp.wasabeef.blurry.Blurry;
 
 import static android.text.TextUtils.isEmpty;
@@ -164,11 +165,10 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         int width, height;
         if (size.getDisplay() == Size.Display.BLOCK || size.getDisplay() == Size.Display.FLEX) {
             width = ViewGroup.LayoutParams.MATCH_PARENT;
-            height = ViewGroup.LayoutParams.WRAP_CONTENT;
         } else {
             width = ViewGroup.LayoutParams.WRAP_CONTENT;
-            height = ViewGroup.LayoutParams.WRAP_CONTENT;
         }
+        height = ViewGroup.LayoutParams.WRAP_CONTENT;
 
         Integer calculatedWidth = size.getCalculatedWidth(parentElement);
         if (calculatedWidth != null) {
@@ -199,15 +199,19 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
      * apply position to that view.
      */
     protected void registerViewTreeListener() {
-        AbstractInAppRenderer _this = this;
+        parentElement.addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
+            boolean layoutChanged =
+                    // Check if height changed
+                    (bottom - top) != (oldBottom - oldTop) ||
+                            // Check if width changed
+                            (right - left) != (oldRight - oldLeft);
 
-        materialCardView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                materialCardView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                _this.applyPositionBlock();
-                _this.processSizeBlock();
-                _this.processSpacing();
+            if (layoutChanged) {
+                this.processSizeBlock();
+                this.processSpacing();
+                // Position calculation should be done after size and spacing are
+                // applied to the new element
+                this.applyPositionBlock();
             }
         });
     }
@@ -283,12 +287,12 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
 
         if (globalData.getBitmapForBlurry() != null) {
             blurryComposer
-                    .from((Bitmap) globalData.getBitmapForBlurry())
+                    .from(globalData.getBitmapForBlurry())
                     .into(backgroundImage);
 
         } else if (globalData.getViewGroupForBlurry() != null) {
             blurryComposer
-                    .capture((ViewGroup) globalData.getViewGroupForBlurry())
+                    .capture(globalData.getViewGroupForBlurry())
                     .into(backgroundImage);
         }
 
