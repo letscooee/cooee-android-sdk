@@ -9,7 +9,7 @@ import android.os.Build;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 import com.letscooee.R;
-import com.letscooee.models.trigger.PushNotificationTrigger;
+import com.letscooee.models.trigger.push.PushNotificationTrigger;
 
 /**
  * Provides sound for the notification.

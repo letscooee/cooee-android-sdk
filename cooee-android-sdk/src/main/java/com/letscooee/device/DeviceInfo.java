@@ -4,10 +4,10 @@ import android.content.Context;
 import android.os.Build;
 import android.provider.Settings;
 import android.text.TextUtils;
+import android.util.DisplayMetrics;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import com.letscooee.ContextAware;
-import com.letscooee.utils.SentryHelper;
 
 /**
  * A utility helper class to provide some information of the device.
@@ -24,9 +24,17 @@ public class DeviceInfo extends ContextAware {
     private class CachedInfo {
 
         private String name;
+        private int width;
+        private int height;
+        private float scaledDensity;
 
         CachedInfo() {
             this.cacheName();
+
+            DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
+            width = displayMetrics.widthPixels;
+            height = displayMetrics.heightPixels;
+            scaledDensity = displayMetrics.scaledDensity;
         }
 
         private void cacheName() {
@@ -72,5 +80,17 @@ public class DeviceInfo extends ContextAware {
     @NonNull
     public String getDeviceName() {
         return this.cachedInfo.name;
+    }
+
+    public int getDisplayWidth() {
+        return this.cachedInfo.width;
+    }
+
+    public int getDisplayHeight() {
+        return this.cachedInfo.height;
+    }
+
+    public float getScaledDensity() {
+        return this.cachedInfo.scaledDensity;
     }
 }

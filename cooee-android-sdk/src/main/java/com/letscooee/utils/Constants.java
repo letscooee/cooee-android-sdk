@@ -35,10 +35,13 @@ public class Constants {
     public static final String ACTION_DELETE_NOTIFICATION = "pnDelete";
     // endregion
 
-    public static final String TOUCH_MAP = "TOUCHMAP";
-
     public static final String INTENT_BUNDLE_KEY = "cooeeIntentBundle";
     public static final String INTENT_TRIGGER_DATA_KEY = "cooeeTriggerData";
 
     public static final int PENDING_TASK_JOB_ID = 2663;
+
+    public static final String UNIT_PIXEL = "px";
+    public static final String UNIT_PERCENT = "%";
+    public static final String UNIT_VIEWPORT_HEIGHT = "vh";
+    public static final String UNIT_VIEWPORT_WIDTH = "vw";
 }

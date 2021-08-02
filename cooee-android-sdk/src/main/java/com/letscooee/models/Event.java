@@ -1,5 +1,7 @@
 package com.letscooee.models;
 
+import com.letscooee.models.trigger.TriggerData;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;

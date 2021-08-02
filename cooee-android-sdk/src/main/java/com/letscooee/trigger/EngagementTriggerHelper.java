@@ -9,16 +9,18 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.letscooee.BuildConfig;
 import com.letscooee.CooeeFactory;
 import com.letscooee.models.Event;
-import com.letscooee.models.TriggerData;
+import com.letscooee.models.trigger.TriggerData;
+import com.letscooee.models.trigger.elements.BaseChildElement;
+import com.letscooee.trigger.adapters.ChildElementDeserializer;
 import com.letscooee.trigger.inapp.InAppTriggerActivity;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.LocalStorageHelper;
 import com.letscooee.utils.RuntimeData;
 import com.letscooee.utils.Timer;
-import io.sentry.Sentry;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -115,7 +117,10 @@ public class EngagementTriggerHelper {
             return;
         }
 
-        Gson gson = new Gson();
+        Gson gson = new GsonBuilder()
+                .registerTypeAdapter(BaseChildElement.class, new ChildElementDeserializer())
+                .create();
+
         TriggerData triggerData = gson.fromJson(rawTriggerData, TriggerData.class);
 
         storeActiveTriggerDetails(context, triggerData.getId(), triggerData.getDuration());
@@ -142,8 +147,7 @@ public class EngagementTriggerHelper {
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(intent);
         } catch (Exception ex) {
-            Log.d(Constants.TAG, "Couldn't show Engagement Trigger " + ex.toString());
-            Sentry.captureException(ex);
+            CooeeFactory.getSentryHelper().captureException("Couldn't show Engagement Trigger", ex);
         }
     }
 
@@ -180,9 +184,15 @@ public class EngagementTriggerHelper {
      * @param triggerData Data to render in-app.
      */
     public static void renderInAppFromPushNotification(Context context, TriggerData triggerData) {
-        renderInAppTrigger(context, triggerData);
+
 
         Event event = new Event("CE Notification Clicked", triggerData);
         CooeeFactory.getSafeHTTPService().sendEvent(event);
+
+        if (triggerData.getInAppTrigger() == null) {
+            return;
+        }
+
+        renderInAppTrigger(context, triggerData);
     }
 }
