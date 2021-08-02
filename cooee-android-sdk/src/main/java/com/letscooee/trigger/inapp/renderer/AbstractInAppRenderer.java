@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
 import androidx.annotation.RestrictTo;
@@ -186,6 +187,8 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
             layoutParams = new FlexboxLayout.LayoutParams(width, height);
         } else if (parentElement instanceof RelativeLayout) {
             layoutParams = new RelativeLayout.LayoutParams(width, height);
+        } else if (parentElement instanceof LinearLayout) {
+            layoutParams = new LinearLayout.LayoutParams(width, height);
         } else {
             throw new RuntimeException("Unknown type of parentElement- " + parentElement);
         }

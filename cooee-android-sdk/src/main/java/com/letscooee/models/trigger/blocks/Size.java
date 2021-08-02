@@ -77,6 +77,10 @@ public class Size implements Parcelable {
             dest.writeString(display.name());
     }
 
+    public void setDisplay(Display display) {
+        this.display = display;
+    }
+
     public enum Display {BLOCK, INLINE_BLOCK, FLEX}
 
     private String width;
