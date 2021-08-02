@@ -45,7 +45,7 @@ public class CooeeWindowCallback implements Window.Callback {
         Map map = new HashMap<String, Object>();
         map.put("x", xCoordinate);
         map.put("y", yCoordinate);
-        LocalStorageHelper.putTouchMapString(activity, Constants.TOUCH_MAP, map.toString());
+        //LocalStorageHelper.putTouchMapString(activity, Constants.TOUCH_MAP, map.toString());
         //Log.i(CooeeSDKConstants.LOG_PREFIX, "onTouch: "+map.toString());
 
         return localCallback.dispatchTouchEvent(event);

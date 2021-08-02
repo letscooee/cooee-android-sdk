@@ -9,7 +9,7 @@ import android.webkit.WebViewClient;
 import android.widget.TextView;
 
 import com.letscooee.R;
-import com.letscooee.models.v3.block.BrowserContent;
+import com.letscooee.models.trigger.blocks.BrowserContent;
 import com.letscooee.utils.Constants;
 
 public class InAppBrowserActivity extends AppCompatActivity {

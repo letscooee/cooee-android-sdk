@@ -9,16 +9,18 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.letscooee.BuildConfig;
 import com.letscooee.CooeeFactory;
 import com.letscooee.models.Event;
-import com.letscooee.models.v3.CoreTriggerData;
-import com.letscooee.trigger.inapp.InAppTriggerActivityNew;
+import com.letscooee.models.trigger.TriggerData;
+import com.letscooee.models.trigger.elements.BaseChildElement;
+import com.letscooee.trigger.adapters.ChildElementDeserializer;
+import com.letscooee.trigger.inapp.InAppTriggerActivity;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.LocalStorageHelper;
 import com.letscooee.utils.RuntimeData;
 import com.letscooee.utils.Timer;
-import io.sentry.Sentry;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -115,8 +117,11 @@ public class EngagementTriggerHelper {
             return;
         }
 
-        Gson gson = new Gson();
-        CoreTriggerData triggerData = gson.fromJson(rawTriggerData, CoreTriggerData.class);
+        Gson gson = new GsonBuilder()
+                .registerTypeAdapter(BaseChildElement.class, new ChildElementDeserializer())
+                .create();
+
+        TriggerData triggerData = gson.fromJson(rawTriggerData, TriggerData.class);
 
         storeActiveTriggerDetails(context, triggerData.getId(), triggerData.getDuration());
         renderInAppTrigger(context, triggerData);
@@ -128,48 +133,21 @@ public class EngagementTriggerHelper {
      * @param context     context of the application.
      * @param triggerData received and parsed trigger data.
      */
-    // TODO: 09/07/21 Delete afterDone
-    public static void renderInAppTrigger(Context context, CoreTriggerData triggerData) {
+    public static void renderInAppTrigger(Context context, TriggerData triggerData) {
         RuntimeData runtimeData = CooeeFactory.getRuntimeData();
         if (runtimeData.isInBackground()) {
             return;
         }
 
         try {
-            Intent intent = new Intent(context, InAppTriggerActivityNew.class);
+            Intent intent = new Intent(context, InAppTriggerActivity.class);
             Bundle sendBundle = new Bundle();
             sendBundle.putParcelable(Constants.INTENT_TRIGGER_DATA_KEY, triggerData);
             intent.putExtra("bundle", sendBundle);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(intent);
         } catch (Exception ex) {
-            Log.d(Constants.TAG, "Couldn't show Engagement Trigger " + ex.toString());
-            Sentry.captureException(ex);
-        }
-    }
-
-    /**
-     * Start rendering the in-app trigger.
-     *
-     * @param context     context of the application.
-     * @param triggerData received and parsed trigger data.
-     */
-    public static void renderInAppTriggerNew(Context context, CoreTriggerData triggerData) {
-        RuntimeData runtimeData = CooeeFactory.getRuntimeData();
-        if (runtimeData.isInBackground()) {
-            return;
-        }
-
-        try {
-            Intent intent = new Intent(context, InAppTriggerActivityNew.class);
-            Bundle sendBundle = new Bundle();
-            sendBundle.putParcelable(Constants.INTENT_TRIGGER_DATA_KEY, triggerData);
-            intent.putExtra("bundle", sendBundle);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            context.startActivity(intent);
-        } catch (Exception ex) {
-            Log.d(Constants.TAG, "Couldn't show Engagement Trigger " + ex.toString());
-            Sentry.captureException(ex);
+            CooeeFactory.getSentryHelper().captureException("Couldn't show Engagement Trigger", ex);
         }
     }
 
@@ -180,7 +158,7 @@ public class EngagementTriggerHelper {
             return;
         }
 
-        CoreTriggerData triggerData = bundle.getParcelable(Constants.INTENT_TRIGGER_DATA_KEY);
+        TriggerData triggerData = bundle.getParcelable(Constants.INTENT_TRIGGER_DATA_KEY);
         // Should not go ahead if triggerData is null or triggerData's id is null
         if (triggerData == null || triggerData.getId() == null) {
             return;
@@ -205,13 +183,13 @@ public class EngagementTriggerHelper {
      * @param context     The application's context.
      * @param triggerData Data to render in-app.
      */
-    public static void renderInAppFromPushNotification(Context context, CoreTriggerData triggerData) {
+    public static void renderInAppFromPushNotification(Context context, TriggerData triggerData) {
 
 
         Event event = new Event("CE Notification Clicked", triggerData);
         CooeeFactory.getSafeHTTPService().sendEvent(event);
 
-        if (triggerData.getIan() == null) {
+        if (triggerData.getInAppTrigger() == null) {
             return;
         }
 

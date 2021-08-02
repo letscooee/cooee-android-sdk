@@ -2,8 +2,7 @@ package com.letscooee.trigger.pushnotification;
 
 import android.content.Context;
 import com.letscooee.R;
-import com.letscooee.models.TriggerData;
-import com.letscooee.models.v3.CoreTriggerData;
+import com.letscooee.models.trigger.TriggerData;
 
 /**
  * Class to build and render a simple push notification from the received {@link TriggerData}.
@@ -13,7 +12,7 @@ import com.letscooee.models.v3.CoreTriggerData;
  */
 public class SimpleNotificationRenderer extends NotificationRenderer {
 
-    public SimpleNotificationRenderer(Context context, CoreTriggerData triggerData) {
+    public SimpleNotificationRenderer(Context context, TriggerData triggerData) {
         super(context, triggerData);
     }
 

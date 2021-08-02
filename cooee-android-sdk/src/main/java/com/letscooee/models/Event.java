@@ -1,6 +1,6 @@
 package com.letscooee.models;
 
-import com.letscooee.models.v3.CoreTriggerData;
+import com.letscooee.models.trigger.TriggerData;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -26,13 +26,7 @@ public class Event {
         this(name, new HashMap<>());
     }
 
-    // TODO: 16/07/21 Remove old constructor
     public Event(String name, TriggerData triggerData) {
-        this(name);
-        this.withTrigger(triggerData);
-    }
-
-    public Event(String name, CoreTriggerData triggerData) {
         this(name);
         this.withTrigger(triggerData);
     }
@@ -43,12 +37,7 @@ public class Event {
         this.occurred = new Date();
     }
 
-    // TODO: 16/07/21 remove old method
     public void withTrigger(TriggerData triggerData) {
-        properties.put("triggerID", triggerData.getId().trim());
-    }
-
-    public void withTrigger(CoreTriggerData triggerData) {
         properties.put("triggerID", triggerData.getId().trim());
     }
 
