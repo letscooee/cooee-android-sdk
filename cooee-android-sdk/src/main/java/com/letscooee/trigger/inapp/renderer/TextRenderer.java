@@ -1,20 +1,26 @@
 package com.letscooee.trigger.inapp.renderer;
 
 import android.content.Context;
+import android.graphics.Typeface;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import com.letscooee.CooeeFactory;
+
 import com.letscooee.models.trigger.blocks.Alignment;
 import com.letscooee.models.trigger.elements.BaseElement;
 import com.letscooee.models.trigger.elements.TextElement;
 import com.letscooee.trigger.inapp.InAppGlobalData;
 
+import java.lang.reflect.Field;
+import java.util.Map;
+
 /**
  * @author shashank
  */
-public class TextRenderer extends AbstractInAppRenderer {
+public class TextRenderer extends FontRenderer {
 
     protected final TextElement textData;
 
@@ -27,6 +33,7 @@ public class TextRenderer extends AbstractInAppRenderer {
     public View render() {
         TextView textView = new TextView(context);
         this.processTextData(textView);
+        this.processFont();
 
         return newElement;
     }
@@ -71,7 +78,7 @@ public class TextRenderer extends AbstractInAppRenderer {
             return;
         }
 
-        float fontSizeInSP = textData.getFont().getSize() / CooeeFactory.getDeviceInfo().getScaledDensity();
-        ((TextView) newElement).setTextSize(fontSizeInSP);
+        // When actual font family is applied font size is in sp gets too small
+        ((TextView) newElement).setTextSize(textData.getFont().getSize());
     }
 }
