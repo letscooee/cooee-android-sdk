@@ -1,5 +1,7 @@
 package com.letscooee.init;
 
+import static android.content.Context.ACTIVITY_SERVICE;
+
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
@@ -19,8 +21,9 @@ import android.os.Environment;
 import android.os.StatFs;
 import android.telephony.TelephonyManager;
 import android.util.DisplayMetrics;
+
 import androidx.core.app.ActivityCompat;
-import com.google.android.gms.location.LocationRequest;
+
 import com.letscooee.CooeeFactory;
 import com.letscooee.utils.SentryHelper;
 
@@ -30,8 +33,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-
-import static android.content.Context.ACTIVITY_SERVICE;
 
 /**
  * DefaultUserPropertiesCollector collects various mobile properties/parameters
@@ -55,28 +56,30 @@ public class DefaultUserPropertiesCollector {
      */
     @SuppressLint("MissingPermission")
     public double[] getLocation() {
-        LocationRequest locationRequest = new LocationRequest();
-        locationRequest.setInterval(10000);
-        locationRequest.setFastestInterval(3000);
-        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        Location location = null;
-        LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+        // Changed code as older code mostly return 0,0;
+        Location bestLastLocation = null;
+
         if (ActivityCompat.checkSelfPermission(this.context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(this.context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return new double[]{0, 0};
         }
 
-        assert locationManager != null;
-        if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-            location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-        } else if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
-            location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-        }
+        LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+        List<String> providers = locationManager.getProviders(true);
 
-        if (location == null) {
+        for (String provider : providers) {
+            Location location = locationManager.getLastKnownLocation(provider);
+            if (location == null) {
+                continue;
+            }
+            if (bestLastLocation == null || location.getAccuracy() < bestLastLocation.getAccuracy()) {
+                bestLastLocation = location;
+            }
+        }
+        if (bestLastLocation == null) {
             return new double[]{0, 0};
         }
-        return new double[]{location.getLatitude(), location.getLongitude()};
+        return new double[]{bestLastLocation.getLatitude(), bestLastLocation.getLongitude()};
     }
 
     /**
