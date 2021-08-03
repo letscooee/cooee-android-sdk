@@ -1,6 +1,6 @@
 package com.letscooee.trigger.action;
 
-import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -14,6 +14,7 @@ import com.letscooee.trigger.inapp.InAppBrowserActivity;
 import com.letscooee.trigger.inapp.InAppGlobalData;
 import com.letscooee.trigger.inapp.InAppTriggerActivity;
 import com.letscooee.utils.Constants;
+import com.letscooee.utils.PermissionType;
 
 import java.util.*;
 
@@ -38,7 +39,7 @@ public class ClickActionExecutor {
         updateUserProperties();
         executeExternal();
         executeInAppBrowser();
-        processPrompts();
+        boolean requestedAnyPermission = processPrompts();
 
         if (action.getUpdateApp() != null) {
             Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(action.getUpdateApp().getUrl()));
@@ -53,33 +54,26 @@ public class ClickActionExecutor {
             intent.putExtra(Intent.EXTRA_TEXT, shareBody);
             startActivity(Intent.createChooser(intent, "Share with"));
         }
-
-        if (action.isClose()) {
+        if (action.isClose() && !requestedAnyPermission) {
             globalData.closeInApp("CTA");
         }
     }
 
-    private void processPrompts() {
-        if (action.getPrompts() != null || action.getPrompts().length == 0) {
-            return;
+    private boolean processPrompts() {
+        if (action.getPrompts() == null || action.getPrompts().length == 0) {
+            return false;
         }
 
         List<String> permissionList = new ArrayList<>();
         for (String permission : action.getPrompts()) {
-            if (permission.equalsIgnoreCase("location")) {
-                permissionList.add(Manifest.permission.ACCESS_FINE_LOCATION);
-                permissionList.add(Manifest.permission.ACCESS_COARSE_LOCATION);
-            } else if (permission.equalsIgnoreCase("camera")) {
-                permissionList.add(Manifest.permission.CAMERA);
-            } else if (permission.equalsIgnoreCase("phone_state")) {
-                permissionList.add(Manifest.permission.READ_PHONE_STATE);
-            }
+            PermissionType permissionType = PermissionType.valueOf(permission);
+            permissionList.add(permissionType.toString());
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            // TODO: 25/07/21 Fix this
-            //requestPermissions(permissionList.toArray(new String[0]), Constants.REQUEST_LOCATION);
+            ((Activity) context).requestPermissions(permissionList.toArray(new String[0]), Constants.REQUEST_LOCATION);
         }
+        return true;
     }
 
     /**

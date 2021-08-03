@@ -1,6 +1,7 @@
 package com.letscooee.trigger.inapp;
 
 import android.app.Activity;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.ViewGroup;
@@ -10,8 +11,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import com.letscooee.CooeeFactory;
 import com.letscooee.R;
+import com.letscooee.init.DefaultUserPropertiesCollector;
 import com.letscooee.models.Event;
 import com.letscooee.models.trigger.TriggerData;
 import com.letscooee.models.trigger.blocks.Animation;
@@ -21,12 +24,13 @@ import com.letscooee.models.trigger.inapp.Layer;
 import com.letscooee.trigger.inapp.renderer.ContainerRenderer;
 import com.letscooee.trigger.inapp.renderer.LayerRenderer;
 import com.letscooee.utils.Constants;
+import com.letscooee.utils.PermissionType;
 import com.letscooee.utils.SentryHelper;
-import jp.wasabeef.blurry.Blurry;
 
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import jp.wasabeef.blurry.Blurry;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class InAppTriggerActivity extends AppCompatActivity implements PreventBlurActivity {
@@ -164,5 +168,40 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
      */
     public void setBitmapForBlurry(Bitmap bitmap) {
         this.globalData.setBitmapForBlurry(bitmap);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+
+        DefaultUserPropertiesCollector defaultUserPropertiesCollector = new DefaultUserPropertiesCollector(this);
+        Map<String, Boolean> permissionMap = new HashMap<>();
+        Map<String, Object> userProperties = new HashMap<>();
+
+        for (String permission : permissions) {
+
+            PermissionType permissionType = PermissionType.getByValue(permission);
+            boolean permissionStatus = ContextCompat.checkSelfPermission(this, permission) ==
+                    PackageManager.PERMISSION_GRANTED;
+
+            permissionMap.put(permissionType.name(), permissionStatus);
+
+            if (permissionType == PermissionType.LOCATION && permissionStatus) {
+                double[] location = defaultUserPropertiesCollector.getLocation();
+                userProperties.put("coordinates", location);
+
+            } else if (permissionType == PermissionType.PHONE_DETAILS && permissionStatus) {
+                String[] networkData = defaultUserPropertiesCollector.getNetworkData();
+                userProperties.put("CE Network Operator", networkData[0]);
+                userProperties.put("CE Network Type", networkData[1]);
+            }
+        }
+        userProperties.put("perm", permissionMap);
+
+        Map<String, Object> userMap = new HashMap<>();
+        userMap.put("userProperties", userProperties);
+        userMap.put("userData", new HashMap<>());
+
+        CooeeFactory.getSafeHTTPService().updateUserProfile(userMap);
+        globalData.closeInApp("CTA");
     }
 }
