@@ -2,21 +2,26 @@ package com.letscooee.network;
 
 import android.content.Context;
 import android.util.Log;
+
 import androidx.annotation.NonNull;
+
 import com.letscooee.ContextAware;
 import com.letscooee.exceptions.HttpRequestFailedException;
 import com.letscooee.models.Event;
 import com.letscooee.retrofit.APIClient;
 import com.letscooee.retrofit.APIService;
+import com.letscooee.retrofit.downloadapi.DownloadApiClient;
+import com.letscooee.retrofit.downloadapi.DownloadApiService;
 import com.letscooee.trigger.EngagementTriggerHelper;
 import com.letscooee.utils.Constants;
+
+import java.io.IOException;
+import java.util.Map;
+
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-
-import java.io.IOException;
-import java.util.Map;
 
 /**
  * A base or lower level HTTP service which simply hits the backend for given request. It does not perform
@@ -30,6 +35,7 @@ import java.util.Map;
 public class BaseHTTPService extends ContextAware {
 
     private final APIService apiService = APIClient.getAPIService();
+    private final DownloadApiService downloadApiService = DownloadApiClient.getAPIService();
 
     public BaseHTTPService(Context context) {
         super(context);
@@ -82,6 +88,18 @@ public class BaseHTTPService extends ContextAware {
                 Log.e(Constants.TAG, "Session Alive Response Error Message" + t.toString());
             }
         });
+    }
+
+    public Map<String, Object> requestFont(String appId) throws HttpRequestFailedException {
+        Call<Map<String, Object>> call = downloadApiService.getAppConfig(appId);
+        Response<?> response = this.executeHTTPCall(call, "Font Request");
+        return (Map<String, Object>) response.body();
+    }
+
+    public ResponseBody downloadFont(String url) throws HttpRequestFailedException {
+        Call<ResponseBody> call = downloadApiService.downloadFile(url);
+        Response<?> response = this.executeHTTPCall(call, "Font Download");
+        return (ResponseBody) response.body();
     }
 
     private Response<?> executeHTTPCall(Call<?> call, String message) throws HttpRequestFailedException {
