@@ -10,6 +10,8 @@ import android.util.Log;
 
 import androidx.core.content.ContextCompat;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.letscooee.CooeeFactory;
 import com.letscooee.exceptions.HttpRequestFailedException;
 import com.letscooee.models.FontData;
@@ -35,6 +37,7 @@ import okhttp3.ResponseBody;
  */
 
 public class FontProcessor {
+    private static final Gson gson = new Gson();
 
     /**
      * Fetch App config from Server
@@ -42,6 +45,8 @@ public class FontProcessor {
      * @param context current instance of {@link Context}
      */
     public static void fetchFontFile(Context context) {
+
+        checkDataFromPreference(context);
         if (checkLastFontRequestDue(context)) {
             return;
         }
@@ -62,6 +67,18 @@ public class FontProcessor {
             return;
         }
         checkFontPresence(context, fontResponseList);
+    }
+
+    private static void checkDataFromPreference(Context context) {
+
+        String stringArray = LocalStorageHelper.getString(context, Constants.STORAGE_FONT_ARRAY, null);
+        if (isEmpty(stringArray)) {
+            return;
+        }
+
+        ArrayList<FontData> fontArrayList = gson.fromJson(stringArray, new TypeToken<ArrayList<FontData>>() {
+        }.getType());
+        checkFontPresence(context, fontArrayList);
     }
 
     /**
@@ -94,6 +111,9 @@ public class FontProcessor {
     @SuppressWarnings("ResultOfMethodCallIgnored")
     public static void checkFontPresence(Context context, ArrayList<FontData> fontResponseList) {
 
+        ArrayList<FontData> outputList = gson.fromJson(gson.toJson(fontResponseList), new TypeToken<ArrayList<FontData>>() {
+        }.getType());
+        LocalStorageHelper.putString(context, Constants.STORAGE_FONT_ARRAY, gson.toJson(outputList));
         if (fontResponseList == null || fontResponseList.isEmpty()) {
             Log.d(Constants.TAG, "Received empty font list");
             return;
@@ -109,7 +129,7 @@ public class FontProcessor {
             fontDirectory.mkdir();
         }
 
-        for (FontData response : fontResponseList) {
+        for (FontData response : outputList) {
             File fontFile = new File(fontDirectory, response.getName() + ".ttf");
             if (fontFile.exists()) {
                 continue;
@@ -156,13 +176,14 @@ public class FontProcessor {
             InputStream inputStream = responseBody.byteStream();
             FileOutputStream fileOutputStream = new FileOutputStream(fontFile);
             int read;
-            byte[] bytes = new byte[4 * 1024];
+            byte[] bytes = new byte[1024 * 1024];
 
             while ((read = inputStream.read(bytes)) != -1) {
                 fileOutputStream.write(bytes, 0, read);
             }
+            fileOutputStream.flush();
         } catch (HttpRequestFailedException | IOException e) {
-            e.printStackTrace();
+            CooeeFactory.getSentryHelper().captureException(e);
         }
     }
 }
