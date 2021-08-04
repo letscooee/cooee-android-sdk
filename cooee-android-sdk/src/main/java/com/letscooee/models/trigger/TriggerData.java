@@ -2,8 +2,12 @@ package com.letscooee.models.trigger;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+
 import com.letscooee.models.trigger.inapp.InAppTrigger;
 import com.letscooee.models.trigger.push.PushNotificationTrigger;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class TriggerData implements Parcelable {
 
@@ -12,6 +16,7 @@ public class TriggerData implements Parcelable {
     private final long duration;
     private final InAppTrigger ian;
     private final PushNotificationTrigger pn;
+    private final Map<String, Object> config;
 
     protected TriggerData(Parcel in) {
         id = in.readString();
@@ -19,6 +24,8 @@ public class TriggerData implements Parcelable {
         duration = in.readLong();
         ian = in.readParcelable(InAppTrigger.class.getClassLoader());
         pn = in.readParcelable(PushNotificationTrigger.class.getClassLoader());
+        config = new HashMap<>();
+        in.readMap(config, Object.class.getClassLoader());
     }
 
     public static final Creator<TriggerData> CREATOR = new Creator<TriggerData>() {
@@ -53,6 +60,10 @@ public class TriggerData implements Parcelable {
         return duration;
     }
 
+    public Map<String, Object> getConfig() {
+        return config;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -65,5 +76,6 @@ public class TriggerData implements Parcelable {
         dest.writeLong(duration);
         dest.writeParcelable(ian, flags);
         dest.writeParcelable(pn, flags);
+        dest.writeMap(config);
     }
 }

@@ -19,8 +19,10 @@ import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import com.letscooee.CooeeFactory;
 import com.letscooee.R;
+import com.letscooee.font.FontProcessor;
 import com.letscooee.loader.http.RemoteImageLoader;
 import com.letscooee.models.Event;
+import com.letscooee.models.FontData;
 import com.letscooee.models.trigger.TriggerData;
 import com.letscooee.models.trigger.push.PushNotificationTrigger;
 import com.letscooee.models.trigger.elements.ButtonElement;
@@ -33,6 +35,7 @@ import com.letscooee.utils.Constants;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -118,8 +121,10 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
         }
 
         EngagementTriggerHelper.storeActiveTriggerDetails(context, triggerData.getId(), triggerData.getDuration());
-
-        if (triggerData.getPn() != null) {
+        if (triggerData.getConfig() != null) {
+            ArrayList<FontData> fontDataArrayList = (ArrayList<FontData>) triggerData.getConfig().get("fonts");
+            FontProcessor.checkFontPresence(context, fontDataArrayList);
+        } else if (triggerData.getPn() != null) {
             Event event = new Event("CE Notification Received", triggerData);
             CooeeFactory.getSafeHTTPService().sendEventWithoutNewSession(event);
 
