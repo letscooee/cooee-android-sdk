@@ -18,7 +18,8 @@ public enum PermissionType {
 
     LOCATION(Manifest.permission.ACCESS_FINE_LOCATION),
     CAMERA(Manifest.permission.CAMERA),
-    PHONE_DETAILS(Manifest.permission.READ_PHONE_STATE);
+    PHONE_DETAILS(Manifest.permission.READ_PHONE_STATE),
+    STORAGE(Manifest.permission.WRITE_EXTERNAL_STORAGE);
 
 
     private final String text;
