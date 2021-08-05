@@ -141,18 +141,37 @@ public class FontProcessor {
         LocalStorageHelper.putString(context, Constants.STORAGE_CACHED_FONTS, gson.toJson(fontList));
     }
 
+    /**
+     * Check of {@link Constants#FONT_DIRECTORY}; And creates if does not exist.
+     *
+     * @param context current instance of {@link Context}
+     * @return Return instance {@link File}
+     */
     public static File getInternalStorage(Context context) {
         if (hasWriteStoragePermission(context)) {
             return null;
         }
 
-        File fontDirectory = new File(Environment.getExternalStorageDirectory().getAbsolutePath()
-                + "/" + Constants.DIRECTORY_NAME);
+        File fontDirectory = getFontDirectory(context);
         if (!fontDirectory.isDirectory()) {
             //noinspection ResultOfMethodCallIgnored
             fontDirectory.mkdir();
         }
         return fontDirectory;
+    }
+
+    /**
+     * Access app specific folder to write data.
+     *
+     * @param context current instance of {@link Context}
+     * @return Return instance {@link File}
+     */
+    private static File getFontDirectory(Context context) {
+        if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+            return new File(context.getExternalFilesDir(null), Constants.FONT_DIRECTORY);
+        } else {
+            return new File(context.getFilesDir(), Constants.FONT_DIRECTORY);
+        }
     }
 
     /**

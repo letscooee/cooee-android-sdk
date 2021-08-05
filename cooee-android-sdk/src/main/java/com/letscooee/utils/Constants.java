@@ -47,5 +47,5 @@ public class Constants {
     public static final String UNIT_VIEWPORT_HEIGHT = "vh";
     public static final String UNIT_VIEWPORT_WIDTH = "vw";
     public static final int INTERVAL_DAYS = 7;
-    public static final String DIRECTORY_NAME = "Cooee";
+    public static final String FONT_DIRECTORY = "Font";
 }

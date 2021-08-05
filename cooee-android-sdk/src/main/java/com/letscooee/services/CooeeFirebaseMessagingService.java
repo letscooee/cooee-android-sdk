@@ -50,6 +50,10 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
 
     Context context;
 
+    public CooeeFirebaseMessagingService() {
+        context=getApplicationContext();
+    }
+
     public CooeeFirebaseMessagingService(Context context) {
         this.context = context;
     }
