@@ -10,17 +10,25 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.RemoteViews;
 import androidx.core.app.NotificationCompat;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.letscooee.CooeeFactory;
+import com.letscooee.CooeeSDK;
 import com.letscooee.R;
 import com.letscooee.models.Event;
 import com.letscooee.models.trigger.TriggerData;
+import com.letscooee.trigger.inapp.InAppTriggerActivity;
 import com.letscooee.utils.Constants;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Ashish Gaikwad
@@ -36,8 +44,20 @@ public class OnPushNotificationButtonClick extends BroadcastReceiver {
         String intentType = intent.getStringExtra("intentType");
 
         try {
-            if (intentType.equals("moveCarousel"))
+            if (intentType.equals("moveCarousel")) {
                 processCarouselData(context, intent);
+            }else if (intentType.equals("arResponse")) {
+
+                WeakReference<InAppTriggerActivity.InAppListener> listener = new WeakReference<>(CooeeSDK.getDefaultInstance(context));
+                HashMap<String, Object> action = new Gson().fromJson(intent.getStringExtra("arData"), new TypeToken<HashMap<String, Object>>() {
+                }.getType());
+                new Handler().postAtTime(() -> listener.get().inAppNotificationDidClick(action), 3000);
+
+                Map<String, Object> userProperty = (Map<String, Object>) action.get("userProperty");
+                Event event = new Event("CE AR Closed", userProperty);
+                CooeeFactory.getSafeHTTPService().sendEvent(event);
+            }
+
         } catch (Exception e) {
             CooeeFactory.getSentryHelper().captureException(e);
         }

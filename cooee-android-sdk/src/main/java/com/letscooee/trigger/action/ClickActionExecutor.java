@@ -1,20 +1,24 @@
 package com.letscooee.trigger.action;
 
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
+import com.google.gson.Gson;
 import com.letscooee.CooeeFactory;
 import com.letscooee.CooeeSDK;
+import com.letscooee.models.Event;
 import com.letscooee.models.trigger.blocks.ClickAction;
 import com.letscooee.trigger.inapp.InAppBrowserActivity;
 import com.letscooee.trigger.inapp.InAppGlobalData;
 import com.letscooee.trigger.inapp.InAppTriggerActivity;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.PermissionType;
+import com.unity3d.player.UnityPlayerActivity;
 
 import java.util.*;
 
@@ -40,6 +44,7 @@ public class ClickActionExecutor {
         executeExternal();
         executeInAppBrowser();
         boolean requestedAnyPermission = processPrompts();
+        loadAR();
 
         if (action.getUpdateApp() != null) {
             Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(action.getUpdateApp().getUrl()));
@@ -57,6 +62,27 @@ public class ClickActionExecutor {
         if (action.isClose() && !requestedAnyPermission) {
             globalData.closeInApp("CTA");
         }
+    }
+
+    private void loadAR() {
+        if (action.getAr() == null) {
+            return;
+        }
+
+        String arData = new Gson().toJson(action.getAr());
+        Intent intent = new Intent(context, UnityPlayerActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.putExtra("arguments", arData);
+        intent.putExtra("app_package", CooeeFactory.getAppInfo().getPackageName());
+        try {
+            context.startActivity(intent);
+            Event event = new Event("CE AR Displayed");
+            CooeeFactory.getSafeHTTPService().sendEvent(event);
+        } catch (ActivityNotFoundException exception) {
+            CooeeFactory.getSentryHelper().captureException(exception);
+        }
+
+
     }
 
     private boolean processPrompts() {

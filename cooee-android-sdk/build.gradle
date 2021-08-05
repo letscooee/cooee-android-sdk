@@ -152,6 +152,7 @@ dependencies {
     api 'org.mongodb:bson:4.2.3'
     api 'com.google.android.material:material:1.4.0'
     api "com.squareup.retrofit2:adapter-rxjava2:2.4.0"
+    implementation project(':unityLibrary')
     annotationProcessor "androidx.room:room-compiler:2.3.0"
     annotationProcessor 'com.github.bumptech.glide:compiler:4.11.0'
     testImplementation 'junit:junit:4.13.2'
