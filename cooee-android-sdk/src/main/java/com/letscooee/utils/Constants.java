@@ -46,4 +46,5 @@ public class Constants {
     public static final String UNIT_PERCENT = "%";
     public static final String UNIT_VIEWPORT_HEIGHT = "vh";
     public static final String UNIT_VIEWPORT_WIDTH = "vw";
+    public static final String AR_PROCESS = "CooeeARProcess";
 }
