@@ -47,7 +47,7 @@ public class CooeeBootstrap {
         CooeeExecutors.getInstance().singleThreadExecutor().execute(() -> {
             getAndUpdateFirebaseToken();
             checkAndStartJob();
-            FontProcessor.cacheBrandFonts(context);
+            FontProcessor.checkAndUpdateBrandFonts(context);
         });
     }
 

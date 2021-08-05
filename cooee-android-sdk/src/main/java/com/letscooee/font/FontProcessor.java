@@ -1,15 +1,11 @@
 package com.letscooee.font;
 
-import static android.text.TextUtils.isEmpty;
-
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Environment;
 import android.util.Log;
-
 import androidx.core.content.ContextCompat;
-
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.letscooee.CooeeFactory;
@@ -17,37 +13,39 @@ import com.letscooee.exceptions.HttpRequestFailedException;
 import com.letscooee.models.AppFont;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.LocalStorageHelper;
+import okhttp3.ResponseBody;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-import okhttp3.ResponseBody;
+import static android.text.TextUtils.isEmpty;
 
 /**
- * Check for donts and if thos are not available it will download that font
+ * Check for fonts and if those are not available it will download that font.
  *
  * @author Ashish Gaikwad 04/08/21
  * @since 1.0.0
  */
 public class FontProcessor {
+
     private static final Gson gson = new Gson();
 
+    public static void checkAndUpdateBrandFonts(Context context) {
+        confirmFontsFromPreference(context);
+        cacheBrandFonts(context);
+    }
+
     /**
-     * Fetch App config from Server
+     * Fetch App config from server and cache the fonts.
      *
      * @param context current instance of {@link Context}
      */
-    public static void cacheBrandFonts(Context context) {
-        checkDataFromPreference(context);
-
-        if (checkLastFontRequestDue(context)) {
+    private static void cacheBrandFonts(Context context) {
+        if (!isItTimeToRefreshFontsFromServer(context)) {
+            Log.d(Constants.TAG, "Skipping font check as its before " + Constants.INTERVAL_DAYS + " days");
             return;
         }
 
@@ -67,34 +65,31 @@ public class FontProcessor {
         }
     }
 
-    private static void checkDataFromPreference(Context context) {
+    private static void confirmFontsFromPreference(Context context) {
         String stringArray = LocalStorageHelper.getString(context, Constants.STORAGE_CACHED_FONTS, null);
 
         downloadFonts(context, stringArray);
     }
 
     /**
-     * Check for past request date
+     * Check when was the last time the server was hit to check for updated fonts.
      *
      * @param context current instance of {@link Context}
-     * @return returns true if request is getting called before 7 days otherwise false
+     * @return returns true if this is the first attempt from the server or if it's been {@link Constants#INTERVAL_DAYS}
+     * days we last hit the server.
      */
-    private static boolean checkLastFontRequestDue(Context context) {
+    private static boolean isItTimeToRefreshFontsFromServer(Context context) {
         Date today = new Date();
         Calendar calendar = Calendar.getInstance();
         long lastCheckDate = LocalStorageHelper.getLong(context, Constants.STORAGE_LAST_FONT_ATTEMPT, 0);
 
-        if (lastCheckDate > 0) {
-            return false;
-        }
-        calendar.setTimeInMillis(lastCheckDate);
-        calendar.add(Calendar.DAY_OF_MONTH, Constants.INTERVAL_DAYS);
-        if (today.before(calendar.getTime())) {
-            Log.d(Constants.TAG, "Skipping font check as its before " + Constants.INTERVAL_DAYS + " days");
+        if (lastCheckDate == 0) {
             return true;
         }
 
-        return false;
+        calendar.setTimeInMillis(lastCheckDate);
+        calendar.add(Calendar.DAY_OF_MONTH, Constants.INTERVAL_DAYS);
+        return today.after(calendar.getTime());
     }
 
     public static void downloadFonts(Context context, Object fontList) {
