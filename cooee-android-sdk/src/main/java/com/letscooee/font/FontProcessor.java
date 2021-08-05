@@ -14,7 +14,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.letscooee.CooeeFactory;
 import com.letscooee.exceptions.HttpRequestFailedException;
-import com.letscooee.models.FontData;
+import com.letscooee.models.AppFont;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.LocalStorageHelper;
 
@@ -25,6 +25,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 import okhttp3.ResponseBody;
@@ -35,7 +36,6 @@ import okhttp3.ResponseBody;
  * @author Ashish Gaikwad 04/08/21
  * @since 1.0.0
  */
-
 public class FontProcessor {
     private static final Gson gson = new Gson();
 
@@ -44,15 +44,15 @@ public class FontProcessor {
      *
      * @param context current instance of {@link Context}
      */
-    public static void fetchFontFile(Context context) {
-
+    public static void cacheBrandFonts(Context context) {
         checkDataFromPreference(context);
+
         if (checkLastFontRequestDue(context)) {
             return;
         }
-        ArrayList<FontData> fontResponseList = null;
+
         try {
-            Map<String, Object> config = CooeeFactory.getBaseHTTPService().requestFont(
+            Map<String, Object> config = CooeeFactory.getBaseHTTPService().getAppConfig(
                     CooeeFactory.getManifestReader().getAppID()
             );
 
@@ -60,82 +60,99 @@ public class FontProcessor {
                 return;
             }
 
-            fontResponseList = (ArrayList<FontData>) config.get("fonts");
+            downloadFonts(context, config.get("fonts"));
             LocalStorageHelper.putLong(context, Constants.STORAGE_LAST_FONT_ATTEMPT, new Date().getTime());
         } catch (HttpRequestFailedException e) {
             CooeeFactory.getSentryHelper().captureException(e);
-            return;
         }
-        checkFontPresence(context, fontResponseList);
     }
 
     private static void checkDataFromPreference(Context context) {
+        String stringArray = LocalStorageHelper.getString(context, Constants.STORAGE_CACHED_FONTS, null);
 
-        String stringArray = LocalStorageHelper.getString(context, Constants.STORAGE_FONT_ARRAY, null);
-        if (isEmpty(stringArray)) {
-            return;
-        }
-
-        ArrayList<FontData> fontArrayList = gson.fromJson(stringArray, new TypeToken<ArrayList<FontData>>() {
-        }.getType());
-        checkFontPresence(context, fontArrayList);
+        downloadFonts(context, stringArray);
     }
 
     /**
      * Check for past request date
      *
      * @param context current instance of {@link Context}
-     * @return returns tru if request is getting call before 7 days otherwise false
+     * @return returns true if request is getting called before 7 days otherwise false
      */
     private static boolean checkLastFontRequestDue(Context context) {
         Date today = new Date();
         Calendar calendar = Calendar.getInstance();
         long lastCheckDate = LocalStorageHelper.getLong(context, Constants.STORAGE_LAST_FONT_ATTEMPT, 0);
+
         if (lastCheckDate > 0) {
-            calendar.setTimeInMillis(lastCheckDate);
-            calendar.add(Calendar.DAY_OF_MONTH, 7);
-            if (today.before(calendar.getTime())) {
-                Log.d(Constants.TAG, "Skipping font check as its before 7 days");
-                return true;
-            }
+            return false;
         }
+        calendar.setTimeInMillis(lastCheckDate);
+        calendar.add(Calendar.DAY_OF_MONTH, Constants.INTERVAL_DAYS);
+        if (today.before(calendar.getTime())) {
+            Log.d(Constants.TAG, "Skipping font check as its before " + Constants.INTERVAL_DAYS + " days");
+            return true;
+        }
+
         return false;
+    }
+
+    public static void downloadFonts(Context context, Object fontList) {
+        downloadFonts(context, gson.toJson(fontList));
+    }
+
+    public static void downloadFonts(Context context, String rawFontList) {
+        if (isEmpty(rawFontList)) {
+            return;
+        }
+        ArrayList<AppFont> outputList = gson.fromJson(rawFontList, new TypeToken<ArrayList<AppFont>>() {
+        }.getType());
+
+        downloadFonts(context, outputList);
     }
 
     /**
      * Check if font is present at file system or not. Otherwise proceed to download font
      *
-     * @param context          current instance of {@link Context}
-     * @param fontResponseList {@link ArrayList} of {@link FontData}
+     * @param context  current instance of {@link Context}
+     * @param fontList {@link ArrayList} of {@link AppFont}
      */
-    @SuppressWarnings("ResultOfMethodCallIgnored")
-    public static void checkFontPresence(Context context, ArrayList<FontData> fontResponseList) {
+    public static void downloadFonts(Context context, List<AppFont> fontList) {
 
-        ArrayList<FontData> outputList = gson.fromJson(gson.toJson(fontResponseList), new TypeToken<ArrayList<FontData>>() {
-        }.getType());
-        LocalStorageHelper.putString(context, Constants.STORAGE_FONT_ARRAY, gson.toJson(outputList));
-        if (fontResponseList == null || fontResponseList.isEmpty()) {
+        if (fontList == null || fontList.isEmpty()) {
             Log.d(Constants.TAG, "Received empty font list");
             return;
         }
 
-        String basePath = context.getCacheDir().getAbsolutePath();
-        if (hasWriteStoragePermission(context)) {
-            basePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Cooee";
+        File fontDirectory = getInternalStorage(context);
+
+        if (fontDirectory == null) {
+            fontDirectory = new File(context.getCacheDir().getAbsolutePath());
         }
 
-        File fontDirectory = new File(basePath);
-        if (!fontDirectory.isDirectory()) {
-            fontDirectory.mkdir();
-        }
-
-        for (FontData response : outputList) {
-            File fontFile = new File(fontDirectory, response.getName() + ".ttf");
+        for (AppFont font : fontList) {
+            File fontFile = new File(fontDirectory, font.getName() + ".ttf");
             if (fontFile.exists()) {
                 continue;
             }
-            downloadFont(response, fontFile);
+            downloadFont(font, fontFile);
         }
+
+        LocalStorageHelper.putString(context, Constants.STORAGE_CACHED_FONTS, gson.toJson(fontList));
+    }
+
+    public static File getInternalStorage(Context context) {
+        if (hasWriteStoragePermission(context)) {
+            return null;
+        }
+
+        File fontDirectory = new File(Environment.getExternalStorageDirectory().getAbsolutePath()
+                + "/" + Constants.DIRECTORY_NAME);
+        if (!fontDirectory.isDirectory()) {
+            //noinspection ResultOfMethodCallIgnored
+            fontDirectory.mkdir();
+        }
+        return fontDirectory;
     }
 
     /**
@@ -153,11 +170,11 @@ public class FontProcessor {
     /**
      * Download file from web and store at given {@link File}
      *
-     * @param fontData will instance of {@link FontData}
+     * @param fontData will instance of {@link AppFont}
      * @param fontFile will be instance of {@link File} to write new downloaded file
      */
     @SuppressWarnings("ResultOfMethodCallIgnored")
-    private static void downloadFont(FontData fontData, File fontFile) {
+    private static void downloadFont(AppFont fontData, File fontFile) {
         if (fontData == null || isEmpty(fontData.getUrl())) {
             return;
         }

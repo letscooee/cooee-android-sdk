@@ -1,6 +1,12 @@
 package com.letscooee.models;
 
-public class FontData {
+/**
+ * Provide downloadable font information
+ *
+ * @author Ashish Gaikwad 04/08/21
+ * @since 1.0.0
+ */
+public class AppFont {
 
     private String name;
     private String url;

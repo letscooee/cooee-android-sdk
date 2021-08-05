@@ -13,7 +13,6 @@ import java.util.Map;
  * @author Ashish Gaikwad 03/08/21
  * @since 1.0.0
  */
-
 public enum PermissionType {
 
     LOCATION(Manifest.permission.ACCESS_FINE_LOCATION),
@@ -21,14 +20,13 @@ public enum PermissionType {
     PHONE_DETAILS(Manifest.permission.READ_PHONE_STATE),
     STORAGE(Manifest.permission.WRITE_EXTERNAL_STORAGE);
 
-
     private final String text;
-    private static final Map<String, PermissionType> lookup = new HashMap<>();
+    private static final Map<String, PermissionType> VALUES = new HashMap<>();
 
     /**
      * Constructor to write value of {@link PermissionType}
      *
-     * @param text
+     * @param text value for enum
      */
     PermissionType(final String text) {
         this.text = text;
@@ -36,7 +34,7 @@ public enum PermissionType {
 
     static {
         for (PermissionType d : PermissionType.values()) {
-            lookup.put(d.toString(), d);
+            VALUES.put(d.toString(), d);
         }
     }
 
@@ -58,6 +56,6 @@ public enum PermissionType {
      * @return Returns {@link PermissionType} for the given <code>value</code> or null
      */
     public static PermissionType getByValue(String value) {
-        return lookup.get(value);
+        return VALUES.get(value);
     }
 }

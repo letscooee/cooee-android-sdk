@@ -22,7 +22,7 @@ import com.letscooee.R;
 import com.letscooee.font.FontProcessor;
 import com.letscooee.loader.http.RemoteImageLoader;
 import com.letscooee.models.Event;
-import com.letscooee.models.FontData;
+import com.letscooee.models.AppFont;
 import com.letscooee.models.trigger.TriggerData;
 import com.letscooee.models.trigger.push.PushNotificationTrigger;
 import com.letscooee.models.trigger.elements.ButtonElement;
@@ -67,6 +67,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
             return;
         }
 
+        FontProcessor.downloadFonts(context,remoteMessage.getData().get("fonts"));
         this.handleTriggerData(remoteMessage.getData().get("triggerData"));
     }
 
@@ -121,10 +122,8 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
         }
 
         EngagementTriggerHelper.storeActiveTriggerDetails(context, triggerData.getId(), triggerData.getDuration());
-        if (triggerData.getConfig() != null) {
-            ArrayList<FontData> fontDataArrayList = (ArrayList<FontData>) triggerData.getConfig().get("fonts");
-            FontProcessor.checkFontPresence(context, fontDataArrayList);
-        } else if (triggerData.getPn() != null) {
+
+        if (triggerData.getPn() != null) {
             Event event = new Event("CE Notification Received", triggerData);
             CooeeFactory.getSafeHTTPService().sendEventWithoutNewSession(event);
 

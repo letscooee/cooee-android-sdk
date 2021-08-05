@@ -8,7 +8,7 @@ package com.letscooee.utils;
  */
 public class Constants {
 
-    public static final int REQUEST_LOCATION = 1;
+    public static final int PERMISSION_REQUEST_CODE = 1;
 
     // region All Shared Preference related keys
     public static final String STORAGE_FIRST_TIME_LAUNCH = "is_first_launch";
@@ -18,7 +18,7 @@ public class Constants {
     public static final String STORAGE_ACTIVE_TRIGGERS = "active_triggers";
     public static final String STORAGE_LAST_TOKEN_ATTEMPT = "last_token_check_attempt";
     public static final String STORAGE_LAST_FONT_ATTEMPT = "last_font_check_attempt";
-    public static final String STORAGE_FONT_ARRAY = "font_array";
+    public static final String STORAGE_CACHED_FONTS = "cached_fonts";
     // endregion
 
     public static final String TAG = "CooeeSDK";
@@ -46,4 +46,6 @@ public class Constants {
     public static final String UNIT_PERCENT = "%";
     public static final String UNIT_VIEWPORT_HEIGHT = "vh";
     public static final String UNIT_VIEWPORT_WIDTH = "vw";
+    public static final int INTERVAL_DAYS = 7;
+    public static final String DIRECTORY_NAME = "Cooee";
 }

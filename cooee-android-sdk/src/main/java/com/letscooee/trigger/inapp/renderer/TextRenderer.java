@@ -44,6 +44,7 @@ public class TextRenderer extends FontRenderer {
         processCommonBlocks();
 
         for (BaseElement child : textData.getParts()) {
+            // Parts will always be INLINE_BLOCK so should wrap the contents
             child.getSize().setDisplay(Size.Display.INLINE_BLOCK);
             new TextRenderer(context, (ViewGroup) newElement, child, globalData).render();
         }

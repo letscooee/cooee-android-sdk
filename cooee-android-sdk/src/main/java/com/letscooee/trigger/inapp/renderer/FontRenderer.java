@@ -11,6 +11,7 @@ import android.widget.TextView;
 import androidx.core.content.ContextCompat;
 
 import com.letscooee.CooeeFactory;
+import com.letscooee.font.FontProcessor;
 import com.letscooee.models.trigger.blocks.Font;
 import com.letscooee.models.trigger.elements.BaseElement;
 import com.letscooee.models.trigger.elements.TextElement;
@@ -85,17 +86,18 @@ public abstract class FontRenderer extends AbstractInAppRenderer {
     }
 
     private Typeface checkInternalStorage() {
-        String internalStoragePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Cooee";
-        File file = new File(internalStoragePath);
+        File fontDirectory = FontProcessor.getInternalStorage(context);
 
-        if (!file.isDirectory()) {
+        if (fontDirectory == null) {
             return null;
         }
-        File fontPath = new File(internalStoragePath, font.getFamily() + ".ttf");
-        if (!file.exists()) {
+
+        File font = new File(fontDirectory, this.font.getFamily() + ".ttf");
+
+        if (!font.exists()) {
             return null;
         }
-        return Typeface.createFromFile(fontPath);
+        return Typeface.createFromFile(font);
     }
 
     protected boolean checkWriteStoragePermission() {

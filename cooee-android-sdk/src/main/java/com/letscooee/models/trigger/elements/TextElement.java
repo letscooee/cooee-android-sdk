@@ -10,7 +10,6 @@ public class TextElement extends BaseTextElement {
 
     protected TextElement(Parcel in) {
         super(in);
-        parts = new ArrayList<>();
         parts = in.readArrayList(TextElement.class.getClassLoader());
     }
 

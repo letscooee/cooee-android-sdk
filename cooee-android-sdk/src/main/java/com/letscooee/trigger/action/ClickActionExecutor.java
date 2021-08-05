@@ -71,7 +71,7 @@ public class ClickActionExecutor {
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            ((Activity) context).requestPermissions(permissionList.toArray(new String[0]), Constants.REQUEST_LOCATION);
+            ((Activity) context).requestPermissions(permissionList.toArray(new String[0]), Constants.PERMISSION_REQUEST_CODE);
         }
         return true;
     }

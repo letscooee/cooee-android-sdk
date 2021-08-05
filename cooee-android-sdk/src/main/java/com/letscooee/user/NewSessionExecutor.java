@@ -127,7 +127,6 @@ public class NewSessionExecutor extends ContextAware {
         userProperties.put("CE OS Version", Build.VERSION.RELEASE);
         userProperties.put("CE Device Manufacturer", Build.MANUFACTURER);
         userProperties.put("CE Device Model", Build.MODEL);
-        //Changed as discussed with Shashank sir
         userProperties.put("coordinates", location);
         userProperties.put("CE Network Operator", networkData[0]);
         userProperties.put("CE Network Type", networkData[1]);

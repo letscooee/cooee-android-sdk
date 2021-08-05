@@ -10,8 +10,10 @@ import com.letscooee.exceptions.HttpRequestFailedException;
 import com.letscooee.models.Event;
 import com.letscooee.retrofit.APIClient;
 import com.letscooee.retrofit.APIService;
-import com.letscooee.retrofit.downloadapi.DownloadApiClient;
-import com.letscooee.retrofit.downloadapi.DownloadApiService;
+import com.letscooee.retrofit.external.ExternalApiClient;
+import com.letscooee.retrofit.external.ExternalApiService;
+import com.letscooee.retrofit.internal.PublicApiClient;
+import com.letscooee.retrofit.internal.PublicApiService;
 import com.letscooee.trigger.EngagementTriggerHelper;
 import com.letscooee.utils.Constants;
 
@@ -35,7 +37,8 @@ import retrofit2.Response;
 public class BaseHTTPService extends ContextAware {
 
     private final APIService apiService = APIClient.getAPIService();
-    private final DownloadApiService downloadApiService = DownloadApiClient.getAPIService();
+    private final ExternalApiService externalApiService = ExternalApiClient.getAPIService();
+    private final PublicApiService publicApiService = PublicApiClient.getAPIService();
 
     public BaseHTTPService(Context context) {
         super(context);
@@ -90,14 +93,14 @@ public class BaseHTTPService extends ContextAware {
         });
     }
 
-    public Map<String, Object> requestFont(String appId) throws HttpRequestFailedException {
-        Call<Map<String, Object>> call = downloadApiService.getAppConfig(appId);
+    public Map<String, Object> getAppConfig(String appId) throws HttpRequestFailedException {
+        Call<Map<String, Object>> call = publicApiService.getAppConfig(appId);
         Response<?> response = this.executeHTTPCall(call, "Font Request");
         return (Map<String, Object>) response.body();
     }
 
     public ResponseBody downloadFont(String url) throws HttpRequestFailedException {
-        Call<ResponseBody> call = downloadApiService.downloadFile(url);
+        Call<ResponseBody> call = externalApiService.downloadFile(url);
         Response<?> response = this.executeHTTPCall(call, "Font Download");
         return (ResponseBody) response.body();
     }
