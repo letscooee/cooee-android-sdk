@@ -211,11 +211,13 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
 
             if (layoutChanged) {
                 this.processSizeBlock();
-                this.processMaxSize();
-                this.processSpacing();
-                // Position calculation should be done after size and spacing are
-                // applied to the new element
-                this.applyPositionBlock();
+                newElement.addOnLayoutChangeListener((v1, left1, top1, right1, bottom1, oldLeft1, oldTop1, oldRight1, oldBottom1) -> {
+                    this.processMaxSize();
+                    this.processSpacing();
+                    // Position calculation should be done after size and spacing are
+                    // applied to the new element
+                    this.applyPositionBlock();
+                });
             }
         });
     }

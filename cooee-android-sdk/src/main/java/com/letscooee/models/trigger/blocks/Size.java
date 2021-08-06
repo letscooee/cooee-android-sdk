@@ -106,7 +106,7 @@ public class Size implements Parcelable {
     }
 
     public Integer getCalculatedMaxWidth(View parent) {
-        return getCalculatedValue(parent, width);
+        return getCalculatedValue(parent, maxWidth);
     }
 
     public Integer getCalculatedMaxHeight(View parent) {
