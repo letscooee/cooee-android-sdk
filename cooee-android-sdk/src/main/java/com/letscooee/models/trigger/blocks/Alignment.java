@@ -3,10 +3,15 @@ package com.letscooee.models.trigger.blocks;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.letscooee.enums.trigger.TextAlignment;
+
 public class Alignment implements Parcelable {
 
+    private TextAlignment align;
+    private Direction direction;
+
     protected Alignment(Parcel in) {
-        align = (Align) in.readSerializable();
+        align = (TextAlignment) in.readSerializable();
         direction = (Direction) in.readSerializable();
     }
 
@@ -33,15 +38,10 @@ public class Alignment implements Parcelable {
         dest.writeSerializable(direction);
     }
 
-    public enum Align {LEFT, CENTER, RIGHT}
-
     public enum Direction {LTR, RTL}
 
-    private Align align;
-    private Direction direction;
-
-    public Align getAlign() {
-        return align == null ? Align.LEFT : align;
+    public int getAlign() {
+        return align == null ? TextAlignment.CENTER.getValue() : align.getValue();
     }
 
     public Direction getDirection() {
