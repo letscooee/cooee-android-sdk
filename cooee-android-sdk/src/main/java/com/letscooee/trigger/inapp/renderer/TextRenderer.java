@@ -4,9 +4,10 @@ import android.content.Context;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
-import com.letscooee.CooeeFactory;
 import com.letscooee.models.trigger.blocks.Alignment;
+import com.letscooee.models.trigger.blocks.Size;
 import com.letscooee.models.trigger.elements.BaseElement;
 import com.letscooee.models.trigger.elements.TextElement;
 import com.letscooee.trigger.inapp.InAppGlobalData;
@@ -14,9 +15,9 @@ import com.letscooee.trigger.inapp.InAppGlobalData;
 /**
  * @author shashank
  */
-public class TextRenderer extends AbstractInAppRenderer {
+public class TextRenderer extends FontRenderer {
 
-    protected final TextElement textData;
+    protected TextElement textData;
 
     public TextRenderer(Context context, ViewGroup parentView, BaseElement elementData, InAppGlobalData globalData) {
         super(context, parentView, elementData, globalData);
@@ -25,10 +26,27 @@ public class TextRenderer extends AbstractInAppRenderer {
 
     @Override
     public View render() {
-        TextView textView = new TextView(context);
-        this.processTextData(textView);
+        if (textData.getParts() != null && !textData.getParts().isEmpty()) {
+            this.processParts();
+        } else {
+            TextView textView = new TextView(context);
+            this.processTextData(textView);
+            this.processFont();
+        }
 
         return newElement;
+    }
+
+    private void processParts() {
+        newElement = new LinearLayout(context);
+        insertNewElementInHierarchy();
+        processCommonBlocks();
+
+        for (BaseElement child : textData.getParts()) {
+            // Parts will always be INLINE_BLOCK so should wrap the contents
+            child.getSize().setDisplay(Size.Display.INLINE_BLOCK);
+            new TextRenderer(context, (ViewGroup) newElement, child, globalData).render();
+        }
     }
 
     protected void processTextData(TextView textView) {
@@ -49,6 +67,7 @@ public class TextRenderer extends AbstractInAppRenderer {
             return;
         }
 
+        // TODO: 06/08/21 Cleanup this
         if (alignment.getAlign() == Alignment.Align.LEFT) {
             ((TextView) newElement).setGravity(Gravity.START);
         } else if (alignment.getAlign() == Alignment.Align.RIGHT) {
@@ -71,7 +90,6 @@ public class TextRenderer extends AbstractInAppRenderer {
             return;
         }
 
-        float fontSizeInSP = textData.getFont().getSize() / CooeeFactory.getDeviceInfo().getScaledDensity();
-        ((TextView) newElement).setTextSize(fontSizeInSP);
+        ((TextView) newElement).setTextSize(textData.getFont().getSize());
     }
 }

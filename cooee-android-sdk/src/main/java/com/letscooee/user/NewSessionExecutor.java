@@ -2,7 +2,6 @@ package com.letscooee.user;
 
 import android.content.Context;
 import android.os.Build;
-import android.util.Log;
 import androidx.annotation.RestrictTo;
 import com.letscooee.BuildConfig;
 import com.letscooee.ContextAware;
@@ -128,8 +127,7 @@ public class NewSessionExecutor extends ContextAware {
         userProperties.put("CE OS Version", Build.VERSION.RELEASE);
         userProperties.put("CE Device Manufacturer", Build.MANUFACTURER);
         userProperties.put("CE Device Model", Build.MODEL);
-        userProperties.put("CE Latitude", location[0]);
-        userProperties.put("CE Longitude", location[1]);
+        userProperties.put("coordinates", location);
         userProperties.put("CE Network Operator", networkData[0]);
         userProperties.put("CE Network Type", networkData[1]);
         userProperties.put("CE Bluetooth On", defaultUserPropertiesCollector.isBluetoothOn());

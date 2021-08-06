@@ -8,6 +8,7 @@ import androidx.lifecycle.ProcessLifecycleOwner;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.letscooee.BuildConfig;
 import com.letscooee.CooeeFactory;
+import com.letscooee.font.FontProcessor;
 import com.letscooee.pushnotification.PushProviderUtils;
 import com.letscooee.schedular.CooeeJobUtils;
 import com.letscooee.task.CooeeExecutors;
@@ -46,6 +47,7 @@ public class CooeeBootstrap {
         CooeeExecutors.getInstance().singleThreadExecutor().execute(() -> {
             getAndUpdateFirebaseToken();
             checkAndStartJob();
+            FontProcessor.checkAndUpdateBrandFonts(context);
         });
     }
 

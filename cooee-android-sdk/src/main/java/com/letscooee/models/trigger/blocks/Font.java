@@ -2,21 +2,20 @@ package com.letscooee.models.trigger.blocks;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import com.letscooee.enums.trigger.Style;
 import com.letscooee.utils.ui.UnitUtils;
 
 public class Font implements Parcelable {
 
-    private String size;
-    private String style;
-    private String family;
-    private String weight;
-    private String lineHeight;
+    private final String size;
+    private final Style style;
+    private final String name;
+    private final String lineHeight;
 
     protected Font(Parcel in) {
         size = in.readString();
-        style = in.readString();
-        family = in.readString();
-        weight = in.readString();
+        style = (Style) in.readSerializable();
+        name = in.readString();
         lineHeight = in.readString();
     }
 
@@ -32,16 +31,16 @@ public class Font implements Parcelable {
         }
     };
 
-    public String getStyle() {
-        return style;
+    public int getTypefaceStyle() {
+        return (style == null ? Style.NORMAL : style).typeface;
     }
 
-    public String getFamily() {
-        return family;
-    }
-
-    public String getWeight() {
-        return weight;
+    /**
+     * Get the font family name i.e. Typeface file name.
+     * @return
+     */
+    public String getName() {
+        return name;
     }
 
     public String getLineHeight() {
@@ -56,9 +55,8 @@ public class Font implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(size);
-        dest.writeString(style);
-        dest.writeString(family);
-        dest.writeString(weight);
+        dest.writeSerializable(style);
+        dest.writeString(name);
         dest.writeString(lineHeight);
     }
 
