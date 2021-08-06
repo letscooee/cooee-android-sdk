@@ -124,13 +124,6 @@ public abstract class NotificationRenderer {
         if (this.pushTrigger.lights) defaults |= NotificationCompat.DEFAULT_LIGHTS;
         if (this.pushTrigger.vibrate) defaults |= NotificationCompat.DEFAULT_VIBRATE;
 
-        if (this.pushTrigger.sound) {
-            defaults |= NotificationCompat.DEFAULT_SOUND;
-            this.notificationSound.setSoundInNotification();
-        } else {
-            this.notificationBuilder.setSound(null);
-        }
-
         this.notificationBuilder.setDefaults(defaults);
 
         this.setTitleAndBody();
@@ -157,7 +150,6 @@ public abstract class NotificationRenderer {
         // TODO: 15/06/21 This following does not update if the channel is already created
         if (this.pushTrigger.lights) notificationChannel.enableLights(true);
         if (this.pushTrigger.vibrate) notificationChannel.enableVibration(true);
-        if (this.pushTrigger.sound) this.notificationSound.setSoundInChannel(notificationChannel);
 
         this.notificationManager.createNotificationChannel(notificationChannel);
     }

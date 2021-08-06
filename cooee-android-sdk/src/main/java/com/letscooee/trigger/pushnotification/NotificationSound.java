@@ -30,10 +30,11 @@ class NotificationSound {
     }
 
     private Uri getDefault() {
-        Uri sound = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + this.packageName + "/" + R.raw.notification_sound);
+        // Uri sound = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + this.packageName + "/" + R.raw.notification_sound);
 
         // TODO: 11/06/21 Check if sound exist and handle exception
-        return sound;
+        // TODO: 06/08/21 Update this method if/when in future we implement custom sound
+        return null;
     }
 
     public void setSoundInNotification() {
