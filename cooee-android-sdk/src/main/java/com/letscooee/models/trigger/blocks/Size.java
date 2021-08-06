@@ -1,11 +1,12 @@
 package com.letscooee.models.trigger.blocks;
 
+import static com.letscooee.utils.ui.UnitUtils.getCalculatedValue;
+
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.text.TextUtils;
 import android.view.View;
 
-import static com.letscooee.utils.ui.UnitUtils.getCalculatedValue;
+import com.letscooee.enums.trigger.FlexProperty;
 
 public class Size implements Parcelable {
 
@@ -19,12 +20,12 @@ public class Size implements Parcelable {
         height = in.readString();
         maxWidth = in.readString();
         maxHeight = in.readString();
-        justifyContent = in.readString();
-        alignItems = in.readString();
-        wrap = in.readString();
-        alignContent = in.readString();
-        direction = in.readString();
-        display = Display.valueOf(in.readString());
+        justifyContent = (FlexProperty.JustifyContent) in.readSerializable();
+        alignItems = (FlexProperty.AlignItems) in.readSerializable();
+        wrap = (FlexProperty.Wrap) in.readSerializable();
+        alignContent = (FlexProperty.AlignContent) in.readSerializable();
+        direction = (FlexProperty.Direction) in.readSerializable();
+        display = (Display) in.readSerializable();
     }
 
     public static final Creator<Size> CREATOR = new Creator<Size>() {
@@ -39,12 +40,13 @@ public class Size implements Parcelable {
         }
     };
 
-    public String getJustifyContent() {
-        return justifyContent;
+    public int getJustifyContent() {
+        return justifyContent == null ?
+                FlexProperty.JustifyContent.FLEX_START.getValue() : justifyContent.getValue();
     }
 
-    public String getAlignItems() {
-        return alignItems;
+    public int getAlignItems() {
+        return alignItems == null ? FlexProperty.AlignItems.FLEX_START.getValue() : alignItems.getValue();
     }
 
     public Integer getCalculatedHeight(View parent) {
@@ -66,15 +68,12 @@ public class Size implements Parcelable {
         dest.writeString(height);
         dest.writeString(maxWidth);
         dest.writeString(maxHeight);
-        dest.writeString(justifyContent);
-        dest.writeString(alignItems);
-        dest.writeString(wrap);
-        dest.writeString(alignContent);
-        dest.writeString(direction);
-        if (display == null)
-            dest.writeString(Display.INLINE_BLOCK.name());
-        else
-            dest.writeString(display.name());
+        dest.writeSerializable(justifyContent);
+        dest.writeSerializable(alignItems);
+        dest.writeSerializable(wrap);
+        dest.writeSerializable(alignContent);
+        dest.writeSerializable(direction);
+        dest.writeSerializable(display);
     }
 
     public void setDisplay(Display display) {
@@ -88,14 +87,14 @@ public class Size implements Parcelable {
     private String maxWidth;
     private String maxHeight;
     private Display display;
-    private String justifyContent;
-    private String alignItems;
-    private String wrap;
-    private String alignContent;
-    private String direction;
+    private FlexProperty.JustifyContent justifyContent;
+    private FlexProperty.AlignItems alignItems;
+    private FlexProperty.Wrap wrap;
+    private FlexProperty.AlignContent alignContent;
+    private FlexProperty.Direction direction;
 
-    public String getDirection() {
-        return direction;
+    public int getDirection() {
+        return direction == null ? FlexProperty.Direction.ROW.getValue() : direction.getValue();
     }
 
     public Display getDisplay() {
@@ -106,25 +105,20 @@ public class Size implements Parcelable {
         return (this.getDisplay() == Display.FLEX || this.getDisplay() == Display.INLINE_FLEX);
     }
 
-    public String getMaxWidth() {
-        if (TextUtils.isEmpty(maxWidth))
-            return null;
-        else
-            return maxWidth.toLowerCase();
+    public Integer getCalculatedMaxWidth(View parent) {
+        return getCalculatedValue(parent, width);
     }
 
-    public String getMaxHeight() {
-        if (TextUtils.isEmpty(maxHeight))
-            return null;
-        else
-            return maxHeight.toLowerCase();
+    public Integer getCalculatedMaxHeight(View parent) {
+        return getCalculatedValue(parent, maxHeight, true);
     }
 
-    public String getWrap() {
-        return wrap;
+    public int getWrap() {
+        return wrap == null ? FlexProperty.Wrap.WRAP.getValue() : wrap.getValue();
     }
 
-    public String getAlignContent() {
-        return alignContent;
+    public int getAlignContent() {
+        return alignContent == null ?
+                FlexProperty.AlignContent.FLEX_START.getValue() : alignContent.getValue();
     }
 }
