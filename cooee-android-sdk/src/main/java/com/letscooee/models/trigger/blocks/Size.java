@@ -10,6 +10,17 @@ import com.letscooee.enums.trigger.FlexProperty;
 
 public class Size implements Parcelable {
 
+    private String width;
+    private String height;
+    private String maxWidth;
+    private String maxHeight;
+    private Display display;
+    private FlexProperty.JustifyContent justifyContent;
+    private FlexProperty.AlignItems alignItems;
+    private FlexProperty.Wrap wrap;
+    private FlexProperty.AlignContent alignContent;
+    private FlexProperty.Direction direction;
+
     // The default value constructor
     public Size() {
         this.display = Display.BLOCK;
@@ -46,7 +57,7 @@ public class Size implements Parcelable {
     }
 
     public int getAlignItems() {
-        return alignItems == null ? FlexProperty.AlignItems.FLEX_START.getValue() : alignItems.getValue();
+        return alignItems == null ? FlexProperty.AlignItems.STRETCH.getValue() : alignItems.getValue();
     }
 
     public Integer getCalculatedHeight(View parent) {
@@ -82,17 +93,6 @@ public class Size implements Parcelable {
 
     public enum Display {BLOCK, INLINE_BLOCK, FLEX, INLINE_FLEX}
 
-    private String width;
-    private String height;
-    private String maxWidth;
-    private String maxHeight;
-    private Display display;
-    private FlexProperty.JustifyContent justifyContent;
-    private FlexProperty.AlignItems alignItems;
-    private FlexProperty.Wrap wrap;
-    private FlexProperty.AlignContent alignContent;
-    private FlexProperty.Direction direction;
-
     public int getDirection() {
         return direction == null ? FlexProperty.Direction.ROW.getValue() : direction.getValue();
     }
@@ -114,11 +114,11 @@ public class Size implements Parcelable {
     }
 
     public int getWrap() {
-        return wrap == null ? FlexProperty.Wrap.WRAP.getValue() : wrap.getValue();
+        return wrap == null ? FlexProperty.Wrap.NOWRAP.getValue() : wrap.getValue();
     }
 
     public int getAlignContent() {
         return alignContent == null ?
-                FlexProperty.AlignContent.FLEX_START.getValue() : alignContent.getValue();
+                FlexProperty.AlignContent.STRETCH.getValue() : alignContent.getValue();
     }
 }
