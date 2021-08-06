@@ -67,7 +67,8 @@ public abstract class BaseElement implements Parcelable {
     }
 
     public Size getSize() {
-        return size != null ? size : new Size();
+        if (size == null) this.size = new Size();
+        return size;
     }
 
     public Background getBg() {
