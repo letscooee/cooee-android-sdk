@@ -25,7 +25,6 @@ import com.letscooee.trigger.inapp.InAppGlobalData;
 
 import jp.wasabeef.blurry.Blurry;
 
-import static android.text.TextUtils.isEmpty;
 import static com.letscooee.utils.Constants.TAG;
 
 /**
@@ -212,12 +211,33 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
 
             if (layoutChanged) {
                 this.processSizeBlock();
+                this.processMaxSize();
                 this.processSpacing();
                 // Position calculation should be done after size and spacing are
                 // applied to the new element
                 this.applyPositionBlock();
             }
         });
+    }
+
+    private void processMaxSize() {
+        final Size size = elementData.getSize();
+        ViewGroup.LayoutParams layoutParams = newElement.getLayoutParams();
+
+        int currentWidth = newElement.getMeasuredWidth();
+        int currentHeight = newElement.getMeasuredHeight();
+
+        Integer maxWidth = size.getCalculatedMaxWidth(parentElement);
+        if (maxWidth != null && maxWidth < currentWidth) {
+            layoutParams.width = maxWidth;
+        }
+
+        Integer maxHeight = size.getCalculatedMaxHeight(parentElement);
+        if (maxHeight != null && maxHeight < currentHeight) {
+            layoutParams.height = maxHeight;
+        }
+
+        newElement.setLayoutParams(layoutParams);
     }
 
     private void applyPositionBlock() {
