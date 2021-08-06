@@ -45,14 +45,13 @@ public class FontProcessor {
      */
     private static void cacheBrandFonts(Context context) {
         if (!isItTimeToRefreshFontsFromServer(context)) {
-            Log.d(Constants.TAG, "Skipping font check as its before " + Constants.INTERVAL_DAYS + " days");
+            Log.d(Constants.TAG, "Skipping font check as its before " + Constants.FONT_REFRESH_INTERVAL_DAYS + " days");
             return;
         }
 
+        String appID = CooeeFactory.getManifestReader().getAppID();
         try {
-            Map<String, Object> config = CooeeFactory.getBaseHTTPService().getAppConfig(
-                    CooeeFactory.getManifestReader().getAppID()
-            );
+            Map<String, Object> config = CooeeFactory.getBaseHTTPService().getAppConfig(appID);
 
             if (config == null) {
                 return;
@@ -75,7 +74,7 @@ public class FontProcessor {
      * Check when was the last time the server was hit to check for updated fonts.
      *
      * @param context current instance of {@link Context}
-     * @return returns true if this is the first attempt from the server or if it's been {@link Constants#INTERVAL_DAYS}
+     * @return returns true if this is the first attempt from the server or if it's been {@link Constants#FONT_REFRESH_INTERVAL_DAYS}
      * days we last hit the server.
      */
     private static boolean isItTimeToRefreshFontsFromServer(Context context) {
@@ -88,7 +87,7 @@ public class FontProcessor {
         }
 
         calendar.setTimeInMillis(lastCheckDate);
-        calendar.add(Calendar.DAY_OF_MONTH, Constants.INTERVAL_DAYS);
+        calendar.add(Calendar.DAY_OF_MONTH, Constants.FONT_REFRESH_INTERVAL_DAYS);
         return today.after(calendar.getTime());
     }
 
@@ -113,20 +112,15 @@ public class FontProcessor {
      * @param fontList {@link ArrayList} of {@link AppFont}
      */
     public static void downloadFonts(Context context, List<AppFont> fontList) {
-
         if (fontList == null || fontList.isEmpty()) {
             Log.d(Constants.TAG, "Received empty font list");
             return;
         }
 
-        File fontDirectory = getInternalStorage(context);
-
-        if (fontDirectory == null) {
-            fontDirectory = new File(context.getCacheDir().getAbsolutePath());
-        }
+        File fontDirectory = getFontsStorageDirectory(context);
 
         for (AppFont font : fontList) {
-            File fontFile = new File(fontDirectory, font.getName() + ".ttf");
+            File fontFile = getFontFile(fontDirectory, font.getName());
             if (fontFile.exists()) {
                 continue;
             }
@@ -136,18 +130,23 @@ public class FontProcessor {
         LocalStorageHelper.putString(context, Constants.STORAGE_CACHED_FONTS, gson.toJson(fontList));
     }
 
+    public static File getFontFile(File parentDirectory, String name) {
+        return new File(parentDirectory, name + ".ttf");
+    }
+
     /**
-     * Check of {@link Constants#FONT_DIRECTORY}; And creates if does not exist.
+     * Check of {@link Constants#FONTS_DIRECTORY}; And creates if does not exist.
      *
      * @param context current instance of {@link Context}
      * @return Return instance {@link File}
      */
-    public static File getInternalStorage(Context context) {
-        if (hasWriteStoragePermission(context)) {
-            return null;
+    public static File getFontsStorageDirectory(Context context) {
+        if (!hasWriteStoragePermission(context)) {
+            // Return the App's cache directory (can't be more than 1 MB individual file)
+            return new File(context.getCacheDir().getAbsolutePath());
         }
 
-        File fontDirectory = getFontDirectory(context);
+        File fontDirectory = getExternalFontsDirectory(context);
         if (!fontDirectory.isDirectory()) {
             //noinspection ResultOfMethodCallIgnored
             fontDirectory.mkdir();
@@ -156,27 +155,27 @@ public class FontProcessor {
     }
 
     /**
-     * Access app specific folder to write data.
+     * First check if we have permissions to write on the external mounted (SD Card) or otherwise
+     * get app specific folder to write fonts.
      *
      * @param context current instance of {@link Context}
      * @return Return instance {@link File}
      */
-    private static File getFontDirectory(Context context) {
+    private static File getExternalFontsDirectory(Context context) {
         if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-            return new File(context.getExternalFilesDir(null), Constants.FONT_DIRECTORY);
+            return new File(context.getExternalFilesDir(null), Constants.FONTS_DIRECTORY);
         } else {
-            return new File(context.getFilesDir(), Constants.FONT_DIRECTORY);
+            return new File(context.getFilesDir(), Constants.FONTS_DIRECTORY);
         }
     }
 
     /**
-     * Check for the {@link Manifest.permission#WRITE_EXTERNAL_STORAGE} permission is granted or not
+     * Check for the {@link Manifest.permission#WRITE_EXTERNAL_STORAGE} permission is granted or not.
      *
      * @param context current instance of {@link Context}
      * @return Return true only if {@link Manifest.permission#WRITE_EXTERNAL_STORAGE} is granted, Otherwise return false
      */
-    private static boolean hasWriteStoragePermission(Context context) {
-
+    public static boolean hasWriteStoragePermission(Context context) {
         return ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 == PackageManager.PERMISSION_GRANTED;
     }

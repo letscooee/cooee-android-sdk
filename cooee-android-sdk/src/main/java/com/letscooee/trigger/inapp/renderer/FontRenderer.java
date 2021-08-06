@@ -1,15 +1,9 @@
 package com.letscooee.trigger.inapp.renderer;
 
-import android.Manifest;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.graphics.Typeface;
-import android.os.Environment;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
-import androidx.core.content.ContextCompat;
-
 import com.letscooee.CooeeFactory;
 import com.letscooee.font.FontProcessor;
 import com.letscooee.models.trigger.blocks.Font;
@@ -27,7 +21,6 @@ import java.util.Map;
  * @author Ashish Gaikwad 30/07/21
  * @since 1.0.0
  */
-
 public abstract class FontRenderer extends AbstractInAppRenderer {
 
     protected final Font font;
@@ -39,35 +32,21 @@ public abstract class FontRenderer extends AbstractInAppRenderer {
 
     protected void processFont() {
         if (font == null) return;
-        this.checkFontIsPresent();
+        this.applyFont();
     }
 
-    private void checkFontIsPresent() {
-        String cachePath = context.getCacheDir().getAbsolutePath();
-        Typeface typeface = null;
-
-        // Check if user has granted internal storage permission
-        if (this.checkWriteStoragePermission()) {
-            typeface = checkInternalStorage();
-        }
+    private void applyFont() {
+        Typeface typeface = checkInternalStorage();
 
         if (typeface != null) {
             ((TextView) newElement).setTypeface(typeface);
             return;
         }
 
-        File fontFile = new File(cachePath + "/" + font.getFamily() + ".ttf");
-        if (fontFile.exists()) {
-            typeface = Typeface.createFromFile(fontFile);
-            ((TextView) newElement).setTypeface(typeface);
-            return;
-        }
-
-        this.checkDeviceFonts();
+        this.applySystemFont();
     }
 
-
-    private void checkDeviceFonts() {
+    private void applySystemFont() {
         Typeface typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL);
         try {
             Field field = Typeface.class.getDeclaredField("sSystemFontMap");
@@ -86,22 +65,13 @@ public abstract class FontRenderer extends AbstractInAppRenderer {
     }
 
     private Typeface checkInternalStorage() {
-        File fontDirectory = FontProcessor.getInternalStorage(context);
+        File fontsDirectory = FontProcessor.getFontsStorageDirectory(context);
 
-        if (fontDirectory == null) {
-            return null;
-        }
-
-        File font = new File(fontDirectory, this.font.getFamily() + ".ttf");
-
+        File font = FontProcessor.getFontFile(fontsDirectory, this.font.getFamily());
         if (!font.exists()) {
             return null;
         }
-        return Typeface.createFromFile(font);
-    }
 
-    protected boolean checkWriteStoragePermission() {
-        return ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                == PackageManager.PERMISSION_GRANTED;
+        return Typeface.createFromFile(font);
     }
 }

@@ -1,7 +1,5 @@
 package com.letscooee.init;
 
-import static android.content.Context.ACTIVITY_SERVICE;
-
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
@@ -21,9 +19,7 @@ import android.os.Environment;
 import android.os.StatFs;
 import android.telephony.TelephonyManager;
 import android.util.DisplayMetrics;
-
 import androidx.core.app.ActivityCompat;
-
 import com.letscooee.CooeeFactory;
 import com.letscooee.utils.SentryHelper;
 
@@ -33,6 +29,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+
+import static android.content.Context.ACTIVITY_SERVICE;
 
 /**
  * DefaultUserPropertiesCollector collects various mobile properties/parameters
@@ -56,11 +54,9 @@ public class DefaultUserPropertiesCollector {
      */
     @SuppressLint("MissingPermission")
     public double[] getLocation() {
-        // Changed code as older code mostly return 0,0;
         Location bestLastLocation = null;
 
-        if (ActivityCompat.checkSelfPermission(this.context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(this.context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (!isPermissionGranted(Manifest.permission.ACCESS_FINE_LOCATION)) {
             return new double[]{0, 0};
         }
 
@@ -82,16 +78,22 @@ public class DefaultUserPropertiesCollector {
         return new double[]{bestLastLocation.getLatitude(), bestLastLocation.getLongitude()};
     }
 
+    private boolean isPermissionGranted(String perm) {
+        return ActivityCompat.checkSelfPermission(this.context, perm) == PackageManager.PERMISSION_GRANTED;
+    }
+
     /**
      * Get Network Details
      *
      * @return String[] {Network Operator Name,Network type}
      */
+    @SuppressLint("MissingPermission")
     public String[] getNetworkData() {
         String[] networkData = new String[2];
         TelephonyManager manager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
         assert manager != null;
-        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+
+        if (!isPermissionGranted(Manifest.permission.READ_PHONE_STATE)) {
             networkData[0] = !manager.getNetworkOperatorName().isEmpty() ? manager.getNetworkOperatorName() : "Unknown";
             networkData[1] = "PNGRNT";
         } else {

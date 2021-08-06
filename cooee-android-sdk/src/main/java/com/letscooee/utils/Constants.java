@@ -42,10 +42,13 @@ public class Constants {
 
     public static final int PENDING_TASK_JOB_ID = 2663;
 
+    // region Units
     public static final String UNIT_PIXEL = "px";
     public static final String UNIT_PERCENT = "%";
     public static final String UNIT_VIEWPORT_HEIGHT = "vh";
     public static final String UNIT_VIEWPORT_WIDTH = "vw";
-    public static final int INTERVAL_DAYS = 7;
-    public static final String FONT_DIRECTORY = "Font";
+    // endregion
+
+    public static final int FONT_REFRESH_INTERVAL_DAYS = 7;
+    public static final String FONTS_DIRECTORY = "cooeeFonts";
 }
