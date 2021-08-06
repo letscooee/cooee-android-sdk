@@ -1,7 +1,6 @@
 package com.letscooee.trigger.inapp.renderer;
 
 import android.content.Context;
-import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
@@ -67,14 +66,7 @@ public class TextRenderer extends FontRenderer {
             return;
         }
 
-        // TODO: 06/08/21 Cleanup this
-        if (alignment.getAlign() == Alignment.Align.LEFT) {
-            ((TextView) newElement).setGravity(Gravity.START);
-        } else if (alignment.getAlign() == Alignment.Align.RIGHT) {
-            ((TextView) newElement).setGravity(Gravity.END);
-        } else if (alignment.getAlign() == Alignment.Align.CENTER) {
-            ((TextView) newElement).setGravity(Gravity.CENTER);
-        }
+        ((TextView) newElement).setGravity(alignment.getAlign());
     }
 
     protected void processColourBlock() {

@@ -1,9 +1,11 @@
 package com.letscooee.trigger.inapp.renderer;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
 import com.letscooee.CooeeFactory;
 import com.letscooee.font.FontProcessor;
 import com.letscooee.models.trigger.blocks.Font;
@@ -35,6 +37,7 @@ public abstract class FontRenderer extends AbstractInAppRenderer {
         this.applyFont();
     }
 
+    @SuppressLint("WrongConstant")
     private void applyFont() {
         Typeface typeface = getTypeFaceFromBrandFont();
 
@@ -43,7 +46,6 @@ public abstract class FontRenderer extends AbstractInAppRenderer {
         }
 
         if (typeface != null) {
-            // TODO: 06/08/21 fix this
             ((TextView) newElement).setTypeface(typeface, font.getTypefaceStyle());
         }
     }
@@ -62,6 +64,7 @@ public abstract class FontRenderer extends AbstractInAppRenderer {
             return map.get(font.getName());
         } catch (NoSuchFieldException | IllegalAccessException e) {
             CooeeFactory.getSentryHelper().captureException(e);
+            return null;
         }
     }
 

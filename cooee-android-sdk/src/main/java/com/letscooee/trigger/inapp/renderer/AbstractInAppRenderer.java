@@ -366,71 +366,10 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         Size size = elementData.getSize();
         FlexboxLayout layout = (FlexboxLayout) newElement;
 
-        if (!isEmpty(size.getDirection())) {
-            if (size.getDirection().equalsIgnoreCase("row")) {
-                layout.setFlexDirection(FlexDirection.ROW);
-            } else if (size.getDirection().equalsIgnoreCase("column")) {
-                layout.setFlexDirection(FlexDirection.COLUMN);
-            } else if (size.getDirection().equalsIgnoreCase("row-reverse")) {
-                layout.setFlexDirection(FlexDirection.ROW_REVERSE);
-            } else if (size.getDirection().equalsIgnoreCase("column-reverse")) {
-                layout.setFlexDirection(FlexDirection.COLUMN_REVERSE);
-            }
-        }
-
-        if (!isEmpty(size.getWrap())) {
-            if (size.getWrap().equalsIgnoreCase("wrap")) {
-                layout.setFlexWrap(FlexWrap.WRAP);
-            } else if (size.getWrap().equalsIgnoreCase("NOWRAP")) {
-                layout.setFlexWrap(FlexWrap.NOWRAP);
-            } else if (size.getWrap().equalsIgnoreCase("WRAP_REVERSE")) {
-                layout.setFlexWrap(FlexWrap.WRAP_REVERSE);
-            }
-        }
-        if (!isEmpty(size.getJustifyContent())) {
-            if (size.getJustifyContent().equalsIgnoreCase("FLEX_START")) {
-                layout.setJustifyContent(JustifyContent.FLEX_START);
-            } else if (size.getJustifyContent().equalsIgnoreCase("FLEX_END")) {
-                layout.setJustifyContent(JustifyContent.FLEX_END);
-            } else if (size.getJustifyContent().equalsIgnoreCase("CENTER")) {
-                layout.setJustifyContent(JustifyContent.CENTER);
-            } else if (size.getJustifyContent().equalsIgnoreCase("SPACE_BETWEEN")) {
-                layout.setJustifyContent(JustifyContent.SPACE_BETWEEN);
-            } else if (size.getJustifyContent().equalsIgnoreCase("SPACE_AROUND")) {
-                layout.setJustifyContent(JustifyContent.SPACE_AROUND);
-            } else if (size.getJustifyContent().equalsIgnoreCase("SPACE_EVENLY")) {
-                layout.setJustifyContent(JustifyContent.SPACE_EVENLY);
-            }
-        }
-
-        if (!isEmpty(size.getAlignItems())) {
-            if (size.getAlignItems().equalsIgnoreCase("FLEX_START")) {
-                layout.setAlignItems(AlignItems.FLEX_START);
-            } else if (size.getAlignItems().equalsIgnoreCase("FLEX_END")) {
-                layout.setAlignItems(AlignItems.FLEX_END);
-            } else if (size.getAlignItems().equalsIgnoreCase("CENTER")) {
-                layout.setAlignItems(AlignItems.CENTER);
-            } else if (size.getAlignItems().equalsIgnoreCase("BASELINE")) {
-                layout.setAlignItems(AlignItems.BASELINE);
-            } else if (size.getAlignItems().equalsIgnoreCase("STRETCH")) {
-                layout.setAlignItems(AlignItems.STRETCH);
-            }
-        }
-
-        if (!isEmpty(size.getAlignContent())) {
-            if (size.getAlignContent().equalsIgnoreCase("FLEX_START")) {
-                layout.setAlignContent(AlignContent.FLEX_START);
-            } else if (size.getAlignContent().equalsIgnoreCase("FLEX_END")) {
-                layout.setAlignContent(AlignContent.FLEX_END);
-            } else if (size.getAlignContent().equalsIgnoreCase("CENTER")) {
-                layout.setAlignContent(AlignContent.CENTER);
-            } else if (size.getAlignContent().equalsIgnoreCase("SPACE_BETWEEN")) {
-                layout.setAlignContent(AlignContent.SPACE_BETWEEN);
-            } else if (size.getAlignContent().equalsIgnoreCase("SPACE_AROUND")) {
-                layout.setAlignContent(AlignContent.SPACE_AROUND);
-            } else if (size.getAlignContent().equalsIgnoreCase("STRETCH")) {
-                layout.setAlignContent(AlignContent.STRETCH);
-            }
-        }
+        layout.setFlexDirection(size.getDirection());
+        layout.setFlexWrap(size.getWrap());
+        layout.setJustifyContent(size.getJustifyContent());
+        layout.setAlignItems(size.getAlignItems());
+        layout.setAlignContent(size.getAlignContent());
     }
 }
