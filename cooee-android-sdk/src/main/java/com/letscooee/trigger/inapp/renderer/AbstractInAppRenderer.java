@@ -169,6 +169,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         } else {
             width = ViewGroup.LayoutParams.WRAP_CONTENT;
         }
+
         height = ViewGroup.LayoutParams.WRAP_CONTENT;
 
         Integer calculatedWidth = size.getCalculatedWidth(parentElement);

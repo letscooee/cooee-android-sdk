@@ -81,7 +81,7 @@ public class Size implements Parcelable {
         this.display = display;
     }
 
-    public enum Display {BLOCK, INLINE_BLOCK, FLEX}
+    public enum Display {BLOCK, INLINE_BLOCK, FLEX, INLINE_FLEX}
 
     private String width;
     private String height;
@@ -100,6 +100,10 @@ public class Size implements Parcelable {
 
     public Display getDisplay() {
         return display != null ? display : Display.BLOCK;
+    }
+
+    public boolean isDisplayFlex() {
+        return (this.getDisplay() == Display.FLEX || this.getDisplay() == Display.INLINE_FLEX);
     }
 
     public String getMaxWidth() {

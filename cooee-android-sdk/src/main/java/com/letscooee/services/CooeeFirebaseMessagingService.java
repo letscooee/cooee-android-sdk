@@ -7,11 +7,9 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.core.app.NotificationCompat;
-
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.google.gson.Gson;
@@ -22,20 +20,17 @@ import com.letscooee.R;
 import com.letscooee.font.FontProcessor;
 import com.letscooee.loader.http.RemoteImageLoader;
 import com.letscooee.models.Event;
-import com.letscooee.models.AppFont;
 import com.letscooee.models.trigger.TriggerData;
-import com.letscooee.models.trigger.push.PushNotificationTrigger;
 import com.letscooee.models.trigger.elements.ButtonElement;
+import com.letscooee.models.trigger.push.PushNotificationTrigger;
 import com.letscooee.pushnotification.PushProviderUtils;
 import com.letscooee.trigger.CooeeEmptyActivity;
 import com.letscooee.trigger.EngagementTriggerHelper;
 import com.letscooee.trigger.pushnotification.NotificationRenderer;
 import com.letscooee.trigger.pushnotification.SimpleNotificationRenderer;
 import com.letscooee.utils.Constants;
-
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -44,19 +39,10 @@ import java.util.HashMap;
  * @author Ashish Gaikwad 12/07/21
  * @since 1.0.0
  */
-
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
 
     Context context;
-
-    public CooeeFirebaseMessagingService() {
-        context=getApplicationContext();
-    }
-
-    public CooeeFirebaseMessagingService(Context context) {
-        this.context = context;
-    }
 
     @Override
     public void onNewToken(@NonNull @NotNull String token) {
@@ -71,7 +57,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
             return;
         }
 
-        FontProcessor.downloadFonts(context,remoteMessage.getData().get("fonts"));
+        FontProcessor.downloadFonts(context, remoteMessage.getData().get("fonts"));
         this.handleTriggerData(remoteMessage.getData().get("triggerData"));
     }
 

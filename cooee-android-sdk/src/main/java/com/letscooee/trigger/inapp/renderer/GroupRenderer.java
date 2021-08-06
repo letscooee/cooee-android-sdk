@@ -23,7 +23,7 @@ public class GroupRenderer extends AbstractInAppRenderer {
 
     @Override
     public View render() {
-        if (elementData.getSize().getDisplay() == Size.Display.FLEX) {
+        if (elementData.getSize().isDisplayFlex()) {
             newElement = new FlexboxLayout(context);
         } else {
             newElement = new RelativeLayout(context);
