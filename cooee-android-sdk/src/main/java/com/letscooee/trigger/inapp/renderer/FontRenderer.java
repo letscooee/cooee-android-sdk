@@ -36,38 +36,39 @@ public abstract class FontRenderer extends AbstractInAppRenderer {
     }
 
     private void applyFont() {
-        Typeface typeface = checkInternalStorage();
+        Typeface typeface = getTypeFaceFromBrandFont();
 
-        if (typeface != null) {
-            ((TextView) newElement).setTypeface(typeface);
-            return;
+        if (typeface == null) {
+            typeface = this.getSystemTypeface();
         }
 
-        this.applySystemFont();
+        if (typeface != null) {
+            // TODO: 06/08/21 fix this
+            ((TextView) newElement).setTypeface(typeface, font.getTypefaceStyle());
+        }
     }
 
-    private void applySystemFont() {
+    private Typeface getSystemTypeface() {
         Typeface typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL);
         try {
             Field field = Typeface.class.getDeclaredField("sSystemFontMap");
             field.setAccessible(true);
 
             Map<String, Typeface> map = (Map<String, Typeface>) field.get(typeface);
-            assert map != null;
-            Typeface fontTypeface = map.get(font.getFamily());
-
-            if (fontTypeface != null) {
-                ((TextView) newElement).setTypeface(fontTypeface);
+            if (map == null) {
+                return null;
             }
+
+            return map.get(font.getName());
         } catch (NoSuchFieldException | IllegalAccessException e) {
             CooeeFactory.getSentryHelper().captureException(e);
         }
     }
 
-    private Typeface checkInternalStorage() {
+    private Typeface getTypeFaceFromBrandFont() {
         File fontsDirectory = FontProcessor.getFontsStorageDirectory(context);
 
-        File font = FontProcessor.getFontFile(fontsDirectory, this.font.getFamily());
+        File font = FontProcessor.getFontFile(fontsDirectory, this.font.getName());
         if (!font.exists()) {
             return null;
         }

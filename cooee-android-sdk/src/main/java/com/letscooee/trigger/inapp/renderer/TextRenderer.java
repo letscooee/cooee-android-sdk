@@ -6,7 +6,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
 import com.letscooee.models.trigger.blocks.Alignment;
 import com.letscooee.models.trigger.blocks.Size;
 import com.letscooee.models.trigger.elements.BaseElement;
@@ -68,6 +67,7 @@ public class TextRenderer extends FontRenderer {
             return;
         }
 
+        // TODO: 06/08/21 Cleanup this
         if (alignment.getAlign() == Alignment.Align.LEFT) {
             ((TextView) newElement).setGravity(Gravity.START);
         } else if (alignment.getAlign() == Alignment.Align.RIGHT) {
@@ -90,7 +90,6 @@ public class TextRenderer extends FontRenderer {
             return;
         }
 
-        // When actual font family is applied font size is in sp gets too small
         ((TextView) newElement).setTextSize(textData.getFont().getSize());
     }
 }
