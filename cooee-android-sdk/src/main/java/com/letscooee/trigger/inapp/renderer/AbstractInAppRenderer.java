@@ -104,7 +104,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         this.processBackground();
         this.processBorderBlock();
         this.processShadowBlock();
-        this.registerViewTreeListener();
+        this.registerListenerOnParentElement();
         this.processTransformBlock();
         this.processClickBlock();
         this.applyFlexParentProperties();
@@ -201,7 +201,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
      * adding an observer to the new view to check once the view is rendered on a screen and then
      * apply position to that view.
      */
-    protected void registerViewTreeListener() {
+    protected void registerListenerOnParentElement() {
         parentElement.addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
             boolean layoutChanged =
                     // Check if height changed
@@ -211,14 +211,18 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
 
             if (layoutChanged) {
                 this.processSizeBlock();
-                newElement.addOnLayoutChangeListener((v1, left1, top1, right1, bottom1, oldLeft1, oldTop1, oldRight1, oldBottom1) -> {
-                    this.processMaxSize();
-                    this.processSpacing();
-                    // Position calculation should be done after size and spacing are
-                    // applied to the new element
-                    this.applyPositionBlock();
-                });
+                this.registerListenerOnNewElement();
             }
+        });
+    }
+
+    private void registerListenerOnNewElement() {
+        newElement.addOnLayoutChangeListener((v1, left1, top1, right1, bottom1, oldLeft1, oldTop1, oldRight1, oldBottom1) -> {
+            this.processMaxSize();
+            this.processSpacing();
+            // Position calculation should be done after size and spacing are
+            // applied to the new element
+            this.applyPositionBlock();
         });
     }
 
