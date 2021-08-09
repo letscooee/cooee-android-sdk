@@ -65,11 +65,11 @@ public class ClickActionExecutor {
     }
 
     private void loadAR() {
-        if (action.getAr() == null) {
+        if (action.getAR() == null) {
             return;
         }
 
-        String arData = new Gson().toJson(action.getAr());
+        String arData = new Gson().toJson(action.getAR());
         Intent intent = new Intent(context, UnityPlayerActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.putExtra("arguments", arData);
