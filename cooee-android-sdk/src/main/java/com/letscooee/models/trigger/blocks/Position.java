@@ -7,6 +7,10 @@ import com.letscooee.utils.ui.UnitUtils;
 
 public class Position implements Parcelable {
 
+    public Position() {
+        this.type = PositionType.STATIC;
+    }
+
     public static final Creator<Position> CREATOR = new Creator<Position>() {
         @Override
         public Position createFromParcel(Parcel in) {
@@ -20,17 +24,17 @@ public class Position implements Parcelable {
     };
 
     private final PositionType type;
-    private final String top;
-    private final String left;
-    private final String bottom;
-    private final String right;
+    private String top;
+    private String left;
+    private String bottom;
+    private String right;
 
     protected Position(Parcel in) {
         top = in.readString();
         left = in.readString();
         bottom = in.readString();
         right = in.readString();
-        type = PositionType.valueOf(in.readString());
+        type = (PositionType) in.readSerializable();
     }
 
     @Override
@@ -44,7 +48,7 @@ public class Position implements Parcelable {
         dest.writeString(left);
         dest.writeString(bottom);
         dest.writeString(right);
-        dest.writeString(type.name());
+        dest.writeSerializable(type);
     }
 
     public PositionType getType() {
