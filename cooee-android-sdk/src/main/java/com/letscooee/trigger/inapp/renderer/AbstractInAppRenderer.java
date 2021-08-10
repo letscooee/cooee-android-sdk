@@ -22,6 +22,7 @@ import com.letscooee.models.trigger.blocks.*;
 import com.letscooee.models.trigger.elements.BaseElement;
 import com.letscooee.trigger.action.ClickActionExecutor;
 import com.letscooee.trigger.inapp.InAppGlobalData;
+import com.letscooee.utils.Constants;
 
 import jp.wasabeef.blurry.Blurry;
 
@@ -88,7 +89,12 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         parentLayoutOfNewElement.setLayoutParams(layoutParams);
 
         backgroundImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        parentElement.addView(materialCardView);
+        if (parentElement instanceof FlexboxLayout
+                && elementData.getPosition().getType() == Position.PositionType.ABSOLUTE) {
+            ((RelativeLayout) parentElement.getParent()).addView(materialCardView);
+        } else {
+            parentElement.addView(materialCardView);
+        }
 
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "Parent " + parentElement.getClass().getSimpleName());
@@ -102,6 +108,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
 
         this.newElement.setTag(this.getClass().getSimpleName());
         this.processBackground();
+        this.processOverFlow();
         this.processBorderBlock();
         this.processShadowBlock();
         this.registerListenerOnParentElement();
@@ -109,6 +116,19 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         this.processClickBlock();
         this.applyFlexParentProperties();
         this.applyFlexItemProperties();
+    }
+
+    private void processOverFlow() {
+        if (elementData.getOverflow()==null){
+            return;
+        }
+        materialCardView.setClipChildren(false);
+        materialCardView.setClipToOutline(false);
+        parentLayoutOfNewElement.setClipChildren(false);
+        parentLayoutOfNewElement.setClipToOutline(false);
+        parentElement.setClipChildren(false);
+        parentElement.setClipToOutline(false);
+
     }
 
     protected void insertNewElementInHierarchy() {
@@ -121,6 +141,10 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
 
     protected void applyFlexItemProperties() {
         if (!(this.parentElement instanceof FlexboxLayout)) {
+            return;
+        }
+
+        if (elementData.getPosition().getType() == Position.PositionType.ABSOLUTE) {
             return;
         }
 
@@ -183,8 +207,12 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
 
         this.newElement.setLayoutParams(new RelativeLayout.LayoutParams(width, height));
 
-        if (parentElement instanceof FlexboxLayout) {
+        Position.PositionType positionType = elementData.getPosition().getType();
+
+        if (parentElement instanceof FlexboxLayout && positionType != Position.PositionType.ABSOLUTE) {
             layoutParams = new FlexboxLayout.LayoutParams(width, height);
+        } else if (parentElement instanceof FlexboxLayout) {
+            layoutParams = new RelativeLayout.LayoutParams(width, height);
         } else if (parentElement instanceof RelativeLayout) {
             layoutParams = new RelativeLayout.LayoutParams(width, height);
         } else if (parentElement instanceof LinearLayout) {
@@ -357,7 +385,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
             drawable = solid.getGrad().getGradient();
         }
 
-        backgroundImage.setImageDrawable(drawable);
+        materialCardView.setBackground(drawable);
     }
 
     protected void processSpacing() {
@@ -375,7 +403,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
 
         ((ViewGroup.MarginLayoutParams) this.materialCardView.getLayoutParams())
                 .setMargins(marginLeft, marginTop, marginRight, marginBottom);
-
+        Log.d(Constants.TAG, "processSpacing 378: L " + marginLeft + ":T:" + marginTop + ":R:" + marginRight + ":B:" + marginBottom);
         int paddingLeft = spacing.getPaddingLeft(parentElement);
         int paddingRight = spacing.getPaddingRight(parentElement);
         int paddingTop = spacing.getPaddingTop(parentElement);

@@ -102,4 +102,8 @@ public abstract class BaseElement implements Parcelable {
     public Integer getFlexOrder() {
         return flexOrder;
     }
+
+    public Overflow getOverflow() {
+        return overflow;
+    }
 }
