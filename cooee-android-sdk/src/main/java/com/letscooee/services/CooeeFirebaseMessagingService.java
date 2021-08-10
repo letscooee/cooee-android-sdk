@@ -13,6 +13,7 @@ import androidx.core.app.NotificationCompat;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import com.letscooee.CooeeFactory;
@@ -21,11 +22,13 @@ import com.letscooee.font.FontProcessor;
 import com.letscooee.loader.http.RemoteImageLoader;
 import com.letscooee.models.Event;
 import com.letscooee.models.trigger.TriggerData;
+import com.letscooee.models.trigger.elements.BaseChildElement;
 import com.letscooee.models.trigger.elements.ButtonElement;
 import com.letscooee.models.trigger.push.PushNotificationTrigger;
 import com.letscooee.pushnotification.PushProviderUtils;
 import com.letscooee.trigger.CooeeEmptyActivity;
 import com.letscooee.trigger.EngagementTriggerHelper;
+import com.letscooee.trigger.adapters.ChildElementDeserializer;
 import com.letscooee.trigger.pushnotification.NotificationRenderer;
 import com.letscooee.trigger.pushnotification.SimpleNotificationRenderer;
 import com.letscooee.utils.Constants;
@@ -99,7 +102,9 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
                 return;
             }
 
-
+            gson = new GsonBuilder()
+                    .registerTypeAdapter(BaseChildElement.class, new ChildElementDeserializer())
+                    .create();
             triggerData = gson.fromJson(rawTriggerData, TriggerData.class);
 
         } catch (JsonSyntaxException e) {
