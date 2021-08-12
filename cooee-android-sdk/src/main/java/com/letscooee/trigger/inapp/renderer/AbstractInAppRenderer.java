@@ -22,7 +22,6 @@ import com.letscooee.models.trigger.blocks.*;
 import com.letscooee.models.trigger.elements.BaseElement;
 import com.letscooee.trigger.action.ClickActionExecutor;
 import com.letscooee.trigger.inapp.InAppGlobalData;
-import com.letscooee.utils.Constants;
 
 import jp.wasabeef.blurry.Blurry;
 
@@ -295,23 +294,19 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
 
         if (top != 0) {
             materialCardView.setY(top);
-            //currentView.setTop(top);
         }
         if (left != 0) {
             materialCardView.setX(left);
-            //currentView.setLeft(left);
         }
         if (bottom != 0) {
             float parentBottom = parentY + parentHeight;
             float currentViewBottom = parentBottom - bottom;
             materialCardView.setY(currentViewBottom - currentHeight);
-            //currentView.setBottom(bottom);
         }
         if (right != 0) {
             float parentRight = parentX + parentWidth;
             float currentViewRight = parentRight - right;
             materialCardView.setX(currentViewRight - currentWidth);
-            //currentView.setRight(right);
         }
     }
 
@@ -319,7 +314,6 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         Background background = elementData.getBg();
         materialCardView.setCardBackgroundColor(Color.parseColor("#00ffffff"));
 
-        // ((RelativeLayout) backgroundImage.getChildAt(0)).addView(layout);
         if (background != null) {
             if (background.getSolid() != null) {
                 processSolidBackground(background.getSolid());
@@ -403,7 +397,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
 
         ((ViewGroup.MarginLayoutParams) this.materialCardView.getLayoutParams())
                 .setMargins(marginLeft, marginTop, marginRight, marginBottom);
-        Log.d(Constants.TAG, "processSpacing 378: L " + marginLeft + ":T:" + marginTop + ":R:" + marginRight + ":B:" + marginBottom);
+
         int paddingLeft = spacing.getPaddingLeft(parentElement);
         int paddingRight = spacing.getPaddingRight(parentElement);
         int paddingTop = spacing.getPaddingTop(parentElement);
