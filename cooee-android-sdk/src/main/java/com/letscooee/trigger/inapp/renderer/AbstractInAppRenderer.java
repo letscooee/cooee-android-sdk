@@ -12,6 +12,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
 import androidx.annotation.RestrictTo;
+import androidx.core.content.ContextCompat;
 
 import com.bumptech.glide.Glide;
 import com.google.android.flexbox.*;
@@ -118,7 +119,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
     }
 
     private void processOverFlow() {
-        if (elementData.getOverflow()==null){
+        if (elementData.getOverflow() == null) {
             return;
         }
         materialCardView.setClipChildren(false);
@@ -357,7 +358,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
             if (border.getColor() != null)
                 materialCardView.setStrokeColor(border.getColor().getSolidColor());
             else
-                materialCardView.setStrokeColor(context.getResources().getColor(R.color.colorPrimary));
+                materialCardView.setStrokeColor(ContextCompat.getColor(context, R.color.colorPrimary));
 
             Integer calculatedBorder = border.getWidth(parentElement);
             if (calculatedBorder != null) {
