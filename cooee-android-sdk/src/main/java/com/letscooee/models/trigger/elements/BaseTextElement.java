@@ -3,7 +3,7 @@ package com.letscooee.models.trigger.elements;
 import android.os.Parcel;
 import com.letscooee.models.trigger.blocks.*;
 
-public abstract class BaseTextElement extends BaseChildElement {
+public abstract class BaseTextElement extends BaseElement {
 
     protected String text;
 

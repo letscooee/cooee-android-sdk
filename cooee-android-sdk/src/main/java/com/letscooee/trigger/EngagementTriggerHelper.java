@@ -14,7 +14,7 @@ import com.letscooee.BuildConfig;
 import com.letscooee.CooeeFactory;
 import com.letscooee.models.Event;
 import com.letscooee.models.trigger.TriggerData;
-import com.letscooee.models.trigger.elements.BaseChildElement;
+import com.letscooee.models.trigger.elements.BaseElement;
 import com.letscooee.trigger.adapters.ChildElementDeserializer;
 import com.letscooee.trigger.inapp.InAppTriggerActivity;
 import com.letscooee.utils.Constants;
@@ -118,7 +118,7 @@ public class EngagementTriggerHelper {
         }
 
         Gson gson = new GsonBuilder()
-                .registerTypeAdapter(BaseChildElement.class, new ChildElementDeserializer())
+                .registerTypeAdapter(BaseElement.class, new ChildElementDeserializer())
                 .create();
 
         TriggerData triggerData = gson.fromJson(rawTriggerData, TriggerData.class);

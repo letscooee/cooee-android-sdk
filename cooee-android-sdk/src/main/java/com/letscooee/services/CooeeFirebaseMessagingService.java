@@ -22,7 +22,7 @@ import com.letscooee.font.FontProcessor;
 import com.letscooee.loader.http.RemoteImageLoader;
 import com.letscooee.models.Event;
 import com.letscooee.models.trigger.TriggerData;
-import com.letscooee.models.trigger.elements.BaseChildElement;
+import com.letscooee.models.trigger.elements.BaseElement;
 import com.letscooee.models.trigger.elements.ButtonElement;
 import com.letscooee.models.trigger.push.PushNotificationTrigger;
 import com.letscooee.pushnotification.PushProviderUtils;
@@ -103,7 +103,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
             }
 
             gson = new GsonBuilder()
-                    .registerTypeAdapter(BaseChildElement.class, new ChildElementDeserializer())
+                    .registerTypeAdapter(BaseElement.class, new ChildElementDeserializer())
                     .create();
             triggerData = gson.fromJson(rawTriggerData, TriggerData.class);
 

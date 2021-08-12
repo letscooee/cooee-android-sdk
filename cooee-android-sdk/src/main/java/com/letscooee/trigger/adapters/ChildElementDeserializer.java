@@ -3,7 +3,7 @@ package com.letscooee.trigger.adapters;
 import com.google.gson.*;
 import com.letscooee.CooeeFactory;
 import com.letscooee.enums.trigger.ElementType;
-import com.letscooee.models.trigger.elements.BaseChildElement;
+import com.letscooee.models.trigger.elements.BaseElement;
 
 import java.lang.reflect.Type;
 
@@ -15,10 +15,10 @@ import java.lang.reflect.Type;
  * @author Shashank Agrawal
  * @since 1.0.0
  */
-public class ChildElementDeserializer implements JsonDeserializer<BaseChildElement> {
+public class ChildElementDeserializer implements JsonDeserializer<BaseElement> {
 
     @Override
-    public BaseChildElement deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+    public BaseElement deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
         if (!json.isJsonObject()) {
             return null;
         }
