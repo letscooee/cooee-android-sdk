@@ -63,7 +63,8 @@ public abstract class BaseElement implements Parcelable {
     }
 
     public Position getPosition() {
-        return position == null ? new Position() : position;
+        if (position == null) this.position = new Position();
+        return position;
     }
 
     public Size getSize() {

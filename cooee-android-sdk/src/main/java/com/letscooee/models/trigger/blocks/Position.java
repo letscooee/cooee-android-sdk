@@ -10,6 +10,11 @@ public class Position implements Parcelable {
 
     public Position() {
         this.type = PositionType.STATIC;
+        this.top = null;
+        this.bottom = null;
+        this.left = null;
+        this.right = null;
+        this.zIndex = null;
     }
 
     public static final Creator<Position> CREATOR = new Creator<Position>() {
@@ -25,11 +30,11 @@ public class Position implements Parcelable {
     };
 
     private final PositionType type;
-    private String top;
-    private String left;
-    private String bottom;
-    private String right;
-    private Integer zIndex;
+    private final String top;
+    private final String left;
+    private final String bottom;
+    private final String right;
+    private final Integer zIndex;
 
     protected Position(Parcel in) {
         top = in.readString();
@@ -85,6 +90,10 @@ public class Position implements Parcelable {
 
     public Integer getzIndex() {
         return zIndex;
+    }
+
+    public boolean isAbsolutelyPosition() {
+        return this.type == Position.PositionType.ABSOLUTE;
     }
 
     public enum PositionType {STATIC, ABSOLUTE, FIXED}

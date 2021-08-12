@@ -37,7 +37,9 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
 
     protected final InAppGlobalData globalData;
     protected final Context context;
-    protected final ViewGroup parentElement;
+    // Need to remove final as parentElement variable is going to re-initialize if
+    // element position is ABSOLUTE
+    protected ViewGroup parentElement;
     protected final BaseElement elementData;
 
     protected final MaterialCardView materialCardView;
@@ -89,15 +91,23 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         parentLayoutOfNewElement.setLayoutParams(layoutParams);
 
         backgroundImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        if (parentElement instanceof FlexboxLayout
-                && elementData.getPosition().getType() == Position.PositionType.ABSOLUTE) {
-            ((RelativeLayout) parentElement.getParent()).addView(materialCardView);
-        } else {
-            parentElement.addView(materialCardView);
-        }
+
+        checkPositionType();
+
+        parentElement.addView(materialCardView);
 
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "Parent " + parentElement.getClass().getSimpleName());
+        }
+    }
+
+    /**
+     * Check if element's position is {@link Position.PositionType#ABSOLUTE}
+     * then re-initialize {@link #parentElement} with parent of  {@link #parentElement}
+     */
+    private void checkPositionType() {
+        if (elementData.getPosition().isAbsolutelyPosition()) {
+            parentElement = (RelativeLayout) parentElement.getParent();
         }
     }
 
@@ -122,13 +132,13 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         if (elementData.getOverflow() == null) {
             return;
         }
+
         materialCardView.setClipChildren(false);
         materialCardView.setClipToOutline(false);
         parentLayoutOfNewElement.setClipChildren(false);
         parentLayoutOfNewElement.setClipToOutline(false);
         parentElement.setClipChildren(false);
         parentElement.setClipToOutline(false);
-
     }
 
     protected void insertNewElementInHierarchy() {
@@ -144,7 +154,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
             return;
         }
 
-        if (elementData.getPosition().getType() == Position.PositionType.ABSOLUTE) {
+        if (elementData.getPosition().isAbsolutelyPosition()) {
             return;
         }
 
@@ -164,7 +174,6 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
             return;
         }
 
-        // TODO: 26/07/21 Use shadow
         materialCardView.setElevation(2);
     }
 
@@ -186,7 +195,8 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         final Size size = elementData.getSize();
         ViewGroup.MarginLayoutParams layoutParams;
 
-        int width, height;
+        int width;
+        int height;
         if (size.getDisplay() == Size.Display.BLOCK || size.getDisplay() == Size.Display.FLEX) {
             width = ViewGroup.LayoutParams.MATCH_PARENT;
         } else {
@@ -207,12 +217,8 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
 
         this.newElement.setLayoutParams(new RelativeLayout.LayoutParams(width, height));
 
-        Position.PositionType positionType = elementData.getPosition().getType();
-
-        if (parentElement instanceof FlexboxLayout && positionType != Position.PositionType.ABSOLUTE) {
+        if (parentElement instanceof FlexboxLayout) {
             layoutParams = new FlexboxLayout.LayoutParams(width, height);
-        } else if (parentElement instanceof FlexboxLayout) {
-            layoutParams = new RelativeLayout.LayoutParams(width, height);
         } else if (parentElement instanceof RelativeLayout) {
             layoutParams = new RelativeLayout.LayoutParams(width, height);
         } else if (parentElement instanceof LinearLayout) {
