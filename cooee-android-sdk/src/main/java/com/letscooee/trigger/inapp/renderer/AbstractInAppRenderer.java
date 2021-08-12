@@ -92,7 +92,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
 
         backgroundImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
-        checkPositionType();
+        reassignParentIfAbsolute();
 
         parentElement.addView(materialCardView);
 
@@ -103,9 +103,11 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
 
     /**
      * Check if element's position is {@link Position.PositionType#ABSOLUTE}
-     * then re-initialize {@link #parentElement} with parent of  {@link #parentElement}
+     * then re-initialize {@link #parentElement} with parent of {@link #parentElement}.
+     * If {@link #newElement} is in {@link FlexboxLayout} overlapping of the element is not possible
+     * Hence accessing parent of {@link #parentElement} and placing {@link #newElement} in it.
      */
-    private void checkPositionType() {
+    private void reassignParentIfAbsolute() {
         if (elementData.getPosition().isAbsolutelyPosition()) {
             parentElement = (RelativeLayout) parentElement.getParent();
         }
@@ -129,7 +131,9 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
     }
 
     private void processOverFlow() {
-        if (elementData.getOverflow() == null) {
+        Overflow overflow = elementData.getOverflow();
+
+        if (overflow == null || overflow.hideOverFlow()) {
             return;
         }
 
