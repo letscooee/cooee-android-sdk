@@ -4,9 +4,9 @@ import android.os.Parcel;
 
 import java.util.ArrayList;
 
-public class GroupElement extends BaseChildElement {
+public class GroupElement extends BaseElement {
 
-    private final ArrayList<BaseChildElement> children;
+    private final ArrayList<BaseElement> children;
 
     protected GroupElement(Parcel in) {
         super(in);
@@ -31,7 +31,7 @@ public class GroupElement extends BaseChildElement {
         dest.writeList(children);
     }
 
-    public ArrayList<BaseChildElement> getChildren() {
+    public ArrayList<BaseElement> getChildren() {
         return children;
     }
 }

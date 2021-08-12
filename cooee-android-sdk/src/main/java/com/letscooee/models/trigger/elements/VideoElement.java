@@ -2,7 +2,7 @@ package com.letscooee.models.trigger.elements;
 
 import android.os.Parcel;
 
-public class VideoElement extends BaseChildElement {
+public class VideoElement extends BaseElement {
 
     private final String url;
 

@@ -63,6 +63,7 @@ public abstract class BaseElement implements Parcelable {
     }
 
     public Position getPosition() {
+        if (position == null) this.position = new Position();
         return position;
     }
 
@@ -101,5 +102,9 @@ public abstract class BaseElement implements Parcelable {
 
     public Integer getFlexOrder() {
         return flexOrder;
+    }
+
+    public Overflow getOverflow() {
+        return overflow;
     }
 }

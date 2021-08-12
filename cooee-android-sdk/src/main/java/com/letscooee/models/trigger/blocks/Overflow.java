@@ -5,12 +5,14 @@ import android.os.Parcelable;
 
 public class Overflow implements Parcelable {
 
-    private String x;
-    private String y;
+    public enum Type {VISIBLE, HIDDEN}
+
+    private final Type x;
+    private final Type y;
 
     protected Overflow(Parcel in) {
-        x = in.readString();
-        y = in.readString();
+        x = (Type) in.readSerializable();
+        y = (Type) in.readSerializable();
     }
 
     public static final Creator<Overflow> CREATOR = new Creator<Overflow>() {
@@ -25,12 +27,18 @@ public class Overflow implements Parcelable {
         }
     };
 
-    public String getX() {
+    public Type getX() {
         return x;
     }
 
-    public String getY() {
+    public Type getY() {
         return y;
+    }
+
+    public boolean hideOverFlow() {
+        // Accessing only x value to check HIDDEN/VISIBLE as in Android there is no option to operate
+        // on x or y
+        return x == Type.HIDDEN;
     }
 
     @Override
@@ -40,7 +48,7 @@ public class Overflow implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(x);
-        dest.writeString(y);
+        dest.writeSerializable(x);
+        dest.writeSerializable(y);
     }
 }

@@ -16,9 +16,9 @@ public enum ElementType {
     VIDEO(VideoElement.class),
     GROUP(GroupElement.class);
 
-    public final Class<? extends BaseChildElement> elementClass;
+    public final Class<? extends BaseElement> elementClass;
 
-    ElementType(Class<? extends BaseChildElement> clazz) {
+    ElementType(Class<? extends BaseElement> clazz) {
         elementClass = clazz;
     }
 }

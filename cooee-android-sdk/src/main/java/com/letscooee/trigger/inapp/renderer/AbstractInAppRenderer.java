@@ -12,6 +12,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
 import androidx.annotation.RestrictTo;
+import androidx.core.content.ContextCompat;
 
 import com.bumptech.glide.Glide;
 import com.google.android.flexbox.*;
@@ -36,7 +37,9 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
 
     protected final InAppGlobalData globalData;
     protected final Context context;
-    protected final ViewGroup parentElement;
+    // Need to remove final as parentElement variable is going to re-initialize if
+    // element position is ABSOLUTE
+    protected ViewGroup parentElement;
     protected final BaseElement elementData;
 
     protected final MaterialCardView materialCardView;
@@ -88,10 +91,25 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         parentLayoutOfNewElement.setLayoutParams(layoutParams);
 
         backgroundImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
+
+        reassignParentIfAbsolute();
+
         parentElement.addView(materialCardView);
 
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "Parent " + parentElement.getClass().getSimpleName());
+        }
+    }
+
+    /**
+     * Check if element's position is {@link Position.PositionType#ABSOLUTE}
+     * then re-initialize {@link #parentElement} with parent of {@link #parentElement}.
+     * If {@link #newElement} is in {@link FlexboxLayout} overlapping of the element is not possible
+     * Hence accessing parent of {@link #parentElement} and placing {@link #newElement} in it.
+     */
+    private void reassignParentIfAbsolute() {
+        if (elementData.getPosition().isAbsolutelyPosition()) {
+            parentElement = (RelativeLayout) parentElement.getParent();
         }
     }
 
@@ -102,6 +120,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
 
         this.newElement.setTag(this.getClass().getSimpleName());
         this.processBackground();
+        this.processOverFlow();
         this.processBorderBlock();
         this.processShadowBlock();
         this.registerListenerOnParentElement();
@@ -109,6 +128,21 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         this.processClickBlock();
         this.applyFlexParentProperties();
         this.applyFlexItemProperties();
+    }
+
+    private void processOverFlow() {
+        Overflow overflow = elementData.getOverflow();
+
+        if (overflow == null || overflow.hideOverFlow()) {
+            return;
+        }
+
+        materialCardView.setClipChildren(false);
+        materialCardView.setClipToOutline(false);
+        parentLayoutOfNewElement.setClipChildren(false);
+        parentLayoutOfNewElement.setClipToOutline(false);
+        parentElement.setClipChildren(false);
+        parentElement.setClipToOutline(false);
     }
 
     protected void insertNewElementInHierarchy() {
@@ -121,6 +155,10 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
 
     protected void applyFlexItemProperties() {
         if (!(this.parentElement instanceof FlexboxLayout)) {
+            return;
+        }
+
+        if (elementData.getPosition().isAbsolutelyPosition()) {
             return;
         }
 
@@ -140,7 +178,6 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
             return;
         }
 
-        // TODO: 26/07/21 Use shadow
         materialCardView.setElevation(2);
     }
 
@@ -162,7 +199,8 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         final Size size = elementData.getSize();
         ViewGroup.MarginLayoutParams layoutParams;
 
-        int width, height;
+        int width;
+        int height;
         if (size.getDisplay() == Size.Display.BLOCK || size.getDisplay() == Size.Display.FLEX) {
             width = ViewGroup.LayoutParams.MATCH_PARENT;
         } else {
@@ -267,31 +305,34 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
 
         if (top != 0) {
             materialCardView.setY(top);
-            //currentView.setTop(top);
         }
         if (left != 0) {
             materialCardView.setX(left);
-            //currentView.setLeft(left);
         }
         if (bottom != 0) {
             float parentBottom = parentY + parentHeight;
             float currentViewBottom = parentBottom - bottom;
             materialCardView.setY(currentViewBottom - currentHeight);
-            //currentView.setBottom(bottom);
         }
         if (right != 0) {
             float parentRight = parentX + parentWidth;
             float currentViewRight = parentRight - right;
             materialCardView.setX(currentViewRight - currentWidth);
-            //currentView.setRight(right);
         }
+
+        Integer zIndex = position.getzIndex();
+
+        if (zIndex == null) {
+            return;
+        }
+
+        materialCardView.setTranslationZ(zIndex);
     }
 
     protected void processBackground() {
         Background background = elementData.getBg();
         materialCardView.setCardBackgroundColor(Color.parseColor("#00ffffff"));
 
-        // ((RelativeLayout) backgroundImage.getChildAt(0)).addView(layout);
         if (background != null) {
             if (background.getSolid() != null) {
                 processSolidBackground(background.getSolid());
@@ -335,7 +376,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
             if (border.getColor() != null)
                 materialCardView.setStrokeColor(border.getColor().getSolidColor());
             else
-                materialCardView.setStrokeColor(context.getResources().getColor(R.color.colorPrimary));
+                materialCardView.setStrokeColor(ContextCompat.getColor(context, R.color.colorPrimary));
 
             Integer calculatedBorder = border.getWidth(parentElement);
             if (calculatedBorder != null) {
@@ -357,7 +398,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
             drawable = solid.getGrad().getGradient();
         }
 
-        backgroundImage.setImageDrawable(drawable);
+        materialCardView.setBackground(drawable);
     }
 
     protected void processSpacing() {

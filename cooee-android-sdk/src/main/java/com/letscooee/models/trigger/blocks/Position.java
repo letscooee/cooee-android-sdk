@@ -3,9 +3,19 @@ package com.letscooee.models.trigger.blocks;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.view.View;
+
 import com.letscooee.utils.ui.UnitUtils;
 
 public class Position implements Parcelable {
+
+    public Position() {
+        this.type = PositionType.STATIC;
+        this.top = null;
+        this.bottom = null;
+        this.left = null;
+        this.right = null;
+        this.zIndex = null;
+    }
 
     public static final Creator<Position> CREATOR = new Creator<Position>() {
         @Override
@@ -24,13 +34,15 @@ public class Position implements Parcelable {
     private final String left;
     private final String bottom;
     private final String right;
+    private final Integer zIndex;
 
     protected Position(Parcel in) {
         top = in.readString();
         left = in.readString();
         bottom = in.readString();
         right = in.readString();
-        type = PositionType.valueOf(in.readString());
+        type = (PositionType) in.readSerializable();
+        zIndex = (Integer) in.readSerializable();
     }
 
     @Override
@@ -44,7 +56,8 @@ public class Position implements Parcelable {
         dest.writeString(left);
         dest.writeString(bottom);
         dest.writeString(right);
-        dest.writeString(type.name());
+        dest.writeSerializable(type);
+        dest.writeSerializable(zIndex);
     }
 
     public PositionType getType() {
@@ -73,6 +86,14 @@ public class Position implements Parcelable {
     public int getRight(View parent) {
         Integer calculatedValue = UnitUtils.getCalculatedValue(parent, right);
         return calculatedValue != null ? calculatedValue : 0;
+    }
+
+    public Integer getzIndex() {
+        return zIndex;
+    }
+
+    public boolean isAbsolutelyPosition() {
+        return this.type == Position.PositionType.ABSOLUTE;
     }
 
     public enum PositionType {STATIC, ABSOLUTE, FIXED}
