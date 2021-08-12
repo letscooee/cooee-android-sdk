@@ -309,6 +309,14 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
             float currentViewRight = parentRight - right;
             materialCardView.setX(currentViewRight - currentWidth);
         }
+
+        Integer zIndex = position.getzIndex();
+
+        if (zIndex == null) {
+            return;
+        }
+
+        materialCardView.setTranslationZ(zIndex);
     }
 
     protected void processBackground() {

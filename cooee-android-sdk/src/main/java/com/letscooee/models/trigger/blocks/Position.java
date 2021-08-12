@@ -3,6 +3,7 @@ package com.letscooee.models.trigger.blocks;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.view.View;
+
 import com.letscooee.utils.ui.UnitUtils;
 
 public class Position implements Parcelable {
@@ -28,6 +29,7 @@ public class Position implements Parcelable {
     private String left;
     private String bottom;
     private String right;
+    private Integer zIndex;
 
     protected Position(Parcel in) {
         top = in.readString();
@@ -35,6 +37,7 @@ public class Position implements Parcelable {
         bottom = in.readString();
         right = in.readString();
         type = (PositionType) in.readSerializable();
+        zIndex = (Integer) in.readSerializable();
     }
 
     @Override
@@ -49,6 +52,7 @@ public class Position implements Parcelable {
         dest.writeString(bottom);
         dest.writeString(right);
         dest.writeSerializable(type);
+        dest.writeSerializable(zIndex);
     }
 
     public PositionType getType() {
@@ -77,6 +81,10 @@ public class Position implements Parcelable {
     public int getRight(View parent) {
         Integer calculatedValue = UnitUtils.getCalculatedValue(parent, right);
         return calculatedValue != null ? calculatedValue : 0;
+    }
+
+    public Integer getzIndex() {
+        return zIndex;
     }
 
     public enum PositionType {STATIC, ABSOLUTE, FIXED}
