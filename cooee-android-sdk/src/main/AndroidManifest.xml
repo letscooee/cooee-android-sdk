@@ -57,7 +57,9 @@
             </intent-filter>
         </receiver>
 
-        <receiver android:name=".brodcast.ARActionPerformed">
+        <receiver android:name=".brodcast.ARActionPerformed"
+            android:enabled="true"
+            android:exported="true">
             <intent-filter>
                 <action android:name="com.letscooee.arResponse" />
             </intent-filter>
