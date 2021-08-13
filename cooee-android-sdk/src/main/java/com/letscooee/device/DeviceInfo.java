@@ -7,7 +7,6 @@ import android.text.TextUtils;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import com.letscooee.ContextAware;
-import com.letscooee.utils.SentryHelper;
 
 /**
  * A utility helper class to provide some information of the device.
@@ -30,20 +29,17 @@ public class DeviceInfo extends ContextAware {
         }
 
         private void cacheName() {
-            String name = null;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                name = Settings.Global.getString(context.getContentResolver(), "device_name");
+            String deviceName = Settings.Secure.getString(context.getContentResolver(), "bluetooth_name");
+
+            if (TextUtils.isEmpty(deviceName) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                deviceName = Settings.Global.getString(context.getContentResolver(), "device_name");
             }
 
-            if (TextUtils.isEmpty(name)) {
-                name = Settings.Secure.getString(context.getContentResolver(), "bluetooth_name");
+            if (deviceName == null) {
+                deviceName = Build.MODEL;
             }
 
-            if (name == null) {
-                name = Build.MODEL;
-            }
-
-            this.name = name;
+            this.name = deviceName;
         }
     }
 
