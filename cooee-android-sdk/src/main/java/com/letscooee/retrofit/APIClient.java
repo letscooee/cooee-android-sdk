@@ -16,6 +16,7 @@ import okhttp3.Request;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+import java.net.URLEncoder;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
@@ -68,7 +69,7 @@ public class APIClient {
                         requestBuilder.addHeader("app-debug", "1");
                     }
 
-                    requestBuilder.addHeader("device-name", deviceName);
+                    requestBuilder.addHeader("device-name", URLEncoder.encode(deviceName, "UTF-8"));
                     requestBuilder.addHeader("user-id", userId);
                     requestBuilder.addHeader("sdk-version", BuildConfig.VERSION_NAME);
                     requestBuilder.addHeader("sdk-version-code", String.valueOf(BuildConfig.VERSION_CODE));
