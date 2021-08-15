@@ -10,20 +10,15 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-
 import androidx.annotation.RestrictTo;
-import androidx.core.content.ContextCompat;
-
 import com.bumptech.glide.Glide;
-import com.google.android.flexbox.*;
+import com.google.android.flexbox.FlexboxLayout;
 import com.google.android.material.card.MaterialCardView;
 import com.letscooee.BuildConfig;
-import com.letscooee.R;
 import com.letscooee.models.trigger.blocks.*;
 import com.letscooee.models.trigger.elements.BaseElement;
 import com.letscooee.trigger.action.ClickActionExecutor;
 import com.letscooee.trigger.inapp.InAppGlobalData;
-
 import jp.wasabeef.blurry.Blurry;
 
 import static com.letscooee.utils.Constants.TAG;
@@ -41,6 +36,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
     // element position is ABSOLUTE
     protected ViewGroup parentElement;
     protected final BaseElement elementData;
+    protected final GradientDrawable elementDrawable = new GradientDrawable();
 
     protected final MaterialCardView materialCardView;
     protected final RelativeLayout parentLayoutOfNewElement;
@@ -83,6 +79,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
      * </pre>
      */
     private void setupWrapperForNewElement() {
+        materialCardView.setBackgroundDrawable(elementDrawable);
         parentLayoutOfNewElement.addView(backgroundImage);
         materialCardView.addView(parentLayoutOfNewElement);
 
@@ -331,11 +328,11 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
 
     protected void processBackground() {
         Background background = elementData.getBg();
-        materialCardView.setCardBackgroundColor(Color.parseColor("#00ffffff"));
+        materialCardView.setCardBackgroundColor(Color.TRANSPARENT);
 
         if (background != null) {
             if (background.getSolid() != null) {
-                processSolidBackground(background.getSolid());
+                background.getSolid().updateDrawable(elementDrawable);
 
             } else if (background.getGlossy() != null) {
                 applyGlassmorphism(background.getGlossy());
@@ -373,10 +370,9 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         Border border = this.elementData.getBorder();
 
         if (border != null) {
-            if (border.getColor() != null)
+            if (border.getColor() != null) {
                 materialCardView.setStrokeColor(border.getColor().getSolidColor());
-            else
-                materialCardView.setStrokeColor(ContextCompat.getColor(context, R.color.colorPrimary));
+            }
 
             Integer calculatedBorder = border.getWidth(parentElement);
             if (calculatedBorder != null) {
@@ -387,18 +383,6 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
                 materialCardView.setRadius(border.getRadius());
             }
         }
-    }
-
-    private void processSolidBackground(Colour solid) {
-        GradientDrawable drawable;
-        if (solid.getGrad() == null) {
-            drawable = new GradientDrawable();
-            drawable.setColor(solid.getSolidColor());
-        } else {
-            drawable = solid.getGrad().getGradient();
-        }
-
-        materialCardView.setBackground(drawable);
     }
 
     protected void processSpacing() {
