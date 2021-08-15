@@ -27,6 +27,9 @@ import static com.letscooee.utils.Constants.TAG;
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public abstract class AbstractInAppRenderer implements InAppRenderer {
 
+    private static final int MP = ViewGroup.LayoutParams.MATCH_PARENT;
+    private static final int WC = ViewGroup.LayoutParams.WRAP_CONTENT;
+
     protected final InAppGlobalData globalData;
     protected final Context context;
     protected ViewGroup parentElement;
@@ -34,7 +37,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
     protected final GradientDrawable backgroundDrawable = new GradientDrawable();
 
     protected final MaterialCardView materialCardView;
-    protected final RelativeLayout parentLayoutOfNewElement;
+    protected final FrameLayout parentLayoutOfNewElement;
     protected final ImageView backgroundImage;
 
     /**
@@ -50,22 +53,21 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         this.globalData = globalData;
 
         this.materialCardView = new MaterialCardView(context);
-        // First and only element inside MaterialCardView
-        this.parentLayoutOfNewElement = new RelativeLayout(context);
+        this.parentLayoutOfNewElement = new FrameLayout(context);
         this.backgroundImage = new ImageView(context);
         this.setupWrapperForNewElement();
     }
 
     /**
      * To achieve background image, border stroke or corner radius for all the elements (container/layer/group/text
-     * etc.), we need to wrap every element in the following hierarchy-
+     * etc.), we need to wrap every new element {@link #newElement} in the following hierarchy-
      *
      * <pre>
      *     |--- {@link #parentElement}
      *              |
      *              |--- {@link #materialCardView}
      *                      |
-     *                      |--- {@link #parentLayoutOfNewElement} Relative Layout
+     *                      |--- {@link #parentLayoutOfNewElement} FrameLayout
      *                              |
      *                              |--- {@link #backgroundImage} Image View for Glossy/solid/image
      *                              |--- {@link #newElement} Our new element being inserted by this class. This can
@@ -77,9 +79,9 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         parentLayoutOfNewElement.addView(backgroundImage);
         materialCardView.addView(parentLayoutOfNewElement);
 
-        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT);
+        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(MP, MP);
         parentLayoutOfNewElement.setLayoutParams(layoutParams);
+        backgroundImage.setLayoutParams(layoutParams);
 
         backgroundImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
@@ -100,7 +102,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
      */
     private void reassignParentIfAbsolute() {
         if (elementData.getPosition().isAbsolutelyPosition()) {
-            parentElement = (RelativeLayout) parentElement.getParent();
+            parentElement = (FrameLayout) parentElement.getParent();
         }
     }
 
@@ -180,12 +182,12 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         ViewGroup.MarginLayoutParams layoutParams;
 
         int width;
-        int height = ViewGroup.LayoutParams.WRAP_CONTENT;
+        int height = WC;
 
         if (size.getDisplay() == Size.Display.BLOCK || size.getDisplay() == Size.Display.FLEX) {
-            width = ViewGroup.LayoutParams.MATCH_PARENT;
+            width = MP;
         } else {
-            width = ViewGroup.LayoutParams.WRAP_CONTENT;
+            width = WC;
         }
 
         Integer calculatedWidth = size.getCalculatedWidth(parentElement);
@@ -198,7 +200,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
             height = calculatedHeight;
         }
 
-        this.newElement.setLayoutParams(new RelativeLayout.LayoutParams(width, height));
+        this.newElement.setLayoutParams(new FrameLayout.LayoutParams(width, height));
 
         if (parentElement instanceof FlexboxLayout) {
             layoutParams = new FlexboxLayout.LayoutParams(width, height);
@@ -206,6 +208,8 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
             layoutParams = new RelativeLayout.LayoutParams(width, height);
         } else if (parentElement instanceof LinearLayout) {
             layoutParams = new LinearLayout.LayoutParams(width, height);
+        } else if (parentElement instanceof FrameLayout) {
+            layoutParams = new FrameLayout.LayoutParams(width, height);
         } else {
             throw new RuntimeException("Unknown type of parentElement- " + parentElement);
         }
@@ -302,6 +306,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         Integer zIndex = position.getzIndex();
 
         if (zIndex == null) {
+            materialCardView.setTranslationZ(0);
             return;
         }
 
