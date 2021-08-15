@@ -34,7 +34,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
     protected final Context context;
     protected ViewGroup parentElement;
     protected final BaseElement elementData;
-    protected final GradientDrawable elementDrawable = new GradientDrawable();
+    protected final GradientDrawable backgroundDrawable = new GradientDrawable();
 
     protected final MaterialCardView materialCardView;
     protected final RelativeLayout parentLayoutOfNewElement;
@@ -77,7 +77,6 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
      * </pre>
      */
     private void setupWrapperForNewElement() {
-        materialCardView.setBackgroundDrawable(elementDrawable);
         parentLayoutOfNewElement.addView(backgroundImage);
         materialCardView.addView(parentLayoutOfNewElement);
 
@@ -106,6 +105,10 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         if (elementData.getPosition().isAbsolutelyPosition()) {
             parentElement = (RelativeLayout) parentElement.getParent();
         }
+    }
+
+    protected void setBackgroundDrawable() {
+        materialCardView.setBackgroundDrawable(backgroundDrawable);
     }
 
     protected void processCommonBlocks() {
@@ -329,7 +332,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
 
         if (background != null) {
             if (background.getSolid() != null) {
-                background.getSolid().updateDrawable(elementDrawable);
+                background.getSolid().updateDrawable(backgroundDrawable);
 
             } else if (background.getGlossy() != null) {
                 applyGlassmorphism(background.getGlossy());
@@ -348,7 +351,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         blurryComposer.sampling(glossy.getSampling());
 
         if (glossy.getColor() != null)
-            blurryComposer.color(glossy.getColor().getSolidColor());
+            blurryComposer.color(glossy.getColor().getHexColor());
 
         if (globalData.getBitmapForBlurry() != null) {
             blurryComposer
@@ -367,17 +370,19 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         Border border = this.elementData.getBorder();
 
         if (border != null) {
-            if (border.getColor() != null) {
-                materialCardView.setStrokeColor(border.getColor().getSolidColor());
-            }
+            int borderColor = border.getColor().getHexColor();
+            materialCardView.setStrokeColor(borderColor);
 
             Integer calculatedBorder = border.getWidth(parentElement);
             if (calculatedBorder != null) {
                 materialCardView.setStrokeWidth(calculatedBorder);
+                backgroundDrawable.setStroke(calculatedBorder, borderColor);
             }
 
-            if (border.getRadius() > 0) {
-                materialCardView.setRadius(border.getRadius());
+            int calculatedRadius = border.getRadius();
+            if (calculatedRadius > 0) {
+                backgroundDrawable.setCornerRadius(calculatedRadius);
+                materialCardView.setRadius(calculatedRadius);
             }
         }
     }

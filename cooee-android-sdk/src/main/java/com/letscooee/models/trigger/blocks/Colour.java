@@ -23,6 +23,11 @@ public class Colour implements Parcelable {
     private final String hex;
     private final Gradient grad;
 
+    protected Colour() {
+        hex = null;
+        grad = null;
+    }
+
     protected Colour(Parcel in) {
         hex = in.readString();
         grad = in.readParcelable(Gradient.class.getClassLoader());
@@ -39,14 +44,14 @@ public class Colour implements Parcelable {
         dest.writeParcelable(grad, flags);
     }
 
-    public int getSolidColor() {
+    public int getHexColor() {
         if (TextUtils.isEmpty(hex)) return Color.TRANSPARENT;
         return Color.parseColor(hex);
     }
 
     public void updateDrawable(GradientDrawable drawable) {
         if (grad == null) {
-            drawable.setColor(getSolidColor());
+            drawable.setColor(getHexColor());
         } else {
             grad.updateDrawable(drawable);
         }
