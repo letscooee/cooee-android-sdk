@@ -6,10 +6,7 @@ import android.graphics.drawable.GradientDrawable;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
+import android.widget.*;
 import androidx.annotation.RestrictTo;
 import com.bumptech.glide.Glide;
 import com.google.android.flexbox.FlexboxLayout;
@@ -118,6 +115,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
 
         this.newElement.setTag(this.getClass().getSimpleName());
         this.processBackground();
+        this.setBackgroundDrawable();
         this.processOverFlow();
         this.processBorderBlock();
         this.processShadowBlock();
@@ -129,18 +127,20 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
     }
 
     private void processOverFlow() {
-        Overflow overflow = elementData.getOverflow();
-
-        if (overflow == null || overflow.hideOverFlow()) {
+        // Overflow can only work for elements that contains children i.e. Group/Layer
+        if (!(newElement instanceof ViewGroup)) {
             return;
         }
 
-        materialCardView.setClipChildren(false);
-        materialCardView.setClipToOutline(false);
-        parentLayoutOfNewElement.setClipChildren(false);
-        parentLayoutOfNewElement.setClipToOutline(false);
-        parentElement.setClipChildren(false);
-        parentElement.setClipToOutline(false);
+        Overflow overflow = elementData.getOverflow();
+        boolean shouldHideOverflow = overflow != null && overflow.isHidden();
+
+        materialCardView.setClipChildren(shouldHideOverflow);
+        materialCardView.setClipToOutline(shouldHideOverflow);
+        parentLayoutOfNewElement.setClipChildren(shouldHideOverflow);
+        parentLayoutOfNewElement.setClipToOutline(shouldHideOverflow);
+        ((ViewGroup) newElement).setClipChildren(shouldHideOverflow);
+        newElement.setClipToOutline(shouldHideOverflow);
     }
 
     protected void insertNewElementInHierarchy() {

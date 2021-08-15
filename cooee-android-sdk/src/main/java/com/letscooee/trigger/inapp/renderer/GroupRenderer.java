@@ -5,9 +5,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import com.google.android.flexbox.FlexboxLayout;
+import com.letscooee.CooeeFactory;
 import com.letscooee.models.trigger.blocks.Size;
 import com.letscooee.models.trigger.elements.*;
 import com.letscooee.trigger.inapp.InAppGlobalData;
+import com.letscooee.utils.SentryHelper;
 
 /**
  * Renders a {@link com.letscooee.models.trigger.elements.GroupElement}.
@@ -23,11 +25,12 @@ public class GroupRenderer extends AbstractInAppRenderer {
 
     @Override
     public View render() {
-        if (elementData.getSize().isDisplayFlex()) {
-            newElement = new FlexboxLayout(context);
-        } else {
-            newElement = new RelativeLayout(context);
+        if (!elementData.getSize().isDisplayFlex()) {
+            // Group/Layer will always be FLEX OR INLINE_FLEX. If not, log it and suppress the error
+            CooeeFactory.getSentryHelper().captureMessage("Non FLEX Group/Layer received");
         }
+
+        newElement = new FlexboxLayout(context);
 
         insertNewElementInHierarchy();
         processCommonBlocks();
