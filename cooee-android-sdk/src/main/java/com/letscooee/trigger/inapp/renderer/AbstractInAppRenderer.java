@@ -116,7 +116,6 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         this.newElement.setTag(this.getClass().getSimpleName());
         this.processBackground();
         this.setBackgroundDrawable();
-        this.processOverFlow();
         this.processBorderBlock();
         this.processShadowBlock();
         this.registerListenerOnParentElement();
@@ -124,23 +123,6 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         this.processClickBlock();
         this.applyFlexParentProperties();
         this.applyFlexItemProperties();
-    }
-
-    private void processOverFlow() {
-        // Overflow can only work for elements that contains children i.e. Group/Layer
-        if (!(newElement instanceof ViewGroup)) {
-            return;
-        }
-
-        Overflow overflow = elementData.getOverflow();
-        boolean shouldHideOverflow = overflow != null && overflow.isHidden();
-
-        materialCardView.setClipChildren(shouldHideOverflow);
-        materialCardView.setClipToOutline(shouldHideOverflow);
-        parentLayoutOfNewElement.setClipChildren(shouldHideOverflow);
-        parentLayoutOfNewElement.setClipToOutline(shouldHideOverflow);
-        ((ViewGroup) newElement).setClipChildren(shouldHideOverflow);
-        newElement.setClipToOutline(shouldHideOverflow);
     }
 
     protected void insertNewElementInHierarchy() {

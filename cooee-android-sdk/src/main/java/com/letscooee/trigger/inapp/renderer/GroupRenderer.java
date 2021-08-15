@@ -3,13 +3,11 @@ package com.letscooee.trigger.inapp.renderer;
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.RelativeLayout;
 import com.google.android.flexbox.FlexboxLayout;
 import com.letscooee.CooeeFactory;
-import com.letscooee.models.trigger.blocks.Size;
+import com.letscooee.models.trigger.blocks.Overflow;
 import com.letscooee.models.trigger.elements.*;
 import com.letscooee.trigger.inapp.InAppGlobalData;
-import com.letscooee.utils.SentryHelper;
 
 /**
  * Renders a {@link com.letscooee.models.trigger.elements.GroupElement}.
@@ -34,6 +32,7 @@ public class GroupRenderer extends AbstractInAppRenderer {
 
         insertNewElementInHierarchy();
         processCommonBlocks();
+        processOverflow();
         processChildren();
 
         return newElement;
@@ -59,5 +58,17 @@ public class GroupRenderer extends AbstractInAppRenderer {
                 new GroupRenderer(context, (ViewGroup) newElement, child, globalData).render();
             }
         }
+    }
+
+    private void processOverflow() {
+        Overflow overflow = elementData.getOverflow();
+        boolean shouldHideOverflow = overflow != null && overflow.isHidden();
+
+        materialCardView.setClipChildren(shouldHideOverflow);
+        materialCardView.setClipToOutline(shouldHideOverflow);
+        parentLayoutOfNewElement.setClipChildren(shouldHideOverflow);
+        parentLayoutOfNewElement.setClipToOutline(shouldHideOverflow);
+        ((ViewGroup) newElement).setClipChildren(shouldHideOverflow);
+        newElement.setClipToOutline(shouldHideOverflow);
     }
 }
