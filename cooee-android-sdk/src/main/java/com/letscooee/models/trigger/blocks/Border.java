@@ -10,16 +10,6 @@ import static com.letscooee.utils.ui.UnitUtils.getCalculatedValue;
 
 public class Border implements Parcelable {
 
-    // TODO: 07/07/21 Discus for dash type stroke
-    protected Border(Parcel in) {
-        radius = in.readString();
-        width = in.readString();
-        dashWidth = in.readString();
-        dashGap = in.readString();
-        colour = in.readParcelable(Colour.class.getClassLoader());
-        style = Style.valueOf(in.readString());
-    }
-
     public static final Creator<Border> CREATOR = new Creator<Border>() {
         @Override
         public Border createFromParcel(Parcel in) {
@@ -31,6 +21,22 @@ public class Border implements Parcelable {
             return new Border[size];
         }
     };
+    private final String radius;
+    private final String width;
+    private final String dashWidth;
+    private final String dashGap;
+    private final Colour colour;
+    private final Style style;
+
+    // TODO: 07/07/21 Discus for dash type stroke
+    protected Border(Parcel in) {
+        radius = in.readString();
+        width = in.readString();
+        dashWidth = in.readString();
+        dashGap = in.readString();
+        colour = in.readParcelable(Colour.class.getClassLoader());
+        style = Style.valueOf(in.readString());
+    }
 
     @Override
     public int describeContents() {
@@ -49,15 +55,6 @@ public class Border implements Parcelable {
         else
             dest.writeString(style.name());
     }
-
-    public enum Style {SOLID, DASH}
-
-    private String radius;
-    private String width;
-    private String dashWidth;
-    private String dashGap;
-    private Colour colour;
-    private Style style;
 
     public Colour getColor() {
         return colour;
@@ -82,4 +79,6 @@ public class Border implements Parcelable {
     public Integer getDashGap(View parent) {
         return getCalculatedValue(parent, dashGap);
     }
+
+    public enum Style {SOLID, DASH}
 }

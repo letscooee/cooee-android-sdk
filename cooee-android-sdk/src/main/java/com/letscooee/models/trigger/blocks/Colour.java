@@ -8,17 +8,6 @@ import android.text.TextUtils;
 
 public class Colour implements Parcelable {
 
-    private String hex;
-    private Gradient grad;
-
-    public Colour() {
-    }
-
-    protected Colour(Parcel in) {
-        hex = in.readString();
-        grad = in.readParcelable(Gradient.class.getClassLoader());
-    }
-
     public static final Creator<Colour> CREATOR = new Creator<Colour>() {
         @Override
         public Colour createFromParcel(Parcel in) {
@@ -30,6 +19,14 @@ public class Colour implements Parcelable {
             return new Colour[size];
         }
     };
+
+    private final String hex;
+    private final Gradient grad;
+
+    protected Colour(Parcel in) {
+        hex = in.readString();
+        grad = in.readParcelable(Gradient.class.getClassLoader());
+    }
 
     @Override
     public int describeContents() {

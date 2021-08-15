@@ -32,8 +32,6 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
 
     protected final InAppGlobalData globalData;
     protected final Context context;
-    // Need to remove final as parentElement variable is going to re-initialize if
-    // element position is ABSOLUTE
     protected ViewGroup parentElement;
     protected final BaseElement elementData;
     protected final GradientDrawable elementDrawable = new GradientDrawable();
@@ -197,14 +195,13 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         ViewGroup.MarginLayoutParams layoutParams;
 
         int width;
-        int height;
+        int height = ViewGroup.LayoutParams.WRAP_CONTENT;
+
         if (size.getDisplay() == Size.Display.BLOCK || size.getDisplay() == Size.Display.FLEX) {
             width = ViewGroup.LayoutParams.MATCH_PARENT;
         } else {
             width = ViewGroup.LayoutParams.WRAP_CONTENT;
         }
-
-        height = ViewGroup.LayoutParams.WRAP_CONTENT;
 
         Integer calculatedWidth = size.getCalculatedWidth(parentElement);
         if (calculatedWidth != null) {
