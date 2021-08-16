@@ -11,7 +11,7 @@ public class Gradient implements Parcelable {
     protected Gradient(Parcel in) {
         start = in.readString();
         end = in.readString();
-        direction = in.readInt();
+        angle = in.readInt();
         type = Type.valueOf(in.readString());
     }
 
@@ -36,23 +36,20 @@ public class Gradient implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(start);
         dest.writeString(end);
-        dest.writeInt(direction);
+        dest.writeInt(angle);
         dest.writeString(type.name());
     }
 
     public enum Type {LINEAR, RADIAL, SWEEP}
 
     private Type type;
+    // TODO: 13/08/21 this is not aligned with the docs
     private String start;
     private String end;
-    private int direction;
+    private int angle;
 
     public Type getType() {
         return type;
-    }
-
-    public int getDirection() {
-        return direction;
     }
 
     public int getStartColor() {
@@ -64,7 +61,8 @@ public class Gradient implements Parcelable {
     }
 
     public GradientDrawable.Orientation getGradiantAngle() {
-        switch (direction) {
+        // TODO: 13/08/21 This is not aligned with the docs
+        switch (angle) {
             case 45:
                 return GradientDrawable.Orientation.TR_BL;
             case 90:
@@ -96,10 +94,9 @@ public class Gradient implements Parcelable {
         }
     }
 
-    public GradientDrawable getGradient() {
-        GradientDrawable gradientDrawable = new GradientDrawable(getGradiantAngle(),
-                new int[]{getStartColor(), getEndColor()});
-        gradientDrawable.setGradientType(getGradiantType());
-        return gradientDrawable;
+    public void updateDrawable(GradientDrawable drawable) {
+        drawable.setOrientation(getGradiantAngle());
+        // TODO: 13/08/21 Use other colours as well
+        drawable.setColors(new int[]{getStartColor(), getEndColor()});
     }
 }

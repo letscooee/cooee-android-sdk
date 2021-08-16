@@ -74,7 +74,7 @@ public class TextRenderer extends FontRenderer {
             return;
         }
 
-        ((TextView) newElement).setTextColor(textData.getColor().getSolidColor());
+        ((TextView) newElement).setTextColor(textData.getColor().getHexColor());
     }
 
     protected void processFontBlock() {

@@ -1,13 +1,12 @@
 package com.letscooee.trigger.inapp.renderer;
 
 import android.content.Context;
-import android.view.View;
 import android.view.ViewGroup;
-import android.widget.RelativeLayout;
-import com.google.android.flexbox.FlexboxLayout;
-import com.letscooee.models.trigger.blocks.Size;
 import com.letscooee.models.trigger.elements.BaseElement;
+import com.letscooee.models.trigger.inapp.Layer;
 import com.letscooee.trigger.inapp.InAppGlobalData;
+
+import java.util.ArrayList;
 
 /**
  * Renders the top most container of the in-app.
@@ -15,23 +14,23 @@ import com.letscooee.trigger.inapp.InAppGlobalData;
  * @author Shashank Agrawal
  * @since 1.0.0
  */
-public class ContainerRenderer extends AbstractInAppRenderer {
+public class ContainerRenderer extends GroupRenderer {
 
-    public ContainerRenderer(Context context, ViewGroup parentView, BaseElement element, InAppGlobalData globalData) {
+    private ArrayList<Layer> layers;
+
+    public ContainerRenderer(Context context, ViewGroup parentView, BaseElement element, ArrayList<Layer> layers,
+                             InAppGlobalData globalData) {
         super(context, parentView, element, globalData);
+        this.layers = layers;
     }
 
-    @Override
-    public View render() {
-        if (elementData.getSize().getDisplay() == Size.Display.FLEX) {
-            newElement = new FlexboxLayout(context);
-        } else {
-            newElement = new RelativeLayout(context);
+    protected void processChildren() {
+        if (layers == null) {
+            return;
         }
 
-        insertNewElementInHierarchy();
-        processCommonBlocks();
-
-        return newElement;
+        for (Layer layer : layers) {
+            new LayerRenderer(context, (ViewGroup) newElement, layer, globalData).render();
+        }
     }
 }
