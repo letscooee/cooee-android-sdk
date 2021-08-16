@@ -35,6 +35,21 @@ public abstract class FontRenderer extends AbstractInAppRenderer {
     protected void processFont() {
         if (font == null) return;
         this.applyFont();
+        this.applyLineHeight();
+    }
+
+    private void applyLineHeight() {
+        TextView textView = (TextView) newElement;
+        Float lineHeight = font.getLineHeight(font.getSize());
+
+        if (lineHeight == null) {
+            return;
+        }
+        // TODO: 17/08/21 Revisit this it is not working properly
+        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            textView.setLineHeight(lineHeight.intValue());
+        }*/
+        textView.setLineSpacing(lineHeight, 1f);
     }
 
     @SuppressLint("WrongConstant")
