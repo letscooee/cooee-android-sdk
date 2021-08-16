@@ -4,11 +4,22 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
 import android.view.View;
+
 import com.letscooee.utils.ui.UnitUtils;
 
 import static com.letscooee.utils.ui.UnitUtils.getCalculatedValue;
 
 public class Border implements Parcelable {
+
+    public enum Style {SOLID, DASH}
+
+    private final String radius;
+    private final String width;
+    private final String dashWidth;
+    private final String dashGap;
+    private final Colour colour;
+
+    private final Style style;
 
     public static final Creator<Border> CREATOR = new Creator<Border>() {
         @Override
@@ -21,12 +32,6 @@ public class Border implements Parcelable {
             return new Border[size];
         }
     };
-    private final String radius;
-    private final String width;
-    private final String dashWidth;
-    private final String dashGap;
-    private final Colour colour;
-    private final Style style;
 
     // TODO: 07/07/21 Discus for dash type stroke
     protected Border(Parcel in) {
@@ -80,6 +85,4 @@ public class Border implements Parcelable {
     public Integer getDashGap(View parent) {
         return getCalculatedValue(parent, dashGap);
     }
-
-    public enum Style {SOLID, DASH}
 }

@@ -7,6 +7,14 @@ import android.os.Parcelable;
 
 public class Gradient implements Parcelable {
 
+    public enum Type {LINEAR, RADIAL, SWEEP}
+
+    private Type type;
+    private String start;
+    private String end;
+
+    private int angle;
+
     // TODO: 07/07/21 Discus for Gradient type, angle
     protected Gradient(Parcel in) {
         start = in.readString();
@@ -39,14 +47,6 @@ public class Gradient implements Parcelable {
         dest.writeInt(angle);
         dest.writeString(type.name());
     }
-
-    public enum Type {LINEAR, RADIAL, SWEEP}
-
-    private Type type;
-    // TODO: 13/08/21 this is not aligned with the docs
-    private String start;
-    private String end;
-    private int angle;
 
     public Type getType() {
         return type;
