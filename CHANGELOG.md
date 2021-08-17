@@ -1,5 +1,15 @@
 # Change Log
 
+## v0.3.2
+
+### Improvements
+
+1. Give preference to `bluetooth_name` before `device_name`.
+
+### Bug Fixes
+
+1. Fixed non-ASCII characters issue for device name in header.
+
 ## v0.3.1
 
 ### Bug Fixes
