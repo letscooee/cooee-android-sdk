@@ -39,7 +39,7 @@ public class CooeeBootstrap {
         // Skip initialisation of CooeeBootstrap if it's getting called via CooeeARProcess
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
             String processName = Application.getProcessName();
-            if (processName.contains(Constants.AR_PROCESS))
+            if (processName.contains(Constants.AR_PROCESS_NAME))
                 return;
         }
 

@@ -6,8 +6,8 @@ import java.util.HashMap;
 
 public class AppAR implements Parcelable {
 
-    private String name;
-    private HashMap<String, Object> data;
+    private final String name;
+    private final HashMap<String, Object> data;
 
     protected AppAR(Parcel in) {
         name = in.readString();

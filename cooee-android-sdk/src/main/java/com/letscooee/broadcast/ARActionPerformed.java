@@ -16,6 +16,13 @@ import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Listen the response sent via AR Android SDK and send it to {@link InAppTriggerActivity.InAppListener}
+ * implemented in {@link CooeeSDK}
+ *
+ * @author Ashish Gaikwad 14/08/21
+ * @since 1.0.0
+ */
 public class ARActionPerformed extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {

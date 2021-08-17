@@ -74,6 +74,7 @@ public class ClickActionExecutor {
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.putExtra("arguments", arData);
         intent.putExtra("app_package", CooeeFactory.getAppInfo().getPackageName());
+
         try {
             context.startActivity(intent);
             Event event = new Event("CE AR Displayed");
@@ -81,8 +82,6 @@ public class ClickActionExecutor {
         } catch (ActivityNotFoundException exception) {
             CooeeFactory.getSentryHelper().captureException(exception);
         }
-
-
     }
 
     private boolean processPrompts() {
