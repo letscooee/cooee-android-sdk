@@ -54,10 +54,6 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
         sentryHelper = CooeeFactory.getSentryHelper();
     }
 
-    public interface InAppListener {
-        void inAppNotificationDidClick(HashMap<String, Object> payload);
-    }
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

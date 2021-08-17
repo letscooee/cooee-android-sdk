@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
+
 import com.google.gson.Gson;
 import com.letscooee.CooeeFactory;
 import com.letscooee.CooeeSDK;
@@ -15,8 +16,8 @@ import com.letscooee.models.Event;
 import com.letscooee.models.trigger.blocks.ClickAction;
 import com.letscooee.trigger.inapp.InAppBrowserActivity;
 import com.letscooee.trigger.inapp.InAppGlobalData;
-import com.letscooee.trigger.inapp.InAppTriggerActivity;
 import com.letscooee.utils.Constants;
+import com.letscooee.utils.CooeeCTAListener;
 import com.letscooee.utils.PermissionType;
 import com.unity3d.player.UnityPlayerActivity;
 
@@ -105,10 +106,10 @@ public class ClickActionExecutor {
      * Action/data to be sent to application i.e. the callback of CTA.
      */
     private void passKeyValueToApp() {
-        InAppTriggerActivity.InAppListener listener = CooeeSDK.getDefaultInstance(context);
+        CooeeCTAListener listener = CooeeSDK.getDefaultInstance(context).getCtaListener();
 
         if (listener != null && action.getKeyValue() != null) {
-            listener.inAppNotificationDidClick((HashMap<String, Object>) action.getKeyValue());
+            listener.onResponse((HashMap<String, Object>) action.getKeyValue());
         }
     }
 

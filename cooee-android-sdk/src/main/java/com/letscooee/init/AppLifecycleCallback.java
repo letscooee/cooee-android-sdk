@@ -9,6 +9,7 @@ import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
 
 import com.letscooee.CooeeFactory;
+import com.letscooee.broadcast.ARActionPerformed;
 import com.letscooee.models.Event;
 import com.letscooee.network.SafeHTTPService;
 import com.letscooee.user.NewSessionExecutor;
@@ -60,6 +61,9 @@ class AppLifecycleCallback implements DefaultLifecycleObserver {
 
             safeHTTPService.sendEvent(session);
         }
+
+        // Sent AR CTA once App is resumed
+        ARActionPerformed.processLastARResponse(context);
     }
 
     @Override

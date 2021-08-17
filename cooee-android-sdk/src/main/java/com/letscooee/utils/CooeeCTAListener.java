@@ -5,10 +5,10 @@ import java.util.HashMap;
 /**
  * @author Abhishek Taparia
  */
-public interface InAppNotificationClickListener {
+public interface CooeeCTAListener {
 
     /**
      * Callback to return a Key Value payload associated with inApp widget click.
      */
-    void onInAppButtonClick(HashMap<String, Object> payload);
+    void onResponse(HashMap<String, Object> payload);
 }
