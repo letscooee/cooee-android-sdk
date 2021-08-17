@@ -50,16 +50,18 @@ public class Font implements Parcelable {
         return name;
     }
 
-    public Float getLineHeight(float fontSize) {
+    public Float getLineHeight() {
         if (TextUtils.isEmpty(lineHeight)) return null;
 
         if (lineHeight.contains(UNIT_PIXEL)) {
             return UnitUtils.parseToFloat(lineHeight, UNIT_PIXEL);
         }
 
-        float value = Float.parseFloat(lineHeight);
+        return Float.parseFloat(lineHeight);
+    }
 
-        return fontSize * value;
+    public boolean hasUnit() {
+        return lineHeight.contains(UNIT_PIXEL);
     }
 
     @Override
