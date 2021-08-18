@@ -106,7 +106,7 @@ public class ClickActionExecutor {
      * Action/data to be sent to application i.e. the callback of CTA.
      */
     private void passKeyValueToApp() {
-        CooeeCTAListener listener = CooeeSDK.getDefaultInstance(context).getCtaListener();
+        CooeeCTAListener listener = CooeeSDK.getDefaultInstance(context).getCTAListener();
 
         if (listener != null && action.getKeyValue() != null) {
             listener.onResponse((HashMap<String, Object>) action.getKeyValue());

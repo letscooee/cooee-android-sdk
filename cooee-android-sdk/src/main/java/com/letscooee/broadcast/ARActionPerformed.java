@@ -3,6 +3,7 @@ package com.letscooee.broadcast;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.text.TextUtils;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -34,14 +35,26 @@ public class ARActionPerformed extends BroadcastReceiver {
             return;
         }
 
-        lastARResponse = new Gson().fromJson(intent.getStringExtra("arData"),
-                new TypeToken<ClickAction>() {
-                }.getType());
+        String rawResponse = intent.getStringExtra("arData");
 
-        @SuppressWarnings("unchecked")
-        Map<String, Object> userProperty = lastARResponse.getUserPropertiesToUpdate();
-        Event event = new Event("CE AR Closed", userProperty);
+        if (TextUtils.isEmpty(rawResponse)) {
+            return;
+        }
+
+        lastARResponse = new Gson().fromJson(rawResponse, new TypeToken<ClickAction>() {
+        }.getType());
+
+        // TODO: 18/08/21 Should we send even before checking for rawResponse
+        Event event = new Event("CE AR Closed");
         CooeeFactory.getSafeHTTPService().sendEvent(event);
+
+        Map<String, Object> userProperty = lastARResponse.getUserPropertiesToUpdate();
+
+        if (userProperty == null) {
+            return;
+        }
+
+        CooeeSDK.getDefaultInstance(context).updateUserProperties(userProperty);
     }
 
     /**
@@ -54,7 +67,7 @@ public class ARActionPerformed extends BroadcastReceiver {
             return;
         }
 
-        CooeeCTAListener listener = CooeeSDK.getDefaultInstance(context).getCtaListener();
+        CooeeCTAListener listener = CooeeSDK.getDefaultInstance(context).getCTAListener();
         HashMap<String, Object> data = (HashMap<String, Object>) lastARResponse.getKeyValue();
 
         if (listener != null && data != null) {

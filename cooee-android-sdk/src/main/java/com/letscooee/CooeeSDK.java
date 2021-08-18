@@ -170,7 +170,7 @@ public class CooeeSDK {
         ctaListener = new WeakReference<>(listener);
     }
 
-    public CooeeCTAListener getCtaListener() {
+    public CooeeCTAListener getCTAListener() {
         return ctaListener == null ? null : ctaListener.get();
     }
 }
