@@ -13,6 +13,8 @@ import java.util.ArrayList;
 
 public class Gradient implements Parcelable {
 
+    private static final int[] AVAILABLE_ANGLES = {0, 45, 90, 135, 180, 225, 270, 315, 360};
+
     public enum Type {
         LINEAR(0), RADIAL(1), SWEEP(2);
 
@@ -28,12 +30,15 @@ public class Gradient implements Parcelable {
     }
 
     private Type type;
+
     @SerializedName("c1")
     @Expose
     private String start;
+
     @SerializedName("c2")
     @Expose
     private String center;
+
     @SerializedName("c3")
     @Expose
     private String end;
@@ -74,7 +79,7 @@ public class Gradient implements Parcelable {
     }
 
     public Type getType() {
-        return type;
+        return type == null ? Type.LINEAR : type;
     }
 
     public int getStartColor() {
@@ -95,34 +100,33 @@ public class Gradient implements Parcelable {
      * @return {@link GradientDrawable.Orientation}
      */
     public GradientDrawable.Orientation getGradiantAngle() {
-        Orientation fixedAngle = Orientation.valueOf(getFixedAngle(angle));
+        Orientation fixedAngle = Orientation.valueOf(getAngleAsEnumString(angle));
         return fixedAngle.getValue();
     }
 
     /**
-     * Finds the nearest angle for the given angle
+     * Finds the nearest angle from given {@link #AVAILABLE_ANGLES} for the given {@link #angle}
      *
      * @param angle int value from 0 to 360
      * @return String equivalent to {@link Orientation#name()}
      */
-    private String getFixedAngle(int angle) {
-        int[] angles = {0, 45, 90, 135, 180, 225, 270, 315, 360};
-        int distance = Math.abs(angles[0] - angle);
+    private String getAngleAsEnumString(int angle) {
+        int distance = Math.abs(AVAILABLE_ANGLES[0] - angle);
         int index = 0;
 
-        for (int tempIndex = 1; tempIndex < angles.length; tempIndex++) {
-            int tempDistance = Math.abs(angles[tempIndex] - angle);
+        for (int tempIndex = 1; tempIndex < AVAILABLE_ANGLES.length; tempIndex++) {
+            int tempDistance = Math.abs(AVAILABLE_ANGLES[tempIndex] - angle);
             if (tempDistance < distance) {
                 index = tempIndex;
                 distance = tempDistance;
             }
         }
 
-        return "DEGREE" + angles[index];
+        return "DEGREE" + AVAILABLE_ANGLES[index];
     }
 
     // Gradient requires two colours minimum.
-    public int[] getColours() {
+    private int[] getColours() {
         ArrayList<Integer> integers = new ArrayList<>();
 
         if (!TextUtils.isEmpty(start)) {
@@ -133,7 +137,7 @@ public class Gradient implements Parcelable {
             integers.add(getCenterColor());
         }
 
-        if (!TextUtils.isEmpty(start)) {
+        if (!TextUtils.isEmpty(end)) {
             integers.add(getEndColor());
         }
 
@@ -147,8 +151,7 @@ public class Gradient implements Parcelable {
     }
 
     public void updateDrawable(GradientDrawable drawable) {
-        int gradientType = type == null ? Type.LINEAR.value : type.value;
-        drawable.setGradientType(gradientType);
+        drawable.setGradientType(getType().value);
         drawable.setOrientation(getGradiantAngle());
         drawable.setColors(getColours());
     }
