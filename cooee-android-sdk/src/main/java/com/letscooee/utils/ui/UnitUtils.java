@@ -43,6 +43,17 @@ public class UnitUtils {
         return Integer.parseInt(value.replace(replaceUnit, ""));
     }
 
+    /**
+     * Use to remove unit character from string and will convert {@link String} to {@link Float}
+     *
+     * @param value       {@link String} value which want to process
+     * @param replaceUnit it can be "px,%,vh,vw"
+     * @return int
+     */
+    public static float parseToFloat(@NonNull String value, @NonNull String replaceUnit) {
+        return Float.parseFloat(value.replace(replaceUnit, ""));
+    }
+
     public static int getCalculatedPixel(@NonNull String pixelString) {
         return parseToInt(pixelString, UNIT_PIXEL);
     }

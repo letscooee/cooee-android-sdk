@@ -4,6 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 public class BrowserContent implements Parcelable {
+
     private String url;
     private boolean showAB;
 
