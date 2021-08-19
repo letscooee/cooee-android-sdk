@@ -1,18 +1,15 @@
 package com.letscooee.models.trigger.blocks;
 
 import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.text.TextUtils;
 
 public class Colour implements Parcelable {
 
-    private String hex;
-    private Gradient grad;
-
-    protected Colour(Parcel in) {
-        hex = in.readString();
-        grad = in.readParcelable(Gradient.class.getClassLoader());
-    }
+    private final String hex;
+    private final Gradient grad;
 
     public static final Creator<Colour> CREATOR = new Creator<Colour>() {
         @Override
@@ -26,6 +23,16 @@ public class Colour implements Parcelable {
         }
     };
 
+    protected Colour() {
+        hex = null;
+        grad = null;
+    }
+
+    protected Colour(Parcel in) {
+        hex = in.readString();
+        grad = in.readParcelable(Gradient.class.getClassLoader());
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -37,15 +44,16 @@ public class Colour implements Parcelable {
         dest.writeParcelable(grad, flags);
     }
 
-    public String getHex() {
-        return hex;
-    }
-
-    public Gradient getGrad() {
-        return grad;
-    }
-
-    public int getSolidColor() {
+    public int getHexColor() {
+        if (TextUtils.isEmpty(hex)) return Color.TRANSPARENT;
         return Color.parseColor(hex);
+    }
+
+    public void updateDrawable(GradientDrawable drawable) {
+        if (grad == null) {
+            drawable.setColor(getHexColor());
+        } else {
+            grad.updateDrawable(drawable);
+        }
     }
 }

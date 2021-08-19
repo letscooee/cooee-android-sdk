@@ -27,17 +27,10 @@ public class Overflow implements Parcelable {
         }
     };
 
-    public Type getX() {
-        return x;
-    }
 
-    public Type getY() {
-        return y;
-    }
-
-    public boolean hideOverFlow() {
+    public boolean isHidden() {
         // Accessing only x value to check HIDDEN/VISIBLE as in Android there is no option to operate
-        // on x or y
+        // on x or y separately
         return x == Type.HIDDEN;
     }
 

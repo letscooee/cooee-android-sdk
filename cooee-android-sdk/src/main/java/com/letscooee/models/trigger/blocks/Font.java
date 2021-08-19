@@ -1,11 +1,17 @@
 package com.letscooee.models.trigger.blocks;
 
+import static com.letscooee.utils.Constants.UNIT_PIXEL;
+
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.text.TextUtils;
+
 import com.letscooee.enums.trigger.Style;
 import com.letscooee.utils.ui.UnitUtils;
 
 public class Font implements Parcelable {
+
+    private static final int DEFAULT_SIZE = 15;
 
     private final String size;
     private final Style style;
@@ -37,14 +43,25 @@ public class Font implements Parcelable {
 
     /**
      * Get the font family name i.e. Typeface file name.
-     * @return
+     *
+     * @return String
      */
     public String getName() {
         return name;
     }
 
-    public String getLineHeight() {
-        return lineHeight;
+    public Float getLineHeight() {
+        if (TextUtils.isEmpty(lineHeight)) return null;
+
+        if (lineHeight.contains(UNIT_PIXEL)) {
+            return UnitUtils.parseToFloat(lineHeight, UNIT_PIXEL);
+        }
+
+        return Float.parseFloat(lineHeight);
+    }
+
+    public boolean hasUnit() {
+        return lineHeight.contains(UNIT_PIXEL);
     }
 
     @Override
@@ -61,6 +78,7 @@ public class Font implements Parcelable {
     }
 
     public int getSize() {
+        if (TextUtils.isEmpty(size)) return DEFAULT_SIZE;
         return UnitUtils.getCalculatedPixel(size);
     }
 }

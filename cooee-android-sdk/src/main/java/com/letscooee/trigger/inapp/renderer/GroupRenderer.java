@@ -3,9 +3,9 @@ package com.letscooee.trigger.inapp.renderer;
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.RelativeLayout;
 import com.google.android.flexbox.FlexboxLayout;
-import com.letscooee.models.trigger.blocks.Size;
+import com.letscooee.CooeeFactory;
+import com.letscooee.models.trigger.blocks.Overflow;
 import com.letscooee.models.trigger.elements.*;
 import com.letscooee.trigger.inapp.InAppGlobalData;
 
@@ -23,14 +23,16 @@ public class GroupRenderer extends AbstractInAppRenderer {
 
     @Override
     public View render() {
-        if (elementData.getSize().isDisplayFlex()) {
-            newElement = new FlexboxLayout(context);
-        } else {
-            newElement = new RelativeLayout(context);
+        if (!elementData.getSize().isDisplayFlex()) {
+            // Group/Layer will always be FLEX OR INLINE_FLEX. If not, log it and suppress the error
+            CooeeFactory.getSentryHelper().captureMessage("Non FLEX Group/Layer received");
         }
+
+        newElement = new FlexboxLayout(context);
 
         insertNewElementInHierarchy();
         processCommonBlocks();
+        processOverflow();
         processChildren();
 
         return newElement;
@@ -56,5 +58,17 @@ public class GroupRenderer extends AbstractInAppRenderer {
                 new GroupRenderer(context, (ViewGroup) newElement, child, globalData).render();
             }
         }
+    }
+
+    private void processOverflow() {
+        Overflow overflow = elementData.getOverflow();
+        boolean shouldHideOverflow = overflow != null && overflow.isHidden();
+
+        materialCardView.setClipChildren(shouldHideOverflow);
+        materialCardView.setClipToOutline(shouldHideOverflow);
+        parentLayoutOfNewElement.setClipChildren(shouldHideOverflow);
+        parentLayoutOfNewElement.setClipToOutline(shouldHideOverflow);
+        ((ViewGroup) newElement).setClipChildren(shouldHideOverflow);
+        newElement.setClipToOutline(shouldHideOverflow);
     }
 }

@@ -8,6 +8,16 @@ import com.letscooee.utils.ui.UnitUtils;
 
 public class Position implements Parcelable {
 
+    public enum PositionType {STATIC, ABSOLUTE, FIXED}
+
+    private final PositionType type;
+    private final String top;
+    private final String left;
+    private final String bottom;
+    private final String right;
+
+    private final Integer zIndex;
+
     public Position() {
         this.type = PositionType.STATIC;
         this.top = null;
@@ -28,13 +38,6 @@ public class Position implements Parcelable {
             return new Position[size];
         }
     };
-
-    private final PositionType type;
-    private final String top;
-    private final String left;
-    private final String bottom;
-    private final String right;
-    private final Integer zIndex;
 
     protected Position(Parcel in) {
         top = in.readString();
@@ -95,6 +98,4 @@ public class Position implements Parcelable {
     public boolean isAbsolutelyPosition() {
         return this.type == Position.PositionType.ABSOLUTE;
     }
-
-    public enum PositionType {STATIC, ABSOLUTE, FIXED}
 }

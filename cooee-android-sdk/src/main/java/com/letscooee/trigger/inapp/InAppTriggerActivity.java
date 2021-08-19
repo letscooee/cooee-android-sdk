@@ -22,18 +22,15 @@ import com.letscooee.models.trigger.TriggerData;
 import com.letscooee.models.trigger.blocks.Animation;
 import com.letscooee.models.trigger.inapp.Container;
 import com.letscooee.models.trigger.inapp.InAppTrigger;
-import com.letscooee.models.trigger.inapp.Layer;
 import com.letscooee.trigger.inapp.renderer.ContainerRenderer;
-import com.letscooee.trigger.inapp.renderer.LayerRenderer;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.PermissionType;
 import com.letscooee.utils.SentryHelper;
+import jp.wasabeef.blurry.Blurry;
 
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-
-import jp.wasabeef.blurry.Blurry;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class InAppTriggerActivity extends AppCompatActivity implements PreventBlurActivity {
@@ -109,15 +106,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
     private void renderContainerAndLayers() {
         Container containerData = inAppData.getContainer();
         RelativeLayout rootViewElement = findViewById(R.id.inAppTriggerRoot);
-        ViewGroup containerView = (ViewGroup) new ContainerRenderer(this, rootViewElement, containerData, globalData).render();
-
-        if (inAppData.getLayers() == null) {
-            return;
-        }
-
-        for (Layer layer : inAppData.getLayers()) {
-            new LayerRenderer(this, containerView, layer, globalData).render();
-        }
+        new ContainerRenderer(this, rootViewElement, containerData, inAppData.getLayers(), globalData).render();
     }
 
     /**

@@ -6,24 +6,16 @@ import android.graphics.drawable.GradientDrawable;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-
+import android.widget.*;
 import androidx.annotation.RestrictTo;
-import androidx.core.content.ContextCompat;
-
 import com.bumptech.glide.Glide;
-import com.google.android.flexbox.*;
+import com.google.android.flexbox.FlexboxLayout;
 import com.google.android.material.card.MaterialCardView;
 import com.letscooee.BuildConfig;
-import com.letscooee.R;
 import com.letscooee.models.trigger.blocks.*;
 import com.letscooee.models.trigger.elements.BaseElement;
 import com.letscooee.trigger.action.ClickActionExecutor;
 import com.letscooee.trigger.inapp.InAppGlobalData;
-
 import jp.wasabeef.blurry.Blurry;
 
 import static com.letscooee.utils.Constants.TAG;
@@ -35,15 +27,17 @@ import static com.letscooee.utils.Constants.TAG;
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public abstract class AbstractInAppRenderer implements InAppRenderer {
 
+    private static final int MP = ViewGroup.LayoutParams.MATCH_PARENT;
+    private static final int WC = ViewGroup.LayoutParams.WRAP_CONTENT;
+
     protected final InAppGlobalData globalData;
     protected final Context context;
-    // Need to remove final as parentElement variable is going to re-initialize if
-    // element position is ABSOLUTE
     protected ViewGroup parentElement;
     protected final BaseElement elementData;
+    protected final GradientDrawable backgroundDrawable = new GradientDrawable();
 
     protected final MaterialCardView materialCardView;
-    protected final RelativeLayout parentLayoutOfNewElement;
+    protected final FrameLayout parentLayoutOfNewElement;
     protected final ImageView backgroundImage;
 
     /**
@@ -59,22 +53,21 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         this.globalData = globalData;
 
         this.materialCardView = new MaterialCardView(context);
-        // First and only element inside MaterialCardView
-        this.parentLayoutOfNewElement = new RelativeLayout(context);
+        this.parentLayoutOfNewElement = new FrameLayout(context);
         this.backgroundImage = new ImageView(context);
         this.setupWrapperForNewElement();
     }
 
     /**
      * To achieve background image, border stroke or corner radius for all the elements (container/layer/group/text
-     * etc.), we need to wrap every element in the following hierarchy-
+     * etc.), we need to wrap every new element {@link #newElement} in the following hierarchy-
      *
      * <pre>
      *     |--- {@link #parentElement}
      *              |
      *              |--- {@link #materialCardView}
      *                      |
-     *                      |--- {@link #parentLayoutOfNewElement} Relative Layout
+     *                      |--- {@link #parentLayoutOfNewElement} FrameLayout
      *                              |
      *                              |--- {@link #backgroundImage} Image View for Glossy/solid/image
      *                              |--- {@link #newElement} Our new element being inserted by this class. This can
@@ -86,9 +79,9 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         parentLayoutOfNewElement.addView(backgroundImage);
         materialCardView.addView(parentLayoutOfNewElement);
 
-        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT);
+        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(MP, MP);
         parentLayoutOfNewElement.setLayoutParams(layoutParams);
+        backgroundImage.setLayoutParams(layoutParams);
 
         backgroundImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
@@ -109,8 +102,12 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
      */
     private void reassignParentIfAbsolute() {
         if (elementData.getPosition().isAbsolutelyPosition()) {
-            parentElement = (RelativeLayout) parentElement.getParent();
+            parentElement = (FrameLayout) parentElement.getParent();
         }
+    }
+
+    protected void setBackgroundDrawable() {
+        materialCardView.setBackgroundDrawable(backgroundDrawable);
     }
 
     protected void processCommonBlocks() {
@@ -120,7 +117,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
 
         this.newElement.setTag(this.getClass().getSimpleName());
         this.processBackground();
-        this.processOverFlow();
+        this.setBackgroundDrawable();
         this.processBorderBlock();
         this.processShadowBlock();
         this.registerListenerOnParentElement();
@@ -128,21 +125,6 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         this.processClickBlock();
         this.applyFlexParentProperties();
         this.applyFlexItemProperties();
-    }
-
-    private void processOverFlow() {
-        Overflow overflow = elementData.getOverflow();
-
-        if (overflow == null || overflow.hideOverFlow()) {
-            return;
-        }
-
-        materialCardView.setClipChildren(false);
-        materialCardView.setClipToOutline(false);
-        parentLayoutOfNewElement.setClipChildren(false);
-        parentLayoutOfNewElement.setClipToOutline(false);
-        parentElement.setClipChildren(false);
-        parentElement.setClipToOutline(false);
     }
 
     protected void insertNewElementInHierarchy() {
@@ -200,14 +182,13 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         ViewGroup.MarginLayoutParams layoutParams;
 
         int width;
-        int height;
-        if (size.getDisplay() == Size.Display.BLOCK || size.getDisplay() == Size.Display.FLEX) {
-            width = ViewGroup.LayoutParams.MATCH_PARENT;
-        } else {
-            width = ViewGroup.LayoutParams.WRAP_CONTENT;
-        }
+        int height = WC;
 
-        height = ViewGroup.LayoutParams.WRAP_CONTENT;
+        if (size.getDisplay() == Size.Display.BLOCK || size.getDisplay() == Size.Display.FLEX) {
+            width = MP;
+        } else {
+            width = WC;
+        }
 
         Integer calculatedWidth = size.getCalculatedWidth(parentElement);
         if (calculatedWidth != null) {
@@ -219,7 +200,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
             height = calculatedHeight;
         }
 
-        this.newElement.setLayoutParams(new RelativeLayout.LayoutParams(width, height));
+        this.newElement.setLayoutParams(new FrameLayout.LayoutParams(width, height));
 
         if (parentElement instanceof FlexboxLayout) {
             layoutParams = new FlexboxLayout.LayoutParams(width, height);
@@ -227,6 +208,8 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
             layoutParams = new RelativeLayout.LayoutParams(width, height);
         } else if (parentElement instanceof LinearLayout) {
             layoutParams = new LinearLayout.LayoutParams(width, height);
+        } else if (parentElement instanceof FrameLayout) {
+            layoutParams = new FrameLayout.LayoutParams(width, height);
         } else {
             throw new RuntimeException("Unknown type of parentElement- " + parentElement);
         }
@@ -323,6 +306,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         Integer zIndex = position.getzIndex();
 
         if (zIndex == null) {
+            materialCardView.setTranslationZ(0);
             return;
         }
 
@@ -331,11 +315,11 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
 
     protected void processBackground() {
         Background background = elementData.getBg();
-        materialCardView.setCardBackgroundColor(Color.parseColor("#00ffffff"));
+        materialCardView.setCardBackgroundColor(Color.TRANSPARENT);
 
         if (background != null) {
             if (background.getSolid() != null) {
-                processSolidBackground(background.getSolid());
+                background.getSolid().updateDrawable(backgroundDrawable);
 
             } else if (background.getGlossy() != null) {
                 applyGlassmorphism(background.getGlossy());
@@ -354,7 +338,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         blurryComposer.sampling(glossy.getSampling());
 
         if (glossy.getColor() != null)
-            blurryComposer.color(glossy.getColor().getSolidColor());
+            blurryComposer.color(glossy.getColor().getHexColor());
 
         if (globalData.getBitmapForBlurry() != null) {
             blurryComposer
@@ -373,32 +357,21 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         Border border = this.elementData.getBorder();
 
         if (border != null) {
-            if (border.getColor() != null)
-                materialCardView.setStrokeColor(border.getColor().getSolidColor());
-            else
-                materialCardView.setStrokeColor(ContextCompat.getColor(context, R.color.colorPrimary));
+            int borderColor = border.getColor().getHexColor();
+            materialCardView.setStrokeColor(borderColor);
 
             Integer calculatedBorder = border.getWidth(parentElement);
             if (calculatedBorder != null) {
                 materialCardView.setStrokeWidth(calculatedBorder);
+                backgroundDrawable.setStroke(calculatedBorder, borderColor);
             }
 
-            if (border.getRadius() > 0) {
-                materialCardView.setRadius(border.getRadius());
+            int calculatedRadius = border.getRadius();
+            if (calculatedRadius > 0) {
+                backgroundDrawable.setCornerRadius(calculatedRadius);
+                materialCardView.setRadius(calculatedRadius);
             }
         }
-    }
-
-    private void processSolidBackground(Colour solid) {
-        GradientDrawable drawable;
-        if (solid.getGrad() == null) {
-            drawable = new GradientDrawable();
-            drawable.setColor(solid.getSolidColor());
-        } else {
-            drawable = solid.getGrad().getGradient();
-        }
-
-        materialCardView.setBackground(drawable);
     }
 
     protected void processSpacing() {
@@ -414,7 +387,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         int marginTop = spacing.getMarginTop(parentElement);
         int marginBottom = spacing.getMarginBottom(parentElement);
 
-        ((ViewGroup.MarginLayoutParams) this.materialCardView.getLayoutParams())
+        ((ViewGroup.MarginLayoutParams) this.parentLayoutOfNewElement.getLayoutParams())
                 .setMargins(marginLeft, marginTop, marginRight, marginBottom);
 
         int paddingLeft = spacing.getPaddingLeft(parentElement);
