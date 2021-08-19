@@ -16,6 +16,7 @@ public class ClickAction implements Parcelable {
     private HashMap<String, Object> kv;
     private HashMap<String, Object> share;
     private boolean close;
+    private AppAR appAR;
 
     protected ClickAction(Parcel in) {
         iab = in.readParcelable(BrowserContent.class.getClassLoader());
@@ -26,6 +27,7 @@ public class ClickAction implements Parcelable {
         up = (HashMap<String, Object>) in.readSerializable();
         kv = (HashMap<String, Object>) in.readSerializable();
         share = (HashMap<String, Object>) in.readSerializable();
+        appAR = in.readParcelable(AppAR.class.getClassLoader());
     }
 
     public static final Creator<ClickAction> CREATOR = new Creator<ClickAction>() {
@@ -68,6 +70,10 @@ public class ClickAction implements Parcelable {
         return share;
     }
 
+    public AppAR getAR() {
+        return appAR;
+    }
+
     public boolean isClose() {
         return close;
     }
@@ -87,5 +93,6 @@ public class ClickAction implements Parcelable {
         dest.writeSerializable(up);
         dest.writeSerializable(kv);
         dest.writeSerializable(share);
+        dest.writeParcelable(appAR, flags);
     }
 }

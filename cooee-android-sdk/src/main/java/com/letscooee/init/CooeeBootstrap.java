@@ -3,8 +3,10 @@ package com.letscooee.init;
 import android.app.Application;
 import android.content.Context;
 import android.util.Log;
+
 import androidx.annotation.RestrictTo;
 import androidx.lifecycle.ProcessLifecycleOwner;
+
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.letscooee.BuildConfig;
 import com.letscooee.CooeeFactory;
@@ -30,11 +32,18 @@ public class CooeeBootstrap {
     CooeeBootstrap(Application application) {
         this.application = application;
         this.context = application.getApplicationContext();
-
-        CooeeFactory.init(this.context);
     }
 
     void init() {
+
+        // Skip initialisation of CooeeBootstrap if it's getting called via CooeeARProcess
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+            String processName = Application.getProcessName();
+            if (processName.contains(Constants.AR_PROCESS_NAME))
+                return;
+        }
+
+        CooeeFactory.init(this.context);
         application.registerActivityLifecycleCallbacks(new ActivityLifecycleCallback(this.context));
         ProcessLifecycleOwner.get().getLifecycle().addObserver(new AppLifecycleCallback(this.context));
         this.initAsyncTasks();

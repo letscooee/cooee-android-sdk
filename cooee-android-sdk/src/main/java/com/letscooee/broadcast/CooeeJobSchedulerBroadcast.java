@@ -1,4 +1,4 @@
-package com.letscooee.brodcast;
+package com.letscooee.broadcast;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

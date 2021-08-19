@@ -51,4 +51,5 @@ public class Constants {
 
     public static final int FONT_REFRESH_INTERVAL_DAYS = 7;
     public static final String FONTS_DIRECTORY = "cooeeFonts";
+    public static final String AR_PROCESS_NAME = "CooeeARProcess";
 }

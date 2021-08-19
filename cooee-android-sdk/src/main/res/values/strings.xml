@@ -1,1 +1,4 @@
-<resources></resources>
+<resources>
+    <!--  String resource named `game_view_content_description` is required by AR  -->
+    <string name="game_view_content_description" translatable="false">Game view</string>
+</resources>
