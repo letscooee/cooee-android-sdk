@@ -18,6 +18,15 @@ public class TriggerData implements Parcelable {
     private final PushNotificationTrigger pn;
     private final Map<String, Object> config;
 
+    public TriggerData(String id, InAppTrigger ian) {
+        this.id = id;
+        this.ian = ian;
+        this.version = 3;
+        this.duration = 0;
+        this.pn = null;
+        this.config = null;
+    }
+
     protected TriggerData(Parcel in) {
         id = in.readString();
         version = in.readDouble();

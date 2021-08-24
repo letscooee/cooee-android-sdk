@@ -6,15 +6,20 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.letscooee.BuildConfig;
 import com.letscooee.CooeeFactory;
+import com.letscooee.exceptions.HttpRequestFailedException;
 import com.letscooee.models.Event;
 import com.letscooee.models.trigger.TriggerData;
 import com.letscooee.models.trigger.elements.BaseElement;
+import com.letscooee.models.trigger.inapp.InAppTrigger;
+import com.letscooee.task.CooeeExecutors;
 import com.letscooee.trigger.adapters.ChildElementDeserializer;
 import com.letscooee.trigger.inapp.InAppTriggerActivity;
 import com.letscooee.utils.Constants;
@@ -189,10 +194,34 @@ public class EngagementTriggerHelper {
         Event event = new Event("CE Notification Clicked", triggerData);
         CooeeFactory.getSafeHTTPService().sendEvent(event);
 
-        if (triggerData.getInAppTrigger() == null) {
+        fetchInApp(context);
+    }
+
+    public static void fetchInApp(Context context) {
+        String id = LocalStorageHelper.getString(context, Constants.STORAGE_TRIGGER_ID, null);
+        if (TextUtils.isEmpty(id)) {
             return;
         }
 
-        renderInAppTrigger(context, triggerData);
+        CooeeExecutors.getInstance().singleThreadExecutor().execute(() -> {
+            try {
+                Map data = CooeeFactory.getBaseHTTPService().getTriggerIAN(id);
+                Gson gson = new GsonBuilder()
+                        .registerTypeAdapter(BaseElement.class, new ChildElementDeserializer())
+                        .create();
+
+                InAppTrigger ian = gson.fromJson(gson.toJson(data.get("ian")), InAppTrigger.class);
+
+                if (ian == null) {
+                    return;
+                }
+
+                LocalStorageHelper.remove(context, Constants.STORAGE_TRIGGER_ID);
+
+                renderInAppTrigger(context, new TriggerData(id, ian));
+            } catch (HttpRequestFailedException e) {
+                CooeeFactory.getSentryHelper().captureException(e);
+            }
+        });
     }
 }
