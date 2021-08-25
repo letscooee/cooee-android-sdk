@@ -55,7 +55,7 @@ public class BaseHTTPService extends ContextAware {
         return responseData;
     }
 
-    public Map<String, Object> getTriggerIAN(String triggerId) throws HttpRequestFailedException {
+    public Map<String, Object> getIANTrigger(String triggerId) throws HttpRequestFailedException {
         Call<Map<String, Object>> call = apiService.getTriggerIAN(triggerId);
         Response<?> response = this.executeHTTPCall(call, "Get trigger In-App data");
 

@@ -44,9 +44,6 @@ class AppLifecycleCallback implements DefaultLifecycleObserver {
         runtimeData.setInForeground();
         keepSessionAlive();
 
-        // Fetch In-App with HTTP call from server
-        EngagementTriggerHelper.fetchInApp(context);
-
         if (runtimeData.isFirstForeground()) {
             return;
         }
