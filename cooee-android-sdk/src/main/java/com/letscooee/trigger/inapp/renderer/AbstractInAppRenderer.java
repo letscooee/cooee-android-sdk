@@ -174,7 +174,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         Transform transform = elementData.getTransform();
         if (transform == null) return;
 
-        newElement.setRotation(transform.getRotate());
+        materialCardView.setRotation(transform.getRotate());
     }
 
     protected void processSizeBlock() {
