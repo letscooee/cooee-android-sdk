@@ -107,7 +107,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
     }
 
     protected void setBackgroundDrawable() {
-        materialCardView.setBackgroundDrawable(backgroundDrawable);
+        parentLayoutOfNewElement.setBackground(backgroundDrawable);
     }
 
     protected void processCommonBlocks() {
@@ -156,11 +156,11 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
     protected void processShadowBlock() {
         Shadow shadow = this.elementData.getShadow();
         if (shadow == null) {
-            materialCardView.setElevation(0);
+            materialCardView.setCardElevation(0);
             return;
         }
 
-        materialCardView.setElevation(2);
+        materialCardView.setCardElevation(shadow.getElevation());
     }
 
     protected void processClickBlock() {
