@@ -40,5 +40,5 @@ public interface APIService {
     Call<ResponseBody> setFirebaseToken(@Body Map<String, Object> tokenRequest);
 
     @GET("/v1/trigger/details/{triggerID}")
-    Call<Map<String, Object>> getTriggerIAN(@Path("triggerID") String triggerID);
+    Call<Map<String, Object>> getIANTrigger(@Path("triggerID") String triggerID);
 }
