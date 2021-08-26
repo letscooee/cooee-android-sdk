@@ -249,7 +249,8 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
 
     private void processMaxSize() {
         final Size size = elementData.getSize();
-        ViewGroup.LayoutParams layoutParams = newElement.getLayoutParams();
+        ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) newElement.getLayoutParams();
+        ViewGroup.MarginLayoutParams layoutParamsCardView = (ViewGroup.MarginLayoutParams) materialCardView.getLayoutParams();
 
         int currentWidth = newElement.getMeasuredWidth();
         int currentHeight = newElement.getMeasuredHeight();
@@ -257,13 +258,16 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         Integer maxWidth = size.getCalculatedMaxWidth(parentElement);
         if (maxWidth != null && maxWidth < currentWidth) {
             layoutParams.width = maxWidth;
+            layoutParamsCardView.width = maxWidth;
         }
 
         Integer maxHeight = size.getCalculatedMaxHeight(parentElement);
         if (maxHeight != null && maxHeight < currentHeight) {
             layoutParams.height = maxHeight;
+            layoutParamsCardView.height = maxHeight;
         }
 
+        materialCardView.setLayoutParams(layoutParamsCardView);
         newElement.setLayoutParams(layoutParams);
     }
 
