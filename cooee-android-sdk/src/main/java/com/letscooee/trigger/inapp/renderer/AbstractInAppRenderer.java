@@ -391,8 +391,9 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         int marginTop = spacing.getMarginTop(parentElement);
         int marginBottom = spacing.getMarginBottom(parentElement);
 
-        ((ViewGroup.MarginLayoutParams) this.parentLayoutOfNewElement.getLayoutParams())
-                .setMargins(marginLeft, marginTop, marginRight, marginBottom);
+        ViewGroup.MarginLayoutParams layoutParams = ((ViewGroup.MarginLayoutParams) this.materialCardView.getLayoutParams());
+        layoutParams.setMargins(marginLeft, marginTop, marginRight, marginBottom);
+        materialCardView.setLayoutParams(layoutParams);
 
         int paddingLeft = spacing.getPaddingLeft(parentElement);
         int paddingRight = spacing.getPaddingRight(parentElement);
