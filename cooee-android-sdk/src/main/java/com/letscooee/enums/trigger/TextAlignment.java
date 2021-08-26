@@ -5,7 +5,7 @@ import android.view.Gravity;
 public enum TextAlignment {
     LEFT(Gravity.START),
     CENTER(Gravity.CENTER),
-    END(Gravity.END);
+    RIGHT(Gravity.END);
 
     private final int value;
 
