@@ -14,22 +14,11 @@ public class TriggerData implements Parcelable {
     private final String id;
     private final double version;
     private final long duration;
-    private final InAppTrigger ian;
+    private InAppTrigger ian;
     private final PushNotificationTrigger pn;
     private final String engagementID;
     private final boolean internal;
     private final Map<String, Object> config;
-
-    public TriggerData(String id, InAppTrigger ian) {
-        this.id = id;
-        this.ian = ian;
-        this.version = 3;
-        this.duration = 0;
-        this.pn = null;
-        this.engagementID = null;
-        this.internal = false;
-        this.config = null;
-    }
 
     protected TriggerData(Parcel in) {
         id = in.readString();
@@ -69,6 +58,10 @@ public class TriggerData implements Parcelable {
 
     public InAppTrigger getInAppTrigger() {
         return ian;
+    }
+
+    public void setInAppTrigger(InAppTrigger ian) {
+        this.ian = ian;
     }
 
     public long getDuration() {

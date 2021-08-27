@@ -19,7 +19,6 @@ public class Constants {
     public static final String STORAGE_LAST_TOKEN_ATTEMPT = "last_token_check_attempt";
     public static final String STORAGE_LAST_FONT_ATTEMPT = "last_font_check_attempt";
     public static final String STORAGE_CACHED_FONTS = "cached_fonts";
-    public static final String STORAGE_TRIGGER_ID = "trigger_id";
     // endregion
 
     public static final String TAG = "CooeeSDK";

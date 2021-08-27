@@ -49,8 +49,7 @@ public class InAppTriggerHelper {
      */
     private static Object doHTTPForIAN(String id) {
         try {
-            Map<String, Object> data = CooeeFactory.getBaseHTTPService().getIANTrigger(id);
-            return data.get("ian");
+            return CooeeFactory.getBaseHTTPService().getIANTrigger(id).get("ian");
         } catch (HttpRequestFailedException e) {
             CooeeFactory.getSentryHelper().captureException(e);
         }

@@ -200,7 +200,7 @@ public class EngagementTriggerHelper {
         Event event = new Event("CE Notification Clicked", triggerData);
         CooeeFactory.getSafeHTTPService().sendEvent(event);
 
-        fetchInApp(context, triggerData);
+        loadLazyData(context, triggerData);
     }
 
     /**
@@ -208,14 +208,10 @@ public class EngagementTriggerHelper {
      *
      * @param context The application's context.
      */
-    public static void fetchInApp(Context context, TriggerData triggerData) {
-        String id = LocalStorageHelper.getString(context, Constants.STORAGE_TRIGGER_ID, null);
-        if (TextUtils.isEmpty(id)) {
-            return;
-        }
-
+    public static void loadLazyData(Context context, TriggerData triggerData) {
         InAppTriggerHelper.loadLazyData(triggerData, (InAppTrigger inAppTrigger) -> {
-            renderInAppTrigger(context, new TriggerData(id, inAppTrigger));
+            triggerData.setInAppTrigger(inAppTrigger);
+            renderInAppTrigger(context, triggerData);
         });
     }
 }
