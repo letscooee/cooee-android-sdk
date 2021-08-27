@@ -17,14 +17,14 @@ import java.util.Map;
  * A small helper class for in-app trigger for fetching data from server.
  *
  * @author Abhishek Taparia
- * @version 1.0.0
+ * @since 1.0.0
  */
 public class InAppTriggerHelper {
 
     /**
      * Load in-app data on a separate thread through a http call to server.
      *
-     * @param triggerData engagement trigger
+     * @param triggerData engagement trigger {@link TriggerData}
      * @param callback    callback on complete
      */
     public static void loadLazyData(TriggerData triggerData, Closure<InAppTrigger> callback) {

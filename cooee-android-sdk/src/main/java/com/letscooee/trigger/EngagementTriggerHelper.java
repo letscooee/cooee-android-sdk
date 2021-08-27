@@ -48,16 +48,20 @@ public class EngagementTriggerHelper {
      *
      * @param context     The application context.
      * @param triggerData Engagement trigger.
-     * @param ttl         The valid time-to-live duration (in seconds) of the this trigger.
      */
-    public static void storeActiveTriggerDetails(Context context, TriggerData triggerData, long ttl) {
+    public static void storeActiveTriggerDetails(Context context, TriggerData triggerData) {
         ArrayList<HashMap<String, Object>> activeTriggers = LocalStorageHelper.getList(context, Constants.STORAGE_ACTIVE_TRIGGERS);
 
         HashMap<String, Object> newActiveTrigger = new HashMap<>();
         newActiveTrigger.put("triggerID", triggerData.getId());
-        newActiveTrigger.put("duration", String.valueOf(new Date().getTime() + (ttl * 1000)));
+        // This is setting the valid time-to-live duration of this trigger.
+        newActiveTrigger.put("duration", String.valueOf(new Date().getTime() + (triggerData.getDuration() * 1000)));
         newActiveTrigger.put("engagementID", triggerData.getEngagementID());
-        newActiveTrigger.put("internal", triggerData.getInternal());
+
+        // Adding internal only if its value is true
+        if (triggerData.getInternal()) {
+            newActiveTrigger.put("internal", triggerData.getInternal());
+        }
 
         activeTriggers.add(newActiveTrigger);
         if (BuildConfig.DEBUG) {
@@ -130,7 +134,7 @@ public class EngagementTriggerHelper {
 
         TriggerData triggerData = gson.fromJson(rawTriggerData, TriggerData.class);
 
-        storeActiveTriggerDetails(context, triggerData, triggerData.getDuration());
+        storeActiveTriggerDetails(context, triggerData);
         renderInAppTrigger(context, triggerData);
     }
 

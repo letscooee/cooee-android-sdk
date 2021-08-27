@@ -117,7 +117,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
             return;
         }
 
-        EngagementTriggerHelper.storeActiveTriggerDetails(context, triggerData, triggerData.getDuration());
+        EngagementTriggerHelper.storeActiveTriggerDetails(context, triggerData);
 
         if (triggerData.getPn() != null) {
             Event event = new Event("CE Notification Received", triggerData);
