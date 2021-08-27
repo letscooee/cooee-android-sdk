@@ -32,6 +32,7 @@ import com.letscooee.trigger.adapters.ChildElementDeserializer;
 import com.letscooee.trigger.pushnotification.NotificationRenderer;
 import com.letscooee.trigger.pushnotification.SimpleNotificationRenderer;
 import com.letscooee.utils.Constants;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
@@ -116,7 +117,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
             return;
         }
 
-        EngagementTriggerHelper.storeActiveTriggerDetails(context, triggerData.getId(), triggerData.getDuration());
+        EngagementTriggerHelper.storeActiveTriggerDetails(context, triggerData);
 
         if (triggerData.getPn() != null) {
             Event event = new Event("CE Notification Received", triggerData);

@@ -6,15 +6,20 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.letscooee.BuildConfig;
 import com.letscooee.CooeeFactory;
+import com.letscooee.exceptions.HttpRequestFailedException;
 import com.letscooee.models.Event;
 import com.letscooee.models.trigger.TriggerData;
 import com.letscooee.models.trigger.elements.BaseElement;
+import com.letscooee.models.trigger.inapp.InAppTrigger;
+import com.letscooee.task.CooeeExecutors;
 import com.letscooee.trigger.adapters.ChildElementDeserializer;
 import com.letscooee.trigger.inapp.InAppTriggerActivity;
 import com.letscooee.utils.Constants;
@@ -41,16 +46,22 @@ public class EngagementTriggerHelper {
     /**
      * Store the current active trigger details in local storage for "late engagement tracking".
      *
-     * @param context The application context.
-     * @param id      Unique id of this engagement trigger.
-     * @param ttl     The valid time-to-live duration (in seconds) of the this trigger.
+     * @param context     The application context.
+     * @param triggerData Engagement trigger.
      */
-    public static void storeActiveTriggerDetails(Context context, String id, long ttl) {
-        ArrayList<HashMap<String, String>> activeTriggers = LocalStorageHelper.getList(context, Constants.STORAGE_ACTIVE_TRIGGERS);
+    public static void storeActiveTriggerDetails(Context context, TriggerData triggerData) {
+        ArrayList<HashMap<String, Object>> activeTriggers = LocalStorageHelper.getList(context, Constants.STORAGE_ACTIVE_TRIGGERS);
 
-        HashMap<String, String> newActiveTrigger = new HashMap<>();
-        newActiveTrigger.put("triggerID", id);
-        newActiveTrigger.put("duration", String.valueOf(new Date().getTime() + (ttl * 1000)));
+        HashMap<String, Object> newActiveTrigger = new HashMap<>();
+        newActiveTrigger.put("triggerID", triggerData.getId());
+        // This is setting the valid time-to-live duration of this trigger.
+        newActiveTrigger.put("duration", String.valueOf(new Date().getTime() + (triggerData.getDuration() * 1000)));
+        newActiveTrigger.put("engagementID", triggerData.getEngagementID());
+
+        // Adding internal only if its value is true
+        if (triggerData.getInternal()) {
+            newActiveTrigger.put("internal", triggerData.getInternal());
+        }
 
         activeTriggers.add(newActiveTrigger);
         if (BuildConfig.DEBUG) {
@@ -65,13 +76,13 @@ public class EngagementTriggerHelper {
      *
      * @param context The application context.
      */
-    public static ArrayList<HashMap<String, String>> getActiveTriggers(Context context) {
-        ArrayList<HashMap<String, String>> allTriggers = LocalStorageHelper.getList(context, Constants.STORAGE_ACTIVE_TRIGGERS);
+    public static ArrayList<HashMap<String, Object>> getActiveTriggers(Context context) {
+        ArrayList<HashMap<String, Object>> allTriggers = LocalStorageHelper.getList(context, Constants.STORAGE_ACTIVE_TRIGGERS);
 
-        ArrayList<HashMap<String, String>> activeTriggers = new ArrayList<>();
+        ArrayList<HashMap<String, Object>> activeTriggers = new ArrayList<>();
 
-        for (HashMap<String, String> map : allTriggers) {
-            String duration = map.get("duration");
+        for (HashMap<String, Object> map : allTriggers) {
+            String duration = (String) map.get("duration");
             if (TextUtils.isEmpty(duration)) {
                 continue;
             }
@@ -123,7 +134,7 @@ public class EngagementTriggerHelper {
 
         TriggerData triggerData = gson.fromJson(rawTriggerData, TriggerData.class);
 
-        storeActiveTriggerDetails(context, triggerData.getId(), triggerData.getDuration());
+        storeActiveTriggerDetails(context, triggerData);
         renderInAppTrigger(context, triggerData);
     }
 
@@ -189,10 +200,18 @@ public class EngagementTriggerHelper {
         Event event = new Event("CE Notification Clicked", triggerData);
         CooeeFactory.getSafeHTTPService().sendEvent(event);
 
-        if (triggerData.getInAppTrigger() == null) {
-            return;
-        }
+        loadLazyData(context, triggerData);
+    }
 
-        renderInAppTrigger(context, triggerData);
+    /**
+     * Fetch Trigger InApp data from server
+     *
+     * @param context The application's context.
+     */
+    public static void loadLazyData(Context context, TriggerData triggerData) {
+        InAppTriggerHelper.loadLazyData(triggerData, (InAppTrigger inAppTrigger) -> {
+            triggerData.setInAppTrigger(inAppTrigger);
+            renderInAppTrigger(context, triggerData);
+        });
     }
 }

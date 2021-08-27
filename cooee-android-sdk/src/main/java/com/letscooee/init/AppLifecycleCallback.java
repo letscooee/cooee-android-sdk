@@ -12,6 +12,7 @@ import com.letscooee.CooeeFactory;
 import com.letscooee.broadcast.ARActionPerformed;
 import com.letscooee.models.Event;
 import com.letscooee.network.SafeHTTPService;
+import com.letscooee.trigger.EngagementTriggerHelper;
 import com.letscooee.user.NewSessionExecutor;
 import com.letscooee.user.SessionManager;
 import com.letscooee.utils.Constants;

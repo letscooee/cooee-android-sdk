@@ -55,6 +55,13 @@ public class BaseHTTPService extends ContextAware {
         return responseData;
     }
 
+    public Map<String, Object> getIANTrigger(String triggerId) throws HttpRequestFailedException {
+        Call<Map<String, Object>> call = apiService.loadTriggerDetails(triggerId);
+        Response<?> response = this.executeHTTPCall(call, "Get trigger In-App data");
+
+        return (Map<String, Object>) response.body();
+    }
+
     public Map<String, Object> updateUserProfile(Map<String, Object> data) throws HttpRequestFailedException {
         Call<Map<String, Object>> call = apiService.updateProfile(data);
         Response<?> response = this.executeHTTPCall(call, "Update user profile");

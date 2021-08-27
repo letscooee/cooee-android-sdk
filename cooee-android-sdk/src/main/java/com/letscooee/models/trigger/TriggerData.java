@@ -14,8 +14,10 @@ public class TriggerData implements Parcelable {
     private final String id;
     private final double version;
     private final long duration;
-    private final InAppTrigger ian;
+    private InAppTrigger ian;
     private final PushNotificationTrigger pn;
+    private final String engagementID;
+    private final boolean internal;
     private final Map<String, Object> config;
 
     protected TriggerData(Parcel in) {
@@ -24,6 +26,8 @@ public class TriggerData implements Parcelable {
         duration = in.readLong();
         ian = in.readParcelable(InAppTrigger.class.getClassLoader());
         pn = in.readParcelable(PushNotificationTrigger.class.getClassLoader());
+        engagementID = in.readString();
+        internal = in.readByte() != 0;
         config = new HashMap<>();
         in.readMap(config, Object.class.getClassLoader());
     }
@@ -56,8 +60,20 @@ public class TriggerData implements Parcelable {
         return ian;
     }
 
+    public void setInAppTrigger(InAppTrigger ian) {
+        this.ian = ian;
+    }
+
     public long getDuration() {
         return duration;
+    }
+
+    public String getEngagementID() {
+        return engagementID;
+    }
+
+    public Boolean getInternal() {
+        return internal;
     }
 
     public Map<String, Object> getConfig() {
@@ -76,6 +92,8 @@ public class TriggerData implements Parcelable {
         dest.writeLong(duration);
         dest.writeParcelable(ian, flags);
         dest.writeParcelable(pn, flags);
+        dest.writeString(engagementID);
+        dest.writeByte((byte) (internal ? 1 : 0));
         dest.writeMap(config);
     }
 }
