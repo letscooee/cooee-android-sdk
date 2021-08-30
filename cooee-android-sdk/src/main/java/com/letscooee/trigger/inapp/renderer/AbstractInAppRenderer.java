@@ -37,7 +37,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
     protected final GradientDrawable backgroundDrawable = new GradientDrawable();
 
     protected final MaterialCardView materialCardView;
-    protected final FrameLayout parentLayoutOfNewElement;
+    protected final FrameLayout baseFrameLayout;
     protected final ImageView backgroundImage;
 
     /**
@@ -53,7 +53,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         this.globalData = globalData;
 
         this.materialCardView = new MaterialCardView(context);
-        this.parentLayoutOfNewElement = new FrameLayout(context);
+        this.baseFrameLayout = new FrameLayout(context);
         this.backgroundImage = new ImageView(context);
         this.setupWrapperForNewElement();
     }
@@ -67,7 +67,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
      *              |
      *              |--- {@link #materialCardView}
      *                      |
-     *                      |--- {@link #parentLayoutOfNewElement} FrameLayout
+     *                      |--- {@link #baseFrameLayout} FrameLayout
      *                              |
      *                              |--- {@link #backgroundImage} Image View for Glossy/solid/image
      *                              |--- {@link #newElement} Our new element being inserted by this class. This can
@@ -76,11 +76,11 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
      * </pre>
      */
     private void setupWrapperForNewElement() {
-        parentLayoutOfNewElement.addView(backgroundImage);
-        materialCardView.addView(parentLayoutOfNewElement);
+        baseFrameLayout.addView(backgroundImage);
+        materialCardView.addView(baseFrameLayout);
 
         FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(MP, MP);
-        parentLayoutOfNewElement.setLayoutParams(layoutParams);
+        baseFrameLayout.setLayoutParams(layoutParams);
         backgroundImage.setLayoutParams(layoutParams);
 
         backgroundImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
@@ -107,7 +107,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
     }
 
     protected void setBackgroundDrawable() {
-        parentLayoutOfNewElement.setBackground(backgroundDrawable);
+        baseFrameLayout.setBackground(backgroundDrawable);
     }
 
     protected void processCommonBlocks() {
@@ -132,7 +132,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
             Log.d(TAG, "Inserting new element " + newElement.getClass().getSimpleName());
         }
 
-        this.parentLayoutOfNewElement.addView(newElement);
+        this.baseFrameLayout.addView(newElement);
     }
 
     protected void applyFlexItemProperties() {
