@@ -37,7 +37,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
     protected final GradientDrawable backgroundDrawable = new GradientDrawable();
 
     protected final MaterialCardView materialCardView;
-    protected final FrameLayout parentLayoutOfNewElement;
+    protected final FrameLayout baseFrameLayout;
     protected final ImageView backgroundImage;
 
     /**
@@ -53,7 +53,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         this.globalData = globalData;
 
         this.materialCardView = new MaterialCardView(context);
-        this.parentLayoutOfNewElement = new FrameLayout(context);
+        this.baseFrameLayout = new FrameLayout(context);
         this.backgroundImage = new ImageView(context);
         this.setupWrapperForNewElement();
     }
@@ -67,7 +67,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
      *              |
      *              |--- {@link #materialCardView}
      *                      |
-     *                      |--- {@link #parentLayoutOfNewElement} FrameLayout
+     *                      |--- {@link #baseFrameLayout} FrameLayout
      *                              |
      *                              |--- {@link #backgroundImage} Image View for Glossy/solid/image
      *                              |--- {@link #newElement} Our new element being inserted by this class. This can
@@ -76,11 +76,11 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
      * </pre>
      */
     private void setupWrapperForNewElement() {
-        parentLayoutOfNewElement.addView(backgroundImage);
-        materialCardView.addView(parentLayoutOfNewElement);
+        baseFrameLayout.addView(backgroundImage);
+        materialCardView.addView(baseFrameLayout);
 
         FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(MP, MP);
-        parentLayoutOfNewElement.setLayoutParams(layoutParams);
+        baseFrameLayout.setLayoutParams(layoutParams);
         backgroundImage.setLayoutParams(layoutParams);
 
         backgroundImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
@@ -107,7 +107,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
     }
 
     protected void setBackgroundDrawable() {
-        materialCardView.setBackgroundDrawable(backgroundDrawable);
+        baseFrameLayout.setBackground(backgroundDrawable);
     }
 
     protected void processCommonBlocks() {
@@ -132,7 +132,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
             Log.d(TAG, "Inserting new element " + newElement.getClass().getSimpleName());
         }
 
-        this.parentLayoutOfNewElement.addView(newElement);
+        this.baseFrameLayout.addView(newElement);
     }
 
     protected void applyFlexItemProperties() {
@@ -156,11 +156,11 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
     protected void processShadowBlock() {
         Shadow shadow = this.elementData.getShadow();
         if (shadow == null) {
-            materialCardView.setElevation(0);
+            materialCardView.setCardElevation(0);
             return;
         }
 
-        materialCardView.setElevation(2);
+        materialCardView.setCardElevation(shadow.getElevation());
     }
 
     protected void processClickBlock() {
@@ -174,7 +174,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         Transform transform = elementData.getTransform();
         if (transform == null) return;
 
-        newElement.setRotation(transform.getRotate());
+        materialCardView.setRotation(transform.getRotate());
     }
 
     protected void processSizeBlock() {
@@ -249,7 +249,8 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
 
     private void processMaxSize() {
         final Size size = elementData.getSize();
-        ViewGroup.LayoutParams layoutParams = newElement.getLayoutParams();
+        ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) newElement.getLayoutParams();
+        ViewGroup.MarginLayoutParams layoutParamsCardView = (ViewGroup.MarginLayoutParams) materialCardView.getLayoutParams();
 
         int currentWidth = newElement.getMeasuredWidth();
         int currentHeight = newElement.getMeasuredHeight();
@@ -257,13 +258,16 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         Integer maxWidth = size.getCalculatedMaxWidth(parentElement);
         if (maxWidth != null && maxWidth < currentWidth) {
             layoutParams.width = maxWidth;
+            layoutParamsCardView.width = maxWidth;
         }
 
         Integer maxHeight = size.getCalculatedMaxHeight(parentElement);
         if (maxHeight != null && maxHeight < currentHeight) {
             layoutParams.height = maxHeight;
+            layoutParamsCardView.height = maxHeight;
         }
 
+        materialCardView.setLayoutParams(layoutParamsCardView);
         newElement.setLayoutParams(layoutParams);
     }
 
@@ -387,8 +391,9 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         int marginTop = spacing.getMarginTop(parentElement);
         int marginBottom = spacing.getMarginBottom(parentElement);
 
-        ((ViewGroup.MarginLayoutParams) this.parentLayoutOfNewElement.getLayoutParams())
-                .setMargins(marginLeft, marginTop, marginRight, marginBottom);
+        ViewGroup.MarginLayoutParams layoutParams = ((ViewGroup.MarginLayoutParams) this.materialCardView.getLayoutParams());
+        layoutParams.setMargins(marginLeft, marginTop, marginRight, marginBottom);
+        materialCardView.setLayoutParams(layoutParams);
 
         int paddingLeft = spacing.getPaddingLeft(parentElement);
         int paddingRight = spacing.getPaddingRight(parentElement);

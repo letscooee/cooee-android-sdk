@@ -66,8 +66,8 @@ public class GroupRenderer extends AbstractInAppRenderer {
 
         materialCardView.setClipChildren(shouldHideOverflow);
         materialCardView.setClipToOutline(shouldHideOverflow);
-        parentLayoutOfNewElement.setClipChildren(shouldHideOverflow);
-        parentLayoutOfNewElement.setClipToOutline(shouldHideOverflow);
+        baseFrameLayout.setClipChildren(shouldHideOverflow);
+        baseFrameLayout.setClipToOutline(shouldHideOverflow);
         ((ViewGroup) newElement).setClipChildren(shouldHideOverflow);
         newElement.setClipToOutline(shouldHideOverflow);
     }
