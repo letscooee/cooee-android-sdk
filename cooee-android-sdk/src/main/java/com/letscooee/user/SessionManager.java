@@ -87,24 +87,6 @@ public class SessionManager {
     }
 
     /**
-     * When the app come back from background (B) to foreground (F) and if the user's ideal time
-     * {@link Constants#IDLE_TIME_IN_SECONDS} is elapsed; this method will return the duration (in seconds)
-     * from the session start to the time app went to background.
-     * <p>
-     * Hence this method will throw an exception if the app is not coming from the backend,
-     * instead it is just the app launch.
-     *
-     * @return Total session duration in seconds
-     */
-    public long getTotalDurationInSeconds() {
-        if (this.runtimeData.isFirstForeground()) {
-            throw new IllegalStateException("This is the first time in foreground after launch");
-        }
-
-        return ((this.runtimeData.getLastEnterBackground().getTime() - this.currentSessionStartTime.getTime()) / 1000);
-    }
-
-    /**
      * Conclude the current session by sending an event to the server followed by
      * destroying it.
      */
@@ -112,7 +94,6 @@ public class SessionManager {
         Map<String, Object> requestData = new HashMap<>();
         requestData.put("sessionID", this.getCurrentSessionID());
         requestData.put("occurred", new Date());
-        requestData.put("duration", this.getTotalDurationInSeconds());
 
         CooeeFactory.getSafeHTTPService().sendSessionConcludedEvent(requestData);
         this.destroySession();
