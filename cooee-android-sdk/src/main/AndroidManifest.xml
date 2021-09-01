@@ -15,6 +15,10 @@
         android:name=".init.AppController"
         android:usesCleartextTraffic="true">
 
+        <activity
+            android:name=".device.CooeeDebugInfoActivity"
+            android:exported="true" />
+
         <activity android:name=".trigger.inapp.InAppBrowserActivity" />
 
         <meta-data
@@ -54,7 +58,8 @@
             </intent-filter>
         </receiver>
 
-        <receiver android:name=".broadcast.ARActionPerformed"
+        <receiver
+            android:name=".broadcast.ARActionPerformed"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
