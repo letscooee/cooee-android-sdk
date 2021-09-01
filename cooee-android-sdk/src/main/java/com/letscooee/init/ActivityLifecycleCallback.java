@@ -8,9 +8,12 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.letscooee.CooeeFactory;
+import com.letscooee.gesture.ShakeDetector;
 import com.letscooee.trigger.CooeeEmptyActivity;
 import com.letscooee.trigger.EngagementTriggerHelper;
 import com.letscooee.trigger.inapp.InAppTriggerActivity;
+import com.letscooee.trigger.inapp.PreventBlurActivity;
 
 /**
  * Register callbacks of different lifecycle of all the activities.
@@ -21,6 +24,7 @@ import com.letscooee.trigger.inapp.InAppTriggerActivity;
 public class ActivityLifecycleCallback implements Application.ActivityLifecycleCallbacks {
 
     private final Context context;
+    private ShakeDetector shakeDetector;
 
     ActivityLifecycleCallback(Context context) {
         this.context = context;
@@ -43,10 +47,19 @@ public class ActivityLifecycleCallback implements Application.ActivityLifecycleC
         if (activity instanceof CooeeEmptyActivity) {
             activity.finish();
         }
+
+        if (activity instanceof PreventBlurActivity) {
+            return;
+        }
+
+        shakeDetector = new ShakeDetector(activity);
+        shakeDetector.setShakeCount(CooeeFactory.getManifestReader().getShakeToDebugCount());
     }
 
     @Override
     public void onActivityPaused(@NonNull Activity activity) {
+        assert shakeDetector != null;
+        shakeDetector.unregisterListener();
     }
 
     @Override
