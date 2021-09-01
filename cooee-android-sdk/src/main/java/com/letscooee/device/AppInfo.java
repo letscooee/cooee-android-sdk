@@ -4,8 +4,14 @@ import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+
 import androidx.annotation.RestrictTo;
+
 import com.letscooee.ContextAware;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 /**
  * A utility helper class to provide some common information about the installing/host app.
@@ -25,6 +31,7 @@ public class AppInfo extends ContextAware {
         private final String version;
         private final String packageName;
         private final boolean isDebuggable;
+        private final long lastUpdateTime;
 
         CachedInfo() {
             this.name = this.getAppName();
@@ -35,6 +42,7 @@ public class AppInfo extends ContextAware {
 
             this.version = packageInfo.versionName + "+" + packageInfo.versionCode;
             this.packageName = packageInfo.packageName;
+            lastUpdateTime = packageInfo.lastUpdateTime;
         }
 
         private PackageInfo getPackageInfo() {
@@ -100,5 +108,15 @@ public class AppInfo extends ContextAware {
 
     public String getVersion() {
         return this.cachedInfo.version;
+    }
+
+    /**
+     * Provide last build date
+     *
+     * @return date in {@link String}
+     */
+    public String getLasBuildTime() {
+        return new SimpleDateFormat("dd-MMM-yyyy hh:mm a", Locale.ENGLISH)
+                .format(new Date(this.cachedInfo.lastUpdateTime));
     }
 }

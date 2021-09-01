@@ -5,7 +5,9 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
+
 import androidx.annotation.RestrictTo;
+
 import io.sentry.Sentry;
 
 /**
@@ -21,6 +23,7 @@ public class ManifestReader {
 
     private String appID = "";
     private String appSecret = "";
+    private int shakeToDebugCount = 3;
 
     public synchronized static ManifestReader getInstance(Context context) {
         if (instance == null) {
@@ -51,6 +54,7 @@ public class ManifestReader {
         Bundle bundle = appInfo.metaData;
         this.appID = bundle.getString("COOEE_APP_ID");
         this.appSecret = bundle.getString("COOEE_APP_SECRET");
+        this.shakeToDebugCount = bundle.getInt("SHAKE_TO_DEBUG_COUNT", 5);
     }
 
     public String getAppID() {
@@ -59,5 +63,9 @@ public class ManifestReader {
 
     public String getAppSecret() {
         return this.appSecret;
+    }
+
+    public int getShakeToDebugCount() {
+        return shakeToDebugCount;
     }
 }

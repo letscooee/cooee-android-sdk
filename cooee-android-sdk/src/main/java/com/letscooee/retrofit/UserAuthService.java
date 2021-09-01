@@ -38,6 +38,7 @@ public class UserAuthService {
 
     private String sdkToken;
     private String userID;
+    private String deviceID;
 
     public UserAuthService(Context context, SentryHelper sentryHelper) {
         this.context = context.getApplicationContext();
@@ -131,11 +132,12 @@ public class UserAuthService {
     private void saveUserDataInStorage(UserAuthResponse userAuthResponse) {
         this.sdkToken = userAuthResponse.getSdkToken();
         this.userID = userAuthResponse.getId();
-
+        this.deviceID= userAuthResponse.getDeviceID();
         this.updateAPIClient();
 
         LocalStorageHelper.putString(context, Constants.STORAGE_SDK_TOKEN, sdkToken);
         LocalStorageHelper.putString(context, Constants.STORAGE_USER_ID, userID);
+        LocalStorageHelper.putString(context, Constants.STORAGE_DEVICE_ID, deviceID);
     }
 
     private void updateAPIClient() {
