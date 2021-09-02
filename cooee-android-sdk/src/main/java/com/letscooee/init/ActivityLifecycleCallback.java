@@ -58,7 +58,7 @@ public class ActivityLifecycleCallback implements Application.ActivityLifecycleC
 
     @Override
     public void onActivityPaused(@NonNull Activity activity) {
-        assert shakeDetector != null;
+        if (shakeDetector == null) return;
         shakeDetector.unregisterListener();
     }
 
