@@ -132,7 +132,7 @@ public class UserAuthService {
     private void saveUserDataInStorage(UserAuthResponse userAuthResponse) {
         this.sdkToken = userAuthResponse.getSdkToken();
         this.userID = userAuthResponse.getId();
-        this.deviceID= userAuthResponse.getDeviceID();
+        this.deviceID = userAuthResponse.getDeviceID();
         this.updateAPIClient();
 
         LocalStorageHelper.putString(context, Constants.STORAGE_SDK_TOKEN, sdkToken);
