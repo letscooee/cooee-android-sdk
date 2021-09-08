@@ -8,12 +8,10 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import com.letscooee.CooeeSDK;
 import com.letscooee.cooeetester.databinding.ActivityHomeBinding;
 import com.letscooee.trigger.EngagementTriggerHelper;
-import com.letscooee.utils.InAppNotificationClickListener;
+import com.letscooee.utils.CooeeCTAListener;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -21,7 +19,7 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Scanner;
 
-public class HomeActivity extends AppCompatActivity implements InAppNotificationClickListener {
+public class HomeActivity extends AppCompatActivity implements CooeeCTAListener {
 
     private final String TAG = "HomeActivity";
 
@@ -37,7 +35,7 @@ public class HomeActivity extends AppCompatActivity implements InAppNotification
         setContentView(binding.getRoot());
         context = this;
         cooeeSDK = CooeeSDK.getDefaultInstance(this);
-        cooeeSDK.setInAppNotificationButtonListener(this);
+        cooeeSDK.setCTAListener(this);
         cooeeSDK.setCurrentScreen(TAG);
 
         Log.d(TAG, "User ID " + cooeeSDK.getUserID());
@@ -82,7 +80,7 @@ public class HomeActivity extends AppCompatActivity implements InAppNotification
     }
 
     @Override
-    public void onInAppButtonClick(HashMap<String, Object> hashMap) {
+    public void onResponse(HashMap<String, Object> hashMap) {
         for (String key : hashMap.keySet()) {
             Log.d("Type ::", key + " -> " + hashMap.get(key).getClass().getName());
         }
