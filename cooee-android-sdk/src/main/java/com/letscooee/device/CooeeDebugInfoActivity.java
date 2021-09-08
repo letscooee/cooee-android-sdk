@@ -1,11 +1,15 @@
 package com.letscooee.device;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -26,6 +30,7 @@ public class CooeeDebugInfoActivity extends AppCompatActivity implements Prevent
         imageViewClose.setOnClickListener(v -> finish());
         LinearLayout linearLayoutInfo = findViewById(R.id.linearLayoutInfo);
 
+        ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
         int headingLayout = R.layout.view_info_heading;
         int rowLayout = R.layout.view_info_row;
 
@@ -42,6 +47,12 @@ public class CooeeDebugInfoActivity extends AppCompatActivity implements Prevent
                 View view = LayoutInflater.from(this).inflate(rowLayout, null);
                 ((TextView) view.findViewById(R.id.tvTitle)).setText(property.getKey());
                 ((TextView) view.findViewById(R.id.tvValue)).setText(property.getValue().toString());
+
+                view.setOnClickListener(v -> {
+                    ClipData clip = ClipData.newPlainText(property.getKey(), property.getValue().toString());
+                    clipboard.setPrimaryClip(clip);
+                    Toast.makeText(this, property.getKey()+" Copied", Toast.LENGTH_SHORT).show();
+                });
                 linearLayoutInfo.addView(view);
             }
         }
