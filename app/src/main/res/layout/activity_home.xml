@@ -53,4 +53,16 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btnProfile" />
+
+    <ImageView
+        android:id="@+id/ivDebugInfo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/button_shape"
+        app:layout_constraintBottom_toBottomOf="@+id/btnSendImageEvent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/btnSendImageEvent"
+        app:layout_constraintTop_toTopOf="@+id/btnSendImageEvent"
+        app:srcCompat="@drawable/ic_outline_info_24"
+        app:tint="@color/white" />
 </androidx.constraintlayout.widget.ConstraintLayout>
