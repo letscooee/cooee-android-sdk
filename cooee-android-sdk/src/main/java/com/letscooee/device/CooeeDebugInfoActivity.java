@@ -24,7 +24,6 @@ import com.letscooee.utils.DebugInfoCollector;
 
 import java.util.Calendar;
 import java.util.Map;
-import java.util.TreeMap;
 
 /**
  * Show debug information for inter use only
@@ -115,10 +114,10 @@ public class CooeeDebugInfoActivity extends AppCompatActivity implements Prevent
         int rowLayout = R.layout.view_info_row;
 
         DebugInfoCollector debugInfoCollector = new DebugInfoCollector(this);
-        TreeMap<String, TreeMap<String, Object>> debugInfo = debugInfoCollector.getDebugInfo();
+        Map<String, Map<String, Object>> debugInfo = debugInfoCollector.getDebugInfo();
 
-        for (Map.Entry<String, TreeMap<String, Object>> header : debugInfo.entrySet()) {
-            TreeMap<String, Object> valueMap = header.getValue();
+        for (Map.Entry<String, Map<String, Object>> header : debugInfo.entrySet()) {
+            Map<String, Object> valueMap = header.getValue();
             View titleView = LayoutInflater.from(this).inflate(headingLayout, null);
             ((TextView) titleView.findViewById(R.id.tvTitle)).setText(header.getKey());
             linearLayoutInfo.addView(titleView);

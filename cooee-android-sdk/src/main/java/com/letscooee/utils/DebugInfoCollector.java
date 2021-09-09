@@ -10,6 +10,8 @@ import com.letscooee.device.AppInfo;
 import com.letscooee.device.DeviceInfo;
 import com.letscooee.init.DefaultUserPropertiesCollector;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.TreeMap;
 
 /**
@@ -24,7 +26,7 @@ public class DebugInfoCollector {
     private final AppInfo appInfo;
     private final Context context;
     private final DeviceInfo deviceInfo;
-    private final TreeMap<String, TreeMap<String, Object>> debugInfo;
+    private final Map<String, Map<String, Object>> debugInfo;
     private final DefaultUserPropertiesCollector otherInfo;
 
     public DebugInfoCollector(Context context) {
@@ -45,7 +47,7 @@ public class DebugInfoCollector {
      * Collect all User information and add it to {@link #debugInfo}
      */
     private void collectUserInfo() {
-        TreeMap<String, Object> userInfo = new TreeMap<>();
+        Map<String, Object> userInfo = new LinkedHashMap<>();
         userInfo.put("User ID", LocalStorageHelper.getString(context,
                 Constants.STORAGE_USER_ID, ""));
         debugInfo.put("User Info", userInfo);
@@ -55,7 +57,7 @@ public class DebugInfoCollector {
      * Collect all Device information and add it to {@link #debugInfo}
      */
     private void collectDeviceInfo() {
-        TreeMap<String, Object> deviceInformation = new TreeMap<>();
+        Map<String, Object> deviceInformation = new LinkedHashMap<>();
         deviceInformation.put("Device Name", deviceInfo.getDeviceName());
         deviceInformation.put("SDK Version", BuildConfig.VERSION_NAME + "+" + BuildConfig.VERSION_CODE);
         deviceInformation.put("App Version", appInfo.getVersion());
@@ -72,7 +74,7 @@ public class DebugInfoCollector {
         debugInfo.put("Device & App Info", deviceInformation);
     }
 
-    public TreeMap<String, TreeMap<String, Object>> getDebugInfo() {
+    public Map<String, Map<String, Object>> getDebugInfo() {
         return debugInfo;
     }
 }
