@@ -62,7 +62,7 @@ public class CooeeDebugInfoActivity extends AppCompatActivity implements Prevent
     }
 
     /**
-     * If SDK is in release mode and use is not authorized in current session password screen
+     * If SDK is in release mode and user is not authorized in current session password screen
      * will appear.
      */
     private void showPasswordScreen() {
@@ -91,7 +91,7 @@ public class CooeeDebugInfoActivity extends AppCompatActivity implements Prevent
             return;
         } else if (!password.equals(ACTIVITY_PASSWORD)) {
             passwordWarning.setVisibility(View.VISIBLE);
-            passwordWarning.setText("Entered Invalid Password");
+            passwordWarning.setText("Invalid Password");
             return;
         }
 

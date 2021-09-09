@@ -20,7 +20,6 @@ public class Constants {
     public static final String STORAGE_LAST_FONT_ATTEMPT = "last_font_check_attempt";
     public static final String STORAGE_CACHED_FONTS = "cached_fonts";
     public static final String STORAGE_FB_TOKEN = "fb_token";
-    public static final String STORAGE_FIRST_LAUNCH_DATE = "first_launch_date";
     public static final String STORAGE_DEVICE_ID = "device_id";
     // endregion
 

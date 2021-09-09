@@ -23,7 +23,7 @@ public class ManifestReader {
 
     private String appID = "";
     private String appSecret = "";
-    private int shakeToDebugCount = 3;
+    private int shakeToDebugCount = 6;
 
     public synchronized static ManifestReader getInstance(Context context) {
         if (instance == null) {
@@ -54,7 +54,7 @@ public class ManifestReader {
         Bundle bundle = appInfo.metaData;
         this.appID = bundle.getString("COOEE_APP_ID");
         this.appSecret = bundle.getString("COOEE_APP_SECRET");
-        this.shakeToDebugCount = bundle.getInt("SHAKE_TO_DEBUG_COUNT", 3);
+        this.shakeToDebugCount = bundle.getInt("SHAKE_TO_DEBUG_COUNT", 6);
     }
 
     public String getAppID() {

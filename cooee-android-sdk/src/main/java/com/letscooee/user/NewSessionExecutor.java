@@ -14,10 +14,8 @@ import com.letscooee.utils.Constants;
 import com.letscooee.utils.LocalStorageHelper;
 import org.jetbrains.annotations.NotNull;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 import com.unity3d.player.UnityPlayerActivity;
 
@@ -65,8 +63,6 @@ public class NewSessionExecutor extends ContextAware {
     private boolean isAppFirstTimeLaunch() {
         if (LocalStorageHelper.getBoolean(context, Constants.STORAGE_FIRST_TIME_LAUNCH, true)) {
             LocalStorageHelper.putBoolean(context, Constants.STORAGE_FIRST_TIME_LAUNCH, false);
-            String launchDate = new SimpleDateFormat("dd-MMM-yyyy hh:mm a", Locale.ENGLISH).format(new Date());
-            LocalStorageHelper.putString(context, Constants.STORAGE_FIRST_LAUNCH_DATE, launchDate);
             return true;
         } else {
             return false;

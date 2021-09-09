@@ -38,6 +38,9 @@ public class DebugInfoCollector {
         init();
     }
 
+    /**
+     * Collects device info and user info
+     */
     private void init() {
         collectDeviceInfo();
         collectUserInfo();
@@ -62,8 +65,7 @@ public class DebugInfoCollector {
         deviceInformation.put("SDK Version", BuildConfig.VERSION_NAME + "+" + BuildConfig.VERSION_CODE);
         deviceInformation.put("App Version", appInfo.getVersion());
         deviceInformation.put("Bundle ID", appInfo.getPackageName());
-        deviceInformation.put("Install Date", LocalStorageHelper.getString(context,
-                Constants.STORAGE_FIRST_LAUNCH_DATE, ""));
+        deviceInformation.put("Install Date", appInfo.getFirstInstallTime());
         deviceInformation.put("Build Date", appInfo.getLasBuildTime());
         String firebaseToken = LocalStorageHelper.getString(context,
                 Constants.STORAGE_FB_TOKEN, "");
