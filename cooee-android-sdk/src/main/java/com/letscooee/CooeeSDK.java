@@ -1,7 +1,9 @@
 package com.letscooee;
 
 import android.content.Context;
+import android.content.Intent;
 
+import com.letscooee.device.DebugInfoActivity;
 import com.letscooee.models.Event;
 import com.letscooee.network.SafeHTTPService;
 import com.letscooee.retrofit.UserAuthService;
@@ -172,5 +174,15 @@ public class CooeeSDK {
 
     public CooeeCTAListener getCTAListener() {
         return ctaListener == null ? null : ctaListener.get();
+    }
+
+    /**
+     * Launch {@link DebugInfoActivity} activity which holds debug information.
+     * These information is useful to debug problem with the SDK.
+     */
+    public void showDebugInfo() {
+        Intent intent = new Intent(context, DebugInfoActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        context.startActivity(intent);
     }
 }

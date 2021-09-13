@@ -19,6 +19,8 @@ public class Constants {
     public static final String STORAGE_LAST_TOKEN_ATTEMPT = "last_token_check_attempt";
     public static final String STORAGE_LAST_FONT_ATTEMPT = "last_font_check_attempt";
     public static final String STORAGE_CACHED_FONTS = "cached_fonts";
+    public static final String STORAGE_FB_TOKEN = "fb_token";
+    public static final String STORAGE_DEVICE_ID = "cooee_device_id";
     // endregion
 
     public static final String TAG = "CooeeSDK";
@@ -52,4 +54,5 @@ public class Constants {
     public static final int FONT_REFRESH_INTERVAL_DAYS = 7;
     public static final String FONTS_DIRECTORY = "cooeeFonts";
     public static final String AR_PROCESS_NAME = "CooeeARProcess";
+    public static final int INCREMENT_PASSWORD = 10;
 }

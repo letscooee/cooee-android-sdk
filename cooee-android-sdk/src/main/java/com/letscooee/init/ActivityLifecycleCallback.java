@@ -3,14 +3,19 @@ package com.letscooee.init;
 import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.letscooee.CooeeFactory;
+import com.letscooee.device.DebugInfoActivity;
+import com.letscooee.gesture.ShakeDetector;
 import com.letscooee.trigger.CooeeEmptyActivity;
 import com.letscooee.trigger.EngagementTriggerHelper;
 import com.letscooee.trigger.inapp.InAppTriggerActivity;
+import com.letscooee.trigger.inapp.PreventBlurActivity;
 
 /**
  * Register callbacks of different lifecycle of all the activities.
@@ -21,6 +26,7 @@ import com.letscooee.trigger.inapp.InAppTriggerActivity;
 public class ActivityLifecycleCallback implements Application.ActivityLifecycleCallbacks {
 
     private final Context context;
+    private ShakeDetector shakeDetector;
 
     ActivityLifecycleCallback(Context context) {
         this.context = context;
@@ -43,10 +49,23 @@ public class ActivityLifecycleCallback implements Application.ActivityLifecycleC
         if (activity instanceof CooeeEmptyActivity) {
             activity.finish();
         }
+
+        if (activity instanceof PreventBlurActivity) {
+            return;
+        }
+
+        shakeDetector = new ShakeDetector(activity, CooeeFactory.getManifestReader().getShakeToDebugCount(),
+                (Object object) -> {
+                    Intent intent = new Intent(activity, DebugInfoActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                    activity.startActivity(intent);
+                });
     }
 
     @Override
     public void onActivityPaused(@NonNull Activity activity) {
+        if (shakeDetector == null) return;
+        shakeDetector.unregisterListener();
     }
 
     @Override

@@ -15,6 +15,7 @@ import com.letscooee.pushnotification.PushProviderUtils;
 import com.letscooee.schedular.CooeeJobUtils;
 import com.letscooee.task.CooeeExecutors;
 import com.letscooee.utils.Constants;
+import com.letscooee.utils.LocalStorageHelper;
 
 /**
  * A one time initializer class which initialises the Cooee SDK. This is used internally by the SDK
