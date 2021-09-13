@@ -1,8 +1,6 @@
 package com.letscooee.device;
 
-import android.content.ClipData;
-import android.content.ClipboardManager;
-import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -11,7 +9,6 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.app.AppCompatActivity;
@@ -19,12 +16,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.textfield.TextInputEditText;
 import com.letscooee.BuildConfig;
 import com.letscooee.R;
+import com.letscooee.models.DebugInformation;
 import com.letscooee.trigger.inapp.PreventBlurActivity;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.DebugInfoCollector;
 
 import java.util.Calendar;
-import java.util.Map;
+import java.util.List;
 
 /**
  * Show debug information for inter use only
@@ -38,6 +36,7 @@ public class DebugInfoActivity extends AppCompatActivity implements PreventBlurA
     private static boolean isUserAuthorisedPreviously = false;
 
     private final String validPassword;
+    private Intent shareIntent;
 
     public DebugInfoActivity() {
         Calendar calendar = Calendar.getInstance();
@@ -105,36 +104,57 @@ public class DebugInfoActivity extends AppCompatActivity implements PreventBlurA
     private void showInfoScreen() {
         setContentView(R.layout.debug_info_activity);
 
-        LinearLayout linearLayoutInfo = findViewById(R.id.linearLayoutInfo);
+        LinearLayout deviceInformationLayout = findViewById(R.id.deviceInformationLayout);
+        LinearLayout userInformationLayout = findViewById(R.id.userInformationLayout);
 
-        ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-        int headingLayout = R.layout.view_info_heading;
         int rowLayout = R.layout.view_info_row;
 
+        shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.setType("text/plain");
+
         DebugInfoCollector debugInfoCollector = new DebugInfoCollector(this);
-        Map<String, Map<String, Object>> debugInfo = debugInfoCollector.getDebugInfo();
+        List<DebugInformation> deviceInformation = debugInfoCollector.getDeviceInformation();
+        List<DebugInformation> userInformation = debugInfoCollector.getUserInformation();
 
-        for (Map.Entry<String, Map<String, Object>> header : debugInfo.entrySet()) {
-            Map<String, Object> valueMap = header.getValue();
-            View titleView = LayoutInflater.from(this).inflate(headingLayout, null);
-            ((TextView) titleView.findViewById(R.id.tvTitle)).setText(header.getKey());
-            linearLayoutInfo.addView(titleView);
+        for (DebugInformation property : deviceInformation) {
+            View view = LayoutInflater.from(this).inflate(rowLayout, null);
+            ((TextView) view.findViewById(R.id.tvTitle)).setText(property.getKey());
+            ((TextView) view.findViewById(R.id.tvValue)).setText(property.getValue());
 
-            for (Map.Entry<String, Object> property : valueMap.entrySet()) {
-                View view = LayoutInflater.from(this).inflate(rowLayout, null);
-                ((TextView) view.findViewById(R.id.tvTitle)).setText(property.getKey());
-                ((TextView) view.findViewById(R.id.tvValue)).setText(property.getValue().toString());
+            view.setOnClickListener(v -> {
+                shareData(property);
+            });
 
-                view.setOnClickListener(v -> {
-                    ClipData clip = ClipData.newPlainText(property.getKey(), property.getValue().toString());
-                    clipboard.setPrimaryClip(clip);
-                    Toast.makeText(this, property.getKey() + " Copied", Toast.LENGTH_SHORT).show();
-                });
-                linearLayoutInfo.addView(view);
-            }
+
+            deviceInformationLayout.addView(view);
+        }
+
+        for (DebugInformation property : userInformation) {
+            View view = LayoutInflater.from(this).inflate(rowLayout, null);
+            ((TextView) view.findViewById(R.id.tvTitle)).setText(property.getKey());
+            ((TextView) view.findViewById(R.id.tvValue)).setText(property.getValue());
+
+            view.setOnClickListener(v -> {
+                shareData(property);
+            });
+
+            userInformationLayout.addView(view);
         }
 
         ImageView imageViewClose = findViewById(R.id.closeButton);
         imageViewClose.setOnClickListener(v -> finish());
+    }
+
+    /**
+     * Launches share intent
+     * @param property
+     */
+    private void shareData(DebugInformation property) {
+        if (!property.isSharable()) {
+            return;
+        }
+
+        shareIntent.putExtra(Intent.EXTRA_TEXT, property.getValue());
+        startActivity(Intent.createChooser(shareIntent, "Share with"));
     }
 }

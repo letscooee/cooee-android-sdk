@@ -8,11 +8,11 @@ import com.letscooee.BuildConfig;
 import com.letscooee.CooeeFactory;
 import com.letscooee.device.AppInfo;
 import com.letscooee.device.DeviceInfo;
-import com.letscooee.init.DefaultUserPropertiesCollector;
+import com.letscooee.models.DebugInformation;
+import com.letscooee.pushnotification.PushProviderUtils;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Collect all the debug information.
@@ -26,15 +26,15 @@ public class DebugInfoCollector {
     private final AppInfo appInfo;
     private final Context context;
     private final DeviceInfo deviceInfo;
-    private final Map<String, Map<String, Object>> debugInfo;
-    private final DefaultUserPropertiesCollector otherInfo;
+    private final List<DebugInformation> deviceInformation;
+    private final List<DebugInformation> userInformation;
 
     public DebugInfoCollector(Context context) {
         this.context = context;
-        debugInfo = new TreeMap<>();
+        deviceInformation = new ArrayList<>();
+        userInformation = new ArrayList<>();
         appInfo = CooeeFactory.getAppInfo();
         deviceInfo = CooeeFactory.getDeviceInfo();
-        otherInfo = new DefaultUserPropertiesCollector(context);
         init();
     }
 
@@ -47,36 +47,39 @@ public class DebugInfoCollector {
     }
 
     /**
-     * Collect all User information and add it to {@link #debugInfo}
+     * Collect all User information and add it to {@link #userInformation}
      */
     private void collectUserInfo() {
-        Map<String, Object> userInfo = new LinkedHashMap<>();
-        userInfo.put("User ID", LocalStorageHelper.getString(context,
-                Constants.STORAGE_USER_ID, ""));
-        debugInfo.put("User Info", userInfo);
+        DebugInformation userId = new DebugInformation("User ID",
+                LocalStorageHelper.getString(context, Constants.STORAGE_USER_ID, ""),
+                true);
+        userInformation.add(userId);
     }
 
     /**
-     * Collect all Device information and add it to {@link #debugInfo}
+     * Collect all Device information and add it to {@link #deviceInformation}
      */
     private void collectDeviceInfo() {
-        Map<String, Object> deviceInformation = new LinkedHashMap<>();
-        deviceInformation.put("Device Name", deviceInfo.getDeviceName());
-        deviceInformation.put("SDK Version", BuildConfig.VERSION_NAME + "+" + BuildConfig.VERSION_CODE);
-        deviceInformation.put("App Version", appInfo.getVersion());
-        deviceInformation.put("Bundle ID", appInfo.getPackageName());
-        deviceInformation.put("Install Date", appInfo.getFirstInstallTime());
-        deviceInformation.put("Build Date", appInfo.getLasBuildTime());
-        String firebaseToken = LocalStorageHelper.getString(context,
-                Constants.STORAGE_FB_TOKEN, "");
-        deviceInformation.put("FB Token", firebaseToken);
-        deviceInformation.put("Device ID", LocalStorageHelper.getString(context,
-                Constants.STORAGE_DEVICE_ID, ""));
-        deviceInformation.put("Resolution", otherInfo.getScreenResolution());
-        debugInfo.put("Device & App Info", deviceInformation);
+        deviceInformation.add(new DebugInformation("Device Name", deviceInfo.getDeviceName()));
+        deviceInformation.add(new DebugInformation("SDK Version",
+                BuildConfig.VERSION_NAME + "+" + BuildConfig.VERSION_CODE));
+        deviceInformation.add(new DebugInformation("App Version", appInfo.getVersion()));
+        deviceInformation.add(new DebugInformation("Bundle ID", appInfo.getPackageName()));
+        deviceInformation.add(new DebugInformation("Install Date", appInfo.getFirstInstallTime()));
+        deviceInformation.add(new DebugInformation("Build Date", appInfo.getLasBuildTime()));
+        deviceInformation.add(new DebugInformation("FB Token",
+                PushProviderUtils.getLastSentToken(), true));
+        deviceInformation.add(new DebugInformation("Device ID", LocalStorageHelper.getString(context,
+                Constants.STORAGE_DEVICE_ID, ""), true));
+        deviceInformation.add(new DebugInformation("Resolution", deviceInfo.getDisplayWidth() + "x" +
+                deviceInfo.getDisplayHeight()));
     }
 
-    public Map<String, Map<String, Object>> getDebugInfo() {
-        return debugInfo;
+    public List<DebugInformation> getDeviceInformation() {
+        return deviceInformation;
+    }
+
+    public List<DebugInformation> getUserInformation() {
+        return userInformation;
     }
 }

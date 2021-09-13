@@ -4,16 +4,16 @@ import static android.hardware.SensorManager.SENSOR_DELAY_GAME;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 
-import com.letscooee.device.CooeeDebugInfoActivity;
+import com.letscooee.device.DebugInfoActivity;
+import com.letscooee.utils.Closure;
 
 /**
- * Detects when user shakes the phone and display {@link CooeeDebugInfoActivity}
+ * Detects when user shakes the phone and display {@link DebugInfoActivity}
  * ref. http://android.hlidskialf.com/blog/code/android-shake-detection-listener
  *
  * @author Ashish Gaikwad 01/09/21
@@ -26,10 +26,10 @@ public class ShakeDetector implements SensorEventListener {
     private static final int SHAKE_TIMEOUT = 500;
     private static final int SHAKE_DURATION = 1500;
 
-    private final Activity activity;
+    private final Closure<Object> closure;
+    private final int minShakeCount;
 
     private SensorManager sensorManager;
-    private int shakeCount = 3;
     private int runtimeShakeCount = 0;
     private float lastXPosition = 1;
     private float lastYPosition = 1;
@@ -38,22 +38,21 @@ public class ShakeDetector implements SensorEventListener {
     private long lastForceTime;
     private long lastShakeTime;
 
-    public ShakeDetector(Activity activity) {
-        this.activity = activity;
-    }
-
     /**
      * Registers {@link SensorEventListener} with {@link Sensor#TYPE_ACCELEROMETER} to the
      * {@link SensorManager}
      *
-     * @param shakeCount int value; If value less than equals to zero {@link SensorEventListener}
-     *                   will not register.
+     * @param activity      instance current activity
+     * @param minShakeCount minimum shake count to trigger closer
      */
-    public void setShakeCount(int shakeCount) {
-        this.shakeCount = shakeCount;
-        if (shakeCount <= 0) {
+    public ShakeDetector(Activity activity, int minShakeCount, Closure<Object> closure) {
+        this.minShakeCount = minShakeCount;
+        this.closure = closure;
+
+        if (this.minShakeCount <= 0) {
             return;
         }
+
         sensorManager = (SensorManager) activity.getSystemService(Context.SENSOR_SERVICE);
         Sensor accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         sensorManager.registerListener(this, accelerometer, SENSOR_DELAY_GAME);
@@ -75,11 +74,9 @@ public class ShakeDetector implements SensorEventListener {
             float shakeSpeed = Math.abs(currentX + currentY + currentZ - lastXPosition - lastYPosition - lastZPosition) / timeDifference * 10000;
 
             if (shakeSpeed > SHAKE_THRESHOLD) {
-                if (++runtimeShakeCount >= shakeCount && (currentTimeMillis - lastShakeTime > SHAKE_DURATION)) {
+                if (++runtimeShakeCount >= minShakeCount && (currentTimeMillis - lastShakeTime > SHAKE_DURATION)) {
                     lastShakeTime = currentTimeMillis;
-                    Intent intent = new Intent(activity, CooeeDebugInfoActivity.class);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                    activity.startActivity(intent);
+                    closure.call(null);
                 }
                 lastForceTime = currentTimeMillis;
             }
