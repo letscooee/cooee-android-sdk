@@ -99,6 +99,7 @@ public class ShakeDetector implements SensorEventListener {
      * Unregister {@link SensorEventListener} from {@link com.letscooee.user.SessionManager}
      */
     public void unregisterListener() {
-        sensorManager.unregisterListener(this);
+        if (sensorManager != null)
+            sensorManager.unregisterListener(this);
     }
 }

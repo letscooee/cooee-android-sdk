@@ -20,7 +20,7 @@ public class Constants {
     public static final String STORAGE_LAST_FONT_ATTEMPT = "last_font_check_attempt";
     public static final String STORAGE_CACHED_FONTS = "cached_fonts";
     public static final String STORAGE_FB_TOKEN = "fb_token";
-    public static final String STORAGE_DEVICE_ID = "device_id";
+    public static final String STORAGE_DEVICE_ID = "cooee_device_id";
     // endregion
 
     public static final String TAG = "CooeeSDK";

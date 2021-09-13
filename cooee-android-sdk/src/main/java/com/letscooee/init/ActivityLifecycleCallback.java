@@ -3,12 +3,14 @@ package com.letscooee.init;
 import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.letscooee.CooeeFactory;
+import com.letscooee.device.DebugInfoActivity;
 import com.letscooee.gesture.ShakeDetector;
 import com.letscooee.trigger.CooeeEmptyActivity;
 import com.letscooee.trigger.EngagementTriggerHelper;
@@ -52,8 +54,12 @@ public class ActivityLifecycleCallback implements Application.ActivityLifecycleC
             return;
         }
 
-        shakeDetector = new ShakeDetector(activity);
-        shakeDetector.setShakeCount(CooeeFactory.getManifestReader().getShakeToDebugCount());
+        shakeDetector = new ShakeDetector(activity, CooeeFactory.getManifestReader().getShakeToDebugCount(),
+                (Object object) -> {
+                    Intent intent = new Intent(activity, DebugInfoActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                    activity.startActivity(intent);
+                });
     }
 
     @Override

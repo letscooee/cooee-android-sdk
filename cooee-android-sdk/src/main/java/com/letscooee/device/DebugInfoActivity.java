@@ -13,6 +13,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.RestrictTo;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.textfield.TextInputEditText;
@@ -31,30 +32,26 @@ import java.util.Map;
  * @author Ashish Gaikwad 09/09/21
  * @since 1.0.0
  */
-public class CooeeDebugInfoActivity extends AppCompatActivity implements PreventBlurActivity {
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+public class DebugInfoActivity extends AppCompatActivity implements PreventBlurActivity {
 
-    private final String ACTIVITY_PASSWORD;
-    private static boolean IS_USER_AUTHORIZED_PREVIOUSLY = false;
+    private static boolean isUserAuthorisedPreviously = false;
 
-    public CooeeDebugInfoActivity() {
+    private final String validPassword;
+
+    public DebugInfoActivity() {
         Calendar calendar = Calendar.getInstance();
         int month = (calendar.get(Calendar.MONTH) + 1) + Constants.INCREMENT_PASSWORD;
         int minute = calendar.get(Calendar.MINUTE) + Constants.INCREMENT_PASSWORD;
-        ACTIVITY_PASSWORD = minute + "" + month;
+        validPassword = minute + "" + month;
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // If SDK is in DEBUG mode debug information will shown directly
-        if (BuildConfig.DEBUG) {
-            showInfoScreen();
-            return;
-        }
-
         // Check if user is authorized in current session
-        if (IS_USER_AUTHORIZED_PREVIOUSLY) {
+        if (BuildConfig.DEBUG || isUserAuthorisedPreviously) {
             showInfoScreen();
         } else {
             showPasswordScreen();
@@ -71,7 +68,7 @@ public class CooeeDebugInfoActivity extends AppCompatActivity implements Prevent
         Button button = findViewById(R.id.btnNext);
         button.setOnClickListener(v -> checkPasswordAndProceed());
 
-        ImageView imageViewClose = findViewById(R.id.imageViewClose);
+        ImageView imageViewClose = findViewById(R.id.closeButton);
         imageViewClose.setOnClickListener(v -> finish());
     }
 
@@ -83,13 +80,14 @@ public class CooeeDebugInfoActivity extends AppCompatActivity implements Prevent
         TextInputEditText passwordEditText = findViewById(R.id.edtPassword);
         TextView passwordWarning = findViewById(R.id.tvPasswordWarning);
 
+        @SuppressWarnings("ConstantConditions")
         String password = passwordEditText.getText().toString();
 
         if (TextUtils.isEmpty(password)) {
             passwordWarning.setVisibility(View.VISIBLE);
             passwordWarning.setText("Enter Password");
             return;
-        } else if (!password.equals(ACTIVITY_PASSWORD)) {
+        } else if (!password.equals(validPassword)) {
             passwordWarning.setVisibility(View.VISIBLE);
             passwordWarning.setText("Invalid Password");
             return;
@@ -97,7 +95,7 @@ public class CooeeDebugInfoActivity extends AppCompatActivity implements Prevent
 
         passwordWarning.setVisibility(View.INVISIBLE);
         passwordEditText.setText("");
-        IS_USER_AUTHORIZED_PREVIOUSLY = true;
+        isUserAuthorisedPreviously = true;
         showInfoScreen();
     }
 
@@ -105,7 +103,7 @@ public class CooeeDebugInfoActivity extends AppCompatActivity implements Prevent
      * Fetch and show all debug information on the screen.
      */
     private void showInfoScreen() {
-        setContentView(R.layout.activity_cooee_debug_info);
+        setContentView(R.layout.debug_info_activity);
 
         LinearLayout linearLayoutInfo = findViewById(R.id.linearLayoutInfo);
 
@@ -136,7 +134,7 @@ public class CooeeDebugInfoActivity extends AppCompatActivity implements Prevent
             }
         }
 
-        ImageView imageViewClose = findViewById(R.id.imageViewClose);
+        ImageView imageViewClose = findViewById(R.id.closeButton);
         imageViewClose.setOnClickListener(v -> finish());
     }
 }

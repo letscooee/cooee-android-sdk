@@ -15,9 +15,7 @@
         android:name=".init.AppController"
         android:usesCleartextTraffic="true">
 
-        <activity
-            android:name=".device.CooeeDebugInfoActivity"
-            android:exported="true" />
+        <activity android:name=".device.DebugInfoActivity" />
 
         <activity android:name=".trigger.inapp.InAppBrowserActivity" />
 
