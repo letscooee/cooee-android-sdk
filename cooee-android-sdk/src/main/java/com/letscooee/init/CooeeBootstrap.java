@@ -75,7 +75,6 @@ public class CooeeBootstrap {
                 Log.d(Constants.TAG, "FCM token fetched- " + token);
             }
 
-            LocalStorageHelper.putString(context, Constants.STORAGE_FB_TOKEN, token);
             PushProviderUtils.pushTokenRefresh(token);
         });
     }
