@@ -2,7 +2,6 @@
 buildscript {
     repositories {
         google()
-        mavenLocal()
         mavenCentral()
     }
     dependencies {
@@ -18,11 +17,8 @@ buildscript {
 allprojects {
     repositories {
         google()
-        mavenLocal()
         mavenCentral()
-        flatDir {
-            dirs "${project(':unityLibrary').projectDir}/libs"
-        }
+        maven { url "https://letscooee.jfrog.io/artifactory/default-maven-local" }
     }
 
     version "0.3.1"

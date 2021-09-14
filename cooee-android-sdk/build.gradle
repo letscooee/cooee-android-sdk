@@ -167,7 +167,7 @@ dependencies {
     api 'jp.wasabeef:blurry:4.0.0'
     api 'io.sentry:sentry-android:4.3.0'
     api 'org.mongodb:bson:4.2.3'
-    implementation project(':unityLibrary')
+    api 'com.letscooee:otf-augmented-reality:0.0.1'
     // endregion
 
     annotationProcessor "androidx.room:room-compiler:2.3.0"
