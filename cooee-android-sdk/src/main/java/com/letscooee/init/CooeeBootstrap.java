@@ -50,25 +50,24 @@ public class CooeeBootstrap {
     }
 
     /**
-     * Checks if process initiated by AR or not
+     * Checks if the current process is an AR process or not.
      *
-     * @return true if process name contains {@link Constants#AR_PROCESS_NAME} other false
+     * @return <code>true</code> if the current process is an AR process.
      */
     private boolean isCooeeARProcess() {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
-            String processName = Application.getProcessName();
-            if (processName.contains(Constants.AR_PROCESS_NAME)) {
+            return Application.getProcessName().contains(Constants.AR_PROCESS_NAME);
+        }
+
+        int pid = android.os.Process.myPid();
+        ActivityManager manager = (ActivityManager) application.getSystemService(Context.ACTIVITY_SERVICE);
+
+        for (ActivityManager.RunningAppProcessInfo processInfo : manager.getRunningAppProcesses()) {
+            if (processInfo.pid == pid && processInfo.processName.contains(Constants.AR_PROCESS_NAME)) {
                 return true;
             }
-        } else {
-            int pid = android.os.Process.myPid();
-            ActivityManager manager = (ActivityManager) application.getSystemService(Context.ACTIVITY_SERVICE);
-            for (ActivityManager.RunningAppProcessInfo processInfo : manager.getRunningAppProcesses()) {
-                if (processInfo.pid == pid && processInfo.processName.contains(Constants.AR_PROCESS_NAME)) {
-                    return true;
-                }
-            }
         }
+
         return false;
     }
 
