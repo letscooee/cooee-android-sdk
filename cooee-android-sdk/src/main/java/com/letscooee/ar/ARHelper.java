@@ -90,7 +90,7 @@ public class ARHelper {
             }
         } catch (UnavailableUserDeclinedInstallationException e) {
             // User has declined to install AR Service.
-            sendUserProperty("CE AR SERVICE DECLINE", true);
+            sendUserProperty("CE AR Service Declined", true);
             launchAR(activity, appAR);
         } catch (UnavailableDeviceNotCompatibleException e) {
             // Device is not supported
