@@ -12,6 +12,7 @@ import android.text.TextUtils;
 import com.google.gson.Gson;
 import com.letscooee.CooeeFactory;
 import com.letscooee.CooeeSDK;
+import com.letscooee.ar.ARHelper;
 import com.letscooee.models.Event;
 import com.letscooee.models.trigger.blocks.ClickAction;
 import com.letscooee.trigger.inapp.InAppBrowserActivity;
@@ -69,6 +70,8 @@ public class ClickActionExecutor {
         if (action.getAR() == null) {
             return;
         }
+
+        ARHelper.checkForARService((Activity) context);
 
         String arData = new Gson().toJson(action.getAR());
         Intent intent = new Intent(context, UnityPlayerActivity.class);

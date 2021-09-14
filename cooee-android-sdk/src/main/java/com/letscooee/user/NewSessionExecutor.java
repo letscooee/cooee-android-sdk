@@ -6,6 +6,7 @@ import androidx.annotation.RestrictTo;
 import com.letscooee.BuildConfig;
 import com.letscooee.ContextAware;
 import com.letscooee.CooeeFactory;
+import com.letscooee.ar.ARHelper;
 import com.letscooee.device.AppInfo;
 import com.letscooee.init.DefaultUserPropertiesCollector;
 import com.letscooee.models.Event;
@@ -143,12 +144,13 @@ public class NewSessionExecutor extends ContextAware {
         userProperties.put("CE DPI", defaultUserPropertiesCollector.getDpi());
         userProperties.put("CE Device Locale", defaultUserPropertiesCollector.getLocale());
         userProperties.put("CE Last Launch Time", new Date());
-        userProperties.put("CE AR Supported", UnityPlayerActivity.isARSupported(context));
 
         Map<String, Object> userMap = new HashMap<>();
         userMap.put("userProperties", userProperties);
         userMap.put("userData", new HashMap<>());
 
         this.safeHTTPService.updateUserProfile(userMap);
+
+        ARHelper.checkDeviceSupport(context);
     }
 }
