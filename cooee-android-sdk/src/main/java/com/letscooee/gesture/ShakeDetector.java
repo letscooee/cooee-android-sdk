@@ -26,7 +26,7 @@ public class ShakeDetector implements SensorEventListener {
     private static final int SHAKE_TIMEOUT = 500;
     private static final int SHAKE_DURATION = 1500;
 
-    private final Closure<Object> closure;
+    private Closure<Object> shakeCallback;
     private final int minShakeCount;
 
     private SensorManager sensorManager;
@@ -45,9 +45,8 @@ public class ShakeDetector implements SensorEventListener {
      * @param activity      instance current activity
      * @param minShakeCount minimum shake count to trigger closer
      */
-    public ShakeDetector(Activity activity, int minShakeCount, Closure<Object> closure) {
+    public ShakeDetector(Activity activity, int minShakeCount) {
         this.minShakeCount = minShakeCount;
-        this.closure = closure;
 
         if (this.minShakeCount <= 0) {
             return;
@@ -56,6 +55,10 @@ public class ShakeDetector implements SensorEventListener {
         sensorManager = (SensorManager) activity.getSystemService(Context.SENSOR_SERVICE);
         Sensor accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         sensorManager.registerListener(this, accelerometer, SENSOR_DELAY_GAME);
+    }
+
+    public void onShake(Closure<Object> shakeCallback){
+        this.shakeCallback =shakeCallback;
     }
 
     @Override
@@ -76,7 +79,7 @@ public class ShakeDetector implements SensorEventListener {
             if (shakeSpeed > SHAKE_THRESHOLD) {
                 if (++runtimeShakeCount >= minShakeCount && (currentTimeMillis - lastShakeTime > SHAKE_DURATION)) {
                     lastShakeTime = currentTimeMillis;
-                    closure.call(null);
+                    this.shakeCallback.call(null);
                 }
                 lastForceTime = currentTimeMillis;
             }
