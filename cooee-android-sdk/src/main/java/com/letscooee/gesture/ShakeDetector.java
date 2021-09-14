@@ -57,8 +57,13 @@ public class ShakeDetector implements SensorEventListener {
         sensorManager.registerListener(this, accelerometer, SENSOR_DELAY_GAME);
     }
 
-    public void onShake(Closure<Object> shakeCallback){
-        this.shakeCallback =shakeCallback;
+    /**
+     * Register callback to get a response when shake gesture is detected
+     *
+     * @param shakeCallback instance of {@link Closure<Object>}
+     */
+    public void onShake(Closure<Object> shakeCallback) {
+        this.shakeCallback = shakeCallback;
     }
 
     @Override

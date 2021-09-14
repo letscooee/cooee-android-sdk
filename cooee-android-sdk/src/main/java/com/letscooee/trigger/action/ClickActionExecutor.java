@@ -1,7 +1,6 @@
 package com.letscooee.trigger.action;
 
 import android.app.Activity;
-import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -9,20 +8,21 @@ import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 
-import com.google.gson.Gson;
 import com.letscooee.CooeeFactory;
 import com.letscooee.CooeeSDK;
 import com.letscooee.ar.ARHelper;
-import com.letscooee.models.Event;
 import com.letscooee.models.trigger.blocks.ClickAction;
 import com.letscooee.trigger.inapp.InAppBrowserActivity;
 import com.letscooee.trigger.inapp.InAppGlobalData;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.CooeeCTAListener;
 import com.letscooee.utils.PermissionType;
-import com.unity3d.player.UnityPlayerActivity;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author Shashank Agrawal
@@ -71,21 +71,7 @@ public class ClickActionExecutor {
             return;
         }
 
-        ARHelper.checkForARService((Activity) context);
-
-        String arData = new Gson().toJson(action.getAR());
-        Intent intent = new Intent(context, UnityPlayerActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.putExtra("arguments", arData);
-        intent.putExtra("app_package", CooeeFactory.getAppInfo().getPackageName());
-
-        try {
-            context.startActivity(intent);
-            Event event = new Event("CE AR Displayed");
-            CooeeFactory.getSafeHTTPService().sendEvent(event);
-        } catch (ActivityNotFoundException exception) {
-            CooeeFactory.getSentryHelper().captureException(exception);
-        }
+        ARHelper.checkForARService((Activity) context, action.getAR());
     }
 
     private boolean processPrompts() {

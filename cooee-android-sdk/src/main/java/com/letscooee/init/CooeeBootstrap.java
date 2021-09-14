@@ -11,12 +11,12 @@ import androidx.lifecycle.ProcessLifecycleOwner;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.letscooee.BuildConfig;
 import com.letscooee.CooeeFactory;
+import com.letscooee.ar.ARHelper;
 import com.letscooee.font.FontProcessor;
 import com.letscooee.pushnotification.PushProviderUtils;
 import com.letscooee.schedular.CooeeJobUtils;
 import com.letscooee.task.CooeeExecutors;
 import com.letscooee.utils.Constants;
-import com.letscooee.utils.LocalStorageHelper;
 
 /**
  * A one time initializer class which initialises the Cooee SDK. This is used internally by the SDK
@@ -79,6 +79,7 @@ public class CooeeBootstrap {
             getAndUpdateFirebaseToken();
             checkAndStartJob();
             FontProcessor.checkAndUpdateBrandFonts(context);
+            ARHelper.checkDeviceSupport(context);
         });
     }
 

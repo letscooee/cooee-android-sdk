@@ -6,7 +6,6 @@ import androidx.annotation.RestrictTo;
 import com.letscooee.BuildConfig;
 import com.letscooee.ContextAware;
 import com.letscooee.CooeeFactory;
-import com.letscooee.ar.ARHelper;
 import com.letscooee.device.AppInfo;
 import com.letscooee.init.DefaultUserPropertiesCollector;
 import com.letscooee.models.Event;
@@ -18,7 +17,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import com.unity3d.player.UnityPlayerActivity;
 
 /**
  * PostLaunchActivity initialized when app is launched
@@ -150,7 +148,5 @@ public class NewSessionExecutor extends ContextAware {
         userMap.put("userData", new HashMap<>());
 
         this.safeHTTPService.updateUserProfile(userMap);
-
-        ARHelper.checkDeviceSupport(context);
     }
 }
