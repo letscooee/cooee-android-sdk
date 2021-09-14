@@ -75,26 +75,27 @@ public class ARHelper {
      * @param activity instance of current running {@link Activity}
      */
     public static void checkForARService(Activity activity, AppAR appAR) {
-        if (!availability.isSupported()) {
+        if (availability == null || !availability.isSupported()) {
             launchAR(activity, appAR);
             return;
         }
 
+        boolean launchAR = true;
+
         try {
             ArCoreApk.InstallStatus installStatus = ArCoreApk.getInstance().requestInstall(activity, true);
 
-            if (installStatus == ArCoreApk.InstallStatus.INSTALLED) {
-                launchAR(activity, appAR);
-            } else if (installStatus == ArCoreApk.InstallStatus.INSTALL_REQUESTED) {
+            if (installStatus == ArCoreApk.InstallStatus.INSTALL_REQUESTED) {
                 pendingAR = appAR;
+                launchAR = false;
             }
         } catch (UnavailableUserDeclinedInstallationException e) {
             // User has declined to install AR Service.
             sendUserProperty("CE AR Service Declined", true);
-            launchAR(activity, appAR);
         } catch (UnavailableDeviceNotCompatibleException e) {
             // Device is not supported
-            launchAR(activity, appAR);
+        } finally {
+            if (launchAR) launchAR(activity, appAR);
         }
     }
 
@@ -113,8 +114,7 @@ public class ARHelper {
 
         try {
             context.startActivity(intent);
-            Event event = new Event("CE AR Displayed");
-            CooeeFactory.getSafeHTTPService().sendEvent(event);
+            CooeeFactory.getSafeHTTPService().sendEvent(new Event("CE AR Displayed"));
         } catch (ActivityNotFoundException exception) {
             CooeeFactory.getSentryHelper().captureException(exception);
         }
