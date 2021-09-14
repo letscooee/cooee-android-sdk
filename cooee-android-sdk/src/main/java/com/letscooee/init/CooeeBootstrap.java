@@ -1,5 +1,6 @@
 package com.letscooee.init;
 
+import android.app.ActivityManager;
 import android.app.Application;
 import android.content.Context;
 import android.util.Log;
@@ -38,16 +39,36 @@ public class CooeeBootstrap {
     void init() {
 
         // Skip initialisation of CooeeBootstrap if it's getting called via CooeeARProcess
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
-            String processName = Application.getProcessName();
-            if (processName.contains(Constants.AR_PROCESS_NAME))
-                return;
+        if (isCooeeARProcess()) {
+            return;
         }
 
         CooeeFactory.init(this.context);
         application.registerActivityLifecycleCallbacks(new ActivityLifecycleCallback(this.context));
         ProcessLifecycleOwner.get().getLifecycle().addObserver(new AppLifecycleCallback(this.context));
         this.initAsyncTasks();
+    }
+
+    /**
+     * Checks if the current process is an AR process or not.
+     *
+     * @return <code>true</code> if the current process is an AR process.
+     */
+    private boolean isCooeeARProcess() {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+            return Application.getProcessName().contains(Constants.AR_PROCESS_NAME);
+        }
+
+        int pid = android.os.Process.myPid();
+        ActivityManager manager = (ActivityManager) application.getSystemService(Context.ACTIVITY_SERVICE);
+
+        for (ActivityManager.RunningAppProcessInfo processInfo : manager.getRunningAppProcesses()) {
+            if (processInfo.pid == pid && processInfo.processName.contains(Constants.AR_PROCESS_NAME)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

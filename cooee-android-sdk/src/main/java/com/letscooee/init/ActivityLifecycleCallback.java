@@ -34,8 +34,6 @@ public class ActivityLifecycleCallback implements Application.ActivityLifecycleC
 
     @Override
     public void onActivityCreated(@NonNull Activity activity, @Nullable Bundle savedInstanceState) {
-        InAppTriggerActivity.captureWindowForBlurryEffect(activity);
-        InAppTriggerActivity.captureWindowForBlurryEffect(activity);
     }
 
     @Override
@@ -44,6 +42,8 @@ public class ActivityLifecycleCallback implements Application.ActivityLifecycleC
 
     @Override
     public void onActivityResumed(@NonNull Activity activity) {
+        InAppTriggerActivity.captureWindowForBlurryEffect(activity);
+
         EngagementTriggerHelper.renderInAppFromPushNotification(context, activity);
 
         if (activity instanceof CooeeEmptyActivity) {
