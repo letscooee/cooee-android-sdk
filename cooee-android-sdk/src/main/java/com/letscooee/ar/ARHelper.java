@@ -4,9 +4,6 @@ import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Handler;
-import android.os.Looper;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
@@ -17,8 +14,8 @@ import com.google.ar.core.exceptions.UnavailableUserDeclinedInstallationExceptio
 import com.google.gson.Gson;
 import com.letscooee.CooeeFactory;
 import com.letscooee.models.Event;
+import com.letscooee.models.trigger.TriggerData;
 import com.letscooee.models.trigger.blocks.AppAR;
-import com.letscooee.utils.Constants;
 import com.letscooee.utils.Timer;
 import com.unity3d.player.UnityPlayerActivity;
 
@@ -36,6 +33,7 @@ public class ARHelper {
 
     private static ArCoreApk.Availability availability;
     private static AppAR pendingAR;
+    private static TriggerData pendingTriggerData;
 
     /**
      * Initialize {@link ArCoreApk.Availability} to check if device supports AR or not
@@ -61,55 +59,58 @@ public class ARHelper {
      * @param value is {@link Object} so we can send any type of value
      */
     private static void sendUserProperty(String key, Object value) {
-        Map<String, Object> userMap = new HashMap<>();
         Map<String, Object> userProperties = new HashMap<>();
-
         userProperties.put(key, value);
 
-        userMap.put("userProperties", userProperties);
-        userMap.put("userData", new HashMap<>());
-
-        CooeeFactory.getSafeHTTPService().updateUserProfile(userMap);
+        CooeeFactory.getSafeHTTPService().updateDeviceProps(userProperties);
     }
 
     /**
      * Check if Google Play Service for AR is installed or not. If service is not installed and
-     * device supports AR it will prompt to install service
+     * device supports AR it will prompt to install service. Despite the status, it will launch the
+     * AR so if the device is not supported, it will open the 2D view
      *
-     * @param activity instance of current running {@link Activity}
+     * @param activity    instance of current running {@link Activity}
+     * @param triggerData {@link TriggerData} of the active trigger
      */
-    public static void checkForARService(Activity activity, AppAR appAR) {
+    public static void checkForARAndLaunch(Activity activity, AppAR appAR, TriggerData triggerData) {
         if (availability == null || !availability.isSupported()) {
-            launchAR(activity, appAR);
+            launchARViaUnity(activity, appAR, triggerData);
             return;
         }
 
-        boolean launchAR = true;
+        boolean launchAR = false;
 
         try {
             ArCoreApk.InstallStatus installStatus = ArCoreApk.getInstance().requestInstall(activity, true);
 
             if (installStatus == ArCoreApk.InstallStatus.INSTALL_REQUESTED) {
                 pendingAR = appAR;
-                launchAR = false;
+                pendingTriggerData = triggerData;
+            } else {
+                launchAR = true;
             }
         } catch (UnavailableUserDeclinedInstallationException e) {
             // User has declined to install AR Service.
             sendUserProperty("CE AR Service Declined", true);
+            launchAR = true;
         } catch (UnavailableDeviceNotCompatibleException e) {
             // Device is not supported
+            launchAR = true;
+            sendUserProperty("CE AR Supported", availability.isSupported());
         } finally {
-            if (launchAR) launchAR(activity, appAR);
+            if (launchAR) launchARViaUnity(activity, appAR, triggerData);
         }
     }
 
     /**
      * Launch AR using {@link UnityPlayerActivity}
      *
-     * @param context instance of {@link Context}
-     * @param appAR   data required to launch AR
+     * @param context     instance of {@link Context}
+     * @param appAR       data required to launch AR
+     * @param triggerData {@link TriggerData} of the active trigger
      */
-    private static void launchAR(@NonNull Context context, @NonNull AppAR appAR) {
+    private static void launchARViaUnity(@NonNull Context context, @NonNull AppAR appAR, TriggerData triggerData) {
         String arData = new Gson().toJson(appAR);
         Intent intent = new Intent(context, UnityPlayerActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -118,7 +119,7 @@ public class ARHelper {
 
         try {
             context.startActivity(intent);
-            CooeeFactory.getSafeHTTPService().sendEvent(new Event("CE AR Displayed"));
+            CooeeFactory.getSafeHTTPService().sendEvent(new Event("CE AR Displayed", triggerData));
         } catch (ActivityNotFoundException exception) {
             CooeeFactory.getSentryHelper().captureException(exception);
         }
@@ -134,7 +135,8 @@ public class ARHelper {
             return;
         }
 
-        launchAR(context, pendingAR);
+        launchARViaUnity(context, pendingAR, pendingTriggerData);
         pendingAR = null;
+        pendingTriggerData = null;
     }
 }

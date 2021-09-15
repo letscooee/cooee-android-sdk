@@ -71,7 +71,7 @@ public class ClickActionExecutor {
             return;
         }
 
-        ARHelper.checkForARService((Activity) context, action.getAR());
+        ARHelper.checkForARAndLaunch((Activity) context, action.getAR(), globalData.getTriggerData());
     }
 
     private boolean processPrompts() {
