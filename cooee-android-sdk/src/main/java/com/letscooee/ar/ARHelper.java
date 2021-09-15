@@ -5,6 +5,8 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
+import android.os.Looper;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
@@ -16,6 +18,8 @@ import com.google.gson.Gson;
 import com.letscooee.CooeeFactory;
 import com.letscooee.models.Event;
 import com.letscooee.models.trigger.blocks.AppAR;
+import com.letscooee.utils.Constants;
+import com.letscooee.utils.Timer;
 import com.unity3d.player.UnityPlayerActivity;
 
 import java.util.HashMap;
@@ -43,7 +47,7 @@ public class ARHelper {
         availability = ArCoreApk.getInstance().checkAvailability(context);
 
         if (availability.isTransient()) {
-            new Handler().postDelayed(() -> checkDeviceSupport(context), 200);
+            new Timer().schedule(() -> checkDeviceSupport(context), 200);
             return;
         }
 
