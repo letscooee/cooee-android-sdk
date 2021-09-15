@@ -14,7 +14,7 @@ import androidx.core.content.ContextCompat;
 import com.letscooee.R;
 import com.letscooee.models.trigger.elements.BaseElement;
 import com.letscooee.models.trigger.elements.VideoElement;
-import com.letscooee.trigger.inapp.InAppGlobalData;
+import com.letscooee.trigger.inapp.TriggerContext;
 import com.letscooee.utils.Timer;
 
 import java.util.Map;
@@ -36,7 +36,7 @@ public class VideoRenderer extends AbstractInAppRenderer {
     private int videoDuration;
     private int videoSeenCounter;
 
-    public VideoRenderer(Context context, ViewGroup parentView, BaseElement element, InAppGlobalData globalData) {
+    public VideoRenderer(Context context, ViewGroup parentView, BaseElement element, TriggerContext globalData) {
         super(context, parentView, element, globalData);
         this.elementData = (VideoElement) element;
         this.videoView = new VideoView(context);

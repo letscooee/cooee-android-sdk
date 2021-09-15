@@ -13,7 +13,7 @@ import com.letscooee.CooeeSDK;
 import com.letscooee.ar.ARHelper;
 import com.letscooee.models.trigger.blocks.ClickAction;
 import com.letscooee.trigger.inapp.InAppBrowserActivity;
-import com.letscooee.trigger.inapp.InAppGlobalData;
+import com.letscooee.trigger.inapp.TriggerContext;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.CooeeCTAListener;
 import com.letscooee.utils.PermissionType;
@@ -32,9 +32,9 @@ public class ClickActionExecutor {
 
     private final Context context;
     private final ClickAction action;
-    private final InAppGlobalData globalData;
+    private final TriggerContext globalData;
 
-    public ClickActionExecutor(Context context, ClickAction clickAction, InAppGlobalData globalData) {
+    public ClickActionExecutor(Context context, ClickAction clickAction, TriggerContext globalData) {
         this.context = context;
         this.action = clickAction;
         this.globalData = globalData;

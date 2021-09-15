@@ -26,6 +26,7 @@ import com.letscooee.trigger.inapp.renderer.ContainerRenderer;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.PermissionType;
 import com.letscooee.utils.SentryHelper;
+
 import jp.wasabeef.blurry.Blurry;
 
 import java.util.Date;
@@ -41,7 +42,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
     private InAppTrigger inAppData;
 
     private final SentryHelper sentryHelper;
-    private final InAppGlobalData globalData = new InAppGlobalData();
+    private final TriggerContext triggerContext = new TriggerContext();
 
     private Date startTime;
     private boolean isFreshLaunch;
@@ -67,8 +68,9 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
             }
 
             inAppData = triggerData.getInAppTrigger();
-            this.globalData.setViewGroupForBlurry((ViewGroup) lastActiveWindow.getDecorView());
-            this.globalData.onExit(data -> this.finish());
+            this.triggerContext.setViewGroupForBlurry((ViewGroup) lastActiveWindow.getDecorView());
+            this.triggerContext.onExit(data -> this.finish());
+            this.triggerContext.setTriggerData(triggerData);
 
             setAnimations();
             renderContainerAndLayers();
@@ -106,7 +108,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
     private void renderContainerAndLayers() {
         Container containerData = inAppData.getContainer();
         RelativeLayout rootViewElement = findViewById(R.id.inAppTriggerRoot);
-        new ContainerRenderer(this, rootViewElement, containerData, inAppData.getLayers(), globalData).render();
+        new ContainerRenderer(this, rootViewElement, containerData, inAppData.getLayers(), triggerContext).render();
     }
 
     /**
@@ -125,7 +127,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
 
     @Override
     public void onBackPressed() {
-        this.globalData.closeInApp("Back Press");
+        this.triggerContext.closeInApp("Back Press");
     }
 
     /**
@@ -139,7 +141,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
             return;
         }
 
-        Map<String, Object> closedEventProps = globalData.getClosedEventProps();
+        Map<String, Object> closedEventProps = triggerContext.getClosedEventProps();
 
         int duration = (int) ((new Date().getTime() - startTime.getTime()) / 1000);
         closedEventProps.put("Duration", duration);
@@ -155,7 +157,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
      * @param bitmap
      */
     public void setBitmapForBlurry(Bitmap bitmap) {
-        this.globalData.setBitmapForBlurry(bitmap);
+        this.triggerContext.setBitmapForBlurry(bitmap);
     }
 
     @Override
@@ -190,6 +192,6 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
         userMap.put("userData", new HashMap<>());
 
         CooeeFactory.getSafeHTTPService().updateUserProfile(userMap);
-        globalData.closeInApp("CTA");
+        triggerContext.closeInApp("CTA");
     }
 }

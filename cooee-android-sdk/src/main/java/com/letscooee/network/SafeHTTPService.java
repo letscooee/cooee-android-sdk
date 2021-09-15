@@ -13,6 +13,7 @@ import com.letscooee.trigger.EngagementTriggerHelper;
 import com.letscooee.user.SessionManager;
 import com.letscooee.utils.RuntimeData;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -49,7 +50,8 @@ public class SafeHTTPService extends ContextAware {
     /**
      * Send a new event and make sure if the session is not already created then do not create
      * a new session (skip session creation).
-     *0
+     * 0
+     *
      * @param event
      */
     public void sendEventWithoutNewSession(Event event) {
@@ -97,5 +99,13 @@ public class SafeHTTPService extends ContextAware {
         CooeeExecutors.getInstance().networkExecutor().execute(() -> {
             pendingTaskService.processTask(pendingTask);
         });
+    }
+
+    public void updateDeviceProps(Map<String, Object> userProperties) {
+        Map<String, Object> userMap = new HashMap<>();
+        userMap.put("userProperties", userProperties);
+        userMap.put("userData", new HashMap<>());
+
+        updateUserProfile(userMap);
     }
 }

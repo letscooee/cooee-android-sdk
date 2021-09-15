@@ -11,7 +11,7 @@ import com.letscooee.font.FontProcessor;
 import com.letscooee.models.trigger.blocks.Font;
 import com.letscooee.models.trigger.elements.BaseElement;
 import com.letscooee.models.trigger.elements.TextElement;
-import com.letscooee.trigger.inapp.InAppGlobalData;
+import com.letscooee.trigger.inapp.TriggerContext;
 
 import java.io.File;
 import java.lang.reflect.Field;
@@ -27,7 +27,7 @@ public abstract class FontRenderer extends AbstractInAppRenderer {
 
     protected final Font font;
 
-    protected FontRenderer(Context context, ViewGroup parentElement, BaseElement element, InAppGlobalData globalData) {
+    protected FontRenderer(Context context, ViewGroup parentElement, BaseElement element, TriggerContext globalData) {
         super(context, parentElement, element, globalData);
         font = ((TextElement) element).getFont();
     }
