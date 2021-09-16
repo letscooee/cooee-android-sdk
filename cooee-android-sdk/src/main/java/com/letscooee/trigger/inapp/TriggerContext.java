@@ -2,6 +2,8 @@ package com.letscooee.trigger.inapp;
 
 import android.graphics.Bitmap;
 import android.view.ViewGroup;
+
+import com.letscooee.models.trigger.TriggerData;
 import com.letscooee.utils.Closure;
 import org.jetbrains.annotations.NotNull;
 
@@ -14,13 +16,14 @@ import java.util.Map;
  * @author Shashank Agrawal
  * @since 1.0.0
  */
-public class InAppGlobalData {
+public class TriggerContext {
 
     private final Map<String, Object> closedEventProps = new HashMap<>();
 
     private Bitmap bitmapForBlurry;
     private ViewGroup viewGroupForBlurry;
     private Closure<Map<String, Object>> callback;
+    private TriggerData triggerData;
 
     public Map<String, Object> getClosedEventProps() {
         return closedEventProps;
@@ -50,5 +53,13 @@ public class InAppGlobalData {
 
     public void setViewGroupForBlurry(ViewGroup viewGroupForBlurry) {
         this.viewGroupForBlurry = viewGroupForBlurry;
+    }
+
+    public TriggerData getTriggerData() {
+        return triggerData;
+    }
+
+    public void setTriggerData(TriggerData triggerData) {
+        this.triggerData = triggerData;
     }
 }

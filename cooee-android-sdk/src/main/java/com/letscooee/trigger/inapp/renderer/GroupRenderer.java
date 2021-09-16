@@ -7,7 +7,7 @@ import com.google.android.flexbox.FlexboxLayout;
 import com.letscooee.CooeeFactory;
 import com.letscooee.models.trigger.blocks.Overflow;
 import com.letscooee.models.trigger.elements.*;
-import com.letscooee.trigger.inapp.InAppGlobalData;
+import com.letscooee.trigger.inapp.TriggerContext;
 
 /**
  * Renders a {@link com.letscooee.models.trigger.elements.GroupElement}.
@@ -17,7 +17,7 @@ import com.letscooee.trigger.inapp.InAppGlobalData;
  */
 public class GroupRenderer extends AbstractInAppRenderer {
 
-    public GroupRenderer(Context context, ViewGroup parentView, BaseElement element, InAppGlobalData globalData) {
+    public GroupRenderer(Context context, ViewGroup parentView, BaseElement element, TriggerContext globalData) {
         super(context, parentView, element, globalData);
     }
 

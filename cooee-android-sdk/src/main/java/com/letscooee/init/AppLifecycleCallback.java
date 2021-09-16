@@ -9,10 +9,10 @@ import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
 
 import com.letscooee.CooeeFactory;
+import com.letscooee.ar.ARHelper;
 import com.letscooee.broadcast.ARActionPerformed;
 import com.letscooee.models.Event;
 import com.letscooee.network.SafeHTTPService;
-import com.letscooee.trigger.EngagementTriggerHelper;
 import com.letscooee.user.NewSessionExecutor;
 import com.letscooee.user.SessionManager;
 import com.letscooee.utils.Constants;
@@ -65,6 +65,9 @@ class AppLifecycleCallback implements DefaultLifecycleObserver {
 
         // Sent AR CTA once App is resumed
         ARActionPerformed.processLastARResponse(context);
+
+        // Try to launch pending AR if any
+        ARHelper.launchPendingAR(context);
     }
 
     @Override

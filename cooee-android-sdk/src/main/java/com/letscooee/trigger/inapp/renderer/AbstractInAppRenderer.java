@@ -15,7 +15,7 @@ import com.letscooee.BuildConfig;
 import com.letscooee.models.trigger.blocks.*;
 import com.letscooee.models.trigger.elements.BaseElement;
 import com.letscooee.trigger.action.ClickActionExecutor;
-import com.letscooee.trigger.inapp.InAppGlobalData;
+import com.letscooee.trigger.inapp.TriggerContext;
 import jp.wasabeef.blurry.Blurry;
 
 import static com.letscooee.utils.Constants.TAG;
@@ -30,7 +30,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
     private static final int MP = ViewGroup.LayoutParams.MATCH_PARENT;
     private static final int WC = ViewGroup.LayoutParams.WRAP_CONTENT;
 
-    protected final InAppGlobalData globalData;
+    protected final TriggerContext globalData;
     protected final Context context;
     protected ViewGroup parentElement;
     protected final BaseElement elementData;
@@ -46,7 +46,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
     protected View newElement;
 
     protected AbstractInAppRenderer(Context context, ViewGroup parentElement, BaseElement element,
-                                    InAppGlobalData globalData) {
+                                    TriggerContext globalData) {
         this.context = context;
         this.parentElement = parentElement;
         this.elementData = element;

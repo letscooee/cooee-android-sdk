@@ -9,7 +9,7 @@ import com.letscooee.models.trigger.blocks.Alignment;
 import com.letscooee.models.trigger.blocks.Size;
 import com.letscooee.models.trigger.elements.BaseElement;
 import com.letscooee.models.trigger.elements.TextElement;
-import com.letscooee.trigger.inapp.InAppGlobalData;
+import com.letscooee.trigger.inapp.TriggerContext;
 
 /**
  * @author shashank
@@ -18,7 +18,7 @@ public class TextRenderer extends FontRenderer {
 
     protected TextElement textData;
 
-    public TextRenderer(Context context, ViewGroup parentView, BaseElement elementData, InAppGlobalData globalData) {
+    public TextRenderer(Context context, ViewGroup parentView, BaseElement elementData, TriggerContext globalData) {
         super(context, parentView, elementData, globalData);
         this.textData = (TextElement) elementData;
     }

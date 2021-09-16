@@ -7,14 +7,14 @@ import android.widget.ImageView;
 import com.bumptech.glide.Glide;
 import com.letscooee.models.trigger.elements.BaseElement;
 import com.letscooee.models.trigger.elements.ImageElement;
-import com.letscooee.trigger.inapp.InAppGlobalData;
+import com.letscooee.trigger.inapp.TriggerContext;
 
 /**
  * @author shashank
  */
 public class ImageRenderer extends AbstractInAppRenderer {
 
-    public ImageRenderer(Context context, ViewGroup parentView, BaseElement element, InAppGlobalData globalData) {
+    public ImageRenderer(Context context, ViewGroup parentView, BaseElement element, TriggerContext globalData) {
         super(context, parentView, element, globalData);
     }
 

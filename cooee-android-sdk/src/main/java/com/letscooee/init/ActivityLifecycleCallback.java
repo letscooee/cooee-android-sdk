@@ -50,16 +50,26 @@ public class ActivityLifecycleCallback implements Application.ActivityLifecycleC
             activity.finish();
         }
 
+        registerShakeDetector(activity);
+    }
+
+    /**
+     * Register {@link ShakeDetector} to perform some operation when user shakes device
+     *
+     * @param activity will instance of current active {@link Activity} to which {@link ShakeDetector}
+     *                 is going to register.
+     */
+    private void registerShakeDetector(Activity activity) {
         if (activity instanceof PreventBlurActivity) {
             return;
         }
 
-        shakeDetector = new ShakeDetector(activity, CooeeFactory.getManifestReader().getShakeToDebugCount(),
-                (Object object) -> {
-                    Intent intent = new Intent(activity, DebugInfoActivity.class);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                    activity.startActivity(intent);
-                });
+        shakeDetector = new ShakeDetector(activity, CooeeFactory.getManifestReader().getShakeToDebugCount());
+        shakeDetector.onShake((Object object) -> {
+            Intent intent = new Intent(activity, DebugInfoActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            activity.startActivity(intent);
+        });
     }
 
     @Override

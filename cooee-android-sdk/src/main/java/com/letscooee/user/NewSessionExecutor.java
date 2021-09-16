@@ -17,7 +17,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import com.unity3d.player.UnityPlayerActivity;
 
 /**
  * PostLaunchActivity initialized when app is launched
@@ -143,7 +142,6 @@ public class NewSessionExecutor extends ContextAware {
         userProperties.put("CE DPI", defaultUserPropertiesCollector.getDpi());
         userProperties.put("CE Device Locale", defaultUserPropertiesCollector.getLocale());
         userProperties.put("CE Last Launch Time", new Date());
-        userProperties.put("CE AR Supported", UnityPlayerActivity.isARSupported(context));
 
         Map<String, Object> userMap = new HashMap<>();
         userMap.put("userProperties", userProperties);
