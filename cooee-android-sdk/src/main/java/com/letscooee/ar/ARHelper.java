@@ -97,7 +97,7 @@ public class ARHelper {
         } catch (UnavailableDeviceNotCompatibleException e) {
             // Device is not supported
             launchAR = true;
-            sendUserProperty("CE AR Supported", availability.isSupported());
+            sendUserProperty("CE AR Supported", false);
         } finally {
             if (launchAR) launchARViaUnity(activity, appAR, triggerData);
         }
