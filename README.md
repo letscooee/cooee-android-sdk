@@ -133,11 +133,11 @@ Or you can also see information by calling `showDebugInfo()` method
 
 ```java
 CooeeSDK sdkInstance = CooeeSDK.getDefaultInstance(context);
-cooeeSDK.showDebugInfo();
+sdkInstance.showDebugInfo();
 ```
 
 **Note**
-Debug Information holds confidential data and is password protect; While accessing this information Cooee representative is required to unlock information
+Debug Information holds confidential data and is password protected. While accessing this information Cooee representative is required.
 
 ### Step 8: Track user actions
 
@@ -149,7 +149,7 @@ public class YourActivity implements CooeeCTAListener {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         CooeeSDK sdkInstance = CooeeSDK.getDefaultInstance(context);
-        cooeeSDK.setCTAListener(this);
+     sdkInstance.setCTAListener(this);
         ...
     }
 

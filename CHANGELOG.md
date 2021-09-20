@@ -3,21 +3,21 @@
 ## v1.0.0
 
 ### Required Changes
-1. Renamed `InAppNotificationClickListener` to `CooeeCTAListener`
+1. Rename `InAppNotificationClickListener` to `CooeeCTAListener`
 
 ```diff
 - public class YourActivity implements InAppNotificationClickListener {
 + public class YourActivity implements CooeeCTAListener {
 ```
 
-2. Update Overridden method `onInAppButtonClick` to `onResponse`
+2. Update overridden method `onInAppButtonClick` to `onResponse`
 
 ```diff
 - public void onInAppButtonClick(HashMap<String, Object> hashMap) {
 + public void onResponse(HashMap<String, Object> hashMap) {
 ```
 
-3. Also Update `setInAppNotificationButtonListener()` to `setCTAListener()`
+3. Update `setInAppNotificationButtonListener()` to `setCTAListener()`
 
 ```diff
 - cooeeSDK.setInAppNotificationButtonListener(this);
@@ -26,7 +26,7 @@
 
 ### New Feature
 
-1. Add Shake detection  
+1. Added Shake detection  
 Add SHAKE_TO_DEBUG_COUNT meta in your AndroidManifest.xml to manual configuration of shake detector
 
 ```xml
@@ -39,11 +39,12 @@ Add SHAKE_TO_DEBUG_COUNT meta in your AndroidManifest.xml to manual configuratio
 
 ### Improvements
 
-1. In-App made templateless
-2. Add support of In-App Browser
-3. Now URL can be open in internal browser or external browser
-4. Fixed permission request can be prompt via In-App notification
-5. Added shake detector to improve SDK debugging
+1. In-App triggers are now template-less.
+2. Both in-app and external browser support on CTA.
+3. Multiple permission request prompts on CTA.
+4. Share content support on CTA
+5. Augmented Reality support on CTA  
+4. Device and User info screen with shake detector for debugging.
 
 ## v0.3.1
 
