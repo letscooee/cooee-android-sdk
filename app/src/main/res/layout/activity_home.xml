@@ -9,12 +9,12 @@
     tools:context=".HomeActivity">
 
     <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/btnSendVideoEvent"
+        android:id="@+id/inApp1"
         style="@style/PrimaryButton"
         android:layout_width="@dimen/length_200"
         android:layout_height="@dimen/length_30"
         android:layout_marginTop="@dimen/length_20"
-        android:text="Video Event"
+        android:text="Open InApp 1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btnSendImageEvent" />
@@ -28,7 +28,7 @@
         android:text="Go to Profile"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnSendVideoEvent" />
+        app:layout_constraintTop_toBottomOf="@+id/inApp1" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/btnSendImageEvent"
@@ -53,4 +53,16 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btnProfile" />
+
+    <ImageView
+        android:id="@+id/ivDebugInfo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/button_shape"
+        app:layout_constraintBottom_toBottomOf="@+id/btnSendImageEvent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/btnSendImageEvent"
+        app:layout_constraintTop_toTopOf="@+id/btnSendImageEvent"
+        app:srcCompat="@drawable/ic_outline_info_24"
+        app:tint="@color/white" />
 </androidx.constraintlayout.widget.ConstraintLayout>

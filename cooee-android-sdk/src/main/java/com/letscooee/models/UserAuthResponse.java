@@ -9,6 +9,7 @@ public class UserAuthResponse {
 
     private String sdkToken;
     private String sessionID;
+    private String deviceID;
     private String id;
 
     public String getSdkToken() {
@@ -33,5 +34,9 @@ public class UserAuthResponse {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getDeviceID() {
+        return deviceID;
     }
 }

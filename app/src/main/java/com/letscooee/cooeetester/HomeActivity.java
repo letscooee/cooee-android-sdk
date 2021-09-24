@@ -10,11 +10,16 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import com.letscooee.CooeeSDK;
 import com.letscooee.cooeetester.databinding.ActivityHomeBinding;
-import com.letscooee.utils.InAppNotificationClickListener;
+import com.letscooee.trigger.EngagementTriggerHelper;
+import com.letscooee.utils.CooeeCTAListener;
+import org.json.JSONException;
+import org.json.JSONObject;
 
+import java.io.InputStream;
 import java.util.HashMap;
+import java.util.Scanner;
 
-public class HomeActivity extends AppCompatActivity implements InAppNotificationClickListener {
+public class HomeActivity extends AppCompatActivity implements CooeeCTAListener {
 
     private final String TAG = "HomeActivity";
 
@@ -30,7 +35,7 @@ public class HomeActivity extends AppCompatActivity implements InAppNotification
         setContentView(binding.getRoot());
         context = this;
         cooeeSDK = CooeeSDK.getDefaultInstance(this);
-        cooeeSDK.setInAppNotificationButtonListener(this);
+        cooeeSDK.setCTAListener(this);
         cooeeSDK.setCurrentScreen(TAG);
 
         Log.d(TAG, "User ID " + cooeeSDK.getUserID());
@@ -39,9 +44,10 @@ public class HomeActivity extends AppCompatActivity implements InAppNotification
             cooeeSDK.sendEvent("image", new HashMap<>());
         });
 
-        binding.btnSendVideoEvent.setOnClickListener(view -> {
-            cooeeSDK.sendEvent("video", new HashMap<>());
+        binding.inApp1.setOnClickListener(view -> {
+            this.openInApp(R.raw.sample_payload1);
         });
+
         binding.btnProfile.setOnClickListener(view -> {
             startActivity(new Intent(this, ProfileActivity.class));
         });
@@ -52,10 +58,33 @@ public class HomeActivity extends AppCompatActivity implements InAppNotification
             clipboard.setPrimaryClip(clip);
             Toast.makeText(context, "Copied!", Toast.LENGTH_SHORT).show();
         });
+
+        binding.ivDebugInfo.setOnClickListener(v -> {
+            cooeeSDK.showDebugInfo();
+        });
+    }
+
+    @SuppressWarnings("SameParameterValue")
+    private void openInApp(int rawRes) {
+        // https://stackoverflow.com/a/49507293/2405040
+        InputStream inputStream = context.getResources().openRawResource(rawRes);
+        String jsonString = new Scanner(inputStream).useDelimiter("\\A").next();
+
+        try {
+            JSONObject jsonObject = new JSONObject(jsonString);
+            // To prevent adding "id" everytime in the sample JSON
+            jsonObject.put("id", "TEST-1");
+            jsonString = jsonObject.toString();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+
+        EngagementTriggerHelper.renderInAppTriggerFromJSONString(context, jsonString);
     }
 
     @Override
-    public void onInAppButtonClick(HashMap<String, Object> hashMap) {
+    public void onResponse(HashMap<String, Object> hashMap) {
         for (String key : hashMap.keySet()) {
             Log.d("Type ::", key + " -> " + hashMap.get(key).getClass().getName());
         }

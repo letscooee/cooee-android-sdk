@@ -128,31 +128,51 @@ dependencies {
     String lifecycleVersion = "2.3.1"
 
     implementation fileTree(dir: "libs", include: ["*.jar"])
-    api 'androidx.core:core:1.3.2'
-    api 'androidx.appcompat:appcompat:1.2.0'
-    api 'androidx.constraintlayout:constraintlayout:2.0.4'
+    // region AndroidX dependencies
+    api 'androidx.core:core:1.6.0'
+    api "androidx.cardview:cardview:1.0.0"
+    api "androidx.room:room-runtime:2.3.0"
+    api 'androidx.appcompat:appcompat:1.3.1'
+    api 'androidx.constraintlayout:constraintlayout:2.1.0'
+    api "androidx.lifecycle:lifecycle-process:$lifecycleVersion"
+    api "androidx.lifecycle:lifecycle-common-java8:$lifecycleVersion"
+    // endregion
+
+    // region Retrofit dependencies
     api 'com.squareup.retrofit2:retrofit:2.9.0'
     api 'com.squareup.retrofit2:converter-gson:2.9.0'
-    api 'com.google.android.gms:play-services-location:17.1.0'
-    api 'com.github.bumptech.glide:glide:4.11.0'
+    api "com.squareup.retrofit2:adapter-rxjava2:2.4.0"
+    // endregion
+
+    // region Google Firebase dependencies
+    api 'com.google.android.gms:play-services-location:18.0.0'
     api platform('com.google.firebase:firebase-bom:26.2.0')
     api 'com.google.firebase:firebase-analytics'
     api 'com.google.firebase:firebase-messaging'
-    api 'android.arch.lifecycle:extensions:2.2.0'
-    api "androidx.lifecycle:lifecycle-process:$lifecycleVersion"
-    api "androidx.lifecycle:lifecycle-common-java8:$lifecycleVersion"
-    api 'com.github.bumptech.glide:compiler:4.11.0'
+    // endregion
+
+    // region RxJava dependencies
     api 'io.reactivex.rxjava3:rxandroid:3.0.0'
     api 'io.reactivex.rxjava3:rxjava:3.0.12'
-    api "androidx.cardview:cardview:1.0.0"
-    api 'jp.wasabeef:blurry:4.0.0'
+    // endregion
+
+    // region Google's additional dependencies
     api 'com.google.android.flexbox:flexbox:3.0.0'
+    api 'com.google.android.material:material:1.4.0'
+    // endregion
+
+    // region Single standalone dependencies
+    api 'android.arch.lifecycle:extensions:2.2.0'
+    api 'com.github.bumptech.glide:glide:4.12.0'
+    api 'jp.wasabeef:blurry:4.0.0'
     api 'io.sentry:sentry-android:4.3.0'
-    api "androidx.room:room-runtime:2.3.0"
     api 'org.mongodb:bson:4.2.3'
+    api 'com.letscooee:otf-augmented-reality:0.0.2'
+    // endregion
+
     annotationProcessor "androidx.room:room-compiler:2.3.0"
-    annotationProcessor 'com.github.bumptech.glide:compiler:4.11.0'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.12.0'
     testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
 }

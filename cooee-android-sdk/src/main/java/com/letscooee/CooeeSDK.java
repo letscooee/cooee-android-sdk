@@ -1,16 +1,19 @@
 package com.letscooee;
 
 import android.content.Context;
+import android.content.Intent;
+
+import com.letscooee.device.DebugInfoActivity;
 import com.letscooee.models.Event;
 import com.letscooee.network.SafeHTTPService;
 import com.letscooee.retrofit.UserAuthService;
 import com.letscooee.task.CooeeExecutors;
-import com.letscooee.trigger.inapp.InAppTriggerActivity;
 import com.letscooee.user.NewSessionExecutor;
-import com.letscooee.utils.InAppNotificationClickListener;
+import com.letscooee.utils.CooeeCTAListener;
 import com.letscooee.utils.PropertyNameException;
 import com.letscooee.utils.RuntimeData;
 import com.letscooee.utils.SentryHelper;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.ref.WeakReference;
@@ -22,7 +25,7 @@ import java.util.Map;
  *
  * @author Abhishek Taparia
  */
-public class CooeeSDK implements InAppTriggerActivity.InAppListener {
+public class CooeeSDK {
 
     private static final String SYSTEM_DATA_PREFIX = "CE ";
 
@@ -34,7 +37,7 @@ public class CooeeSDK implements InAppTriggerActivity.InAppListener {
     private final UserAuthService userAuthService;
     private final SafeHTTPService safeHTTPService;
 
-    private WeakReference<InAppNotificationClickListener> inAppNotificationClickListener;
+    private WeakReference<CooeeCTAListener> ctaListener;
 
     /**
      * Private constructor for Singleton Class
@@ -165,14 +168,21 @@ public class CooeeSDK implements InAppTriggerActivity.InAppListener {
         return this.userAuthService.getUserID();
     }
 
-    public void setInAppNotificationButtonListener(InAppNotificationClickListener listener) {
-        inAppNotificationClickListener = new WeakReference<>(listener);
+    public void setCTAListener(CooeeCTAListener listener) {
+        ctaListener = new WeakReference<>(listener);
     }
 
-    @Override
-    public void inAppNotificationDidClick(HashMap<String, Object> payload) {
-        if (payload != null) {
-            inAppNotificationClickListener.get().onInAppButtonClick(payload);
-        }
+    public CooeeCTAListener getCTAListener() {
+        return ctaListener == null ? null : ctaListener.get();
+    }
+
+    /**
+     * Launch {@link DebugInfoActivity} activity which holds debug information.
+     * These information is useful to debug problem with the SDK.
+     */
+    public void showDebugInfo() {
+        Intent intent = new Intent(context, DebugInfoActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        context.startActivity(intent);
     }
 }

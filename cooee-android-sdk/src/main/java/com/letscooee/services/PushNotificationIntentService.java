@@ -12,10 +12,8 @@ import androidx.annotation.RestrictTo;
 
 import com.letscooee.CooeeFactory;
 import com.letscooee.models.Event;
-import com.letscooee.models.TriggerData;
+import com.letscooee.models.trigger.TriggerData;
 import com.letscooee.utils.Constants;
-
-import java.util.HashMap;
 
 /**
  * @author Abhishek Taparia

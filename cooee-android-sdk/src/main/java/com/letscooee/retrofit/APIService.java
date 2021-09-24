@@ -6,8 +6,10 @@ import com.letscooee.models.UserAuthResponse;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
+import retrofit2.http.Path;
 
 import java.util.Map;
 
@@ -36,4 +38,7 @@ public interface APIService {
 
     @POST("/v1/user/setFirebaseToken")
     Call<ResponseBody> setFirebaseToken(@Body Map<String, Object> tokenRequest);
+
+    @GET("/v1/trigger/details/{triggerID}")
+    Call<Map<String, Object>> loadTriggerDetails(@Path("triggerID") String triggerID);
 }

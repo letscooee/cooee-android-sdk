@@ -1,13 +1,18 @@
 package com.letscooee.init;
 
+import android.app.ActivityManager;
 import android.app.Application;
 import android.content.Context;
 import android.util.Log;
+
 import androidx.annotation.RestrictTo;
 import androidx.lifecycle.ProcessLifecycleOwner;
+
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.letscooee.BuildConfig;
 import com.letscooee.CooeeFactory;
+import com.letscooee.ar.ARHelper;
+import com.letscooee.font.FontProcessor;
 import com.letscooee.pushnotification.PushProviderUtils;
 import com.letscooee.schedular.CooeeJobUtils;
 import com.letscooee.task.CooeeExecutors;
@@ -29,14 +34,41 @@ public class CooeeBootstrap {
     CooeeBootstrap(Application application) {
         this.application = application;
         this.context = application.getApplicationContext();
-
-        CooeeFactory.init(this.context);
     }
 
     void init() {
+
+        // Skip initialisation of CooeeBootstrap if it's getting called via CooeeARProcess
+        if (isCooeeARProcess()) {
+            return;
+        }
+
+        CooeeFactory.init(this.context);
         application.registerActivityLifecycleCallbacks(new ActivityLifecycleCallback(this.context));
         ProcessLifecycleOwner.get().getLifecycle().addObserver(new AppLifecycleCallback(this.context));
         this.initAsyncTasks();
+    }
+
+    /**
+     * Checks if the current process is an AR process or not.
+     *
+     * @return <code>true</code> if the current process is an AR process.
+     */
+    private boolean isCooeeARProcess() {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+            return Application.getProcessName().contains(Constants.AR_PROCESS_NAME);
+        }
+
+        int pid = android.os.Process.myPid();
+        ActivityManager manager = (ActivityManager) application.getSystemService(Context.ACTIVITY_SERVICE);
+
+        for (ActivityManager.RunningAppProcessInfo processInfo : manager.getRunningAppProcesses()) {
+            if (processInfo.pid == pid && processInfo.processName.contains(Constants.AR_PROCESS_NAME)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -46,6 +78,8 @@ public class CooeeBootstrap {
         CooeeExecutors.getInstance().singleThreadExecutor().execute(() -> {
             getAndUpdateFirebaseToken();
             checkAndStartJob();
+            FontProcessor.checkAndUpdateBrandFonts(context);
+            ARHelper.checkDeviceSupport(context);
         });
     }
 

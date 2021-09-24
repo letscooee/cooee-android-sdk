@@ -31,4 +31,8 @@ public class PushProviderUtils {
 
         CooeeFactory.getSafeHTTPService().updatePushToken(requestData);
     }
+
+    public static String getLastSentToken() {
+        return lastSentToken;
+    }
 }

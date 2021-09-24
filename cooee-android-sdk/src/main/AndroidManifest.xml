@@ -1,38 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-        package="com.letscooee">
+    package="com.letscooee">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
-            android:name=".init.AppController"
-            android:usesCleartextTraffic="true">
+        android:name=".init.AppController"
+        android:usesCleartextTraffic="true">
+
+        <activity android:name=".device.DebugInfoActivity" />
+
+        <activity android:name=".trigger.inapp.InAppBrowserActivity" />
 
         <meta-data
-                android:name="io.sentry.auto-init"
-                android:value="false" />
+            android:name="io.sentry.auto-init"
+            android:value="false" />
 
         <!--Will keep it for few months to check of ANR is getting produced by our SDK-->
         <meta-data
-                android:name="io.sentry.anr.enable"
-                android:value="true" />
+            android:name="io.sentry.anr.enable"
+            android:value="true" />
 
         <activity
-                android:name=".trigger.inapp.FeedbackActivity"
-                android:theme="@style/AppTheme.PopUp" />
-        <activity
-                android:name=".trigger.inapp.InAppTriggerActivity"
-                android:configChanges="orientation|keyboardHidden"
-                android:theme="@style/AppTheme.PopUp" />
+            android:name=".trigger.inapp.InAppTriggerActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:theme="@style/AppTheme.PopUp" />
+
         <activity android:name=".trigger.CooeeEmptyActivity" />
 
         <service
-                android:name=".services.CooeeFirebaseMessagingService"
-                android:exported="false">
+            android:name=".services.CooeeFirebaseMessagingService"
+            android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
@@ -40,14 +45,23 @@
 
         <service android:name=".services.PushNotificationIntentService" />
         <service
-                android:name=".schedular.job.PendingTaskJob"
-                android:exported="false"
-                android:permission="android.permission.BIND_JOB_SERVICE" />
+            android:name=".schedular.job.PendingTaskJob"
+            android:exported="false"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
 
-        <receiver android:name=".brodcast.OnPushNotificationButtonClick" />
-        <receiver android:name=".brodcast.CooeeJobSchedulerBroadcast">
+        <receiver android:name=".broadcast.OnPushNotificationButtonClick" />
+        <receiver android:name=".broadcast.CooeeJobSchedulerBroadcast">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name=".broadcast.ARActionPerformed"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.letscooee.arResponse" />
             </intent-filter>
         </receiver>
     </application>

@@ -75,16 +75,16 @@ public final class LocalStorageHelper {
         return commit(editor);
     }
 
-    public static ArrayList<HashMap<String, String>> getList(Context context, String key) {
+    public static ArrayList<HashMap<String, Object>> getList(Context context, String key) {
         String stringList = getString(context, key, "");
 
         Gson gson = new Gson();
-        ArrayList<HashMap<String, String>> triggerHashMapList = null;
+        ArrayList<HashMap<String, Object>> triggerHashMapList = null;
 
         try {
             triggerHashMapList = gson.fromJson(
                     stringList,
-                    new TypeToken<ArrayList<HashMap<String, String>>>() {
+                    new TypeToken<ArrayList<HashMap<String, Object>>>() {
                     }.getType()
             );
         } catch (JsonSyntaxException exception) {
@@ -98,7 +98,7 @@ public final class LocalStorageHelper {
         return triggerHashMapList != null ? triggerHashMapList : new ArrayList<>();
     }
 
-    public static void putListImmediately(Context context, String key, ArrayList<HashMap<String, String>> list) {
+    public static void putListImmediately(Context context, String key, ArrayList<HashMap<String, Object>> list) {
         putStringImmediately(context, key, new Gson().toJson(list));
     }
 

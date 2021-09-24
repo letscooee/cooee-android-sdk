@@ -1,5 +1,7 @@
 package com.letscooee.models;
 
+import com.letscooee.models.trigger.TriggerData;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -17,7 +19,7 @@ public class Event {
     private String sessionID;
     private int sessionNumber;
     private String screenName;
-    private ArrayList<HashMap<String, String>> activeTriggers;
+    private ArrayList<HashMap<String, Object>> activeTriggers;
     private Date occurred;
 
     public Event(String name) {
@@ -79,11 +81,11 @@ public class Event {
         this.screenName = screenName;
     }
 
-    public ArrayList<HashMap<String, String>> getActiveTriggers() {
+    public ArrayList<HashMap<String, Object>> getActiveTriggers() {
         return activeTriggers;
     }
 
-    public void setActiveTriggers(ArrayList<HashMap<String, String>> activeTriggers) {
+    public void setActiveTriggers(ArrayList<HashMap<String, Object>> activeTriggers) {
         this.activeTriggers = activeTriggers;
     }
 

@@ -8,24 +8,22 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.service.notification.StatusBarNotification;
+import android.text.TextUtils;
+import android.view.View;
 import android.widget.RemoteViews;
-
 import androidx.core.app.NotificationCompat;
-
 import com.letscooee.CooeeFactory;
 import com.letscooee.R;
 import com.letscooee.loader.http.RemoteImageLoader;
 import com.letscooee.models.Event;
-import com.letscooee.models.TriggerData;
-import com.letscooee.models.trigger.PushNotificationImportance;
-import com.letscooee.models.trigger.PushNotificationTrigger;
+import com.letscooee.models.trigger.TriggerData;
+import com.letscooee.enums.trigger.PushNotificationImportance;
+import com.letscooee.models.trigger.push.PushNotificationTrigger;
 import com.letscooee.network.SafeHTTPService;
 import com.letscooee.services.PushNotificationIntentService;
 import com.letscooee.utils.Constants;
 
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Main class to build and render a push notification from the received {@link TriggerData}.
@@ -36,7 +34,8 @@ import java.util.Map;
 public abstract class NotificationRenderer {
 
     protected final Context context;
-    protected final PushNotificationTrigger triggerData;
+    protected final TriggerData triggerData;
+    protected final PushNotificationTrigger pushTrigger;
     protected final RemoteViews smallContentViews;
     protected final RemoteViews bigContentViews;
 
@@ -51,16 +50,17 @@ public abstract class NotificationRenderer {
 
     private final int notificationID = (int) new Date().getTime();
 
-    protected NotificationRenderer(Context context, PushNotificationTrigger triggerData) {
+    protected NotificationRenderer(Context context, TriggerData triggerData) {
         this.context = context;
         this.triggerData = triggerData;
+        this.pushTrigger = triggerData.getPn();
         this.imageLoader = new RemoteImageLoader(context);
-        this.notificationImportance = this.triggerData.getImportance();
+        this.notificationImportance = this.triggerData.getPn().getImportance();
 
         this.safeHTTPService = CooeeFactory.getSafeHTTPService();
         this.notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         this.notificationBuilder = new NotificationCompat.Builder(this.context, this.notificationImportance.getChannelID());
-        this.notificationSound = new NotificationSound(context, triggerData, notificationBuilder);
+        this.notificationSound = new NotificationSound(context, triggerData.getPn(), notificationBuilder);
 
         this.smallContentViews = new RemoteViews(context.getPackageName(), R.layout.notification_small);
         this.bigContentViews = new RemoteViews(context.getPackageName(), this.getBigViewLayout());
@@ -80,17 +80,32 @@ public abstract class NotificationRenderer {
     }
 
     protected void setTitleAndBody() {
-        String title = this.triggerData.getNotificationTitle();
-        String body = this.triggerData.getNotificationBody();
+        String title = null;
+        String body = null;
+        if (this.triggerData.getPn().getTitle() != null)
+            title = this.triggerData.getPn().getTitle().getText();
 
-        this.notificationBuilder
-                .setContentTitle(title)
-                .setContentText(body);
+        if (this.triggerData.getPn().getBody() != null)
+            body = this.triggerData.getPn().getBody().getText();
 
-        this.smallContentViews.setTextViewText(R.id.textViewTitle, title);
-        this.smallContentViews.setTextViewText(R.id.textViewInfo, body);
-        this.bigContentViews.setTextViewText(R.id.textViewTitle, title);
-        this.bigContentViews.setTextViewText(R.id.textViewInfo, body);
+        if (!TextUtils.isEmpty(title)) {
+            this.notificationBuilder.setContentTitle(title);
+            this.smallContentViews.setTextViewText(R.id.textViewTitle, title);
+            this.bigContentViews.setTextViewText(R.id.textViewTitle, title);
+        } else {
+            this.smallContentViews.setViewVisibility(R.id.textViewTitle, View.INVISIBLE);
+            this.bigContentViews.setViewVisibility(R.id.textViewTitle, View.INVISIBLE);
+
+        }
+
+        if (!TextUtils.isEmpty(body)) {
+            this.notificationBuilder.setContentText(body);
+            this.smallContentViews.setTextViewText(R.id.textViewInfo, body);
+            this.bigContentViews.setTextViewText(R.id.textViewInfo, body);
+        } else {
+            this.smallContentViews.setViewVisibility(R.id.textViewInfo, View.INVISIBLE);
+            this.bigContentViews.setViewVisibility(R.id.textViewInfo, View.INVISIBLE);
+        }
     }
 
     private void setBuilder() {
@@ -106,17 +121,9 @@ public abstract class NotificationRenderer {
                 .setStyle(new NotificationCompat.DecoratedCustomViewStyle());
 
         int defaults = 0;
-        if (this.triggerData.pn != null) {
-            if (this.triggerData.pn.lights) defaults |= NotificationCompat.DEFAULT_LIGHTS;
-            if (this.triggerData.pn.vibrate) defaults |= NotificationCompat.DEFAULT_VIBRATE;
+        if (this.pushTrigger.lights) defaults |= NotificationCompat.DEFAULT_LIGHTS;
+        if (this.pushTrigger.vibrate) defaults |= NotificationCompat.DEFAULT_VIBRATE;
 
-            if (this.triggerData.pn.sound) {
-                defaults |= NotificationCompat.DEFAULT_SOUND;
-                this.notificationSound.setSoundInNotification();
-            } else {
-                this.notificationBuilder.setSound(null);
-            }
-        }
         this.notificationBuilder.setDefaults(defaults);
 
         this.setTitleAndBody();
@@ -140,15 +147,9 @@ public abstract class NotificationRenderer {
             notificationChannel.setImportance(NotificationManager.IMPORTANCE_HIGH);
         }
 
-        if (this.triggerData.pn != null) {
-            // TODO: 15/06/21 This does not update if the channel is already created
-            if (this.triggerData.pn.lights) notificationChannel.enableLights(true);
-            if (this.triggerData.pn.vibrate) notificationChannel.enableVibration(true);
-
-            if (this.triggerData.pn.sound) {
-                this.notificationSound.setSoundInChannel(notificationChannel);
-            }
-        }
+        // TODO: 15/06/21 This following does not update if the channel is already created
+        if (this.pushTrigger.lights) notificationChannel.enableLights(true);
+        if (this.pushTrigger.vibrate) notificationChannel.enableVibration(true);
 
         this.notificationManager.createNotificationChannel(notificationChannel);
     }

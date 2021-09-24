@@ -118,6 +118,48 @@ userData.put("email", "john@example.com");
 sdkInstance.updateUserProfile(userData, userProperties);
 ```
 
+### Step 7: Show debug information (Optional)
+
+To see CooeeSDK debug information for you can add `SHAKE_TO_DEBUG_COUNT` in `AndroidManifest.xml`
+
+```xml
+<!-- Change value to 0 if you don't want to open debug information when device shake-->
+<meta-data
+    android:name="SHAKE_TO_DEBUG_COUNT"
+    android:value="ANY_NUMBER" />
+```
+
+Or you can also see information by calling `showDebugInfo()` method
+
+```java
+CooeeSDK sdkInstance = CooeeSDK.getDefaultInstance(context);
+sdkInstance.showDebugInfo();
+```
+
+**Note**
+Debug Information holds confidential data and is password protected. While accessing this information Cooee representative is required.
+
+### Step 8: Track user actions
+
+Implement your `Activity` with `CooeeCTAListener` and then register listener with `CooeeSDK.setCTAListener(...)`
+
+```java
+public class YourActivity implements CooeeCTAListener {
+    ...
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        CooeeSDK sdkInstance = CooeeSDK.getDefaultInstance(context);
+     sdkInstance.setCTAListener(this);
+        ...
+    }
+
+    @Override
+    public void onResponse(HashMap<String, Object> hashMap) {
+        
+    }
+}
+```
+
 ## Development
 
 There are two projects-

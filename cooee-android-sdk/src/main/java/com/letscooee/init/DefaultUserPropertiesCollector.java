@@ -20,7 +20,6 @@ import android.os.StatFs;
 import android.telephony.TelephonyManager;
 import android.util.DisplayMetrics;
 import androidx.core.app.ActivityCompat;
-import com.google.android.gms.location.LocationRequest;
 import com.letscooee.CooeeFactory;
 import com.letscooee.utils.SentryHelper;
 
@@ -55,28 +54,32 @@ public class DefaultUserPropertiesCollector {
      */
     @SuppressLint("MissingPermission")
     public double[] getLocation() {
-        LocationRequest locationRequest = new LocationRequest();
-        locationRequest.setInterval(10000);
-        locationRequest.setFastestInterval(3000);
-        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        Location location = null;
+        Location bestLastLocation = null;
+
+        if (!isPermissionGranted(Manifest.permission.ACCESS_FINE_LOCATION)) {
+            return new double[]{0, 0};
+        }
+
         LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-        if (ActivityCompat.checkSelfPermission(this.context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(this.context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        List<String> providers = locationManager.getProviders(true);
+
+        for (String provider : providers) {
+            Location location = locationManager.getLastKnownLocation(provider);
+            if (location == null) {
+                continue;
+            }
+            if (bestLastLocation == null || location.getAccuracy() < bestLastLocation.getAccuracy()) {
+                bestLastLocation = location;
+            }
+        }
+        if (bestLastLocation == null) {
             return new double[]{0, 0};
         }
+        return new double[]{bestLastLocation.getLatitude(), bestLastLocation.getLongitude()};
+    }
 
-        assert locationManager != null;
-        if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-            location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-        } else if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
-            location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-        }
-
-        if (location == null) {
-            return new double[]{0, 0};
-        }
-        return new double[]{location.getLatitude(), location.getLongitude()};
+    private boolean isPermissionGranted(String perm) {
+        return ActivityCompat.checkSelfPermission(this.context, perm) == PackageManager.PERMISSION_GRANTED;
     }
 
     /**
@@ -84,11 +87,13 @@ public class DefaultUserPropertiesCollector {
      *
      * @return String[] {Network Operator Name,Network type}
      */
+    @SuppressLint("MissingPermission")
     public String[] getNetworkData() {
         String[] networkData = new String[2];
         TelephonyManager manager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
         assert manager != null;
-        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+
+        if (!isPermissionGranted(Manifest.permission.READ_PHONE_STATE)) {
             networkData[0] = !manager.getNetworkOperatorName().isEmpty() ? manager.getNetworkOperatorName() : "Unknown";
             networkData[1] = "PNGRNT";
         } else {
