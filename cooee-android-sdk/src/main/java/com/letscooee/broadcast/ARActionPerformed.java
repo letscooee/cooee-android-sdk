@@ -4,13 +4,16 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.letscooee.BuildConfig;
 import com.letscooee.CooeeFactory;
 import com.letscooee.CooeeSDK;
 import com.letscooee.models.Event;
 import com.letscooee.models.trigger.blocks.ClickAction;
+import com.letscooee.utils.Constants;
 import com.letscooee.utils.CooeeCTAListener;
 
 import java.util.HashMap;
@@ -25,6 +28,9 @@ import java.util.Map;
  */
 public class ARActionPerformed extends BroadcastReceiver {
 
+    private static final String EVENT_NAME = "name";
+    private static final String EVENT_PROPERTIES = "props";
+    private static final String EVENT_CTA = "cta";
     private static ClickAction lastARResponse = null;
 
     @Override
@@ -41,13 +47,38 @@ public class ARActionPerformed extends BroadcastReceiver {
             return;
         }
 
-        lastARResponse = new Gson().fromJson(rawResponse, new TypeToken<ClickAction>() {
+        processAREvents(context, rawResponse);
+    }
+
+    /**
+     * Send event to the server received in <code>rawResponse</code>; Then will check for CTA in <code>rawResponse</code>,
+     * if found any will send {@link ClickAction#getUserPropertiesToUpdate()} to the {@link CooeeSDK#updateUserProperties(Map)}
+     *
+     * @param context     application context
+     * @param rawResponse json string sent via AR as event.
+     */
+    private void processAREvents(Context context, String rawResponse) {
+        if (BuildConfig.DEBUG) {
+            Log.d(Constants.TAG, "AR Event: " + rawResponse);
+        }
+
+        Gson gson = new Gson();
+        Map<String, Object> arResponse = gson.fromJson(rawResponse, new TypeToken<Map<String, Object>>() {
         }.getType());
 
-        // TODO: 18/08/21 Should we send even before checking for rawResponse
-        Event event = new Event("CE AR Closed");
+        Event event = new Event(arResponse.get(EVENT_NAME).toString());
+
+        if (arResponse.get(EVENT_PROPERTIES) != null) {
+            event.setProperties((Map<String, Object>) arResponse.get(EVENT_PROPERTIES));
+        }
+
         CooeeFactory.getSafeHTTPService().sendEvent(event);
 
+        if (arResponse.get(EVENT_CTA) == null) {
+            return;
+        }
+
+        lastARResponse = gson.fromJson(gson.toJson(arResponse.get(EVENT_CTA)), ClickAction.class);
         Map<String, Object> userProperty = lastARResponse.getUserPropertiesToUpdate();
 
         if (userProperty == null) {

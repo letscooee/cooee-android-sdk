@@ -7,11 +7,13 @@ import java.util.HashMap;
 public class AppAR implements Parcelable {
 
     private final String name;
+    private final HashMap<String, Object> splash;
     private final HashMap<String, Object> data;
 
     protected AppAR(Parcel in) {
         name = in.readString();
         data = (HashMap<String, Object>) in.readSerializable();
+        splash = (HashMap<String, Object>) in.readSerializable();
     }
 
     public static final Creator<AppAR> CREATOR = new Creator<AppAR>() {
@@ -35,6 +37,7 @@ public class AppAR implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(name);
         dest.writeSerializable(data);
+        dest.writeSerializable(splash);
     }
 
     public String getName() {
@@ -43,5 +46,9 @@ public class AppAR implements Parcelable {
 
     public HashMap<String, Object> getData() {
         return data;
+    }
+
+    public HashMap<String, Object> getSplash() {
+        return splash;
     }
 }
