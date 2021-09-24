@@ -69,7 +69,7 @@ public class ARActionPerformed extends BroadcastReceiver {
         Event event = new Event(arResponse.get(EVENT_NAME).toString());
 
         if (arResponse.get(EVENT_PROPERTIES) != null) {
-            event.setProperties((Map<String, Object>) arResponse.get("props"));
+            event.setProperties((Map<String, Object>) arResponse.get(EVENT_PROPERTIES));
         }
 
         CooeeFactory.getSafeHTTPService().sendEvent(event);
@@ -78,7 +78,7 @@ public class ARActionPerformed extends BroadcastReceiver {
             return;
         }
 
-        lastARResponse = gson.fromJson(gson.toJson(arResponse.get("cta")), ClickAction.class);
+        lastARResponse = gson.fromJson(gson.toJson(arResponse.get(EVENT_CTA)), ClickAction.class);
         Map<String, Object> userProperty = lastARResponse.getUserPropertiesToUpdate();
 
         if (userProperty == null) {
