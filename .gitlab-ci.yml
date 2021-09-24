@@ -11,8 +11,8 @@ stages:
 Validate MR:
   stage: test
   script:
-    - ./gradlew test
-    - ./gradlew clean cooee-android-sdk:publishToMavenLocal
+    - ./gradlew cooee-android-sdk:test
+    - ./gradlew cooee-android-sdk:publishToMavenLocal
   only:
     - merge_requests
 
