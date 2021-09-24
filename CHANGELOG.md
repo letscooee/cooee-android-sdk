@@ -1,5 +1,15 @@
 # Change Log
 
+## v1.0.1
+
+### Fixes
+
+1. Expose `InAppTriggerActivity#captureWindowForBlurryEffect` to be used in other plugins.
+
+### Chore
+
+1. Run test cases & publish to maven local for every merge requests.
+
 ## v1.0.0
 
 ### Required Changes
