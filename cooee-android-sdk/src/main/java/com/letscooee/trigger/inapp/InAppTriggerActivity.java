@@ -116,6 +116,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
      *
      * @param activity The current opened/visible activity.
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static void captureWindowForBlurryEffect(@NonNull Activity activity) {
         // Exclude activities from this plugin or which includes PreventBlurActivity
         if (activity instanceof PreventBlurActivity) {

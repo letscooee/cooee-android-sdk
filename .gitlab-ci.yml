@@ -5,7 +5,16 @@ before_script:
     - chmod +x ./gradlew
 
 stages:
+    - test
     - deploy
+
+Validate MR:
+  stage: test
+  script:
+    - ./gradlew cooee-android-sdk:test
+    - ./gradlew cooee-android-sdk:publishToMavenLocal
+  only:
+    - merge_requests
 
 Publish to JFrog:
     stage: deploy

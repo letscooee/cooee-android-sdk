@@ -13,48 +13,48 @@ public class UnitUtilsTest {
     /**
      * valid inputs and valid unit
      */
-    @Test
+    /*@Test
     public void parseToInt() {
         int output = UnitUtils.parseToInt(input, px);
         assertEquals(2, output);
-    }
+    }*/
 
     /**
      * valid input invalid unit
      */
-    @Test
+    /*@Test
     public void parseToIntInvalidUnit() {
         int output = UnitUtils.parseToInt(input, percent);
         assertEquals(0, output);
-    }
+    }*/
 
     /**
      * valid input invalid unit
      */
-    @Test
+    /*@Test
     public void parseToIntInvalidInput() {
         int output = UnitUtils.parseToInt("input", px);
         assertEquals(0, output);
-    }
+    }*/
 
     /**
      * Method: ValueUtil.getCalculatedPixel
      * Inputs: valid input
      */
-    @Test
+    /*@Test
     public void getCalculatedValue() {
         int output = UnitUtils.getCalculatedPixel(input);
         assertEquals(2, output);
-    }
+    }*/
 
     /**
      * ValueUtil.getCalculatedPixel invalid input
      */
-    @Test
+    /*@Test
     public void getCalculatedValueInvalid() {
         int output = UnitUtils.getCalculatedPixel("input");
         assertEquals(0, output);
-    }
+    }*/
 
     @Test
     public void testGetCalculatedValue() {
