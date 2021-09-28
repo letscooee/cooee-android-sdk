@@ -1,5 +1,12 @@
 # Change Log
 
+## v1.0.2
+
+### Fixes
+
+1. Add theme to `DebugInfoActivity`.
+2. Fix issue for CTA when position is `Position.PositionType.ABSOLUTE`
+
 ## v1.0.1
 
 ### Fixes
