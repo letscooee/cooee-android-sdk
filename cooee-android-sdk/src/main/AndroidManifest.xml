@@ -15,7 +15,8 @@
         android:name=".init.AppController"
         android:usesCleartextTraffic="true">
 
-        <activity android:name=".device.DebugInfoActivity" />
+        <activity android:name=".device.DebugInfoActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
 
         <activity android:name=".trigger.inapp.InAppBrowserActivity" />
 
