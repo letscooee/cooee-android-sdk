@@ -93,7 +93,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
 
         reassignParentIfAbsolute();
 
-        // Adds MaterialCardView to the base RelaytiveLayout of the In-App
+        // Adds MaterialCardView to the base RelativeLayout of the In-App
         // if position is ABSOLUTE
         if (elementData.getPosition().isAbsolutelyPosition()) {
             globalData.getTriggerParentLayout().addView(materialCardView);
@@ -310,10 +310,10 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         float elementX = parentX;
         float elementY = parentY;
         if (top != 0) {
-            elementY = top + parentY;
+            elementY += top;
         }
         if (left != 0) {
-            elementX = left + parentX;
+            elementX += left;
         }
         if (bottom != 0) {
             float parentBottom = parentY + parentHeight;
