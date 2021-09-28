@@ -95,7 +95,7 @@ public class Position implements Parcelable {
         return zIndex;
     }
 
-    public boolean isAbsolutelyPosition() {
+    public boolean isAbsolute() {
         return this.type == Position.PositionType.ABSOLUTE;
     }
 }

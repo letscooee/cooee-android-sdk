@@ -95,7 +95,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
 
         // Adds MaterialCardView to the base RelativeLayout of the In-App
         // if position is ABSOLUTE
-        if (elementData.getPosition().isAbsolutelyPosition()) {
+        if (elementData.getPosition().isAbsolute()) {
             globalData.getTriggerParentLayout().addView(materialCardView);
         } else {
             parentElement.addView(materialCardView);
@@ -113,7 +113,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
      * Hence accessing parent of {@link #parentElement} and placing {@link #newElement} in it.
      */
     private void reassignParentIfAbsolute() {
-        if (elementData.getPosition().isAbsolutelyPosition()) {
+        if (elementData.getPosition().isAbsolute()) {
             parentElement = (FrameLayout) parentElement.getParent();
         }
     }
@@ -152,7 +152,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
             return;
         }
 
-        if (elementData.getPosition().isAbsolutelyPosition()) {
+        if (elementData.getPosition().isAbsolute()) {
             return;
         }
 
@@ -214,7 +214,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
 
         this.newElement.setLayoutParams(new FrameLayout.LayoutParams(width, height));
 
-        if (parentElement instanceof RelativeLayout || elementData.getPosition().isAbsolutelyPosition()) {
+        if (parentElement instanceof RelativeLayout || elementData.getPosition().isAbsolute()) {
             layoutParams = new RelativeLayout.LayoutParams(width, height);
         } else if (parentElement instanceof FlexboxLayout) {
             layoutParams = new FlexboxLayout.LayoutParams(width, height);
