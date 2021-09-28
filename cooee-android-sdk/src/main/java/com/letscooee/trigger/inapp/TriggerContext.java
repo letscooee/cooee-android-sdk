@@ -2,6 +2,7 @@ package com.letscooee.trigger.inapp;
 
 import android.graphics.Bitmap;
 import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 
 import com.letscooee.models.trigger.TriggerData;
 import com.letscooee.utils.Closure;
@@ -24,6 +25,7 @@ public class TriggerContext {
     private ViewGroup viewGroupForBlurry;
     private Closure<Map<String, Object>> callback;
     private TriggerData triggerData;
+    private RelativeLayout triggerParentLayout;
 
     public Map<String, Object> getClosedEventProps() {
         return closedEventProps;
@@ -61,5 +63,13 @@ public class TriggerContext {
 
     public void setTriggerData(TriggerData triggerData) {
         this.triggerData = triggerData;
+    }
+
+    public RelativeLayout getTriggerParentLayout() {
+        return triggerParentLayout;
+    }
+
+    public void setTriggerParentLayout(RelativeLayout triggerParentLayout) {
+        this.triggerParentLayout = triggerParentLayout;
     }
 }

@@ -108,6 +108,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
     private void renderContainerAndLayers() {
         Container containerData = inAppData.getContainer();
         RelativeLayout rootViewElement = findViewById(R.id.inAppTriggerRoot);
+        triggerContext.setTriggerParentLayout(rootViewElement);
         new ContainerRenderer(this, rootViewElement, containerData, inAppData.getLayers(), triggerContext).render();
     }
 
