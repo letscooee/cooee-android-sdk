@@ -1,13 +1,18 @@
 package com.letscooee.trigger.inapp.renderer;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.graphics.drawable.GradientDrawable;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.*;
+
 import androidx.annotation.RestrictTo;
+
 import com.bumptech.glide.Glide;
 import com.google.android.flexbox.FlexboxLayout;
 import com.google.android.material.card.MaterialCardView;
@@ -16,6 +21,7 @@ import com.letscooee.models.trigger.blocks.*;
 import com.letscooee.models.trigger.elements.BaseElement;
 import com.letscooee.trigger.action.ClickActionExecutor;
 import com.letscooee.trigger.inapp.TriggerContext;
+
 import jp.wasabeef.blurry.Blurry;
 
 import static com.letscooee.utils.Constants.TAG;
@@ -87,7 +93,13 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
 
         reassignParentIfAbsolute();
 
-        parentElement.addView(materialCardView);
+        // Adds MaterialCardView to the base RelativeLayout of the In-App
+        // if position is ABSOLUTE
+        if (elementData.getPosition().isAbsolute()) {
+            globalData.getTriggerParentLayout().addView(materialCardView);
+        } else {
+            parentElement.addView(materialCardView);
+        }
 
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "Parent " + parentElement.getClass().getSimpleName());
@@ -101,7 +113,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
      * Hence accessing parent of {@link #parentElement} and placing {@link #newElement} in it.
      */
     private void reassignParentIfAbsolute() {
-        if (elementData.getPosition().isAbsolutelyPosition()) {
+        if (elementData.getPosition().isAbsolute()) {
             parentElement = (FrameLayout) parentElement.getParent();
         }
     }
@@ -140,7 +152,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
             return;
         }
 
-        if (elementData.getPosition().isAbsolutelyPosition()) {
+        if (elementData.getPosition().isAbsolute()) {
             return;
         }
 
@@ -202,10 +214,10 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
 
         this.newElement.setLayoutParams(new FrameLayout.LayoutParams(width, height));
 
-        if (parentElement instanceof FlexboxLayout) {
-            layoutParams = new FlexboxLayout.LayoutParams(width, height);
-        } else if (parentElement instanceof RelativeLayout) {
+        if (parentElement instanceof RelativeLayout || elementData.getPosition().isAbsolute()) {
             layoutParams = new RelativeLayout.LayoutParams(width, height);
+        } else if (parentElement instanceof FlexboxLayout) {
+            layoutParams = new FlexboxLayout.LayoutParams(width, height);
         } else if (parentElement instanceof LinearLayout) {
             layoutParams = new LinearLayout.LayoutParams(width, height);
         } else if (parentElement instanceof FrameLayout) {
@@ -234,6 +246,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
                 this.processSizeBlock();
                 this.registerListenerOnNewElement();
             }
+            this.applyPositionBlock();
         });
     }
 
@@ -282,30 +295,39 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         int left = position.getLeft(parentElement);
         int right = position.getRight(parentElement);
 
-        float parentX = parentElement.getX();
-        float parentY = parentElement.getY();
+        // get the onscreen location of parent element as getX, getY return 0 always
+        int[] location = new int[2];
+        parentElement.getLocationOnScreen(location);
+
+        float parentX = location[0];
+        float parentY = location[1] - getTitleBarHeight();
         float parentHeight = parentElement.getMeasuredHeight();
         float parentWidth = parentElement.getMeasuredWidth();
 
         float currentHeight = materialCardView.getMeasuredHeight();
         float currentWidth = materialCardView.getMeasuredWidth();
 
+        float elementX = parentX;
+        float elementY = parentY;
         if (top != 0) {
-            materialCardView.setY(top);
+            elementY += top;
         }
         if (left != 0) {
-            materialCardView.setX(left);
+            elementX += left;
         }
         if (bottom != 0) {
             float parentBottom = parentY + parentHeight;
             float currentViewBottom = parentBottom - bottom;
-            materialCardView.setY(currentViewBottom - currentHeight);
+            elementY = currentViewBottom - currentHeight;
         }
         if (right != 0) {
             float parentRight = parentX + parentWidth;
             float currentViewRight = parentRight - right;
-            materialCardView.setX(currentViewRight - currentWidth);
+            elementX = currentViewRight - currentWidth;
         }
+
+        materialCardView.setX(elementX);
+        materialCardView.setY(elementY);
 
         Integer zIndex = position.getzIndex();
 
@@ -315,6 +337,19 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         }
 
         materialCardView.setTranslationZ(zIndex);
+    }
+
+    /**
+     * Finds TitleBar height of the device
+     *
+     * @return <code>int</code> height of the TitleBar
+     */
+    private int getTitleBarHeight() {
+        Rect rectangle = new Rect();
+        Window window = ((Activity) context).getWindow();
+        window.getDecorView().getWindowVisibleDisplayFrame(rectangle);
+        int contentViewTop = window.findViewById(Window.ID_ANDROID_CONTENT).getTop();
+        return rectangle.top - contentViewTop;
     }
 
     protected void processBackground() {
