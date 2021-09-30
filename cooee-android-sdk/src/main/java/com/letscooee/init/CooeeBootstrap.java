@@ -31,12 +31,12 @@ public class CooeeBootstrap {
     private final Context context;
     private final Application application;
 
-    CooeeBootstrap(Application application) {
+    public CooeeBootstrap(Application application) {
         this.application = application;
         this.context = application.getApplicationContext();
     }
 
-    void init() {
+    public void init() {
 
         // Skip initialisation of CooeeBootstrap if it's getting called via CooeeARProcess
         if (isCooeeARProcess()) {
