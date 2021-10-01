@@ -1,6 +1,6 @@
 package com.letscooee.models.trigger;
 
-import org.bson.types.ObjectId;
+import java.util.Date;
 
 /**
  * Trigger class to be sent as active trigger with events.
@@ -37,4 +37,9 @@ public class EmbeddedTrigger {
     public Boolean getInternal() {
         return internal;
     }
+
+    public boolean isExpired() {
+        return getExpireAt() < new Date().getTime() / 1000;
+    }
+
 }

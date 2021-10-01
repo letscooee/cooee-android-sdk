@@ -26,12 +26,10 @@ import com.letscooee.utils.LocalStorageHelper;
 import com.letscooee.utils.RuntimeData;
 import com.letscooee.utils.Timer;
 
-import org.bson.types.ObjectId;
-
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Objects;
 
@@ -48,7 +46,8 @@ public class EngagementTriggerHelper {
 
     /**
      * Update previously stored map format to {@link EmbeddedTrigger}.
-     * Temporary
+     * Temporary. This should be removed in the next version release as it a migration for map to
+     * {@link EmbeddedTrigger}.
      *
      * @param context The application context.
      */
@@ -62,16 +61,12 @@ public class EngagementTriggerHelper {
 
         LocalStorageHelper.remove(context, Constants.STORAGE_ACTIVE_TRIGGERS);
 
-        for (HashMap<String, Object> t : oldActiveTriggers) {
-            String engagementID = t.get("engagementID") != null
-                    ? (String) t.get("engagementID")
-                    : null;
-
+        for (HashMap<String, Object> trigger : oldActiveTriggers) {
             EmbeddedTrigger embeddedTrigger = new EmbeddedTrigger(
-                    (String) t.get("triggerID"),
-                    engagementID,
-                    Long.parseLong((String) Objects.requireNonNull(t.get("duration"))) / 1000,
-                    (Boolean) t.get("internal")
+                    (String) trigger.get("triggerID"),
+                    (String) trigger.get("engagementID"),
+                    Long.parseLong((String) Objects.requireNonNull(trigger.get("duration"))) / 1000,
+                    (Boolean) trigger.get("internal")
             );
 
             activeTriggers.add(embeddedTrigger);
@@ -118,19 +113,19 @@ public class EngagementTriggerHelper {
         ArrayList<EmbeddedTrigger> allTriggers = LocalStorageHelper.getEmbeddedTriggers(context,
                 Constants.STORAGE_ACTIVATED_TRIGGERS);
 
-        ArrayList<EmbeddedTrigger> activeTriggers = new ArrayList<>();
+        ListIterator<EmbeddedTrigger> iterator = allTriggers.listIterator();
 
-        for (EmbeddedTrigger trigger : allTriggers) {
+        while (iterator.hasNext()) {
             // If it's validity has not yet expired
-            if (trigger.getExpireAt() > new Date().getTime() / 1000) {
-                activeTriggers.add(trigger);
+            if (iterator.next().isExpired()) {
+                iterator.remove();
             }
         }
 
         // Also update it immediately in local storage
-        LocalStorageHelper.putEmbeddedTriggersImmediately(context, Constants.STORAGE_ACTIVATED_TRIGGERS, activeTriggers);
+        LocalStorageHelper.putEmbeddedTriggersImmediately(context, Constants.STORAGE_ACTIVATED_TRIGGERS, allTriggers);
 
-        return activeTriggers;
+        return allTriggers;
     }
 
     /**
@@ -225,11 +220,9 @@ public class EngagementTriggerHelper {
      * @param triggerData Data to render in-app.
      */
     public static void renderInAppFromPushNotification(Context context, TriggerData triggerData) {
-
-
         Event event = new Event("CE Notification Clicked", triggerData);
         CooeeFactory.getSafeHTTPService().sendEvent(event);
-        // TODO Talk to Shwetank where to put this method
+
         storeActiveTriggerDetails(context, triggerData);
         loadLazyData(context, triggerData);
     }
