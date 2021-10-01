@@ -13,12 +13,14 @@ public class TriggerData implements Parcelable {
 
     private final String id;
     private final double version;
+    @Deprecated
     private final long duration;
     private InAppTrigger ian;
     private final PushNotificationTrigger pn;
     private final String engagementID;
     private final boolean internal;
     private final Map<String, Object> config;
+    private final long expireAt;
 
     protected TriggerData(Parcel in) {
         id = in.readString();
@@ -30,6 +32,7 @@ public class TriggerData implements Parcelable {
         internal = in.readByte() != 0;
         config = new HashMap<>();
         in.readMap(config, Object.class.getClassLoader());
+        expireAt = in.readLong();
     }
 
     public static final Creator<TriggerData> CREATOR = new Creator<TriggerData>() {
@@ -64,6 +67,7 @@ public class TriggerData implements Parcelable {
         this.ian = ian;
     }
 
+    @Deprecated
     public long getDuration() {
         return duration;
     }
@@ -78,6 +82,10 @@ public class TriggerData implements Parcelable {
 
     public Map<String, Object> getConfig() {
         return config;
+    }
+
+    public long getExpireAt() {
+        return expireAt;
     }
 
     @Override
@@ -95,5 +103,6 @@ public class TriggerData implements Parcelable {
         dest.writeString(engagementID);
         dest.writeByte((byte) (internal ? 1 : 0));
         dest.writeMap(config);
+        dest.writeLong(expireAt);
     }
 }

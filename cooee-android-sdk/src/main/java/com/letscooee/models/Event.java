@@ -1,5 +1,6 @@
 package com.letscooee.models;
 
+import com.letscooee.models.trigger.EmbeddedTrigger;
 import com.letscooee.models.trigger.TriggerData;
 
 import java.util.ArrayList;
@@ -19,7 +20,7 @@ public class Event {
     private String sessionID;
     private int sessionNumber;
     private String screenName;
-    private ArrayList<HashMap<String, Object>> activeTriggers;
+    private ArrayList<EmbeddedTrigger> activeTriggers;
     private Date occurred;
 
     public Event(String name) {
@@ -81,11 +82,11 @@ public class Event {
         this.screenName = screenName;
     }
 
-    public ArrayList<HashMap<String, Object>> getActiveTriggers() {
+    public ArrayList<EmbeddedTrigger> getActiveTriggers() {
         return activeTriggers;
     }
 
-    public void setActiveTriggers(ArrayList<HashMap<String, Object>> activeTriggers) {
+    public void setActiveTriggers(ArrayList<EmbeddedTrigger> activeTriggers) {
         this.activeTriggers = activeTriggers;
     }
 

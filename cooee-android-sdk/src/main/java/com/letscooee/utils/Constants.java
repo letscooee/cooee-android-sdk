@@ -16,6 +16,7 @@ public class Constants {
     public static final String STORAGE_SESSION_NUMBER = "session_number";
     public static final String STORAGE_USER_ID = "user_id";
     public static final String STORAGE_ACTIVE_TRIGGERS = "active_triggers";
+    public static final String STORAGE_ACTIVATED_TRIGGERS = "activated_triggers";
     public static final String STORAGE_LAST_TOKEN_ATTEMPT = "last_token_check_attempt";
     public static final String STORAGE_LAST_FONT_ATTEMPT = "last_font_check_attempt";
     public static final String STORAGE_CACHED_FONTS = "cached_fonts";

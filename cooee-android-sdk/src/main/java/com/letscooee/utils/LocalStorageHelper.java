@@ -2,15 +2,25 @@ package com.letscooee.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+
 import androidx.annotation.RestrictTo;
+
 import com.google.gson.Gson;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
+import com.letscooee.models.trigger.EmbeddedTrigger;
+
 import io.sentry.Sentry;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -88,14 +98,36 @@ public final class LocalStorageHelper {
                     }.getType()
             );
         } catch (JsonSyntaxException exception) {
-            Sentry.captureException(exception);
-
-            // Remove all activeTriggers when wrong format of triggerId is saved in shared preferences
-            remove(context, Constants.STORAGE_ACTIVE_TRIGGERS);
             return new ArrayList<>();
         }
 
         return triggerHashMapList != null ? triggerHashMapList : new ArrayList<>();
+    }
+
+    public static ArrayList<EmbeddedTrigger> getEmbeddedTriggers(Context context, String key) {
+        String stringList = getString(context, key, "");
+
+        Gson gson = new Gson();
+        ArrayList<EmbeddedTrigger> typedList;
+
+        try {
+            typedList = gson.fromJson(
+                    stringList,
+                    new TypeToken<ArrayList<EmbeddedTrigger>>() {
+                    }.getType()
+            );
+        } catch (JsonSyntaxException exception) {
+            Sentry.captureException(exception);
+
+            remove(context, Constants.STORAGE_ACTIVATED_TRIGGERS);
+            return new ArrayList<>();
+        }
+
+        return typedList != null ? typedList : new ArrayList<>();
+    }
+
+    public static void putEmbeddedTriggersImmediately(Context context, String key, List<EmbeddedTrigger> list) {
+        putStringImmediately(context, key, new Gson().toJson(list));
     }
 
     public static void putListImmediately(Context context, String key, ArrayList<HashMap<String, Object>> list) {
