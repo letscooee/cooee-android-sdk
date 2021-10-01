@@ -10,23 +10,23 @@ import org.bson.types.ObjectId;
  */
 public class EmbeddedTrigger {
 
-    private final ObjectId triggerID;
-    private final ObjectId engagementID;
+    private final String triggerID;
+    private final String engagementID;
     private final Long expireAt;
     private final Boolean internal;
 
-    public EmbeddedTrigger(ObjectId triggerID, ObjectId engagementID, Long expireAt, Boolean internal) {
+    public EmbeddedTrigger(String triggerID, String engagementID, Long expireAt, Boolean internal) {
         this.triggerID = triggerID;
         this.engagementID = engagementID;
         this.expireAt = expireAt;
         this.internal = internal;
     }
 
-    public ObjectId getTriggerID() {
+    public String getTriggerID() {
         return triggerID;
     }
 
-    public ObjectId getEngagementID() {
+    public String getEngagementID() {
         return engagementID;
     }
 

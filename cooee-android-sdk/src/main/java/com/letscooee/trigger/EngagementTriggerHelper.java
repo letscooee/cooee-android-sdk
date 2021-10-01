@@ -63,14 +63,14 @@ public class EngagementTriggerHelper {
         LocalStorageHelper.remove(context, Constants.STORAGE_ACTIVE_TRIGGERS);
 
         for (HashMap<String, Object> t : oldActiveTriggers) {
-            ObjectId engagementID = t.get("engagementID") != null
-                    ? new ObjectId((String) Objects.requireNonNull(t.get("engagementID")))
+            String engagementID = t.get("engagementID") != null
+                    ? (String) t.get("engagementID")
                     : null;
 
             EmbeddedTrigger embeddedTrigger = new EmbeddedTrigger(
-                    new ObjectId((String) Objects.requireNonNull(t.get("triggerID"))),
+                    (String) t.get("triggerID"),
                     engagementID,
-                    Long.parseLong((String) Objects.requireNonNull(t.get("duration"))) ,
+                    Long.parseLong((String) Objects.requireNonNull(t.get("duration"))) / 1000,
                     (Boolean) t.get("internal")
             );
 
@@ -93,10 +93,9 @@ public class EngagementTriggerHelper {
                 Constants.STORAGE_ACTIVATED_TRIGGERS);
 
         EmbeddedTrigger embeddedTrigger = new EmbeddedTrigger(
-                new ObjectId(triggerData.getId()),
-                triggerData.getEngagementID() != null ? new ObjectId(triggerData.getEngagementID()) : null,
-                // TODO Change this to expireAt
-                triggerData.getDuration(),
+                triggerData.getId(),
+                triggerData.getEngagementID() != null ? triggerData.getEngagementID() : null,
+                triggerData.getExpireAt(),
                 triggerData.getInternal() ? triggerData.getInternal() : null
         );
 
