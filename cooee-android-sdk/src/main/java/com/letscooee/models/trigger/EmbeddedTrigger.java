@@ -3,7 +3,9 @@ package com.letscooee.models.trigger;
 import java.util.Date;
 
 /**
- * Trigger class to be sent as active trigger with events.
+ * This class store data related to triggers which are active/activated by clicking on the trigger notification or by
+ * looking an in-app trigger(in future). This would be commonly sent with events {@link com.letscooee.models.Event}
+ * as <code>activeTrigger</code>.
  *
  * @author Abhishek Taparia
  * @since 1.1.0

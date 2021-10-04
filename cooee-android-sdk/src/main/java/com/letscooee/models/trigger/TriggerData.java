@@ -13,14 +13,20 @@ public class TriggerData implements Parcelable {
 
     private final String id;
     private final double version;
-    @Deprecated
-    private final long duration;
     private InAppTrigger ian;
     private final PushNotificationTrigger pn;
     private final String engagementID;
     private final boolean internal;
     private final Map<String, Object> config;
     private final long expireAt;
+
+    /**
+     * No longer used and is replaced by {@link #expireAt}. This was used to append time after notification was
+     * received.
+     * But {@link #expireAt} would be used to sent a definite time of expiry.
+     */
+    @Deprecated
+    private final long duration;
 
     protected TriggerData(Parcel in) {
         id = in.readString();
