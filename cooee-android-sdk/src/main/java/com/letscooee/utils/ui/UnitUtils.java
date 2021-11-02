@@ -3,8 +3,10 @@ package com.letscooee.utils.ui;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+
 import com.letscooee.BuildConfig;
 import com.letscooee.CooeeFactory;
 
@@ -30,6 +32,9 @@ public class UnitUtils {
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "Display width: " + DISPLAY_WIDTH + ", height: " + DISPLAY_HEIGHT);
         }
+    }
+
+    private UnitUtils() {
     }
 
     /**
@@ -97,8 +102,9 @@ public class UnitUtils {
 
         } else if (value.contains(UNIT_VIEWPORT_WIDTH)) {
             return ((parseToInt(value, UNIT_VIEWPORT_WIDTH) * DISPLAY_WIDTH) / 100);
+        } else {
+            // TODO: 02/11/21 calculation aspect ratio
+            return getCalculatedPixel(value);
         }
-
-        return 0;
     }
 }
