@@ -1,5 +1,6 @@
 package com.letscooee.models;
 
+import com.google.gson.annotations.SerializedName;
 import com.letscooee.models.trigger.EmbeddedTrigger;
 import com.letscooee.models.trigger.TriggerData;
 
@@ -22,6 +23,9 @@ public class Event {
     private String screenName;
     private ArrayList<EmbeddedTrigger> activeTriggers;
     private Date occurred;
+
+    @SerializedName("trigger")
+    private EmbeddedTrigger activeTrigger;
 
     public Event(String name) {
         this(name, new HashMap<>());
@@ -88,6 +92,10 @@ public class Event {
 
     public void setActiveTriggers(ArrayList<EmbeddedTrigger> activeTriggers) {
         this.activeTriggers = activeTriggers;
+    }
+
+    public void setActiveTrigger(EmbeddedTrigger activeTrigger) {
+        this.activeTrigger = activeTrigger;
     }
 
     @Override
