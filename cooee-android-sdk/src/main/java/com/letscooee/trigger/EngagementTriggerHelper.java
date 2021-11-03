@@ -65,8 +65,7 @@ public class EngagementTriggerHelper {
             EmbeddedTrigger embeddedTrigger = new EmbeddedTrigger(
                     (String) trigger.get("triggerID"),
                     (String) trigger.get("engagementID"),
-                    Long.parseLong((String) Objects.requireNonNull(trigger.get("duration"))) / 1000,
-                    (Boolean) trigger.get("internal")
+                    Long.parseLong((String) Objects.requireNonNull(trigger.get("duration"))) / 1000
             );
 
             activeTriggers.add(embeddedTrigger);
@@ -90,15 +89,18 @@ public class EngagementTriggerHelper {
         EmbeddedTrigger embeddedTrigger = new EmbeddedTrigger(
                 triggerData.getId(),
                 triggerData.getEngagementID() != null ? triggerData.getEngagementID() : null,
-                triggerData.getExpireAt(),
-                triggerData.getInternal() ? triggerData.getInternal() : null
+                triggerData.getExpireAt()
         );
 
-        activeTriggers.add(embeddedTrigger);
+        if (!embeddedTrigger.isExpired()) {
+            activeTriggers.add(embeddedTrigger);
+        }
+
         if (BuildConfig.DEBUG) {
             Log.d(Constants.TAG, "Current active triggers: " + activeTriggers.toString());
         }
 
+        LocalStorageHelper.putEmbeddedTriggerImmediately(context, Constants.STORAGE_ACTIVE_TRIGGER, embeddedTrigger);
         LocalStorageHelper.putEmbeddedTriggersImmediately(context, Constants.STORAGE_ACTIVATED_TRIGGERS, activeTriggers);
     }
 

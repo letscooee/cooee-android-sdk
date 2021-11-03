@@ -95,6 +95,10 @@ public class SessionManager {
         requestData.put("sessionID", this.getCurrentSessionID());
         requestData.put("occurred", new Date());
 
+        // TODO Confirm this when session is concluded after 30 min irrespective of app launch
+        // Remove active trigger after session is concluded
+        LocalStorageHelper.remove(context, Constants.STORAGE_ACTIVE_TRIGGER);
+
         CooeeFactory.getSafeHTTPService().sendSessionConcludedEvent(requestData);
         this.destroySession();
     }
