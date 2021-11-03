@@ -18,12 +18,14 @@ import com.letscooee.CooeeFactory;
 import com.letscooee.R;
 import com.letscooee.init.DefaultUserPropertiesCollector;
 import com.letscooee.models.Event;
+import com.letscooee.models.trigger.EmbeddedTrigger;
 import com.letscooee.models.trigger.TriggerData;
 import com.letscooee.models.trigger.blocks.Animation;
 import com.letscooee.models.trigger.inapp.Container;
 import com.letscooee.models.trigger.inapp.InAppTrigger;
 import com.letscooee.trigger.inapp.renderer.ContainerRenderer;
 import com.letscooee.utils.Constants;
+import com.letscooee.utils.LocalStorageHelper;
 import com.letscooee.utils.PermissionType;
 import com.letscooee.utils.SentryHelper;
 
@@ -47,6 +49,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
     private Date startTime;
     private boolean isFreshLaunch;
     private boolean isSuccessfullyStarted;
+    private EmbeddedTrigger trigger;
 
     public InAppTriggerActivity() {
         sentryHelper = CooeeFactory.getSentryHelper();
@@ -92,6 +95,15 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
         if (!this.isFreshLaunch) {
             return;
         }
+
+        EmbeddedTrigger trigger = new EmbeddedTrigger(
+                triggerData.getId(),
+                triggerData.getEngagementID(),
+                triggerData.getExpireAt()
+        );
+
+        // Store trigger in-case just in-app is sent
+        LocalStorageHelper.putEmbeddedTriggerImmediately(getApplicationContext(), Constants.STORAGE_ACTIVE_TRIGGER, trigger);
 
         Event event = new Event("CE Trigger Displayed", triggerData);
         CooeeFactory.getSafeHTTPService().sendEvent(event);

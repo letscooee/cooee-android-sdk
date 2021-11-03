@@ -222,10 +222,11 @@ public class EngagementTriggerHelper {
      * @param triggerData Data to render in-app.
      */
     public static void renderInAppFromPushNotification(Context context, TriggerData triggerData) {
+        storeActiveTriggerDetails(context, triggerData);
+
         Event event = new Event("CE Notification Clicked", triggerData);
         CooeeFactory.getSafeHTTPService().sendEvent(event);
 
-        storeActiveTriggerDetails(context, triggerData);
         loadLazyData(context, triggerData);
     }
 
