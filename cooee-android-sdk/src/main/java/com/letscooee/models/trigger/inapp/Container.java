@@ -4,13 +4,17 @@ import android.os.Parcel;
 import com.letscooee.models.trigger.blocks.Animation;
 import com.letscooee.models.trigger.elements.BaseElement;
 
+import java.util.ArrayList;
+
 public class Container extends BaseElement {
 
-    private Animation animation;
+    private final Animation animation;
+    private final ArrayList<BaseElement> children;
 
     protected Container(Parcel in) {
         super(in);
         animation = in.readParcelable(getClass().getClassLoader());
+        children = in.readArrayList(getClass().getClassLoader());
     }
 
     public static final Creator<Container> CREATOR = new Creator<Container>() {
@@ -33,5 +37,10 @@ public class Container extends BaseElement {
     public void writeToParcel(Parcel dest, int flags) {
         super.writeToParcel(dest, flags);
         dest.writeParcelable(animation, flags);
+        dest.writeList(children);
+    }
+
+    public ArrayList<BaseElement> getChildren() {
+        return children;
     }
 }
