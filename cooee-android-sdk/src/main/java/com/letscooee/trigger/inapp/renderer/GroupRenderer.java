@@ -3,6 +3,7 @@ package com.letscooee.trigger.inapp.renderer;
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
+
 import com.google.android.flexbox.FlexboxLayout;
 import com.letscooee.CooeeFactory;
 import com.letscooee.models.trigger.blocks.Overflow;
@@ -61,8 +62,7 @@ public class GroupRenderer extends AbstractInAppRenderer {
     }
 
     private void processOverflow() {
-        Overflow overflow = elementData.getOverflow();
-        boolean shouldHideOverflow = overflow != null && overflow.isHidden();
+        boolean shouldHideOverflow = ((GroupElement) elementData).isOverflowHidden();
 
         materialCardView.setClipChildren(shouldHideOverflow);
         materialCardView.setClipToOutline(shouldHideOverflow);
