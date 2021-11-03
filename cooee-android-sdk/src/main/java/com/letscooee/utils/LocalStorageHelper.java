@@ -127,6 +127,20 @@ public final class LocalStorageHelper {
         putStringImmediately(context, key, gson.toJson(list));
     }
 
+    public static EmbeddedTrigger getEmbeddedTrigger(Context context, String key, EmbeddedTrigger defaultValue) {
+        String stringTrigger = getString(context, key, "");
+
+        if (TextUtils.isEmpty(stringTrigger)) {
+            return defaultValue;
+        }
+
+        return gson.fromJson(stringTrigger, EmbeddedTrigger.class);
+    }
+
+    public static void putEmbeddedTriggerImmediately(Context context, String key, EmbeddedTrigger trigger) {
+        putStringImmediately(context, key, gson.toJson(trigger));
+    }
+
     public static void putListImmediately(Context context, String key, ArrayList<HashMap<String, Object>> list) {
         putStringImmediately(context, key, gson.toJson(list));
     }
