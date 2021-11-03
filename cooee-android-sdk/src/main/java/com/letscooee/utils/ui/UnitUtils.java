@@ -21,7 +21,8 @@ import static com.letscooee.utils.Constants.*;
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class UnitUtils {
 
-    private static final int STANDARD_RESOLUTION = 720;
+    private static final int STANDARD_RESOLUTION_HEIGHT = 1920;
+    private static final int STANDARD_RESOLUTION_WIDTH = 1080;
     private static final int DISPLAY_WIDTH;
     private static final int DISPLAY_HEIGHT;
 
@@ -84,7 +85,7 @@ public class UnitUtils {
         if (value.contains(UNIT_PIXEL)) {
             int webPixels = getCalculatedPixel(value);
             // TODO: 26/07/21 Consider landscape mode here
-            return webPixels * DISPLAY_HEIGHT / STANDARD_RESOLUTION;
+            return webPixels * DISPLAY_HEIGHT / STANDARD_RESOLUTION_HEIGHT;
 
         } else if (value.contains(UNIT_PERCENT)) {
             if (BuildConfig.DEBUG) {
@@ -104,7 +105,11 @@ public class UnitUtils {
             return ((parseToInt(value, UNIT_VIEWPORT_WIDTH) * DISPLAY_WIDTH) / 100);
         } else {
             // TODO: 02/11/21 calculation aspect ratio
-            return getCalculatedPixel(value);
+            int webPixels = getCalculatedPixel(value);
+            if (isHeight)
+                return webPixels * DISPLAY_HEIGHT / STANDARD_RESOLUTION_HEIGHT;
+            else
+                return webPixels * DISPLAY_WIDTH / STANDARD_RESOLUTION_WIDTH;
         }
     }
 }
