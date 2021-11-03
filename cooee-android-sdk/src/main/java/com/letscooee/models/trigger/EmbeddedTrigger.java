@@ -15,13 +15,16 @@ public class EmbeddedTrigger {
     private final String triggerID;
     private final String engagementID;
     private final Long expireAt;
-    private final Boolean internal;
+    private Boolean expired;
 
-    public EmbeddedTrigger(String triggerID, String engagementID, Long expireAt, Boolean internal) {
+    public EmbeddedTrigger(String triggerID, String engagementID, Long expireAt) {
         this.triggerID = triggerID;
         this.engagementID = engagementID;
         this.expireAt = expireAt;
-        this.internal = internal;
+
+        if (isExpired()) {
+            this.expired = isExpired();
+        }
     }
 
     public String getTriggerID() {
@@ -32,16 +35,12 @@ public class EmbeddedTrigger {
         return engagementID;
     }
 
-    public Long getExpireAt() {
-        return expireAt;
-    }
-
-    public Boolean getInternal() {
-        return internal;
+    public void setExpired(Boolean expired) {
+        this.expired = expired;
     }
 
     public boolean isExpired() {
-        return getExpireAt() < new Date().getTime() / 1000;
+        return this.expireAt < new Date().getTime();
     }
 
 }
