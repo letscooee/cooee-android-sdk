@@ -55,7 +55,7 @@ public class SafeHTTPService extends ContextAware {
      * a new session (skip session creation).
      * 0
      *
-     * @param event
+     * @param event The new event to be posted to the server safely.
      */
     public void sendEventWithoutNewSession(Event event) {
         this.sendEvent(event, false);
@@ -102,9 +102,7 @@ public class SafeHTTPService extends ContextAware {
      * @param pendingTask Task to attempt execution.
      */
     private void attemptTaskImmediately(PendingTask pendingTask) {
-        CooeeExecutors.getInstance().networkExecutor().execute(() -> {
-            pendingTaskService.processTask(pendingTask);
-        });
+        CooeeExecutors.getInstance().networkExecutor().execute(() -> pendingTaskService.processTask(pendingTask));
     }
 
     public void updateDeviceProps(Map<String, Object> userProperties) {
