@@ -40,7 +40,7 @@ public class GroupElement extends BaseElement {
         return children;
     }
 
-    public Overflow.Type getOverflow() {
-        return overflow;
+    public boolean isOverflowHidden() {
+        return overflow == null || overflow == Overflow.Type.HIDDEN;
     }
 }
