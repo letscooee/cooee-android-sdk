@@ -9,14 +9,14 @@ public abstract class BaseTextElement extends BaseElement {
 
     protected Alignment alignment;
     protected Font font;
-    protected Colour colour;
+    protected Colour color;
 
     protected BaseTextElement(Parcel in) {
         super(in);
         text = in.readString();
         alignment = in.readParcelable(Alignment.class.getClassLoader());
         font = in.readParcelable(Font.class.getClassLoader());
-        colour = in.readParcelable(Colour.class.getClassLoader());
+        color = in.readParcelable(Colour.class.getClassLoader());
     }
 
     @Override
@@ -25,7 +25,7 @@ public abstract class BaseTextElement extends BaseElement {
         dest.writeString(text);
         dest.writeParcelable(alignment, flags);
         dest.writeParcelable(font, flags);
-        dest.writeParcelable(colour, flags);
+        dest.writeParcelable(color, flags);
     }
 
     public String getText() {
@@ -41,6 +41,6 @@ public abstract class BaseTextElement extends BaseElement {
     }
 
     public Colour getColor() {
-        return colour;
+        return color;
     }
 }
