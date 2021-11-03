@@ -2,8 +2,8 @@ package com.letscooee.trigger.inapp.renderer;
 
 import android.content.Context;
 import android.view.ViewGroup;
+
 import com.letscooee.models.trigger.elements.BaseElement;
-import com.letscooee.models.trigger.inapp.Layer;
 import com.letscooee.trigger.inapp.TriggerContext;
 
 import java.util.ArrayList;
@@ -16,9 +16,9 @@ import java.util.ArrayList;
  */
 public class ContainerRenderer extends GroupRenderer {
 
-    private ArrayList<Layer> layers;
+    private ArrayList<BaseElement> layers;
 
-    public ContainerRenderer(Context context, ViewGroup parentView, BaseElement element, ArrayList<Layer> layers,
+    public ContainerRenderer(Context context, ViewGroup parentView, BaseElement element, ArrayList<BaseElement> layers,
                              TriggerContext globalData) {
         super(context, parentView, element, globalData);
         this.layers = layers;
@@ -29,8 +29,8 @@ public class ContainerRenderer extends GroupRenderer {
             return;
         }
 
-        for (Layer layer : layers) {
-            new LayerRenderer(context, (ViewGroup) newElement, layer, globalData).render();
+        for (BaseElement layer : layers) {
+            new GroupRenderer(context, (ViewGroup) newElement, layer, globalData).render();
         }
     }
 }
