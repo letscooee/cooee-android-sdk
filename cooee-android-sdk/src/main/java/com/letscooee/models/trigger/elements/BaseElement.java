@@ -9,7 +9,6 @@ public abstract class BaseElement implements Parcelable {
     protected Background bg;
     protected Border border;
     protected ClickAction click;
-    protected Overflow overflow;
     protected Position position;
     protected Shadow shadow;
     protected Size size;
@@ -24,7 +23,6 @@ public abstract class BaseElement implements Parcelable {
         bg = in.readParcelable(Background.class.getClassLoader());
         border = in.readParcelable(Border.class.getClassLoader());
         click = in.readParcelable(ClickAction.class.getClassLoader());
-        overflow = in.readParcelable(Overflow.class.getClassLoader());
         position = in.readParcelable(Position.class.getClassLoader());
         shadow = in.readParcelable(Shadow.class.getClassLoader());
         spacing = in.readParcelable(Spacing.class.getClassLoader());
@@ -46,7 +44,6 @@ public abstract class BaseElement implements Parcelable {
         dest.writeParcelable(bg, flags);
         dest.writeParcelable(border, flags);
         dest.writeParcelable(click, flags);
-        dest.writeParcelable(overflow, flags);
         dest.writeParcelable(position, flags);
         dest.writeParcelable(shadow, flags);
         dest.writeParcelable(spacing, flags);
@@ -102,9 +99,5 @@ public abstract class BaseElement implements Parcelable {
 
     public Integer getFlexOrder() {
         return flexOrder;
-    }
-
-    public Overflow getOverflow() {
-        return overflow;
     }
 }
