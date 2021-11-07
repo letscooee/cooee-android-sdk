@@ -13,12 +13,20 @@ public class TriggerData implements Parcelable {
 
     private final String id;
     private final double version;
-    private final long duration;
     private InAppTrigger ian;
     private final PushNotificationTrigger pn;
     private final String engagementID;
     private final boolean internal;
     private final Map<String, Object> config;
+    private final long expireAt;
+
+    /**
+     * No longer used and is replaced by {@link #expireAt}. This was used to append time after notification was
+     * received.
+     * But {@link #expireAt} would be used to sent a definite time of expiry.
+     */
+    @Deprecated
+    private final long duration;
 
     protected TriggerData(Parcel in) {
         id = in.readString();
@@ -30,6 +38,7 @@ public class TriggerData implements Parcelable {
         internal = in.readByte() != 0;
         config = new HashMap<>();
         in.readMap(config, Object.class.getClassLoader());
+        expireAt = in.readLong();
     }
 
     public static final Creator<TriggerData> CREATOR = new Creator<TriggerData>() {
@@ -64,6 +73,7 @@ public class TriggerData implements Parcelable {
         this.ian = ian;
     }
 
+    @Deprecated
     public long getDuration() {
         return duration;
     }
@@ -78,6 +88,10 @@ public class TriggerData implements Parcelable {
 
     public Map<String, Object> getConfig() {
         return config;
+    }
+
+    public long getExpireAt() {
+        return expireAt;
     }
 
     @Override
@@ -95,5 +109,6 @@ public class TriggerData implements Parcelable {
         dest.writeString(engagementID);
         dest.writeByte((byte) (internal ? 1 : 0));
         dest.writeMap(config);
+        dest.writeLong(expireAt);
     }
 }

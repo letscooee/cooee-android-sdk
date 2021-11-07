@@ -2,15 +2,21 @@ package com.letscooee.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.text.TextUtils;
+
 import androidx.annotation.RestrictTo;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
+import com.letscooee.models.trigger.EmbeddedTrigger;
+
 import io.sentry.Sentry;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -22,6 +28,7 @@ import java.util.Map;
 public final class LocalStorageHelper {
 
     private static final String SHARED_PREFERENCE_NAME = "cooee_sdk";
+    private static final Gson gson = new Gson();
 
     public static SharedPreferences getPreferences(Context context) {
         return context.getSharedPreferences(SHARED_PREFERENCE_NAME, Context.MODE_PRIVATE);
@@ -78,7 +85,8 @@ public final class LocalStorageHelper {
     public static ArrayList<HashMap<String, Object>> getList(Context context, String key) {
         String stringList = getString(context, key, "");
 
-        Gson gson = new Gson();
+        if (TextUtils.isEmpty(stringList)) return new ArrayList<>();
+
         ArrayList<HashMap<String, Object>> triggerHashMapList = null;
 
         try {
@@ -87,19 +95,40 @@ public final class LocalStorageHelper {
                     new TypeToken<ArrayList<HashMap<String, Object>>>() {
                     }.getType()
             );
-        } catch (JsonSyntaxException exception) {
-            Sentry.captureException(exception);
-
-            // Remove all activeTriggers when wrong format of triggerId is saved in shared preferences
-            remove(context, Constants.STORAGE_ACTIVE_TRIGGERS);
-            return new ArrayList<>();
+        } catch (JsonSyntaxException ignored) {
         }
 
         return triggerHashMapList != null ? triggerHashMapList : new ArrayList<>();
     }
 
+    public static ArrayList<EmbeddedTrigger> getEmbeddedTriggers(Context context, String key) {
+        String stringList = getString(context, key, "");
+
+        if (TextUtils.isEmpty(stringList)) return new ArrayList<>();
+
+        ArrayList<EmbeddedTrigger> typedList = null;
+
+        try {
+            typedList = gson.fromJson(
+                    stringList,
+                    new TypeToken<ArrayList<EmbeddedTrigger>>() {
+                    }.getType()
+            );
+        } catch (JsonSyntaxException exception) {
+            Sentry.captureException(exception);
+
+            remove(context, Constants.STORAGE_ACTIVATED_TRIGGERS);
+        }
+
+        return typedList != null ? typedList : new ArrayList<>();
+    }
+
+    public static void putEmbeddedTriggersImmediately(Context context, String key, List<EmbeddedTrigger> list) {
+        putStringImmediately(context, key, gson.toJson(list));
+    }
+
     public static void putListImmediately(Context context, String key, ArrayList<HashMap<String, Object>> list) {
-        putStringImmediately(context, key, new Gson().toJson(list));
+        putStringImmediately(context, key, gson.toJson(list));
     }
 
     public static void apply(SharedPreferences.Editor editor) {
@@ -129,7 +158,7 @@ public final class LocalStorageHelper {
 
     public static Map<Object, Object> getTouchMap(Context context, String key) {
         SharedPreferences sharedPreferences = getPreferences(context);
-        return new Gson().fromJson(sharedPreferences.getString(key, null), Map.class);
+        return gson.fromJson(sharedPreferences.getString(key, null), Map.class);
     }
 
     public static void putLong(Context context, String key, long value) {
