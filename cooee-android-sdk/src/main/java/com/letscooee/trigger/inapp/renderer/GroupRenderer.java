@@ -72,13 +72,13 @@ public class GroupRenderer extends AbstractInAppRenderer {
             return;
         }
 
-        Flex size = elementData.getFlexProperties();
+        Flex flex = elementData.getFlexProperties();
         FlexboxLayout layout = (FlexboxLayout) newElement;
 
-        layout.setFlexDirection(size.getDirection());
-        layout.setFlexWrap(size.getWrap());
-        layout.setJustifyContent(size.getJustifyContent());
-        layout.setAlignItems(size.getAlignItems());
-        layout.setAlignContent(size.getAlignContent());
+        layout.setFlexDirection(flex.getDirection());
+        layout.setFlexWrap(flex.getWrap());
+        layout.setJustifyContent(flex.getJustifyContent());
+        layout.setAlignItems(flex.getAlignItems());
+        layout.setAlignContent(flex.getAlignContent());
     }
 }
