@@ -107,7 +107,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
     }
 
     /**
-     * Check if element's position is {@link Position.PositionType#ABSOLUTE}
+     * Check if element's position is {@link Position.PositionType#FREE_FLOATING}
      * then re-initialize {@link #parentElement} with parent of {@link #parentElement}.
      * If {@link #newElement} is in {@link FlexboxLayout} overlapping of the element is not possible
      * Hence accessing parent of {@link #parentElement} and placing {@link #newElement} in it.
@@ -290,10 +290,8 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
             return;
         }
 
-        int top = position.getTop(parentElement);
-        int bottom = position.getBottom(parentElement);
-        int left = position.getLeft(parentElement);
-        int right = position.getRight(parentElement);
+        int top = position.getY(parentElement);
+        int left = position.getX(parentElement);
 
         // get the onscreen location of parent element as getX, getY return 0 always
         int[] location = new int[2];
@@ -301,11 +299,6 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
 
         float parentX = location[0];
         float parentY = location[1] - getTitleBarHeight();
-        float parentHeight = parentElement.getMeasuredHeight();
-        float parentWidth = parentElement.getMeasuredWidth();
-
-        float currentHeight = materialCardView.getMeasuredHeight();
-        float currentWidth = materialCardView.getMeasuredWidth();
 
         float elementX = parentX;
         float elementY = parentY;
@@ -315,21 +308,11 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         if (left != 0) {
             elementX += left;
         }
-        if (bottom != 0) {
-            float parentBottom = parentY + parentHeight;
-            float currentViewBottom = parentBottom - bottom;
-            elementY = currentViewBottom - currentHeight;
-        }
-        if (right != 0) {
-            float parentRight = parentX + parentWidth;
-            float currentViewRight = parentRight - right;
-            elementX = currentViewRight - currentWidth;
-        }
 
         materialCardView.setX(elementX);
         materialCardView.setY(elementY);
 
-        Integer zIndex = position.getzIndex();
+        Integer zIndex = position.getZ();
 
         if (zIndex == null) {
             materialCardView.setTranslationZ(0);
@@ -344,11 +327,11 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
      *
      * @return <code>int</code> height of the TitleBar
      */
-    private int getTitleBarHeight() {
+    private float getTitleBarHeight() {
         Rect rectangle = new Rect();
         Window window = ((Activity) context).getWindow();
         window.getDecorView().getWindowVisibleDisplayFrame(rectangle);
-        int contentViewTop = window.findViewById(Window.ID_ANDROID_CONTENT).getTop();
+        float contentViewTop = window.findViewById(Window.ID_ANDROID_CONTENT).getTop();
         return rectangle.top - contentViewTop;
     }
 

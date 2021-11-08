@@ -2,6 +2,9 @@ package com.letscooee.models.trigger.elements;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 import com.letscooee.models.trigger.blocks.*;
 
 public abstract class BaseElement implements Parcelable {
@@ -9,6 +12,9 @@ public abstract class BaseElement implements Parcelable {
     protected Background bg;
     protected Border border;
     protected ClickAction click;
+
+    @SerializedName("pos")
+    @Expose
     protected Position position;
     protected Shadow shadow;
     protected Size size;
