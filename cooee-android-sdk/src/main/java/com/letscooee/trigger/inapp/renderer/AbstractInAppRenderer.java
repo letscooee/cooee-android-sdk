@@ -33,8 +33,8 @@ import static com.letscooee.utils.Constants.TAG;
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public abstract class AbstractInAppRenderer implements InAppRenderer {
 
-    private static final int MP = ViewGroup.LayoutParams.MATCH_PARENT;
-    private static final int WC = ViewGroup.LayoutParams.WRAP_CONTENT;
+    protected static final int MP = ViewGroup.LayoutParams.MATCH_PARENT;
+    protected static final int WC = ViewGroup.LayoutParams.WRAP_CONTENT;
 
     protected final TriggerContext globalData;
     protected final Context context;

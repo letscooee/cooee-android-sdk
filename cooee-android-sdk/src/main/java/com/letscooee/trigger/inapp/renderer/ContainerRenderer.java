@@ -33,4 +33,12 @@ public class ContainerRenderer extends GroupRenderer {
             new GroupRenderer(context, (ViewGroup) newElement, layer, globalData).render();
         }
     }
+
+    @Override
+    protected void processSizeBlock() {
+        ViewGroup.LayoutParams layoutParams = parentElement.getLayoutParams();
+        layoutParams.height = AbstractInAppRenderer.MP;
+        layoutParams.width = AbstractInAppRenderer.MP;
+        parentElement.setLayoutParams(layoutParams);
+    }
 }
