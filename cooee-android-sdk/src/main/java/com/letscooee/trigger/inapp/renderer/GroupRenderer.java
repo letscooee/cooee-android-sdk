@@ -5,7 +5,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.google.android.flexbox.FlexboxLayout;
-import com.letscooee.CooeeFactory;
 import com.letscooee.models.trigger.blocks.Flex;
 import com.letscooee.models.trigger.elements.*;
 import com.letscooee.trigger.inapp.TriggerContext;
@@ -24,11 +23,6 @@ public class GroupRenderer extends AbstractInAppRenderer {
 
     @Override
     public View render() {
-        if (!elementData.getSize().isDisplayFlex()) {
-            // Group/Layer will always be FLEX OR INLINE_FLEX. If not, log it and suppress the error
-            CooeeFactory.getSentryHelper().captureMessage("Non FLEX Group/Layer received");
-        }
-
         newElement = new FlexboxLayout(context);
 
         applyFlexParentProperties((GroupElement) elementData);

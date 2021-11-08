@@ -7,7 +7,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.letscooee.models.trigger.blocks.Alignment;
-import com.letscooee.models.trigger.blocks.Size;
 import com.letscooee.models.trigger.elements.BaseElement;
 import com.letscooee.models.trigger.elements.TextElement;
 import com.letscooee.trigger.inapp.TriggerContext;
@@ -51,8 +50,6 @@ public class TextRenderer extends FontRenderer {
         processCommonBlocks();
 
         for (BaseElement child : textData.getParts()) {
-            // Parts will always be INLINE_BLOCK so should wrap the contents
-            child.getSize().setDisplay(Size.Display.INLINE_BLOCK);
             new TextRenderer(context, (ViewGroup) newElement, child, globalData, textData).render();
         }
     }

@@ -6,25 +6,27 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.view.View;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
 public class Size implements Parcelable {
 
-    private String width;
-    private String height;
-    private String maxWidth;
-    private String maxHeight;
-    private Display display;
+    @SerializedName("w")
+    @Expose
+    private final String width;
 
-    // The default value constructor
+    @SerializedName("h")
+    @Expose
+    private final String height;
+
     public Size() {
-        this.display = Display.BLOCK;
+        width = null;
+        height = null;
     }
 
     protected Size(Parcel in) {
         width = in.readString();
         height = in.readString();
-        maxWidth = in.readString();
-        maxHeight = in.readString();
-        display = (Display) in.readSerializable();
     }
 
     public static final Creator<Size> CREATOR = new Creator<Size>() {
@@ -56,30 +58,5 @@ public class Size implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(width);
         dest.writeString(height);
-        dest.writeString(maxWidth);
-        dest.writeString(maxHeight);
-        dest.writeSerializable(display);
-    }
-
-    public void setDisplay(Display display) {
-        this.display = display;
-    }
-
-    public enum Display {BLOCK, INLINE_BLOCK, FLEX, INLINE_FLEX}
-
-    public Display getDisplay() {
-        return display != null ? display : Display.BLOCK;
-    }
-
-    public boolean isDisplayFlex() {
-        return (this.getDisplay() == Display.FLEX || this.getDisplay() == Display.INLINE_FLEX);
-    }
-
-    public Integer getCalculatedMaxWidth(View parent) {
-        return getCalculatedValue(parent, maxWidth);
-    }
-
-    public Integer getCalculatedMaxHeight(View parent) {
-        return getCalculatedValue(parent, maxHeight, true);
     }
 }

@@ -192,14 +192,8 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         final Size size = elementData.getSize();
         ViewGroup.MarginLayoutParams layoutParams;
 
-        int width;
+        int width = WC;
         int height = WC;
-
-        if (size.getDisplay() == Size.Display.BLOCK || size.getDisplay() == Size.Display.FLEX) {
-            width = MP;
-        } else {
-            width = WC;
-        }
 
         Integer calculatedWidth = size.getCalculatedWidth(parentElement);
         if (calculatedWidth != null) {
@@ -251,36 +245,11 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
 
     private void registerListenerOnNewElement() {
         newElement.addOnLayoutChangeListener((v1, left1, top1, right1, bottom1, oldLeft1, oldTop1, oldRight1, oldBottom1) -> {
-            this.processMaxSize();
             this.processSpacing();
             // Position calculation should be done after size and spacing are
             // applied to the new element
             this.applyPositionBlock();
         });
-    }
-
-    private void processMaxSize() {
-        final Size size = elementData.getSize();
-        ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) newElement.getLayoutParams();
-        ViewGroup.MarginLayoutParams layoutParamsCardView = (ViewGroup.MarginLayoutParams) materialCardView.getLayoutParams();
-
-        int currentWidth = newElement.getMeasuredWidth();
-        int currentHeight = newElement.getMeasuredHeight();
-
-        Integer maxWidth = size.getCalculatedMaxWidth(parentElement);
-        if (maxWidth != null && maxWidth < currentWidth) {
-            layoutParams.width = maxWidth;
-            layoutParamsCardView.width = maxWidth;
-        }
-
-        Integer maxHeight = size.getCalculatedMaxHeight(parentElement);
-        if (maxHeight != null && maxHeight < currentHeight) {
-            layoutParams.height = maxHeight;
-            layoutParamsCardView.height = maxHeight;
-        }
-
-        materialCardView.setLayoutParams(layoutParamsCardView);
-        newElement.setLayoutParams(layoutParams);
     }
 
     private void applyPositionBlock() {
