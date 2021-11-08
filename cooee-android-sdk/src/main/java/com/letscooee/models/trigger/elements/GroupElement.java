@@ -57,6 +57,6 @@ public class GroupElement extends BaseElement {
     }
 
     public Flex getFlexProperties() {
-        return flexProperties;
+        return flexProperties != null ? flexProperties: new Flex();
     }
 }

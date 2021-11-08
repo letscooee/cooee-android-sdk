@@ -33,6 +33,9 @@ public class Flex implements Parcelable {
     @Expose
     private FlexProperty.Direction direction;
 
+    public Flex() {
+    }
+
     protected Flex(Parcel in) {
         justifyContent = (FlexProperty.JustifyContent) in.readSerializable();
         alignItems = (FlexProperty.AlignItems) in.readSerializable();
