@@ -62,10 +62,13 @@ public class EngagementTriggerHelper {
         LocalStorageHelper.remove(context, Constants.STORAGE_ACTIVE_TRIGGERS);
 
         for (HashMap<String, Object> trigger : oldActiveTriggers) {
+            String oldDuration = (String) Objects.requireNonNull(trigger.get("duration"));
+            Long expireAt = Long.parseLong(oldDuration) / 1000;
+
             EmbeddedTrigger embeddedTrigger = new EmbeddedTrigger(
                     (String) trigger.get("triggerID"),
                     (String) trigger.get("engagementID"),
-                    Long.parseLong((String) Objects.requireNonNull(trigger.get("duration"))) / 1000
+                    expireAt
             );
 
             activeTriggers.add(embeddedTrigger);
