@@ -12,9 +12,12 @@ import java.util.ArrayList;
 public class GroupElement extends BaseElement {
 
     private final ArrayList<BaseElement> children;
+
+    @SerializedName("clip")
+    @Expose
     protected Overflow.Type overflow;
 
-    @SerializedName("flex")
+    @SerializedName("fx")
     @Expose
     private final Flex flexProperties;
 

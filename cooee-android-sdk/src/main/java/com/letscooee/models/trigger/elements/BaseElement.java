@@ -15,10 +15,25 @@ import com.letscooee.utils.ui.UnitUtils;
 public abstract class BaseElement implements Parcelable {
 
     protected Background bg;
+
+    @SerializedName("br")
+    @Expose
     protected Border border;
+
+    @SerializedName("clc")
+    @Expose
     protected ClickAction click;
+
+    @SerializedName("shd")
+    @Expose
     protected Shadow shadow;
+
+    @SerializedName("spc")
+    @Expose
     protected Spacing spacing;
+
+    @SerializedName("trf")
+    @Expose
     protected Transform transform;
 
     private final Integer flexGrow;
