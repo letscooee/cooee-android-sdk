@@ -5,6 +5,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
 import com.letscooee.models.trigger.blocks.Alignment;
 import com.letscooee.models.trigger.blocks.Size;
 import com.letscooee.models.trigger.elements.BaseElement;
@@ -17,10 +18,18 @@ import com.letscooee.trigger.inapp.TriggerContext;
 public class TextRenderer extends FontRenderer {
 
     protected TextElement textData;
+    protected TextElement commonTextData;
 
     public TextRenderer(Context context, ViewGroup parentView, BaseElement elementData, TriggerContext globalData) {
         super(context, parentView, elementData, globalData);
         this.textData = (TextElement) elementData;
+    }
+
+    public TextRenderer(Context context, ViewGroup parentView, BaseElement elementData,
+                        TriggerContext globalData, TextElement commonTextData) {
+        super(context, parentView, elementData, globalData);
+        this.textData = (TextElement) elementData;
+        this.commonTextData = commonTextData;
     }
 
     @Override
@@ -44,7 +53,7 @@ public class TextRenderer extends FontRenderer {
         for (BaseElement child : textData.getParts()) {
             // Parts will always be INLINE_BLOCK so should wrap the contents
             child.getSize().setDisplay(Size.Display.INLINE_BLOCK);
-            new TextRenderer(context, (ViewGroup) newElement, child, globalData).render();
+            new TextRenderer(context, (ViewGroup) newElement, child, globalData, textData).render();
         }
     }
 
@@ -61,6 +70,10 @@ public class TextRenderer extends FontRenderer {
     }
 
     protected void processAlignmentBlock() {
+        if (commonTextData != null && commonTextData.getAlignment() != null) {
+            ((TextView) newElement).setGravity(commonTextData.getAlignment().getAlign());
+        }
+
         Alignment alignment = textData.getAlignment();
         if (alignment == null) {
             return;
@@ -70,6 +83,10 @@ public class TextRenderer extends FontRenderer {
     }
 
     protected void processColourBlock() {
+        if (commonTextData != null && commonTextData.getColor() != null) {
+            ((TextView) newElement).setTextColor(commonTextData.getColor().getHexColor());
+        }
+
         if (textData.getColor() == null) {
             return;
         }
@@ -78,6 +95,10 @@ public class TextRenderer extends FontRenderer {
     }
 
     protected void processFontBlock() {
+        if (commonTextData != null && commonTextData.getFont() != null) {
+            ((TextView) newElement).setTextSize(commonTextData.getFont().getSize());
+        }
+
         if (textData.getFont() == null) {
             return;
         }
