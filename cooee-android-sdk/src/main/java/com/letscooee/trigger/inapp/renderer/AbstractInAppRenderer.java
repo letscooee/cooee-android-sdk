@@ -135,7 +135,6 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         this.registerListenerOnParentElement();
         this.processTransformBlock();
         this.processClickBlock();
-        this.applyFlexParentProperties();
         this.applyFlexItemProperties();
     }
 
@@ -419,20 +418,5 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         int paddingBottom = spacing.getPaddingBottom(parentElement);
 
         this.newElement.setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
-    }
-
-    private void applyFlexParentProperties() {
-        if (!(newElement instanceof FlexboxLayout)) {
-            return;
-        }
-
-        Size size = elementData.getSize();
-        FlexboxLayout layout = (FlexboxLayout) newElement;
-
-        layout.setFlexDirection(size.getDirection());
-        layout.setFlexWrap(size.getWrap());
-        layout.setJustifyContent(size.getJustifyContent());
-        layout.setAlignItems(size.getAlignItems());
-        layout.setAlignContent(size.getAlignContent());
     }
 }

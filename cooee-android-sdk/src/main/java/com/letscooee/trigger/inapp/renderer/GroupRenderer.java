@@ -6,7 +6,7 @@ import android.view.ViewGroup;
 
 import com.google.android.flexbox.FlexboxLayout;
 import com.letscooee.CooeeFactory;
-import com.letscooee.models.trigger.blocks.Overflow;
+import com.letscooee.models.trigger.blocks.Flex;
 import com.letscooee.models.trigger.elements.*;
 import com.letscooee.trigger.inapp.TriggerContext;
 
@@ -31,6 +31,7 @@ public class GroupRenderer extends AbstractInAppRenderer {
 
         newElement = new FlexboxLayout(context);
 
+        applyFlexParentProperties((GroupElement) elementData);
         insertNewElementInHierarchy();
         processCommonBlocks();
         processOverflow();
@@ -70,5 +71,20 @@ public class GroupRenderer extends AbstractInAppRenderer {
         baseFrameLayout.setClipToOutline(shouldHideOverflow);
         ((ViewGroup) newElement).setClipChildren(shouldHideOverflow);
         newElement.setClipToOutline(shouldHideOverflow);
+    }
+
+    private void applyFlexParentProperties(GroupElement elementData) {
+        if (!(newElement instanceof FlexboxLayout)) {
+            return;
+        }
+
+        Flex size = elementData.getFlexProperties();
+        FlexboxLayout layout = (FlexboxLayout) newElement;
+
+        layout.setFlexDirection(size.getDirection());
+        layout.setFlexWrap(size.getWrap());
+        layout.setJustifyContent(size.getJustifyContent());
+        layout.setAlignItems(size.getAlignItems());
+        layout.setAlignContent(size.getAlignContent());
     }
 }

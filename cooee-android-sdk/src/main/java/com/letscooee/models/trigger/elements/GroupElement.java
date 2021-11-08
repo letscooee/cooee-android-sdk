@@ -2,6 +2,9 @@ package com.letscooee.models.trigger.elements;
 
 import android.os.Parcel;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+import com.letscooee.models.trigger.blocks.Flex;
 import com.letscooee.models.trigger.blocks.Overflow;
 
 import java.util.ArrayList;
@@ -11,10 +14,15 @@ public class GroupElement extends BaseElement {
     private final ArrayList<BaseElement> children;
     protected Overflow.Type overflow;
 
+    @SerializedName("flex")
+    @Expose
+    private final Flex flexProperties;
+
     protected GroupElement(Parcel in) {
         super(in);
         children = in.readArrayList(getClass().getClassLoader());
         overflow = (Overflow.Type) in.readSerializable();
+        flexProperties = in.readParcelable(Flex.class.getClassLoader());
     }
 
     public static final Creator<GroupElement> CREATOR = new Creator<GroupElement>() {
@@ -34,6 +42,7 @@ public class GroupElement extends BaseElement {
         super.writeToParcel(dest, flags);
         dest.writeList(children);
         dest.writeSerializable(overflow);
+        dest.writeParcelable(flexProperties, flags);
     }
 
     public ArrayList<BaseElement> getChildren() {
@@ -42,5 +51,9 @@ public class GroupElement extends BaseElement {
 
     public boolean isOverflowHidden() {
         return overflow == null || overflow == Overflow.Type.HIDDEN;
+    }
+
+    public Flex getFlexProperties() {
+        return flexProperties;
     }
 }
