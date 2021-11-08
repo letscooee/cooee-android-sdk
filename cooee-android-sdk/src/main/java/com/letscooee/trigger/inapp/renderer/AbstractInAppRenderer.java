@@ -95,7 +95,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
 
         // Adds MaterialCardView to the base RelativeLayout of the In-App
         // if position is ABSOLUTE
-        if (elementData.getPosition().isAbsolute()) {
+        if (elementData.isAbsolute()) {
             globalData.getTriggerParentLayout().addView(materialCardView);
         } else {
             parentElement.addView(materialCardView);
@@ -107,13 +107,13 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
     }
 
     /**
-     * Check if element's position is {@link Position.PositionType#FREE_FLOATING}
+     * Check if element's position is {@link com.letscooee.enums.trigger.PositionType#FREE_FLOATING}
      * then re-initialize {@link #parentElement} with parent of {@link #parentElement}.
      * If {@link #newElement} is in {@link FlexboxLayout} overlapping of the element is not possible
      * Hence accessing parent of {@link #parentElement} and placing {@link #newElement} in it.
      */
     private void reassignParentIfAbsolute() {
-        if (elementData.getPosition().isAbsolute()) {
+        if (elementData.isAbsolute()) {
             parentElement = (FrameLayout) parentElement.getParent();
         }
     }
@@ -151,7 +151,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
             return;
         }
 
-        if (elementData.getPosition().isAbsolute()) {
+        if (elementData.isAbsolute()) {
             return;
         }
 
@@ -189,25 +189,24 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
     }
 
     protected void processSizeBlock() {
-        final Size size = elementData.getSize();
         ViewGroup.MarginLayoutParams layoutParams;
 
         int width = WC;
         int height = WC;
 
-        Integer calculatedWidth = size.getCalculatedWidth(parentElement);
+        Integer calculatedWidth = elementData.getCalculatedWidth(parentElement);
         if (calculatedWidth != null) {
             width = calculatedWidth;
         }
 
-        Integer calculatedHeight = size.getCalculatedHeight(parentElement);
+        Integer calculatedHeight = elementData.getCalculatedHeight(parentElement);
         if (calculatedHeight != null) {
             height = calculatedHeight;
         }
 
         this.newElement.setLayoutParams(new FrameLayout.LayoutParams(width, height));
 
-        if (parentElement instanceof RelativeLayout || elementData.getPosition().isAbsolute()) {
+        if (parentElement instanceof RelativeLayout || elementData.isAbsolute()) {
             layoutParams = new RelativeLayout.LayoutParams(width, height);
         } else if (parentElement instanceof FlexboxLayout) {
             layoutParams = new FlexboxLayout.LayoutParams(width, height);
@@ -253,13 +252,12 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
     }
 
     private void applyPositionBlock() {
-        Position position = this.elementData.getPosition();
-        if (position == null || !position.isNonStatic()) {
+        if (!elementData.isAbsolute()) {
             return;
         }
 
-        int top = position.getY(parentElement);
-        int left = position.getX(parentElement);
+        int top = elementData.getY(parentElement);
+        int left = elementData.getX(parentElement);
 
         // get the onscreen location of parent element as getX, getY return 0 always
         int[] location = new int[2];
@@ -280,7 +278,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         materialCardView.setX(elementX);
         materialCardView.setY(elementY);
 
-        Integer zIndex = position.getZ();
+        Integer zIndex = elementData.getZ();
 
         if (zIndex == null) {
             materialCardView.setTranslationZ(0);
