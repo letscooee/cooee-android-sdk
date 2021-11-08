@@ -4,11 +4,12 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.view.View;
 
+import com.letscooee.enums.trigger.PositionType;
 import com.letscooee.utils.ui.UnitUtils;
 
 public class Position implements Parcelable {
 
-    public enum PositionType {FOLLOW_PARENT, FREE_FLOATING}
+
 
     private final PositionType type;
     private final String y;
@@ -78,6 +79,6 @@ public class Position implements Parcelable {
     }
 
     public boolean isAbsolute() {
-        return this.type == Position.PositionType.FREE_FLOATING;
+        return this.type == PositionType.FREE_FLOATING;
     }
 }
