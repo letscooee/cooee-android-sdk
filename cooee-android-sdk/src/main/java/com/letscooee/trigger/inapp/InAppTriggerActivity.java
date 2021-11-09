@@ -102,9 +102,6 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
                 triggerData.getExpireAt()
         );
 
-        // Store trigger in-case just in-app is sent
-        LocalStorageHelper.putEmbeddedTriggerImmediately(getApplicationContext(), Constants.STORAGE_ACTIVE_TRIGGER, trigger);
-
         Event event = new Event("CE Trigger Displayed", triggerData);
         CooeeFactory.getSafeHTTPService().sendEvent(event);
     }

@@ -103,7 +103,7 @@ public class EngagementTriggerHelper {
             Log.d(Constants.TAG, "Current active triggers: " + activeTriggers.toString());
         }
 
-        LocalStorageHelper.putEmbeddedTriggerImmediately(context, Constants.STORAGE_ACTIVE_TRIGGER, embeddedTrigger);
+        setActiveTrigger(context, triggerData);
         LocalStorageHelper.putEmbeddedTriggersImmediately(context, Constants.STORAGE_ACTIVATED_TRIGGERS, activeTriggers);
     }
 
@@ -187,6 +187,9 @@ public class EngagementTriggerHelper {
             intent.putExtra("bundle", sendBundle);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(intent);
+
+            // Store trigger in-case in-app is sent
+            setActiveTrigger(context, triggerData);
         } catch (Exception ex) {
             CooeeFactory.getSentryHelper().captureException("Couldn't show Engagement Trigger", ex);
         }
@@ -243,5 +246,21 @@ public class EngagementTriggerHelper {
             triggerData.setInAppTrigger(inAppTrigger);
             renderInAppTrigger(context, triggerData);
         });
+    }
+
+    /**
+     * Set active trigger for the session
+     *
+     * @param context     The application's context.
+     * @param triggerData Data to render in-app.
+     */
+    private static void setActiveTrigger(Context context, TriggerData triggerData) {
+        EmbeddedTrigger embeddedTrigger = new EmbeddedTrigger(
+                triggerData.getId(),
+                triggerData.getEngagementID() != null ? triggerData.getEngagementID() : null,
+                triggerData.getExpireAt()
+        );
+
+        LocalStorageHelper.putEmbeddedTriggerImmediately(context, Constants.STORAGE_ACTIVE_TRIGGER, embeddedTrigger);
     }
 }
