@@ -2,6 +2,7 @@ package com.letscooee.trigger.inapp.renderer;
 
 import android.content.Context;
 import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 
 import com.letscooee.models.trigger.elements.BaseElement;
 import com.letscooee.trigger.inapp.TriggerContext;
@@ -40,5 +41,10 @@ public class ContainerRenderer extends GroupRenderer {
         layoutParams.height = AbstractInAppRenderer.MP;
         layoutParams.width = AbstractInAppRenderer.MP;
         parentElement.setLayoutParams(layoutParams);
+
+        RelativeLayout.LayoutParams cardLayoutParams = (RelativeLayout.LayoutParams) materialCardView.getLayoutParams();
+        cardLayoutParams.height = AbstractInAppRenderer.MP;
+        cardLayoutParams.width = AbstractInAppRenderer.MP;
+        materialCardView.setLayoutParams(cardLayoutParams);
     }
 }
