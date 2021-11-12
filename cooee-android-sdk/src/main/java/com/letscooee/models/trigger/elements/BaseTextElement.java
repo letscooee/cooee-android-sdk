@@ -1,6 +1,8 @@
 package com.letscooee.models.trigger.elements;
 
+import android.graphics.Color;
 import android.os.Parcel;
+import android.text.TextUtils;
 import android.view.Gravity;
 
 import com.google.gson.annotations.Expose;
@@ -20,12 +22,38 @@ public abstract class BaseTextElement extends BaseElement {
     @Expose
     protected Colour color;
 
+    @SerializedName("b")
+    @Expose
+    protected boolean bold;
+
+    @SerializedName("i")
+    @Expose
+    protected boolean italic;
+
+    @SerializedName("u")
+    @Expose
+    protected boolean underline;
+
+    @SerializedName("c")
+    @Expose
+    protected String textColour;
+
+    @SerializedName("st")
+    @Expose
+    protected boolean strikeTrough;
+
     protected BaseTextElement(Parcel in) {
         super(in);
         text = in.readString();
         alignment = in.readInt();
         font = in.readParcelable(Font.class.getClassLoader());
         color = in.readParcelable(Colour.class.getClassLoader());
+        bold = in.readInt() == 0;
+        italic = in.readInt() == 0;
+        underline = in.readInt() == 0;
+        textColour = in.readString();
+        strikeTrough = in.readInt() == 0;
+
     }
 
     @Override
@@ -35,6 +63,11 @@ public abstract class BaseTextElement extends BaseElement {
         dest.writeInt(alignment);
         dest.writeParcelable(font, flags);
         dest.writeParcelable(color, flags);
+        dest.writeInt(bold ? 0 : 1);
+        dest.writeInt(italic ? 0 : 1);
+        dest.writeInt(underline ? 0 : 1);
+        dest.writeString(textColour);
+        dest.writeInt(strikeTrough ? 0 : 1);
     }
 
     public String getText() {
@@ -42,7 +75,7 @@ public abstract class BaseTextElement extends BaseElement {
     }
 
     public int getAlignment() {
-        switch (alignment){
+        switch (alignment) {
             case 0:
                 return Gravity.START;
             case 1:
@@ -59,5 +92,25 @@ public abstract class BaseTextElement extends BaseElement {
 
     public Colour getColor() {
         return color;
+    }
+
+    public boolean isBold() {
+        return bold;
+    }
+
+    public boolean isItalic() {
+        return italic;
+    }
+
+    public boolean isUnderline() {
+        return underline;
+    }
+
+    public Integer getPartTextColour() {
+        return TextUtils.isEmpty(textColour) ? null : Color.parseColor(textColour);
+    }
+
+    public boolean isStrikeTrough() {
+        return strikeTrough;
     }
 }

@@ -6,6 +6,8 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 import com.letscooee.enums.trigger.Style;
 import com.letscooee.utils.ui.UnitUtils;
 
@@ -13,13 +15,21 @@ public class Font implements Parcelable {
 
     private static final int DEFAULT_SIZE = 15;
 
-    private final String size;
+    @SerializedName("s")
+    @Expose
+    private final Float size;
     private final Style style;
+
+    @SerializedName("tf")
+    @Expose
     private final String name;
+
+    @SerializedName("lh")
+    @Expose
     private final String lineHeight;
 
     protected Font(Parcel in) {
-        size = in.readString();
+        size = in.readFloat();
         style = (Style) in.readSerializable();
         name = in.readString();
         lineHeight = in.readString();
@@ -71,14 +81,14 @@ public class Font implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(size);
+        dest.writeFloat(size);
         dest.writeSerializable(style);
         dest.writeString(name);
         dest.writeString(lineHeight);
     }
 
-    public int getSize() {
-        if (TextUtils.isEmpty(size)) return DEFAULT_SIZE;
-        return UnitUtils.getCalculatedPixel(size);
+    public float getSize() {
+        if (size == null) return DEFAULT_SIZE;
+        return UnitUtils.getScaledPixel(size);
     }
 }
