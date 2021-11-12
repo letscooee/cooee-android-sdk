@@ -128,11 +128,14 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         }
 
         this.newElement.setTag(this.getClass().getSimpleName());
+        this.processSizeBlock();
+        this.applyPositionBlock();
+        this.processSpacing();
         this.processBackground();
         this.setBackgroundDrawable();
         this.processBorderBlock();
         this.processShadowBlock();
-        this.registerListenerOnParentElement();
+        //this.registerListenerOnParentElement();
         this.processTransformBlock();
         this.processClickBlock();
         this.applyFlexItemProperties();
