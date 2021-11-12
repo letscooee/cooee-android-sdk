@@ -6,7 +6,6 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.letscooee.models.trigger.blocks.Alignment;
 import com.letscooee.models.trigger.elements.BaseElement;
 import com.letscooee.models.trigger.elements.TextElement;
 import com.letscooee.trigger.inapp.TriggerContext;
@@ -67,16 +66,11 @@ public class TextRenderer extends FontRenderer {
     }
 
     protected void processAlignmentBlock() {
-        if (commonTextData != null && commonTextData.getAlignment() != null) {
-            ((TextView) newElement).setGravity(commonTextData.getAlignment().getAlign());
+        if (commonTextData != null) {
+            ((TextView) newElement).setGravity(commonTextData.getAlignment());
         }
 
-        Alignment alignment = textData.getAlignment();
-        if (alignment == null) {
-            return;
-        }
-
-        ((TextView) newElement).setGravity(alignment.getAlign());
+        ((TextView) newElement).setGravity(textData.getAlignment());
     }
 
     protected void processColourBlock() {
