@@ -1,5 +1,6 @@
 package com.letscooee.utils.ui;
 
+import android.content.res.Configuration;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -22,9 +23,13 @@ import static com.letscooee.utils.Constants.*;
 public class UnitUtils {
 
     private static final int STANDARD_RESOLUTION_HEIGHT = 1920;
+    private static final int STANDARD_RESOLUTION_HEIGHT_LANDSCAPE = 1080;
     private static final int STANDARD_RESOLUTION_WIDTH = 1080;
+    private static final int STANDARD_RESOLUTION_WIDTH_LANDSCAPE = 1920;
     private static final int DISPLAY_WIDTH;
     private static final int DISPLAY_HEIGHT;
+    private static final float SCALING_FACTOR;
+    private static final boolean IS_PORTRAIT;
 
     static {
         DISPLAY_WIDTH = CooeeFactory.getDeviceInfo().getDisplayWidth();
@@ -33,9 +38,33 @@ public class UnitUtils {
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "Display width: " + DISPLAY_WIDTH + ", height: " + DISPLAY_HEIGHT);
         }
+
+        IS_PORTRAIT = CooeeFactory.getDeviceInfo().getOrientation() == Configuration.ORIENTATION_PORTRAIT;
+
+        int longEdge = Math.max(STANDARD_RESOLUTION_WIDTH, STANDARD_RESOLUTION_HEIGHT);
+
+        if (IS_PORTRAIT) {
+            if (DISPLAY_WIDTH < DISPLAY_HEIGHT) {
+                SCALING_FACTOR = DISPLAY_WIDTH / longEdge;
+            } else {
+                SCALING_FACTOR = DISPLAY_HEIGHT / longEdge;
+            }
+        }else{
+            if (DISPLAY_WIDTH < DISPLAY_HEIGHT) {
+                SCALING_FACTOR = DISPLAY_HEIGHT / longEdge;
+            } else {
+                SCALING_FACTOR = DISPLAY_WIDTH / longEdge;
+            }
+        }
+
+
     }
 
     private UnitUtils() {
+    }
+
+    public static float getScaledPixel(float value) {
+        return value * SCALING_FACTOR;
     }
 
     /**
