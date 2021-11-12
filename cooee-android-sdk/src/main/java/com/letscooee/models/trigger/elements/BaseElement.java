@@ -48,8 +48,8 @@ public abstract class BaseElement implements Parcelable {
     @SerializedName("h")
     @Expose
     private final String height;
-    private final String x;
-    private final String y;
+    private final float x;
+    private final float y;
     private final Integer z;
 
     protected BaseElement(Parcel in) {
@@ -67,8 +67,8 @@ public abstract class BaseElement implements Parcelable {
         mode = (PositionType) in.readSerializable();
         width = in.readString();
         height = in.readString();
-        x = in.readString();
-        y = in.readString();
+        x = in.readFloat();
+        y = in.readFloat();
         z = (Integer) in.readSerializable();
     }
 
@@ -93,8 +93,8 @@ public abstract class BaseElement implements Parcelable {
         dest.writeSerializable(mode);
         dest.writeString(width);
         dest.writeString(height);
-        dest.writeString(x);
-        dest.writeString(y);
+        dest.writeFloat(x);
+        dest.writeFloat(y);
         dest.writeSerializable(z);
     }
 
@@ -142,14 +142,12 @@ public abstract class BaseElement implements Parcelable {
         return getCalculatedValue(parent, width);
     }
 
-    public int getY(View parent) {
-        Integer calculatedValue = UnitUtils.getCalculatedValue(parent, y, true);
-        return calculatedValue != null ? calculatedValue : 0;
+    public float getY() {
+        return UnitUtils.getScaledPixel(y);
     }
 
-    public int getX(View parent) {
-        Integer calculatedValue = UnitUtils.getCalculatedValue(parent, x);
-        return calculatedValue != null ? calculatedValue : 0;
+    public float getX() {
+        return UnitUtils.getScaledPixel(x);
     }
 
     public Integer getZ() {

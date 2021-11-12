@@ -259,11 +259,11 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
             return;
         }
 
-        int top = elementData.getY(parentElement);
-        int left = elementData.getX(parentElement);
+        float top = elementData.getY();
+        float left = elementData.getX();
 
         // get the onscreen location of parent element as getX, getY return 0 always
-        int[] location = new int[2];
+        /*int[] location = new int[2];
         parentElement.getLocationOnScreen(location);
 
         float parentX = location[0];
@@ -276,10 +276,10 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         }
         if (left != 0) {
             elementX += left;
-        }
+        }*/
 
-        materialCardView.setX(elementX);
-        materialCardView.setY(elementY);
+        materialCardView.setX(left);
+        materialCardView.setY(top);
 
         Integer zIndex = elementData.getZ();
 
