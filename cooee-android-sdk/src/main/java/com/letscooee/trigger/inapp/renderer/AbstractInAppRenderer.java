@@ -197,14 +197,14 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         int width = WC;
         int height = WC;
 
-        Integer calculatedWidth = elementData.getCalculatedWidth(parentElement);
+        Float calculatedWidth = elementData.getCalculatedWidth();
         if (calculatedWidth != null) {
-            width = calculatedWidth;
+            width = Math.round(calculatedWidth);
         }
 
-        Integer calculatedHeight = elementData.getCalculatedHeight(parentElement);
+        Float calculatedHeight = elementData.getCalculatedHeight();
         if (calculatedHeight != null) {
-            height = calculatedHeight;
+            height = Math.round(calculatedHeight);
         }
 
         this.newElement.setLayoutParams(new FrameLayout.LayoutParams(width, height));

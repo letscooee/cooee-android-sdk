@@ -1,10 +1,10 @@
 package com.letscooee.models.trigger.elements;
 
-import static com.letscooee.utils.ui.UnitUtils.getCalculatedValue;
+import static com.letscooee.utils.ui.UnitUtils.getScaledPixel;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.view.View;
+import android.text.TextUtils;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -134,12 +134,12 @@ public abstract class BaseElement implements Parcelable {
         return flexOrder;
     }
 
-    public Integer getCalculatedHeight(View parent) {
-        return getCalculatedValue(parent, height, true);
+    public Float getCalculatedHeight() {
+        return TextUtils.isEmpty(height) ? null : getScaledPixel(Float.parseFloat(height));
     }
 
-    public Integer getCalculatedWidth(View parent) {
-        return getCalculatedValue(parent, width);
+    public Float getCalculatedWidth() {
+        return TextUtils.isEmpty(width) ? null : getScaledPixel(Float.parseFloat(width));
     }
 
     public float getY() {
