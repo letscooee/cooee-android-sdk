@@ -21,36 +21,28 @@ import java.util.Scanner;
 
 public class HomeActivity extends AppCompatActivity implements CooeeCTAListener {
 
-    private final String TAG = "HomeActivity";
-
     private CooeeSDK cooeeSDK;
-    private ActivityHomeBinding binding;
     private Context context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        binding = ActivityHomeBinding.inflate(getLayoutInflater());
+        com.letscooee.cooeetester.databinding.ActivityHomeBinding binding = ActivityHomeBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         context = this;
         cooeeSDK = CooeeSDK.getDefaultInstance(this);
         cooeeSDK.setCTAListener(this);
+        String TAG = "HomeActivity";
         cooeeSDK.setCurrentScreen(TAG);
 
         Log.d(TAG, "User ID " + cooeeSDK.getUserID());
 
-        binding.btnSendImageEvent.setOnClickListener(view -> {
-            cooeeSDK.sendEvent("image", new HashMap<>());
-        });
+        binding.btnSendImageEvent.setOnClickListener(view -> cooeeSDK.sendEvent("image", new HashMap<>()));
 
-        binding.inApp1.setOnClickListener(view -> {
-            this.openInApp(R.raw.sample_payload1);
-        });
+        binding.inApp1.setOnClickListener(view -> this.openInApp(R.raw.sample_payload_v4));
 
-        binding.btnProfile.setOnClickListener(view -> {
-            startActivity(new Intent(this, ProfileActivity.class));
-        });
+        binding.btnProfile.setOnClickListener(view -> startActivity(new Intent(this, ProfileActivity.class)));
 
         binding.tvUid.setOnClickListener(v -> {
             ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
@@ -59,9 +51,7 @@ public class HomeActivity extends AppCompatActivity implements CooeeCTAListener 
             Toast.makeText(context, "Copied!", Toast.LENGTH_SHORT).show();
         });
 
-        binding.ivDebugInfo.setOnClickListener(v -> {
-            cooeeSDK.showDebugInfo();
-        });
+        binding.ivDebugInfo.setOnClickListener(v -> cooeeSDK.showDebugInfo());
     }
 
     @SuppressWarnings("SameParameterValue")
@@ -83,6 +73,7 @@ public class HomeActivity extends AppCompatActivity implements CooeeCTAListener 
         EngagementTriggerHelper.renderInAppTriggerFromJSONString(context, jsonString);
     }
 
+    @SuppressWarnings("ConstantConditions")
     @Override
     public void onResponse(HashMap<String, Object> hashMap) {
         for (String key : hashMap.keySet()) {
