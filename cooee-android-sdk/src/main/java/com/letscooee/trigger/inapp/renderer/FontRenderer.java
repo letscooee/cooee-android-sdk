@@ -26,9 +26,11 @@ import java.util.Map;
 public abstract class FontRenderer extends AbstractInAppRenderer {
 
     protected final Font font;
+    protected final TextElement textElement;
 
     protected FontRenderer(Context context, ViewGroup parentElement, BaseElement element, TriggerContext globalData) {
         super(context, parentElement, element, globalData);
+        textElement = (TextElement) element;
         font = ((TextElement) element).getFont();
     }
 
@@ -61,8 +63,18 @@ public abstract class FontRenderer extends AbstractInAppRenderer {
             typeface = this.getSystemTypeface();
         }
 
+        TextView textView = (TextView) newElement;
+
         if (typeface != null) {
-            ((TextView) newElement).setTypeface(typeface, font.getTypefaceStyle());
+            ((TextView) newElement).setTypeface(typeface);
+        }
+
+        if (textElement.isBold() && textElement.isItalic()) {
+            textView.setTypeface(textView.getTypeface(), Typeface.BOLD_ITALIC);
+        } else if (textElement.isBold()) {
+            textView.setTypeface(textView.getTypeface(), Typeface.BOLD);
+        } else if (textElement.isItalic()) {
+            textView.setTypeface(textView.getTypeface(), Typeface.ITALIC);
         }
     }
 

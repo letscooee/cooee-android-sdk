@@ -78,11 +78,11 @@ public class TextRenderer extends FontRenderer {
             ((TextView) newElement).setTextColor(commonTextData.getColor().getHexColor());
         }
 
-        if (textData.getColor() == null) {
+        if (textData.getPartTextColour() == null) {
             return;
         }
 
-        ((TextView) newElement).setTextColor(textData.getColor().getHexColor());
+        ((TextView) newElement).setTextColor(textData.getPartTextColour());
     }
 
     protected void processFontBlock() {
