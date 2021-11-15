@@ -35,9 +35,27 @@ public abstract class FontRenderer extends AbstractInAppRenderer {
     }
 
     protected void processFont() {
-        if (font == null) return;
-        this.applyFont();
-        this.applyLineHeight();
+        if (font != null) {
+            this.applyFont();
+            this.applyLineHeight();
+        }
+
+        this.processPartStyle();
+    }
+
+    private void processPartStyle() {
+        TextView textView = (TextView) newElement;
+        Typeface typeface = textView.getTypeface();
+
+        if (textElement.isBold() && textElement.isItalic()) {
+            typeface = Typeface.create(typeface, Typeface.BOLD_ITALIC);
+        } else if (textElement.isBold()) {
+            typeface = Typeface.create(typeface, Typeface.BOLD);
+        } else if (textElement.isItalic()) {
+            typeface = Typeface.create(typeface, Typeface.ITALIC);
+        }
+
+        textView.setTypeface(typeface);
     }
 
     private void applyLineHeight() {
@@ -63,18 +81,8 @@ public abstract class FontRenderer extends AbstractInAppRenderer {
             typeface = this.getSystemTypeface();
         }
 
-        TextView textView = (TextView) newElement;
-
         if (typeface != null) {
             ((TextView) newElement).setTypeface(typeface);
-        }
-
-        if (textElement.isBold() && textElement.isItalic()) {
-            textView.setTypeface(textView.getTypeface(), Typeface.BOLD_ITALIC);
-        } else if (textElement.isBold()) {
-            textView.setTypeface(textView.getTypeface(), Typeface.BOLD);
-        } else if (textElement.isItalic()) {
-            textView.setTypeface(textView.getTypeface(), Typeface.ITALIC);
         }
     }
 
