@@ -42,6 +42,9 @@ public class Gradient implements Parcelable {
     @SerializedName("c3")
     @Expose
     private String end;
+
+    @SerializedName("ang")
+    @Expose
     private int angle;
 
     protected Gradient(Parcel in) {

@@ -316,7 +316,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
                 applyGlassmorphism(background.getGlossy());
 
             } else if (background.getImage() != null) {
-                Glide.with(context).asBitmap().load(background.getImage().getUrl()).into(backgroundImage);
+                Glide.with(context).asBitmap().load(background.getImage().getSrc()).into(backgroundImage);
             }
         }
     }

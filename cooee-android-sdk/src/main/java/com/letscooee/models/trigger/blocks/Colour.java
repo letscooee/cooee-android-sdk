@@ -6,9 +6,21 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
 public class Colour implements Parcelable {
 
+    @SerializedName("h")
+    @Expose
     private final String hex;
+
+    @SerializedName("a")
+    @Expose
+    private final int alpha;
+
+    @SerializedName("g")
+    @Expose
     private final Gradient grad;
 
     public static final Creator<Colour> CREATOR = new Creator<Colour>() {
@@ -26,10 +38,12 @@ public class Colour implements Parcelable {
     protected Colour() {
         hex = null;
         grad = null;
+        alpha = 100;
     }
 
     protected Colour(Parcel in) {
         hex = in.readString();
+        alpha = in.readInt();
         grad = in.readParcelable(Gradient.class.getClassLoader());
     }
 
@@ -41,6 +55,7 @@ public class Colour implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(hex);
+        dest.writeInt(alpha);
         dest.writeParcelable(grad, flags);
     }
 

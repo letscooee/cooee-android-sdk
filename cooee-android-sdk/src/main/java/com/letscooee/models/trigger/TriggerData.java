@@ -3,6 +3,8 @@ package com.letscooee.models.trigger;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 import com.letscooee.models.trigger.inapp.InAppTrigger;
 import com.letscooee.models.trigger.push.PushNotificationTrigger;
 
@@ -12,6 +14,9 @@ import java.util.Map;
 public class TriggerData implements Parcelable {
 
     private final String id;
+
+    @SerializedName("v")
+    @Expose
     private final double version;
     private final long duration;
     private InAppTrigger ian;
