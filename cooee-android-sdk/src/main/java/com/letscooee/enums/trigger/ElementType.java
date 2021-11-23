@@ -14,7 +14,7 @@ public enum ElementType {
     BUTTON(ButtonElement.class),
     IMAGE(ImageElement.class),
     VIDEO(VideoElement.class),
-    GROUP(GroupElement.class);
+    SHAPE(ShapeElement.class);
 
     public final Class<? extends BaseElement> elementClass;
 

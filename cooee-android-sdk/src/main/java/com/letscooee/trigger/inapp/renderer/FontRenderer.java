@@ -10,6 +10,7 @@ import com.letscooee.CooeeFactory;
 import com.letscooee.font.FontProcessor;
 import com.letscooee.models.trigger.blocks.Font;
 import com.letscooee.models.trigger.elements.BaseElement;
+import com.letscooee.models.trigger.elements.PartElement;
 import com.letscooee.models.trigger.elements.TextElement;
 import com.letscooee.trigger.inapp.TriggerContext;
 
@@ -39,23 +40,6 @@ public abstract class FontRenderer extends AbstractInAppRenderer {
             this.applyFont();
             this.applyLineHeight();
         }
-
-        this.processPartStyle();
-    }
-
-    private void processPartStyle() {
-        TextView textView = (TextView) newElement;
-        Typeface typeface = textView.getTypeface();
-
-        if (textElement.isBold() && textElement.isItalic()) {
-            typeface = Typeface.create(typeface, Typeface.BOLD_ITALIC);
-        } else if (textElement.isBold()) {
-            typeface = Typeface.create(typeface, Typeface.BOLD);
-        } else if (textElement.isItalic()) {
-            typeface = Typeface.create(typeface, Typeface.ITALIC);
-        }
-
-        textView.setTypeface(typeface);
     }
 
     private void applyLineHeight() {

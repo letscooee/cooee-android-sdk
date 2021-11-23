@@ -18,29 +18,9 @@ public abstract class BaseTextElement extends BaseElement {
     protected int alignment;
     protected Font font;
 
-    @SerializedName("clr")
-    @Expose
-    protected Colour color;
-
-    @SerializedName("b")
-    @Expose
-    protected boolean bold;
-
-    @SerializedName("i")
-    @Expose
-    protected boolean italic;
-
-    @SerializedName("u")
-    @Expose
-    protected boolean underline;
-
     @SerializedName("c")
     @Expose
-    protected String textColour;
-
-    @SerializedName("st")
-    @Expose
-    protected boolean strikeTrough;
+    protected Colour color;
 
     protected BaseTextElement(Parcel in) {
         super(in);
@@ -48,12 +28,6 @@ public abstract class BaseTextElement extends BaseElement {
         alignment = in.readInt();
         font = in.readParcelable(Font.class.getClassLoader());
         color = in.readParcelable(Colour.class.getClassLoader());
-        bold = in.readInt() == 0;
-        italic = in.readInt() == 0;
-        underline = in.readInt() == 0;
-        textColour = in.readString();
-        strikeTrough = in.readInt() == 0;
-
     }
 
     @Override
@@ -63,11 +37,6 @@ public abstract class BaseTextElement extends BaseElement {
         dest.writeInt(alignment);
         dest.writeParcelable(font, flags);
         dest.writeParcelable(color, flags);
-        dest.writeInt(bold ? 0 : 1);
-        dest.writeInt(italic ? 0 : 1);
-        dest.writeInt(underline ? 0 : 1);
-        dest.writeString(textColour);
-        dest.writeInt(strikeTrough ? 0 : 1);
     }
 
     public String getText() {
@@ -92,25 +61,5 @@ public abstract class BaseTextElement extends BaseElement {
 
     public Colour getColor() {
         return color;
-    }
-
-    public boolean isBold() {
-        return bold;
-    }
-
-    public boolean isItalic() {
-        return italic;
-    }
-
-    public boolean isUnderline() {
-        return underline;
-    }
-
-    public Integer getPartTextColour() {
-        return TextUtils.isEmpty(textColour) ? null : Color.parseColor(textColour);
-    }
-
-    public boolean isStrikeTrough() {
-        return strikeTrough;
     }
 }
