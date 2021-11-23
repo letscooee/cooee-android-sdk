@@ -2,6 +2,9 @@ package com.letscooee.room.task.processor;
 
 import android.content.Context;
 import android.util.Log;
+
+import androidx.annotation.NonNull;
+
 import com.letscooee.CooeeFactory;
 import com.letscooee.exceptions.HttpRequestFailedException;
 import com.letscooee.network.BaseHTTPService;
@@ -9,7 +12,6 @@ import com.letscooee.network.ConnectionManager;
 import com.letscooee.retrofit.UserAuthService;
 import com.letscooee.room.task.PendingTask;
 import com.letscooee.utils.Constants;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * An abstract layer to process all {@link PendingTask} which is related to
@@ -44,7 +46,7 @@ public abstract class HttpTaskProcessor<T> extends AbstractPendingTaskProcessor<
      *
      * @param task Task to process.
      */
-    public void process(@NotNull PendingTask task) {
+    public void process(@NonNull PendingTask task) {
         Log.d(Constants.TAG, "Processing " + task);
         T data = deserialize(task);
 

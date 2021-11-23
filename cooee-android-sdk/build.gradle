@@ -157,7 +157,6 @@ dependencies {
     // endregion
 
     // region Google's additional dependencies
-    api 'com.google.android.flexbox:flexbox:3.0.0'
     api 'com.google.android.material:material:1.4.0'
     // endregion
 

@@ -1,11 +1,13 @@
 package com.letscooee.room.task.processor;
 
 import android.content.Context;
+
+import androidx.annotation.NonNull;
+
 import com.letscooee.exceptions.HttpRequestFailedException;
 import com.letscooee.models.Event;
 import com.letscooee.room.task.PendingTask;
 import com.letscooee.room.task.PendingTaskType;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Process a {@link PendingTask} which is related to pushing an {@link Event} to API.
@@ -27,7 +29,7 @@ public class EventTaskProcessor extends HttpTaskProcessor<Event> {
         this.baseHTTPService.sendEvent(event);
     }
 
-    public boolean canProcess(@NotNull PendingTask task) {
+    public boolean canProcess(@NonNull PendingTask task) {
         return task.type == PendingTaskType.API_SEND_EVENT;
     }
 }
