@@ -1,13 +1,18 @@
 package com.letscooee.trigger.inapp.renderer;
 
 import android.content.Context;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 
 import com.letscooee.models.trigger.elements.BaseElement;
+import com.letscooee.models.trigger.elements.ButtonElement;
+import com.letscooee.models.trigger.elements.ImageElement;
+import com.letscooee.models.trigger.elements.TextElement;
+import com.letscooee.models.trigger.elements.VideoElement;
+import com.letscooee.models.trigger.inapp.Container;
+import com.letscooee.models.trigger.inapp.InAppTrigger;
 import com.letscooee.trigger.inapp.TriggerContext;
-
-import java.util.ArrayList;
 
 /**
  * Renders the top most container of the in-app.
@@ -15,23 +20,47 @@ import java.util.ArrayList;
  * @author Shashank Agrawal
  * @since 1.0.0
  */
-public class ContainerRenderer extends GroupRenderer {
+public class ContainerRenderer extends AbstractInAppRenderer {
 
-    private ArrayList<BaseElement> layers;
+    private final InAppTrigger inAppTrigger;
 
-    public ContainerRenderer(Context context, ViewGroup parentView, BaseElement element, ArrayList<BaseElement> layers,
+    public ContainerRenderer(Context context, ViewGroup parentView, BaseElement element, InAppTrigger inAppTrigger,
                              TriggerContext globalData) {
         super(context, parentView, element, globalData);
-        this.layers = layers;
+        this.inAppTrigger = inAppTrigger;
+    }
+
+    @Override
+    public View render() {
+        newElement = new RelativeLayout(context);
+
+        insertNewElementInHierarchy();
+        processCommonBlocks();
+        if (inAppTrigger != null) {
+            processChildren();
+        }
+        return newElement;
     }
 
     protected void processChildren() {
-        if (layers == null) {
-            return;
-        }
 
-        for (BaseElement layer : layers) {
-            new GroupRenderer(context, (ViewGroup) newElement, layer, globalData).render();
+        for (BaseElement child : inAppTrigger.getElements()) {
+            if (child instanceof ImageElement) {
+                new ImageRenderer(context, (ViewGroup) newElement, child, globalData).render();
+
+            } else if (child instanceof ButtonElement) {
+                new ButtonRenderer(context, (ViewGroup) newElement, child, globalData).render();
+
+            } else if (child instanceof TextElement) {
+                new TextRenderer(context, (ViewGroup) newElement, child, globalData).render();
+
+            } else if (child instanceof VideoElement) {
+                new VideoRenderer(context, (ViewGroup) newElement, child, globalData).render();
+
+            } else if (child instanceof Container) {
+                new ShapeRenderer(context, (ViewGroup) newElement, child, globalData).render();
+
+            }
         }
     }
 

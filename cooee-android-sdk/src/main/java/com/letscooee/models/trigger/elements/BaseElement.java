@@ -36,11 +36,6 @@ public abstract class BaseElement implements Parcelable {
     @Expose
     protected Transform transform;
 
-    private final Integer flexGrow;
-    private final Integer flexShrink;
-    private final Integer flexOrder;
-    private final PositionType mode;
-
     @SerializedName("w")
     @Expose
     private final String width;
@@ -60,11 +55,6 @@ public abstract class BaseElement implements Parcelable {
         spacing = in.readParcelable(Spacing.class.getClassLoader());
         transform = in.readParcelable(Transform.class.getClassLoader());
 
-        flexGrow = (Integer) in.readSerializable();
-        flexShrink = (Integer) in.readSerializable();
-        flexOrder = (Integer) in.readSerializable();
-
-        mode = (PositionType) in.readSerializable();
         width = in.readString();
         height = in.readString();
         x = in.readFloat();
@@ -86,11 +76,6 @@ public abstract class BaseElement implements Parcelable {
         dest.writeParcelable(spacing, flags);
         dest.writeParcelable(transform, flags);
 
-        dest.writeSerializable(flexGrow);
-        dest.writeSerializable(flexShrink);
-        dest.writeSerializable(flexOrder);
-
-        dest.writeSerializable(mode);
         dest.writeString(width);
         dest.writeString(height);
         dest.writeFloat(x);
@@ -122,18 +107,6 @@ public abstract class BaseElement implements Parcelable {
         return transform;
     }
 
-    public Integer getFlexGrow() {
-        return flexGrow;
-    }
-
-    public Integer getFlexShrink() {
-        return flexShrink;
-    }
-
-    public Integer getFlexOrder() {
-        return flexOrder;
-    }
-
     public Float getCalculatedHeight() {
         return TextUtils.isEmpty(height) ? null : getScaledPixel(Float.parseFloat(height));
     }
@@ -152,10 +125,6 @@ public abstract class BaseElement implements Parcelable {
 
     public Integer getZ() {
         return z;
-    }
-
-    public boolean isAbsolute() {
-        return mode != null && this.mode == PositionType.FREE_FLOATING;
     }
 
 }

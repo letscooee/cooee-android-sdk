@@ -2,9 +2,9 @@ package com.letscooee.models.trigger.inapp;
 
 import android.os.Parcel;
 import com.letscooee.models.trigger.blocks.Animation;
-import com.letscooee.models.trigger.elements.GroupElement;
+import com.letscooee.models.trigger.elements.BaseElement;
 
-public class Container extends GroupElement {
+public class Container extends BaseElement {
 
     private final Animation animation;
 
