@@ -21,6 +21,7 @@ public class Event {
     private String screenName;
     private ArrayList<HashMap<String, Object>> activeTriggers;
     private Date occurred;
+    private Map<String, Object> deviceProps;
 
     public Event(String name) {
         this(name, new HashMap<>());
@@ -87,6 +88,14 @@ public class Event {
 
     public void setActiveTriggers(ArrayList<HashMap<String, Object>> activeTriggers) {
         this.activeTriggers = activeTriggers;
+    }
+
+    public Map<String, Object> getDeviceProps() {
+        return deviceProps;
+    }
+
+    public void setDeviceProps(Map<String, Object> deviceProps) {
+        this.deviceProps = deviceProps;
     }
 
     @Override
