@@ -6,7 +6,9 @@ import android.app.job.JobService;
 import android.content.ComponentName;
 import android.content.Context;
 import android.util.Log;
+
 import androidx.annotation.RestrictTo;
+
 import com.letscooee.schedular.job.PendingTaskJob;
 import com.letscooee.utils.Constants;
 
@@ -22,7 +24,7 @@ public class CooeeJobUtils {
     private static final Long PENDING_JOB_INTERVAL_MILLIS = (long) (2 * 60 * 1000);
 
     public static JobScheduler getJobScheduler(Context context) {
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
             return context.getSystemService(JobScheduler.class);
         } else {
             return (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
@@ -66,6 +68,10 @@ public class CooeeJobUtils {
 
         builder.setMinimumLatency(latencyMillis);
 
+        if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.N) {
+            builder.setOverrideDeadline(latencyMillis);
+        }
+
         getJobScheduler(context).schedule(builder.build());
     }
 
@@ -81,7 +87,7 @@ public class CooeeJobUtils {
      */
     public static void triggerPendingTaskJobImmediately(Context context) {
         Log.v(Constants.TAG, "Run PendingTaskJob immediately");
-        scheduleJob(context, PendingTaskJob.class, Constants.PENDING_TASK_JOB_ID, 0L);
+        scheduleJob(context, PendingTaskJob.class, Constants.PENDING_TASK_JOB_ID, 1L);
     }
 
     public static void schedulePendingTaskJob(Context context) {
