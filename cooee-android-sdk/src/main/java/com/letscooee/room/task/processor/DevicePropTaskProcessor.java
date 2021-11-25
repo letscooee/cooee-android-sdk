@@ -10,6 +10,12 @@ import com.letscooee.room.task.PendingTaskType;
 
 import java.util.Map;
 
+/**
+ * Checks if task is type of {@link PendingTaskType#API_DEVICE_PROPERTY} and perform related operation
+ *
+ * @author Ashish Gaikwad 25/11/21
+ * @since 1.1.0
+ */
 public class DevicePropTaskProcessor extends HttpTaskProcessor<Map<String, Object>> {
 
     public DevicePropTaskProcessor(Context context) {
