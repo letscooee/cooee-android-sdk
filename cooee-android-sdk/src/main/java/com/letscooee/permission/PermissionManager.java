@@ -1,0 +1,65 @@
+package com.letscooee.permission;
+
+import android.content.Context;
+import android.content.pm.PackageManager;
+
+import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
+
+import com.letscooee.init.DefaultUserPropertiesCollector;
+import com.letscooee.utils.PermissionType;
+
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * Performs permission related work like check for granted/denied permissions and provide related data in a map
+ *
+ * @author Ashish Gaikwad 25/11/21
+ * @since 1.1.0
+ */
+public class PermissionManager {
+
+    private final PermissionType[] permissions;
+    private final Context context;
+    private final DefaultUserPropertiesCollector devicePropsCollector;
+
+    public PermissionManager(Context context) {
+        this.context = context;
+        this.permissions = PermissionType.values();
+        this.devicePropsCollector = new DefaultUserPropertiesCollector(context);
+    }
+
+    /**
+     * Check for all permissions and fetch permission related data and add to <code>deviceProps</code>
+     *
+     * @param deviceProps map in which data to be added
+     * @return updated <code>deviceProps</code>
+     */
+    @NonNull
+    public Map<String, Object> getPermissionInformation(@NonNull Map<String, Object> deviceProps) {
+        Map<String, String> permissionMap = new HashMap<>();
+
+        for (PermissionType permissionType : permissions) {
+
+            boolean permissionStatus = ContextCompat.checkSelfPermission(context,
+                    permissionType.toString()) == PackageManager.PERMISSION_GRANTED;
+
+            permissionMap.put(permissionType.name(), permissionStatus ? "GRANTED" : "DENIED");
+
+            if (permissionType == PermissionType.LOCATION && permissionStatus) {
+                double[] location = devicePropsCollector.getLocation();
+                deviceProps.put("coordinates", location);
+
+            } else if (permissionType == PermissionType.PHONE_DETAILS && permissionStatus) {
+                String[] networkData = devicePropsCollector.getNetworkData();
+                deviceProps.put("CE Network Operator", networkData[0]);
+                deviceProps.put("CE Network Type", networkData[1]);
+            }
+
+            deviceProps.put("perm", permissionMap);
+        }
+
+        return deviceProps;
+    }
+}
