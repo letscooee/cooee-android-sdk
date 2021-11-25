@@ -2,7 +2,9 @@ package com.letscooee.user;
 
 import android.content.Context;
 import android.os.Build;
+
 import androidx.annotation.RestrictTo;
+
 import com.letscooee.BuildConfig;
 import com.letscooee.ContextAware;
 import com.letscooee.CooeeFactory;
@@ -13,6 +15,7 @@ import com.letscooee.network.SafeHTTPService;
 import com.letscooee.permission.PermissionManager;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.LocalStorageHelper;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Date;
@@ -78,9 +81,18 @@ public class NewSessionExecutor extends ContextAware {
         Map<String, Object> userProperties = new HashMap<>();
         userProperties.put("CE First Launch Time", new Date());
         userProperties.put("CE Installed Time", defaultUserPropertiesCollector.getInstalledTime());
+        userProperties.put("CE Source", "ANDROID SDK");
+        userProperties.put("CE OS", "ANDROID");
+        userProperties.put("CE Device Manufacturer", Build.MANUFACTURER);
+        userProperties.put("CE Device Model", Build.MODEL);
+        userProperties.put("CE Total Internal Memory", defaultUserPropertiesCollector.getTotalInternalMemorySize());
+        userProperties.put("CE Total RAM", defaultUserPropertiesCollector.getTotalRAMMemorySize());
+        userProperties.put("CE Screen Resolution", defaultUserPropertiesCollector.getScreenResolution());
+        userProperties.put("CE DPI", defaultUserPropertiesCollector.getDpi());
         sendDefaultUserProperties(userProperties);
 
         Event event = new Event("CE App Installed", getCommonEventProperties());
+        event.setDeviceProps(getCommonDeviceProperties());
         safeHTTPService.sendEvent(event);
     }
 
@@ -91,22 +103,33 @@ public class NewSessionExecutor extends ContextAware {
         sendDefaultUserProperties(null);
 
         Event event = new Event("CE App Launched", getCommonEventProperties());
+        event.setDeviceProps(getCommonDeviceProperties());
         safeHTTPService.sendEvent(event);
     }
 
     private Map<String, Object> getCommonEventProperties() {
         String sdkVersion = BuildConfig.VERSION_NAME + "+" + BuildConfig.VERSION_CODE;
-        String[] networkData = defaultUserPropertiesCollector.getNetworkData();
 
         Map<String, Object> eventProperties = new HashMap<>();
         eventProperties.put("CE App Version", appInfo.getVersion());
         eventProperties.put("CE SDK Version", sdkVersion);
-        eventProperties.put("CE OS Version", Build.VERSION.RELEASE);
-        eventProperties.put("CE Network Provider", networkData[0]);
+
+        return eventProperties;
+    }
+
+    private Map<String, Object> getCommonDeviceProperties() {
+        String[] networkData = defaultUserPropertiesCollector.getNetworkData();
+        double[] location = defaultUserPropertiesCollector.getLocation();
+
+        Map<String, Object> eventProperties = new HashMap<>();
+        eventProperties.put("coordinates", location);
+        eventProperties.put("CE Network Operator", networkData[0]);
         eventProperties.put("CE Network Type", networkData[1]);
         eventProperties.put("CE Bluetooth On", defaultUserPropertiesCollector.isBluetoothOn());
         eventProperties.put("CE Wifi Connected", defaultUserPropertiesCollector.isConnectedToWifi());
         eventProperties.put("CE Device Battery", defaultUserPropertiesCollector.getBatteryLevel());
+        eventProperties.put("CE Available RAM", defaultUserPropertiesCollector.getAvailableRAMMemorySize());
+        eventProperties.put("CE Device Orientation", defaultUserPropertiesCollector.getDeviceOrientation());
 
         return eventProperties;
     }
@@ -125,32 +148,23 @@ public class NewSessionExecutor extends ContextAware {
         }
 
         userProperties.put("CE Session Count", sessionManager.getCurrentSessionNumber());
-        userProperties.put("CE Source", "ANDROID SDK");
-        userProperties.put("CE OS", "ANDROID");
         userProperties.put("CE OS Version", Build.VERSION.RELEASE);
-        userProperties.put("CE Device Manufacturer", Build.MANUFACTURER);
-        userProperties.put("CE Device Model", Build.MODEL);
         userProperties.put("coordinates", location);
         userProperties.put("CE Network Operator", networkData[0]);
         userProperties.put("CE Network Type", networkData[1]);
         userProperties.put("CE Bluetooth On", defaultUserPropertiesCollector.isBluetoothOn());
         userProperties.put("CE Wifi Connected", defaultUserPropertiesCollector.isConnectedToWifi());
         userProperties.put("CE Available Internal Memory", defaultUserPropertiesCollector.getAvailableInternalMemorySize());
-        userProperties.put("CE Total Internal Memory", defaultUserPropertiesCollector.getTotalInternalMemorySize());
         userProperties.put("CE Available RAM", defaultUserPropertiesCollector.getAvailableRAMMemorySize());
-        userProperties.put("CE Total RAM", defaultUserPropertiesCollector.getTotalRAMMemorySize());
         userProperties.put("CE Device Orientation", defaultUserPropertiesCollector.getDeviceOrientation());
         userProperties.put("CE Device Battery", defaultUserPropertiesCollector.getBatteryLevel());
-        userProperties.put("CE Screen Resolution", defaultUserPropertiesCollector.getScreenResolution());
-        userProperties.put("CE DPI", defaultUserPropertiesCollector.getDpi());
         userProperties.put("CE Device Locale", defaultUserPropertiesCollector.getLocale());
         userProperties.put("CE Last Launch Time", new Date());
         userProperties = permissionManager.getPermissionInformation(userProperties);
 
         Map<String, Object> userMap = new HashMap<>();
-        userMap.put("userProperties", userProperties);
-        userMap.put("userData", new HashMap<>());
+        userMap.put("props", userProperties);
 
-        this.safeHTTPService.updateUserProfile(userMap);
+        this.safeHTTPService.updateDeviceProperty(userMap);
     }
 }
