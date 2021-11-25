@@ -79,6 +79,12 @@ public class SafeHTTPService extends ContextAware {
         this.attemptTaskImmediately(pendingTask);
     }
 
+    public void updateDeviceProperty(Map<String, Object> requestData) {
+        requestData.put("sessionID", sessionManager.getCurrentSessionID());
+        PendingTask pendingTask = pendingTaskService.newTask(requestData, PendingTaskType.API_DEVICE_PROPERTY);
+        this.attemptTaskImmediately(pendingTask);
+    }
+
     public void sendSessionConcludedEvent(Map<String, Object> requestData) {
         PendingTask pendingTask = pendingTaskService.newTask(requestData, PendingTaskType.API_SESSION_CONCLUDE);
         this.attemptTaskImmediately(pendingTask);
