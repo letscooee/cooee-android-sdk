@@ -21,6 +21,9 @@ import com.letscooee.utils.Constants;
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class CooeeJobUtils {
 
+    private CooeeJobUtils() {
+    }
+
     private static final Long PENDING_JOB_INTERVAL_MILLIS = (long) (2 * 60 * 1000);
 
     public static JobScheduler getJobScheduler(Context context) {
