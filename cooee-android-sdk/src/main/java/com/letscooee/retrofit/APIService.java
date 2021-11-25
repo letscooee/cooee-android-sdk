@@ -33,6 +33,9 @@ public interface APIService {
     @PUT("/v1/user/update")
     Call<Map<String, Object>> updateProfile(@Body Map<String, Object> objectMap);
 
+    @PUT("/v1/device/update")
+    Call<Map<String, Object>> updateDeviceProperty(@Body Map<String, Object> objectMap);
+
     @POST("/v1/session/keepAlive")
     Call<ResponseBody> keepAlive(@Body Map<String, Object> keepAliveRequest);
 
