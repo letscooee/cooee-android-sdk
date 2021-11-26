@@ -9,8 +9,7 @@ import androidx.annotation.RestrictTo;
 import com.letscooee.BuildConfig;
 import com.letscooee.CooeeFactory;
 import com.letscooee.models.AuthenticationRequestBody;
-import com.letscooee.models.DeviceData;
-import com.letscooee.models.UserAuthResponse;
+import com.letscooee.models.DeviceAuthResponse;
 import com.letscooee.schedular.CooeeJobUtils;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.LocalStorageHelper;
@@ -106,9 +105,9 @@ public class UserAuthService {
      */
     private void getSDKTokenFromServer() {
         AuthenticationRequestBody requestBody = getAuthenticationRequestBody();
-        apiService.registerUser(requestBody).enqueue(new Callback<UserAuthResponse>() {
+        apiService.registerDevice(requestBody).enqueue(new Callback<DeviceAuthResponse>() {
             @Override
-            public void onResponse(@NonNull Call<UserAuthResponse> call, @NonNull Response<UserAuthResponse> response) {
+            public void onResponse(@NonNull Call<DeviceAuthResponse> call, @NonNull Response<DeviceAuthResponse> response) {
                 if (response.isSuccessful()) {
                     assert response.body() != null;
                     UserAuthService.this.saveUserDataInStorage(response.body());
@@ -121,7 +120,7 @@ public class UserAuthService {
             }
 
             @Override
-            public void onFailure(@NonNull Call<UserAuthResponse> call, @NonNull Throwable t) {
+            public void onFailure(@NonNull Call<DeviceAuthResponse> call, @NonNull Throwable t) {
                 Log.e(Constants.TAG, "Unable to acquire token", t);
             }
         });
@@ -129,10 +128,10 @@ public class UserAuthService {
         LocalStorageHelper.putLong(context, Constants.STORAGE_LAST_TOKEN_ATTEMPT, new Date().getTime());
     }
 
-    private void saveUserDataInStorage(UserAuthResponse userAuthResponse) {
-        this.sdkToken = userAuthResponse.getSdkToken();
-        this.userID = userAuthResponse.getId();
-        this.deviceID = userAuthResponse.getDeviceID();
+    private void saveUserDataInStorage(DeviceAuthResponse deviceAuthResponse) {
+        this.sdkToken = deviceAuthResponse.getSdkToken();
+        this.userID = deviceAuthResponse.getId();
+        this.deviceID = deviceAuthResponse.getDeviceID();
         this.updateAPIClient();
 
         LocalStorageHelper.putString(context, Constants.STORAGE_SDK_TOKEN, sdkToken);
