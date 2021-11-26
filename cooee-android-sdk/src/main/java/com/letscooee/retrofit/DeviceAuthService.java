@@ -173,6 +173,6 @@ public class UserAuthService {
                 manifestReader.getAppID(),
                 manifestReader.getAppSecret(),
                 uuid,
-                sessionExecutor.getDeviceNonChangeableProps());
+                sessionExecutor.getImmutableDeviceProps());
     }
 }

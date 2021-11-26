@@ -78,13 +78,13 @@ public class NewSessionExecutor extends ContextAware {
      * Runs when app is opened for the first time after sdkToken is received from server asynchronously
      */
     private void sendFirstLaunchEvent() {
-        Map<String, Object> userProperties = new HashMap<>();
-        userProperties.put("CE First Launch Time", new Date());
-        userProperties.putAll(getDeviceNonChangeableProps());
-        sendDefaultUserProperties(userProperties);
+        Map<String, Object> deviceProperties = new HashMap<>();
+        deviceProperties.put("CE First Launch Time", new Date());
+        deviceProperties.putAll(getImmutableDeviceProps());
+        deviceProperties.putAll(getMutableDeviceProps());
 
         Event event = new Event("CE App Installed");
-        event.setDeviceProps(getCommonDeviceProperties());
+        event.setDeviceProps(deviceProperties);
         safeHTTPService.sendEvent(event);
     }
 
@@ -92,10 +92,9 @@ public class NewSessionExecutor extends ContextAware {
      * Runs every time when app is opened for a new session
      */
     private void sendSuccessiveLaunchEvent() {
-        sendDefaultUserProperties(null);
 
         Event event = new Event("CE App Launched");
-        event.setDeviceProps(getCommonDeviceProperties());
+        event.setDeviceProps(getMutableDeviceProps());
         safeHTTPService.sendEvent(event);
     }
 
@@ -104,20 +103,20 @@ public class NewSessionExecutor extends ContextAware {
      *
      * @return {@link Map} of non changeable device property
      */
-    public Map<String, Object> getDeviceNonChangeableProps() {
-        Map<String, Object> userProperties = new HashMap<>();
+    public Map<String, Object> getImmutableDeviceProps() {
+        Map<String, Object> deviceProperties = new HashMap<>();
 
-        userProperties.put("CE Installed Time", defaultUserPropertiesCollector.getInstalledTime());
-        userProperties.put("CE Source", "ANDROID SDK");
-        userProperties.put("CE OS", "ANDROID");
-        userProperties.put("CE Device Manufacturer", Build.MANUFACTURER);
-        userProperties.put("CE Device Model", Build.MODEL);
-        userProperties.put("CE Total Internal Memory", defaultUserPropertiesCollector.getTotalInternalMemorySize());
-        userProperties.put("CE Total RAM", defaultUserPropertiesCollector.getTotalRAMMemorySize());
-        userProperties.put("CE Screen Resolution", defaultUserPropertiesCollector.getScreenResolution());
-        userProperties.put("CE DPI", defaultUserPropertiesCollector.getDpi());
+        deviceProperties.put("CE Installed Time", defaultUserPropertiesCollector.getInstalledTime());
+        deviceProperties.put("CE Source", "ANDROID SDK");
+        deviceProperties.put("CE OS", Constants.PLATFORM);
+        deviceProperties.put("CE Device Manufacturer", Build.MANUFACTURER);
+        deviceProperties.put("CE Device Model", Build.MODEL);
+        deviceProperties.put("CE Total Internal Memory", defaultUserPropertiesCollector.getTotalInternalMemorySize());
+        deviceProperties.put("CE Total RAM", defaultUserPropertiesCollector.getTotalRAMMemorySize());
+        deviceProperties.put("CE Screen Resolution", defaultUserPropertiesCollector.getScreenResolution());
+        deviceProperties.put("CE DPI", defaultUserPropertiesCollector.getDpi());
 
-        return userProperties;
+        return deviceProperties;
     }
 
     /**
@@ -125,44 +124,24 @@ public class NewSessionExecutor extends ContextAware {
      *
      * @return {@link Map} of device properties
      */
-    public Map<String, Object> getCommonDeviceProperties() {
+    public Map<String, Object> getMutableDeviceProps() {
         String sdkVersion = BuildConfig.VERSION_NAME + "+" + BuildConfig.VERSION_CODE;
 
-        Map<String, Object> eventProperties = new HashMap<>();
-        eventProperties.put("CE App Version", appInfo.getVersion());
-        eventProperties.put("CE SDK Version", sdkVersion);
-        eventProperties.put("CE Bluetooth On", defaultUserPropertiesCollector.isBluetoothOn());
-        eventProperties.put("CE Wifi Connected", defaultUserPropertiesCollector.isConnectedToWifi());
-        eventProperties.put("CE Device Battery", defaultUserPropertiesCollector.getBatteryLevel());
-        eventProperties.put("CE Available RAM", defaultUserPropertiesCollector.getAvailableRAMMemorySize());
-        eventProperties.put("CE Device Orientation", defaultUserPropertiesCollector.getDeviceOrientation());
-        eventProperties.putAll(permissionManager.getPermissionInformation());
+        Map<String, Object> deviceProperties = new HashMap<>();
+        deviceProperties.put("CE App Version", appInfo.getVersion());
+        deviceProperties.put("CE SDK Version", sdkVersion);
+        deviceProperties.put("CE Bluetooth On", defaultUserPropertiesCollector.isBluetoothOn());
+        deviceProperties.put("CE Wifi Connected", defaultUserPropertiesCollector.isConnectedToWifi());
+        deviceProperties.put("CE Device Battery", defaultUserPropertiesCollector.getBatteryLevel());
+        deviceProperties.put("CE Available RAM", defaultUserPropertiesCollector.getAvailableRAMMemorySize());
+        deviceProperties.put("CE Device Orientation", defaultUserPropertiesCollector.getDeviceOrientation());
+        deviceProperties.put("CE Session Count", sessionManager.getCurrentSessionNumber());
+        deviceProperties.put("CE OS Version", Build.VERSION.RELEASE);
+        deviceProperties.put("CE Available Internal Memory", defaultUserPropertiesCollector.getAvailableInternalMemorySize());
+        deviceProperties.put("CE Device Locale", defaultUserPropertiesCollector.getLocale());
+        deviceProperties.put("CE Last Launch Time", new Date());
+        deviceProperties.putAll(permissionManager.getPermissionInformation());
 
-        return eventProperties;
-    }
-
-    /**
-     * Sends default user properties to the server
-     *
-     * @param userProperties additional user properties
-     */
-    private void sendDefaultUserProperties(Map<String, Object> userProperties) {
-
-        if (userProperties == null) {
-            userProperties = new HashMap<>();
-        }
-
-        userProperties.putAll(getCommonDeviceProperties());
-        userProperties.put("CE Session Count", sessionManager.getCurrentSessionNumber());
-        userProperties.put("CE OS Version", Build.VERSION.RELEASE);
-        userProperties.put("CE Available Internal Memory", defaultUserPropertiesCollector.getAvailableInternalMemorySize());
-        userProperties.put("CE Device Locale", defaultUserPropertiesCollector.getLocale());
-        userProperties.put("CE Last Launch Time", new Date());
-
-
-        Map<String, Object> userMap = new HashMap<>();
-        userMap.put("props", userProperties);
-
-        this.safeHTTPService.updateDeviceProperty(userMap);
+        return deviceProperties;
     }
 }
