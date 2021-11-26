@@ -136,7 +136,7 @@ public class NewSessionExecutor extends ContextAware {
         eventProperties.put("CE Device Battery", defaultUserPropertiesCollector.getBatteryLevel());
         eventProperties.put("CE Available RAM", defaultUserPropertiesCollector.getAvailableRAMMemorySize());
         eventProperties.put("CE Device Orientation", defaultUserPropertiesCollector.getDeviceOrientation());
-        eventProperties = permissionManager.getPermissionInformation(eventProperties);
+        eventProperties.putAll(permissionManager.getPermissionInformation());
 
         return eventProperties;
     }

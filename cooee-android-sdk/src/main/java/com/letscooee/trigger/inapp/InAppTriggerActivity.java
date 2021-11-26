@@ -164,11 +164,10 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
-        Map<String, Object> userMap = new HashMap<>();
         PermissionManager permissionManager = new PermissionManager(InAppTriggerActivity.this);
-        userMap = permissionManager.getPermissionInformation(userMap);
+        Map<String, Object> deviceProp = permissionManager.getPermissionInformation();
 
-        CooeeSDK.getDefaultInstance(this).updateUserProperties(userMap);
+        CooeeSDK.getDefaultInstance(this).updateUserProperties(deviceProp);
         triggerContext.closeInApp("CTA");
     }
 }
