@@ -1,7 +1,7 @@
 package com.letscooee.task;
 
 import androidx.annotation.RestrictTo;
-import com.letscooee.retrofit.UserAuthService;
+import com.letscooee.retrofit.DeviceAuthService;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -25,7 +25,7 @@ public class CooeeExecutors {
 
     public static CooeeExecutors getInstance() {
         if (INSTANCE == null) {
-            synchronized (UserAuthService.class) {
+            synchronized (DeviceAuthService.class) {
                 if (INSTANCE == null) {
                     INSTANCE = new CooeeExecutors();
                 }

@@ -6,7 +6,7 @@ import com.letscooee.CooeeFactory;
 import com.letscooee.exceptions.HttpRequestFailedException;
 import com.letscooee.network.BaseHTTPService;
 import com.letscooee.network.ConnectionManager;
-import com.letscooee.retrofit.UserAuthService;
+import com.letscooee.retrofit.DeviceAuthService;
 import com.letscooee.room.task.PendingTask;
 import com.letscooee.utils.Constants;
 import org.jetbrains.annotations.NotNull;
@@ -21,12 +21,12 @@ import org.jetbrains.annotations.NotNull;
 public abstract class HttpTaskProcessor<T> extends AbstractPendingTaskProcessor<T> {
 
     protected final BaseHTTPService baseHTTPService;
-    protected final UserAuthService userAuthService;
+    protected final DeviceAuthService deviceAuthService;
 
     protected HttpTaskProcessor(Context context) {
         super(context);
         this.baseHTTPService = CooeeFactory.getBaseHTTPService();
-        this.userAuthService = CooeeFactory.getUserAuthService();
+        this.deviceAuthService = CooeeFactory.getDeviceAuthService();
     }
 
     /**
@@ -53,7 +53,7 @@ public abstract class HttpTaskProcessor<T> extends AbstractPendingTaskProcessor<
             return;
         }
 
-        if (!this.userAuthService.hasToken()) {
+        if (!this.deviceAuthService.hasToken()) {
             Log.i(Constants.TAG, "Don't have SDK token. Abort processing " + task);
             return;
         }

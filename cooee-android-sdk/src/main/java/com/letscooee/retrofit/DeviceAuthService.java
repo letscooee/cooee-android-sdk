@@ -34,7 +34,7 @@ import java.util.Date;
  * @version 0.2.10
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public class UserAuthService {
+public class DeviceAuthService {
 
     private final Context context;
     private final SentryHelper sentryHelper;
@@ -46,7 +46,7 @@ public class UserAuthService {
     private String deviceID;
     private String uuid;
 
-    public UserAuthService(Context context, SentryHelper sentryHelper) {
+    public DeviceAuthService(Context context, SentryHelper sentryHelper) {
         this.context = context.getApplicationContext();
         this.apiService = APIClient.getAPIService();
         this.sentryHelper = sentryHelper;
@@ -119,12 +119,12 @@ public class UserAuthService {
             public void onResponse(@NonNull Call<DeviceAuthResponse> call, @NonNull Response<DeviceAuthResponse> response) {
                 if (response.isSuccessful()) {
                     assert response.body() != null;
-                    UserAuthService.this.saveUserDataInStorage(response.body());
+                    DeviceAuthService.this.saveDeviceDataInStorage(response.body());
 
                     // Start the job immediately to make sure the pending tasks can be sent
-                    CooeeJobUtils.triggerPendingTaskJobImmediately(UserAuthService.this.context);
+                    CooeeJobUtils.triggerPendingTaskJobImmediately(DeviceAuthService.this.context);
                 } else {
-                    UserAuthService.this.sentryHelper.captureMessage("Unable to acquire token- " + response.code());
+                    DeviceAuthService.this.sentryHelper.captureMessage("Unable to acquire token- " + response.code());
                 }
             }
 
@@ -137,7 +137,7 @@ public class UserAuthService {
         LocalStorageHelper.putLong(context, Constants.STORAGE_LAST_TOKEN_ATTEMPT, new Date().getTime());
     }
 
-    private void saveUserDataInStorage(DeviceAuthResponse deviceAuthResponse) {
+    private void saveDeviceDataInStorage(DeviceAuthResponse deviceAuthResponse) {
         this.sdkToken = deviceAuthResponse.getSdkToken();
         this.userID = deviceAuthResponse.getId();
         this.deviceID = deviceAuthResponse.getDeviceID();
