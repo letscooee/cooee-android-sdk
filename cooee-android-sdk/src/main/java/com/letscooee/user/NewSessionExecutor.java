@@ -125,7 +125,7 @@ public class NewSessionExecutor extends ContextAware {
      *
      * @return {@link Map} of device properties
      */
-    private Map<String, Object> getCommonDeviceProperties() {
+    public Map<String, Object> getCommonDeviceProperties() {
         String sdkVersion = BuildConfig.VERSION_NAME + "+" + BuildConfig.VERSION_CODE;
 
         Map<String, Object> eventProperties = new HashMap<>();

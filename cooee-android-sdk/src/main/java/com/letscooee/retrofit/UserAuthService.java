@@ -4,17 +4,23 @@ import android.content.Context;
 import android.os.Build;
 import android.text.TextUtils;
 import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+
 import com.letscooee.BuildConfig;
 import com.letscooee.CooeeFactory;
 import com.letscooee.models.AuthenticationRequestBody;
 import com.letscooee.models.DeviceAuthResponse;
 import com.letscooee.schedular.CooeeJobUtils;
+import com.letscooee.user.NewSessionExecutor;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.LocalStorageHelper;
 import com.letscooee.utils.ManifestReader;
 import com.letscooee.utils.SentryHelper;
+
+import org.bson.types.ObjectId;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -34,15 +40,18 @@ public class UserAuthService {
     private final Context context;
     private final SentryHelper sentryHelper;
     private final APIService apiService;
+    private final NewSessionExecutor sessionExecutor;
 
     private String sdkToken;
     private String userID;
     private String deviceID;
+    private String uuid;
 
     public UserAuthService(Context context, SentryHelper sentryHelper) {
         this.context = context.getApplicationContext();
         this.apiService = APIClient.getAPIService();
         this.sentryHelper = sentryHelper;
+        this.sessionExecutor = new NewSessionExecutor(this.context);
     }
 
     public boolean hasToken() {
@@ -104,6 +113,7 @@ public class UserAuthService {
      * other endpoints.
      */
     private void getSDKTokenFromServer() {
+        uuid = new ObjectId().toHexString();
         AuthenticationRequestBody requestBody = getAuthenticationRequestBody();
         apiService.registerDevice(requestBody).enqueue(new Callback<DeviceAuthResponse>() {
             @Override
@@ -137,6 +147,7 @@ public class UserAuthService {
         LocalStorageHelper.putString(context, Constants.STORAGE_SDK_TOKEN, sdkToken);
         LocalStorageHelper.putString(context, Constants.STORAGE_USER_ID, userID);
         LocalStorageHelper.putString(context, Constants.STORAGE_DEVICE_ID, deviceID);
+        LocalStorageHelper.putString(context, Constants.STORAGE_DEVICE_UUID, uuid);
     }
 
     private void updateAPIClient() {
@@ -161,9 +172,7 @@ public class UserAuthService {
         return new AuthenticationRequestBody(
                 manifestReader.getAppID(),
                 manifestReader.getAppSecret(),
-                new DeviceData("ANDROID",
-                        BuildConfig.VERSION_NAME,
-                        CooeeFactory.getAppInfo().getVersion(),
-                        Build.VERSION.RELEASE));
+                uuid,
+                sessionExecutor.getDeviceNonChangeableProps());
     }
 }
