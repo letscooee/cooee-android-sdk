@@ -1,7 +1,6 @@
 package com.letscooee.retrofit;
 
 import android.content.Context;
-import android.os.Build;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -158,6 +157,7 @@ public class UserAuthService {
 
         APIClient.setAPIToken(sdkToken);
         APIClient.setUserId(userID);
+        APIClient.setAppVersion(CooeeFactory.getAppInfo().getVersion());
         this.sentryHelper.setUserId(userID);
     }
 
