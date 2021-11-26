@@ -2,6 +2,8 @@ package com.letscooee.models;
 
 import androidx.annotation.RestrictTo;
 
+import com.letscooee.utils.Constants;
+
 import java.util.Map;
 
 /**
@@ -15,7 +17,7 @@ public class AuthenticationRequestBody {
     private final String appID;
     private final String appSecret;
     private final String uuid;
-    private final String sdk = "ANDROID";
+    private final String sdk = Constants.PLATFORM;
     private final Map<String, Object> props;
 
     public AuthenticationRequestBody(String appID, String appSecret, String uuid, Map<String, Object> props) {
@@ -39,6 +41,14 @@ public class AuthenticationRequestBody {
 
     public String getUuid() {
         return uuid;
+    }
+
+    public String getSdk() {
+        return sdk;
+    }
+
+    public Map<String, Object> getProps() {
+        return props;
     }
 }
 

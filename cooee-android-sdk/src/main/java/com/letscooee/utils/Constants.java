@@ -56,4 +56,5 @@ public class Constants {
     public static final String FONTS_DIRECTORY = "cooeeFonts";
     public static final String AR_PROCESS_NAME = "CooeeARProcess";
     public static final int INCREMENT_PASSWORD = 10;
+    public static final String PLATFORM = "ANDROID";
 }
