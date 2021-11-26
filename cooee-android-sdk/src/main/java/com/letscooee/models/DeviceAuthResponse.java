@@ -5,7 +5,7 @@ package com.letscooee.models;
  *
  * @author Abhishek Taparia
  */
-public class UserAuthResponse {
+public class DeviceAuthResponse {
 
     private String sdkToken;
     private String sessionID;
