@@ -106,12 +106,4 @@ public class SafeHTTPService extends ContextAware {
             pendingTaskService.processTask(pendingTask);
         });
     }
-
-    public void updateDeviceProps(Map<String, Object> userProperties) {
-        Map<String, Object> userMap = new HashMap<>();
-        userMap.put("userProperties", userProperties);
-        userMap.put("userData", new HashMap<>());
-
-        updateUserProfile(userMap);
-    }
 }
