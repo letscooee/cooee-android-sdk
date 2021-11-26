@@ -30,12 +30,14 @@ class AppLifecycleCallback implements DefaultLifecycleObserver {
     private Handler handler = new Handler();
     private Runnable runnable;
     private final SafeHTTPService safeHTTPService;
+    private final NewSessionExecutor sessionExecutor;
 
     AppLifecycleCallback(Context context) {
         this.context = context;
         this.runtimeData = CooeeFactory.getRuntimeData();
         this.sessionManager = CooeeFactory.getSessionManager();
         this.safeHTTPService = CooeeFactory.getSafeHTTPService();
+        this.sessionExecutor = new NewSessionExecutor(context);
     }
 
     @Override
@@ -58,9 +60,11 @@ class AppLifecycleCallback implements DefaultLifecycleObserver {
         } else {
             Map<String, Object> eventProps = new HashMap<>();
             eventProps.put("Background Duration", backgroundDuration);
-            Event session = new Event("CE App Foreground", eventProps);
 
-            safeHTTPService.sendEvent(session);
+            Event event = new Event("CE App Foreground", eventProps);
+            event.setDeviceProps(sessionExecutor.getMutableDeviceProps());
+
+            safeHTTPService.sendEvent(event);
         }
 
         // Sent AR CTA once App is resumed
@@ -86,8 +90,10 @@ class AppLifecycleCallback implements DefaultLifecycleObserver {
         Map<String, Object> sessionProperties = new HashMap<>();
         sessionProperties.put("Foreground Duration", duration);
 
-        Event session = new Event("CE App Background", sessionProperties);
-        safeHTTPService.sendEvent(session);
+        Event event = new Event("CE App Background", sessionProperties);
+        event.setDeviceProps(sessionExecutor.getMutableDeviceProps());
+
+        safeHTTPService.sendEvent(event);
     }
 
     /**
