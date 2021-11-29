@@ -125,7 +125,12 @@ To see CooeeSDK debug information for you can add `SHAKE_TO_DEBUG_COUNT` in `And
 ```xml
 <meta-data
     android:name="SHAKE_TO_DEBUG_COUNT"
-    android:value="ANY_NUMBER" />
+    android:value="LOW" />
+<!--
+    LOW - Debug information will open on small shake
+    MEDIUM - Debug information will open on medium shake
+    HIGH - Debug information will open on long shake
+-->
 ```
 
 Or you can also see information by calling `showDebugInfo()` method
