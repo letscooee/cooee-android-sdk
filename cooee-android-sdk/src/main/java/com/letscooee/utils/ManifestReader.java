@@ -61,7 +61,8 @@ public class ManifestReader {
             this.shakeToDebugCount = ShakeDensity.valueOf(bundle.getString("SHAKE_TO_DEBUG_COUNT",
                     "NONE")).shakeVolume;
         } catch (Exception e) {
-            CooeeFactory.getSentryHelper().captureException("Trying pass invalid value to the SHAKE_TO_DEBUG_COUNT", e);
+            Log.e(Constants.TAG, "Trying pass invalid value to the SHAKE_TO_DEBUG_COUNT. " +
+                    "Only LOW/MEDIUM/HIGH are supported", e);
         }
     }
 
