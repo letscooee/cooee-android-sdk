@@ -1,7 +1,6 @@
 package com.letscooee.trigger.inapp;
 
 import android.app.Activity;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.ViewGroup;
@@ -12,26 +11,25 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 
 import com.letscooee.CooeeFactory;
+import com.letscooee.CooeeSDK;
 import com.letscooee.R;
-import com.letscooee.init.DefaultUserPropertiesCollector;
 import com.letscooee.models.Event;
 import com.letscooee.models.trigger.TriggerData;
 import com.letscooee.models.trigger.blocks.Animation;
 import com.letscooee.models.trigger.inapp.Container;
 import com.letscooee.models.trigger.inapp.InAppTrigger;
+import com.letscooee.permission.PermissionManager;
 import com.letscooee.trigger.inapp.renderer.ContainerRenderer;
 import com.letscooee.utils.Constants;
-import com.letscooee.utils.PermissionType;
 import com.letscooee.utils.SentryHelper;
-
-import jp.wasabeef.blurry.Blurry;
 
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+
+import jp.wasabeef.blurry.Blurry;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class InAppTriggerActivity extends AppCompatActivity implements PreventBlurActivity {
@@ -164,36 +162,13 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-
-        DefaultUserPropertiesCollector devicePropsCollector = new DefaultUserPropertiesCollector(this);
-        Map<String, String> permissionMap = new HashMap<>();
-        Map<String, Object> deviceProperties = new HashMap<>();
-
-        for (String permission : permissions) {
-
-            PermissionType permissionType = PermissionType.getByValue(permission);
-            boolean permissionStatus = ContextCompat.checkSelfPermission(this, permission) ==
-                    PackageManager.PERMISSION_GRANTED;
-
-            permissionMap.put(permissionType.name(), permissionStatus ? "GRANTED" : "DENIED");
-
-            if (permissionType == PermissionType.LOCATION && permissionStatus) {
-                double[] location = devicePropsCollector.getLocation();
-                deviceProperties.put("coordinates", location);
-
-            } else if (permissionType == PermissionType.PHONE_DETAILS && permissionStatus) {
-                String[] networkData = devicePropsCollector.getNetworkData();
-                deviceProperties.put("CE Network Operator", networkData[0]);
-                deviceProperties.put("CE Network Type", networkData[1]);
-            }
-        }
-        deviceProperties.put("perm", permissionMap);
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
         Map<String, Object> userMap = new HashMap<>();
-        userMap.put("userProperties", deviceProperties);
-        userMap.put("userData", new HashMap<>());
+        PermissionManager permissionManager = new PermissionManager(InAppTriggerActivity.this);
+        userMap = permissionManager.getPermissionInformation(userMap);
 
-        CooeeFactory.getSafeHTTPService().updateUserProfile(userMap);
+        CooeeSDK.getDefaultInstance(this).updateUserProperties(userMap);
         triggerContext.closeInApp("CTA");
     }
 }

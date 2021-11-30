@@ -10,6 +10,7 @@ import com.letscooee.device.AppInfo;
 import com.letscooee.init.DefaultUserPropertiesCollector;
 import com.letscooee.models.Event;
 import com.letscooee.network.SafeHTTPService;
+import com.letscooee.permission.PermissionManager;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.LocalStorageHelper;
 import org.jetbrains.annotations.NotNull;
@@ -31,6 +32,7 @@ public class NewSessionExecutor extends ContextAware {
     private final AppInfo appInfo;
     private final SessionManager sessionManager;
     private final SafeHTTPService safeHTTPService;
+    private final PermissionManager permissionManager;
 
     /**
      * Public Constructor
@@ -44,6 +46,7 @@ public class NewSessionExecutor extends ContextAware {
         this.appInfo = CooeeFactory.getAppInfo();
         this.safeHTTPService = CooeeFactory.getSafeHTTPService();
         this.sessionManager.startNewSession();
+        this.permissionManager = new PermissionManager(context);
     }
 
     public void execute() {
@@ -142,6 +145,7 @@ public class NewSessionExecutor extends ContextAware {
         userProperties.put("CE DPI", defaultUserPropertiesCollector.getDpi());
         userProperties.put("CE Device Locale", defaultUserPropertiesCollector.getLocale());
         userProperties.put("CE Last Launch Time", new Date());
+        userProperties = permissionManager.getPermissionInformation(userProperties);
 
         Map<String, Object> userMap = new HashMap<>();
         userMap.put("userProperties", userProperties);
