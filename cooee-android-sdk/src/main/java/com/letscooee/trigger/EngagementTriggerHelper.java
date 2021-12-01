@@ -89,11 +89,7 @@ public class EngagementTriggerHelper {
         ArrayList<EmbeddedTrigger> activeTriggers = LocalStorageHelper.getEmbeddedTriggers(context,
                 Constants.STORAGE_ACTIVATED_TRIGGERS);
 
-        EmbeddedTrigger embeddedTrigger = new EmbeddedTrigger(
-                triggerData.getId(),
-                triggerData.getEngagementID() != null ? triggerData.getEngagementID() : null,
-                triggerData.getExpireAt()
-        );
+        EmbeddedTrigger embeddedTrigger = new EmbeddedTrigger(triggerData);
 
         if (!embeddedTrigger.isExpired()) {
             activeTriggers.add(embeddedTrigger);
@@ -255,12 +251,7 @@ public class EngagementTriggerHelper {
      * @param triggerData Data to render in-app.
      */
     private static void setActiveTrigger(Context context, TriggerData triggerData) {
-        EmbeddedTrigger embeddedTrigger = new EmbeddedTrigger(
-                triggerData.getId(),
-                triggerData.getEngagementID() != null ? triggerData.getEngagementID() : null,
-                triggerData.getExpireAt()
-        );
-
-        LocalStorageHelper.putEmbeddedTriggerImmediately(context, Constants.STORAGE_ACTIVE_TRIGGER, embeddedTrigger);
+        LocalStorageHelper.putEmbeddedTriggerImmediately(context, Constants.STORAGE_ACTIVE_TRIGGER,
+                new EmbeddedTrigger(triggerData));
     }
 }

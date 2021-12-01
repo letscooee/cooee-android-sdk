@@ -17,6 +17,10 @@ public class EmbeddedTrigger {
     private final Long expireAt;
     private Boolean expired;
 
+    public EmbeddedTrigger(TriggerData triggerData) {
+        this(triggerData.getId(), triggerData.getEngagementID(), triggerData.getExpireAt());
+    }
+
     public EmbeddedTrigger(String triggerID, String engagementID, Long expireAt) {
         this.triggerID = triggerID;
         this.engagementID = engagementID;
