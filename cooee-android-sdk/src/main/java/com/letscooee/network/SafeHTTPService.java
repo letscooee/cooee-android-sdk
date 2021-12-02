@@ -5,12 +5,15 @@ import android.text.TextUtils;
 
 import com.letscooee.ContextAware;
 import com.letscooee.models.Event;
+import com.letscooee.models.trigger.EmbeddedTrigger;
 import com.letscooee.room.task.PendingTask;
 import com.letscooee.room.task.PendingTaskService;
 import com.letscooee.room.task.PendingTaskType;
 import com.letscooee.task.CooeeExecutors;
 import com.letscooee.trigger.EngagementTriggerHelper;
 import com.letscooee.user.SessionManager;
+import com.letscooee.utils.Constants;
+import com.letscooee.utils.LocalStorageHelper;
 import com.letscooee.utils.RuntimeData;
 
 import java.util.HashMap;
@@ -52,7 +55,7 @@ public class SafeHTTPService extends ContextAware {
      * a new session (skip session creation).
      * 0
      *
-     * @param event
+     * @param event The new event to be posted to the server safely.
      */
     public void sendEventWithoutNewSession(Event event) {
         this.sendEvent(event, false);
@@ -60,6 +63,8 @@ public class SafeHTTPService extends ContextAware {
 
     private void sendEvent(Event event, boolean createSession) {
         String sessionID = sessionManager.getCurrentSessionID(createSession);
+        EmbeddedTrigger trigger = LocalStorageHelper.getEmbeddedTrigger(context, Constants.STORAGE_ACTIVE_TRIGGER,
+                null);
 
         if (!TextUtils.isEmpty(sessionID)) {
             event.setSessionID(sessionID);
@@ -68,6 +73,7 @@ public class SafeHTTPService extends ContextAware {
 
         event.setScreenName(runtimeData.getCurrentScreenName());
         event.setActiveTriggers(EngagementTriggerHelper.getActiveTriggers(context));
+        event.setActiveTrigger(trigger);
 
         PendingTask pendingTask = pendingTaskService.newTask(event);
         this.attemptTaskImmediately(pendingTask);
@@ -96,9 +102,7 @@ public class SafeHTTPService extends ContextAware {
      * @param pendingTask Task to attempt execution.
      */
     private void attemptTaskImmediately(PendingTask pendingTask) {
-        CooeeExecutors.getInstance().networkExecutor().execute(() -> {
-            pendingTaskService.processTask(pendingTask);
-        });
+        CooeeExecutors.getInstance().networkExecutor().execute(() -> pendingTaskService.processTask(pendingTask));
     }
 
     public void updateDeviceProps(Map<String, Object> userProperties) {

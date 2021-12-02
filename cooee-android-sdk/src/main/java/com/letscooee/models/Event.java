@@ -1,5 +1,7 @@
 package com.letscooee.models;
 
+import com.google.gson.annotations.SerializedName;
+import com.letscooee.models.trigger.EmbeddedTrigger;
 import com.letscooee.models.trigger.TriggerData;
 
 import java.util.ArrayList;
@@ -19,8 +21,11 @@ public class Event {
     private String sessionID;
     private int sessionNumber;
     private String screenName;
-    private ArrayList<HashMap<String, Object>> activeTriggers;
+    private ArrayList<EmbeddedTrigger> activeTriggers;
     private Date occurred;
+
+    @SerializedName("trigger")
+    private EmbeddedTrigger activeTrigger;
 
     public Event(String name) {
         this(name, new HashMap<>());
@@ -81,12 +86,16 @@ public class Event {
         this.screenName = screenName;
     }
 
-    public ArrayList<HashMap<String, Object>> getActiveTriggers() {
+    public ArrayList<EmbeddedTrigger> getActiveTriggers() {
         return activeTriggers;
     }
 
-    public void setActiveTriggers(ArrayList<HashMap<String, Object>> activeTriggers) {
+    public void setActiveTriggers(ArrayList<EmbeddedTrigger> activeTriggers) {
         this.activeTriggers = activeTriggers;
+    }
+
+    public void setActiveTrigger(EmbeddedTrigger activeTrigger) {
+        this.activeTrigger = activeTrigger;
     }
 
     @Override
