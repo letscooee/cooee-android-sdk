@@ -127,6 +127,7 @@ To see CooeeSDK debug information for you can add `SHAKE_TO_DEBUG_COUNT` in `And
     android:name="SHAKE_TO_DEBUG_COUNT"
     android:value="LOW" />
 <!--
+    NONE - It's a default value and keep shake to debug disabled.
     LOW - Debug information will open on small shake
     MEDIUM - Debug information will open on medium shake
     HIGH - Debug information will open on long shake
