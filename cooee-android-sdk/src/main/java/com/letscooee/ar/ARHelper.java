@@ -49,7 +49,7 @@ public class ARHelper {
             return;
         }
 
-        sendUserProperty("CE AR Supported", availability.isSupported());
+        sendDeviceProperty("CE AR Supported", availability.isSupported());
     }
 
     /**
@@ -58,11 +58,14 @@ public class ARHelper {
      * @param key   is {@link String} used as key parameter
      * @param value is {@link Object} so we can send any type of value
      */
-    private static void sendUserProperty(String key, Object value) {
-        Map<String, Object> userProperties = new HashMap<>();
-        userProperties.put(key, value);
+    private static void sendDeviceProperty(String key, Object value) {
+        Map<String, Object> deviceProperties = new HashMap<>();
+        Map<String, Object> props = new HashMap<>();
 
-        CooeeFactory.getSafeHTTPService().updateDeviceProps(userProperties);
+        props.put(key, value);
+        deviceProperties.put("props", props);
+
+        CooeeFactory.getSafeHTTPService().updateDeviceProperty(deviceProperties);
     }
 
     /**
@@ -92,12 +95,12 @@ public class ARHelper {
             }
         } catch (UnavailableUserDeclinedInstallationException e) {
             // User has declined to install AR Service.
-            sendUserProperty("CE AR Service Declined", true);
+            sendDeviceProperty("CE AR Service Declined", true);
             launchAR = true;
         } catch (UnavailableDeviceNotCompatibleException e) {
             // Device is not supported
             launchAR = true;
-            sendUserProperty("CE AR Supported", false);
+            sendDeviceProperty("CE AR Supported", false);
         } finally {
             if (launchAR) launchARViaUnity(activity, appAR, triggerData);
         }

@@ -1,21 +1,25 @@
 package com.letscooee.retrofit;
 
 import android.content.Context;
-import android.os.Build;
 import android.text.TextUtils;
 import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+
 import com.letscooee.BuildConfig;
 import com.letscooee.CooeeFactory;
 import com.letscooee.models.AuthenticationRequestBody;
-import com.letscooee.models.DeviceData;
-import com.letscooee.models.UserAuthResponse;
+import com.letscooee.models.DeviceAuthResponse;
 import com.letscooee.schedular.CooeeJobUtils;
+import com.letscooee.user.NewSessionExecutor;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.LocalStorageHelper;
 import com.letscooee.utils.ManifestReader;
 import com.letscooee.utils.SentryHelper;
+
+import org.bson.types.ObjectId;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -30,20 +34,23 @@ import java.util.Date;
  * @version 0.2.10
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public class UserAuthService {
+public class DeviceAuthService {
 
     private final Context context;
     private final SentryHelper sentryHelper;
     private final APIService apiService;
+    private final NewSessionExecutor sessionExecutor;
 
     private String sdkToken;
     private String userID;
     private String deviceID;
+    private String uuid;
 
-    public UserAuthService(Context context, SentryHelper sentryHelper) {
+    public DeviceAuthService(Context context, SentryHelper sentryHelper) {
         this.context = context.getApplicationContext();
         this.apiService = APIClient.getAPIService();
         this.sentryHelper = sentryHelper;
+        this.sessionExecutor = new NewSessionExecutor(this.context);
     }
 
     public boolean hasToken() {
@@ -105,23 +112,24 @@ public class UserAuthService {
      * other endpoints.
      */
     private void getSDKTokenFromServer() {
+        uuid = new ObjectId().toHexString();
         AuthenticationRequestBody requestBody = getAuthenticationRequestBody();
-        apiService.registerUser(requestBody).enqueue(new Callback<UserAuthResponse>() {
+        apiService.registerDevice(requestBody).enqueue(new Callback<DeviceAuthResponse>() {
             @Override
-            public void onResponse(@NonNull Call<UserAuthResponse> call, @NonNull Response<UserAuthResponse> response) {
+            public void onResponse(@NonNull Call<DeviceAuthResponse> call, @NonNull Response<DeviceAuthResponse> response) {
                 if (response.isSuccessful()) {
                     assert response.body() != null;
-                    UserAuthService.this.saveUserDataInStorage(response.body());
+                    DeviceAuthService.this.saveDeviceDataInStorage(response.body());
 
                     // Start the job immediately to make sure the pending tasks can be sent
-                    CooeeJobUtils.triggerPendingTaskJobImmediately(UserAuthService.this.context);
+                    CooeeJobUtils.triggerPendingTaskJobImmediately(DeviceAuthService.this.context);
                 } else {
-                    UserAuthService.this.sentryHelper.captureMessage("Unable to acquire token- " + response.code());
+                    DeviceAuthService.this.sentryHelper.captureMessage("Unable to acquire token- " + response.code());
                 }
             }
 
             @Override
-            public void onFailure(@NonNull Call<UserAuthResponse> call, @NonNull Throwable t) {
+            public void onFailure(@NonNull Call<DeviceAuthResponse> call, @NonNull Throwable t) {
                 Log.e(Constants.TAG, "Unable to acquire token", t);
             }
         });
@@ -129,15 +137,16 @@ public class UserAuthService {
         LocalStorageHelper.putLong(context, Constants.STORAGE_LAST_TOKEN_ATTEMPT, new Date().getTime());
     }
 
-    private void saveUserDataInStorage(UserAuthResponse userAuthResponse) {
-        this.sdkToken = userAuthResponse.getSdkToken();
-        this.userID = userAuthResponse.getId();
-        this.deviceID = userAuthResponse.getDeviceID();
+    private void saveDeviceDataInStorage(DeviceAuthResponse deviceAuthResponse) {
+        this.sdkToken = deviceAuthResponse.getSdkToken();
+        this.userID = deviceAuthResponse.getId();
+        this.deviceID = deviceAuthResponse.getDeviceID();
         this.updateAPIClient();
 
         LocalStorageHelper.putString(context, Constants.STORAGE_SDK_TOKEN, sdkToken);
         LocalStorageHelper.putString(context, Constants.STORAGE_USER_ID, userID);
         LocalStorageHelper.putString(context, Constants.STORAGE_DEVICE_ID, deviceID);
+        LocalStorageHelper.putString(context, Constants.STORAGE_DEVICE_UUID, uuid);
     }
 
     private void updateAPIClient() {
@@ -148,6 +157,7 @@ public class UserAuthService {
 
         APIClient.setAPIToken(sdkToken);
         APIClient.setUserId(userID);
+        APIClient.setAppVersion(CooeeFactory.getAppInfo().getVersion());
         this.sentryHelper.setUserId(userID);
     }
 
@@ -162,9 +172,7 @@ public class UserAuthService {
         return new AuthenticationRequestBody(
                 manifestReader.getAppID(),
                 manifestReader.getAppSecret(),
-                new DeviceData("ANDROID",
-                        BuildConfig.VERSION_NAME,
-                        CooeeFactory.getAppInfo().getVersion(),
-                        Build.VERSION.RELEASE));
+                uuid,
+                sessionExecutor.getImmutableDeviceProps());
     }
 }

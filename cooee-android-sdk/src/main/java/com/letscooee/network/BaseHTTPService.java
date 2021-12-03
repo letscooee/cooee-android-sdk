@@ -70,6 +70,14 @@ public class BaseHTTPService extends ContextAware {
         return (Map<String, Object>) response.body();
     }
 
+    public Map<String, Object> updateDeviceProperty(Map<String, Object> data) throws HttpRequestFailedException {
+        Call<Map<String, Object>> call = apiService.updateDeviceProperty(data);
+        Response<?> response = this.executeHTTPCall(call, "Update device property");
+
+        //noinspection unchecked
+        return (Map<String, Object>) response.body();
+    }
+
     public void updatePushToken(Map<String, Object> data) throws HttpRequestFailedException {
         Call<ResponseBody> call = apiService.setFirebaseToken(data);
         Response<?> response = this.executeHTTPCall(call, "Update user profile");

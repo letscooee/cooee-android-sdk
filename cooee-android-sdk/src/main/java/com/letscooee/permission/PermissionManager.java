@@ -33,12 +33,13 @@ public class PermissionManager {
     /**
      * Check for all permissions and fetch permission related data and add to <code>deviceProps</code>
      *
-     * @param deviceProps map in which data to be added
-     * @return updated <code>deviceProps</code>
+     *
+     * @return {@link Map} of permission info
      */
     @NonNull
-    public Map<String, Object> getPermissionInformation(@NonNull Map<String, Object> deviceProps) {
-        Map<String, String> permissionMap = new HashMap<>();
+    public Map<String, Object> getPermissionInformation() {
+        Map<String, Object> permissionMap = new HashMap<>();
+        Map<String, Object> deviceProps = new HashMap<>();
 
         for (PermissionType permissionType : permissions) {
 

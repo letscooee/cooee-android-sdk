@@ -2,7 +2,7 @@ package com.letscooee.retrofit;
 
 import com.letscooee.models.AuthenticationRequestBody;
 import com.letscooee.models.Event;
-import com.letscooee.models.UserAuthResponse;
+import com.letscooee.models.DeviceAuthResponse;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -21,8 +21,8 @@ import java.util.Map;
  */
 public interface APIService {
 
-    @POST("/v1/user/save")
-    Call<UserAuthResponse> registerUser(@Body AuthenticationRequestBody authenticationRequestBody);
+    @POST("/v1/device/validate")
+    Call<DeviceAuthResponse> registerDevice(@Body AuthenticationRequestBody authenticationRequestBody);
 
     @POST("/v1/event/track")
     Call<Map<String, Object>> sendEvent(@Body Event event);
@@ -32,6 +32,9 @@ public interface APIService {
 
     @PUT("/v1/user/update")
     Call<Map<String, Object>> updateProfile(@Body Map<String, Object> objectMap);
+
+    @PUT("/v1/device/update")
+    Call<Map<String, Object>> updateDeviceProperty(@Body Map<String, Object> objectMap);
 
     @POST("/v1/session/keepAlive")
     Call<ResponseBody> keepAlive(@Body Map<String, Object> keepAliveRequest);

@@ -6,7 +6,7 @@ import android.content.Intent;
 import com.letscooee.device.DebugInfoActivity;
 import com.letscooee.models.Event;
 import com.letscooee.network.SafeHTTPService;
-import com.letscooee.retrofit.UserAuthService;
+import com.letscooee.retrofit.DeviceAuthService;
 import com.letscooee.task.CooeeExecutors;
 import com.letscooee.user.NewSessionExecutor;
 import com.letscooee.utils.CooeeCTAListener;
@@ -34,7 +34,7 @@ public class CooeeSDK {
     private final Context context;
     private final RuntimeData runtimeData;
     private final SentryHelper sentryHelper;
-    private final UserAuthService userAuthService;
+    private final DeviceAuthService deviceAuthService;
     private final SafeHTTPService safeHTTPService;
 
     private WeakReference<CooeeCTAListener> ctaListener;
@@ -49,10 +49,10 @@ public class CooeeSDK {
         this.runtimeData = CooeeFactory.getRuntimeData();
         this.sentryHelper = CooeeFactory.getSentryHelper();
         this.safeHTTPService = CooeeFactory.getSafeHTTPService();
-        this.userAuthService = CooeeFactory.getUserAuthService();
+        this.deviceAuthService = CooeeFactory.getDeviceAuthService();
 
         CooeeExecutors.getInstance().singleThreadExecutor().execute(() -> {
-            this.userAuthService.acquireSDKToken();
+            this.deviceAuthService.acquireSDKToken();
 
             new NewSessionExecutor(this.context).execute();
         });
@@ -165,7 +165,7 @@ public class CooeeSDK {
     }
 
     public String getUserID() {
-        return this.userAuthService.getUserID();
+        return this.deviceAuthService.getUserID();
     }
 
     public void setCTAListener(CooeeCTAListener listener) {
