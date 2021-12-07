@@ -123,10 +123,15 @@ sdkInstance.updateUserProfile(userData, userProperties);
 To see CooeeSDK debug information for you can add `SHAKE_TO_DEBUG_COUNT` in `AndroidManifest.xml`
 
 ```xml
-<!-- Change value to 0 if you don't want to open debug information when device shake-->
 <meta-data
     android:name="SHAKE_TO_DEBUG_COUNT"
-    android:value="ANY_NUMBER" />
+    android:value="LOW" />
+<!--
+    NONE - It's a default value and keep shake to debug disabled.
+    LOW - Debug information will open on small shake
+    MEDIUM - Debug information will open on medium shake
+    HIGH - Debug information will open on long shake
+-->
 ```
 
 Or you can also see information by calling `showDebugInfo()` method

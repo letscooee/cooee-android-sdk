@@ -8,6 +8,9 @@ import android.util.Log;
 
 import androidx.annotation.RestrictTo;
 
+import com.letscooee.CooeeFactory;
+import com.letscooee.enums.gesture.ShakeDensity;
+
 import io.sentry.Sentry;
 
 /**
@@ -23,7 +26,7 @@ public class ManifestReader {
 
     private String appID = "";
     private String appSecret = "";
-    private int shakeToDebugCount = 6;
+    private int shakeToDebugCount = 0;
 
     public synchronized static ManifestReader getInstance(Context context) {
         if (instance == null) {
@@ -54,7 +57,13 @@ public class ManifestReader {
         Bundle bundle = appInfo.metaData;
         this.appID = bundle.getString("COOEE_APP_ID");
         this.appSecret = bundle.getString("COOEE_APP_SECRET");
-        this.shakeToDebugCount = bundle.getInt("SHAKE_TO_DEBUG_COUNT", 6);
+        try {
+            this.shakeToDebugCount = ShakeDensity.valueOf(bundle.getString("SHAKE_TO_DEBUG_COUNT",
+                    "NONE")).shakeVolume;
+        } catch (IllegalArgumentException e) {
+            Log.e(Constants.TAG, "Trying pass invalid value to the SHAKE_TO_DEBUG_COUNT. " +
+                    "Only LOW/MEDIUM/HIGH are supported", e);
+        }
     }
 
     public String getAppID() {

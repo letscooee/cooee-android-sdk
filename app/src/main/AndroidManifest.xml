@@ -33,7 +33,7 @@
 
         <meta-data
             android:name="SHAKE_TO_DEBUG_COUNT"
-            android:value="6" />
+            android:value="LOW" />
 
     </application>
 </manifest>
