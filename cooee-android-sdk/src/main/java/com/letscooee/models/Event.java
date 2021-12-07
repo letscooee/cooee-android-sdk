@@ -23,6 +23,7 @@ public class Event {
     private String screenName;
     private ArrayList<EmbeddedTrigger> activeTriggers;
     private Date occurred;
+    private Map<String, Object> deviceProps;
 
     @SerializedName("trigger")
     private EmbeddedTrigger activeTrigger;
@@ -92,6 +93,14 @@ public class Event {
 
     public void setActiveTriggers(ArrayList<EmbeddedTrigger> activeTriggers) {
         this.activeTriggers = activeTriggers;
+    }
+
+    public Map<String, Object> getDeviceProps() {
+        return deviceProps;
+    }
+
+    public void setDeviceProps(Map<String, Object> deviceProps) {
+        this.deviceProps = deviceProps;
     }
 
     public void setActiveTrigger(EmbeddedTrigger activeTrigger) {

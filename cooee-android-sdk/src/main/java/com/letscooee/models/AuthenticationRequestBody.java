@@ -1,44 +1,54 @@
 package com.letscooee.models;
 
+import androidx.annotation.RestrictTo;
+
+import com.letscooee.utils.Constants;
+
+import java.util.Map;
+
 /**
  * AuthenticationRequestBody class is used in sending request body for the first time to get sdkToken from server
  *
  * @author Abhishek Taparia
  * @version 0.0.1
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class AuthenticationRequestBody {
-    private String appID;
-    private String appSecret;
-    private DeviceData deviceData;
+    private final String appID;
+    private final String appSecret;
+    private final String uuid;
+    private final String sdk = Constants.PLATFORM;
+    private final Map<String, Object> props;
 
-    public AuthenticationRequestBody(String appID, String appSecret, DeviceData deviceData) {
+    public AuthenticationRequestBody(String appID, String appSecret, String uuid, Map<String, Object> props) {
         this.appID = appID;
         this.appSecret = appSecret;
-        this.deviceData = deviceData;
+        this.uuid = uuid;
+        this.props = props;
     }
 
     public String getAppID() {
         return appID;
     }
 
-    public void setAppID(String appID) {
-        this.appID = appID;
-    }
-
     public String getAppSecret() {
         return appSecret;
     }
 
-    public void setAppSecret(String appSecret) {
-        this.appSecret = appSecret;
+    public Map<String, Object> getDeviceData() {
+        return props;
     }
 
-    public DeviceData getDeviceData() {
-        return deviceData;
+    public String getUuid() {
+        return uuid;
     }
 
-    public void setDeviceData(DeviceData deviceData) {
-        this.deviceData = deviceData;
+    public String getSdk() {
+        return sdk;
+    }
+
+    public Map<String, Object> getProps() {
+        return props;
     }
 }
 

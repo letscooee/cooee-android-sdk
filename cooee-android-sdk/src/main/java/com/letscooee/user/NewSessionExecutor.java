@@ -2,7 +2,9 @@ package com.letscooee.user;
 
 import android.content.Context;
 import android.os.Build;
+
 import androidx.annotation.RestrictTo;
+
 import com.letscooee.BuildConfig;
 import com.letscooee.ContextAware;
 import com.letscooee.CooeeFactory;
@@ -13,6 +15,7 @@ import com.letscooee.network.SafeHTTPService;
 import com.letscooee.permission.PermissionManager;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.LocalStorageHelper;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Date;
@@ -75,12 +78,13 @@ public class NewSessionExecutor extends ContextAware {
      * Runs when app is opened for the first time after sdkToken is received from server asynchronously
      */
     private void sendFirstLaunchEvent() {
-        Map<String, Object> userProperties = new HashMap<>();
-        userProperties.put("CE First Launch Time", new Date());
-        userProperties.put("CE Installed Time", defaultUserPropertiesCollector.getInstalledTime());
-        sendDefaultUserProperties(userProperties);
+        Map<String, Object> deviceProperties = new HashMap<>();
+        deviceProperties.put("CE First Launch Time", new Date());
+        deviceProperties.putAll(getImmutableDeviceProps());
+        deviceProperties.putAll(getMutableDeviceProps());
 
-        Event event = new Event("CE App Installed", getCommonEventProperties());
+        Event event = new Event("CE App Installed");
+        event.setDeviceProps(deviceProperties);
         safeHTTPService.sendEvent(event);
     }
 
@@ -88,69 +92,56 @@ public class NewSessionExecutor extends ContextAware {
      * Runs every time when app is opened for a new session
      */
     private void sendSuccessiveLaunchEvent() {
-        sendDefaultUserProperties(null);
 
-        Event event = new Event("CE App Launched", getCommonEventProperties());
+        Event event = new Event("CE App Launched");
+        event.setDeviceProps(getMutableDeviceProps());
         safeHTTPService.sendEvent(event);
     }
 
-    private Map<String, Object> getCommonEventProperties() {
-        String sdkVersion = BuildConfig.VERSION_NAME + "+" + BuildConfig.VERSION_CODE;
-        String[] networkData = defaultUserPropertiesCollector.getNetworkData();
+    /**
+     * Generate map of Non changeable device property
+     *
+     * @return {@link Map} of non changeable device property
+     */
+    public Map<String, Object> getImmutableDeviceProps() {
+        Map<String, Object> deviceProperties = new HashMap<>();
 
-        Map<String, Object> eventProperties = new HashMap<>();
-        eventProperties.put("CE App Version", appInfo.getVersion());
-        eventProperties.put("CE SDK Version", sdkVersion);
-        eventProperties.put("CE OS Version", Build.VERSION.RELEASE);
-        eventProperties.put("CE Network Provider", networkData[0]);
-        eventProperties.put("CE Network Type", networkData[1]);
-        eventProperties.put("CE Bluetooth On", defaultUserPropertiesCollector.isBluetoothOn());
-        eventProperties.put("CE Wifi Connected", defaultUserPropertiesCollector.isConnectedToWifi());
-        eventProperties.put("CE Device Battery", defaultUserPropertiesCollector.getBatteryLevel());
+        deviceProperties.put("CE Installed Time", defaultUserPropertiesCollector.getInstalledTime());
+        deviceProperties.put("CE Source", "ANDROID SDK");
+        deviceProperties.put("CE OS", Constants.PLATFORM);
+        deviceProperties.put("CE Device Manufacturer", Build.MANUFACTURER);
+        deviceProperties.put("CE Device Model", Build.MODEL);
+        deviceProperties.put("CE Total Internal Memory", defaultUserPropertiesCollector.getTotalInternalMemorySize());
+        deviceProperties.put("CE Total RAM", defaultUserPropertiesCollector.getTotalRAMMemorySize());
+        deviceProperties.put("CE Screen Resolution", defaultUserPropertiesCollector.getScreenResolution());
+        deviceProperties.put("CE DPI", defaultUserPropertiesCollector.getDpi());
 
-        return eventProperties;
+        return deviceProperties;
     }
 
     /**
-     * Sends default user properties to the server
+     * Creates a {@link Map} of mostly changeable device properties.
      *
-     * @param userProperties additional user properties
+     * @return {@link Map} of device properties
      */
-    private void sendDefaultUserProperties(Map<String, Object> userProperties) {
-        double[] location = defaultUserPropertiesCollector.getLocation();
-        String[] networkData = defaultUserPropertiesCollector.getNetworkData();
+    public Map<String, Object> getMutableDeviceProps() {
+        String sdkVersion = BuildConfig.VERSION_NAME + "+" + BuildConfig.VERSION_CODE;
 
-        if (userProperties == null) {
-            userProperties = new HashMap<>();
-        }
+        Map<String, Object> deviceProperties = new HashMap<>();
+        deviceProperties.put("CE App Version", appInfo.getVersion());
+        deviceProperties.put("CE SDK Version", sdkVersion);
+        deviceProperties.put("CE Bluetooth On", defaultUserPropertiesCollector.isBluetoothOn());
+        deviceProperties.put("CE Wifi Connected", defaultUserPropertiesCollector.isConnectedToWifi());
+        deviceProperties.put("CE Device Battery", defaultUserPropertiesCollector.getBatteryLevel());
+        deviceProperties.put("CE Available RAM", defaultUserPropertiesCollector.getAvailableRAMMemorySize());
+        deviceProperties.put("CE Device Orientation", defaultUserPropertiesCollector.getDeviceOrientation());
+        deviceProperties.put("CE Session Count", sessionManager.getCurrentSessionNumber());
+        deviceProperties.put("CE OS Version", Build.VERSION.RELEASE);
+        deviceProperties.put("CE Available Internal Memory", defaultUserPropertiesCollector.getAvailableInternalMemorySize());
+        deviceProperties.put("CE Device Locale", defaultUserPropertiesCollector.getLocale());
+        deviceProperties.put("CE Last Launch Time", new Date());
+        deviceProperties.putAll(permissionManager.getPermissionInformation());
 
-        userProperties.put("CE Session Count", sessionManager.getCurrentSessionNumber());
-        userProperties.put("CE Source", "ANDROID SDK");
-        userProperties.put("CE OS", "ANDROID");
-        userProperties.put("CE OS Version", Build.VERSION.RELEASE);
-        userProperties.put("CE Device Manufacturer", Build.MANUFACTURER);
-        userProperties.put("CE Device Model", Build.MODEL);
-        userProperties.put("coordinates", location);
-        userProperties.put("CE Network Operator", networkData[0]);
-        userProperties.put("CE Network Type", networkData[1]);
-        userProperties.put("CE Bluetooth On", defaultUserPropertiesCollector.isBluetoothOn());
-        userProperties.put("CE Wifi Connected", defaultUserPropertiesCollector.isConnectedToWifi());
-        userProperties.put("CE Available Internal Memory", defaultUserPropertiesCollector.getAvailableInternalMemorySize());
-        userProperties.put("CE Total Internal Memory", defaultUserPropertiesCollector.getTotalInternalMemorySize());
-        userProperties.put("CE Available RAM", defaultUserPropertiesCollector.getAvailableRAMMemorySize());
-        userProperties.put("CE Total RAM", defaultUserPropertiesCollector.getTotalRAMMemorySize());
-        userProperties.put("CE Device Orientation", defaultUserPropertiesCollector.getDeviceOrientation());
-        userProperties.put("CE Device Battery", defaultUserPropertiesCollector.getBatteryLevel());
-        userProperties.put("CE Screen Resolution", defaultUserPropertiesCollector.getScreenResolution());
-        userProperties.put("CE DPI", defaultUserPropertiesCollector.getDpi());
-        userProperties.put("CE Device Locale", defaultUserPropertiesCollector.getLocale());
-        userProperties.put("CE Last Launch Time", new Date());
-        userProperties = permissionManager.getPermissionInformation(userProperties);
-
-        Map<String, Object> userMap = new HashMap<>();
-        userMap.put("userProperties", userProperties);
-        userMap.put("userData", new HashMap<>());
-
-        this.safeHTTPService.updateUserProfile(userMap);
+        return deviceProperties;
     }
 }

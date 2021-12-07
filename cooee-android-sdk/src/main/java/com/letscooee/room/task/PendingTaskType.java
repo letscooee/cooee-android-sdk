@@ -10,4 +10,5 @@ public enum PendingTaskType {
     API_UPDATE_PROFILE,
     API_SESSION_CONCLUDE,
     API_UPDATE_PUSH_TOKEN,
+    API_DEVICE_PROPERTY,
 }

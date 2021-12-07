@@ -36,6 +36,7 @@ public class APIClient {
 
     private static String apiToken;
     private static String userId = "";
+    private static String appVersion = "";
     private static Gson gson = new GsonBuilder().registerTypeAdapter(Date.class, new GsonDateAdapter()).create();
 
     public static APIService getAPIService() {
@@ -55,10 +56,14 @@ public class APIClient {
                             .newBuilder()
                             .addHeader("Content-Type", "application/json");
 
-                    boolean isPublicAPI = chain.request().url().toString().endsWith("v1/user/save");
+                    boolean isPublicAPI = chain.request().url().toString().endsWith("/v1/device/validate");
 
                     if (!isPublicAPI && apiToken != null) {
                         requestBuilder.addHeader("x-sdk-token", apiToken);
+                    }
+
+                    if (!isPublicAPI && userId != null){
+                        requestBuilder.addHeader("user-id", userId);
                     }
 
                     if (BuildConfig.DEBUG) {
@@ -70,9 +75,9 @@ public class APIClient {
                     }
 
                     requestBuilder.addHeader("device-name", URLEncoder.encode(deviceName, "UTF-8"));
-                    requestBuilder.addHeader("user-id", userId);
                     requestBuilder.addHeader("sdk-version", BuildConfig.VERSION_NAME);
                     requestBuilder.addHeader("sdk-version-code", String.valueOf(BuildConfig.VERSION_CODE));
+                    requestBuilder.addHeader("app-version", appVersion);
 
                     Log.d(TAG, "Request: " + requestBuilder.build().toString());
                     return chain.proceed(requestBuilder.build());
@@ -96,5 +101,9 @@ public class APIClient {
 
     public static void setUserId(String id) {
         userId = TextUtils.isEmpty(id) ? "" : id;
+    }
+
+    public static void setAppVersion(String version) {
+        appVersion = TextUtils.isEmpty(version) ? "" : version;
     }
 }

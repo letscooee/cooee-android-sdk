@@ -5,7 +5,7 @@ import android.app.job.JobService;
 import android.content.Context;
 import android.util.Log;
 import com.letscooee.CooeeFactory;
-import com.letscooee.retrofit.UserAuthService;
+import com.letscooee.retrofit.DeviceAuthService;
 import com.letscooee.room.CooeeDatabase;
 import com.letscooee.room.task.PendingTask;
 import com.letscooee.task.CooeeExecutors;
@@ -29,8 +29,8 @@ public class PendingTaskJob extends JobService {
         Context context = getApplicationContext();
         Log.v(Constants.TAG, "PendingTaskJob running");
 
-        UserAuthService userAuthService = CooeeFactory.getUserAuthService();
-        if (!userAuthService.hasToken()) {
+        DeviceAuthService deviceAuthService = CooeeFactory.getDeviceAuthService();
+        if (!deviceAuthService.hasToken()) {
             Log.d(Constants.TAG, "Abort PendingTaskJob. Do not have the SDK token");
             return false;       // Job is finished
         }
