@@ -6,6 +6,8 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
 
+import androidx.annotation.NonNull;
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
@@ -35,8 +37,8 @@ public class Colour implements Parcelable {
         }
     };
 
-    protected Colour() {
-        hex = null;
+    public Colour() {
+        hex = "#000000";
         grad = null;
         alpha = 100;
     }
@@ -61,7 +63,9 @@ public class Colour implements Parcelable {
 
     public int getHexColor() {
         if (TextUtils.isEmpty(hex)) return Color.TRANSPARENT;
-        return Color.parseColor(hex);
+
+        String aRBG = "#" + percentToHex() + hex.replace("#", "");
+        return Color.parseColor(aRBG);
     }
 
     public void updateDrawable(GradientDrawable drawable) {
@@ -70,5 +74,13 @@ public class Colour implements Parcelable {
         } else {
             grad.updateDrawable(drawable);
         }
+    }
+
+    @NonNull
+    private String percentToHex() {
+        int decimal = alpha * 255 / 100;
+        String stringAlpha = Integer.toHexString(decimal);
+
+        return stringAlpha.length() < 2 ? "0" + stringAlpha : stringAlpha;
     }
 }

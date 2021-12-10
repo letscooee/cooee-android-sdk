@@ -31,7 +31,7 @@ public class Border implements Parcelable {
     @Expose
     private final String dashGap;
 
-    @SerializedName("clr")
+    @SerializedName("c")
     @Expose
     private final Colour colour;
 
