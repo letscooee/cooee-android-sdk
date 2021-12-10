@@ -40,16 +40,18 @@ public class DeviceAuthService {
     private final SentryHelper sentryHelper;
     private final APIService apiService;
     private final NewSessionExecutor sessionExecutor;
+    private final ManifestReader manifestReader;
 
     private String sdkToken;
     private String userID;
     private String deviceID;
     private String uuid;
 
-    public DeviceAuthService(Context context, SentryHelper sentryHelper) {
+    public DeviceAuthService(Context context, SentryHelper sentryHelper, ManifestReader manifestReader) {
         this.context = context.getApplicationContext();
         this.apiService = APIClient.getAPIService();
         this.sentryHelper = sentryHelper;
+        this.manifestReader = manifestReader;
         this.sessionExecutor = new NewSessionExecutor(this.context);
     }
 
@@ -112,6 +114,11 @@ public class DeviceAuthService {
      * other endpoints.
      */
     private void getSDKTokenFromServer() {
+        if (TextUtils.isEmpty(manifestReader.getAppID()) || TextUtils.isEmpty(manifestReader.getAppSecret())){
+            Log.i(Constants.TAG, "Missing App credentials in AndroidManifest.xml");
+            return;
+        }
+
         uuid = new ObjectId().toHexString();
         AuthenticationRequestBody requestBody = getAuthenticationRequestBody();
         apiService.registerDevice(requestBody).enqueue(new Callback<DeviceAuthResponse>() {
@@ -167,7 +174,6 @@ public class DeviceAuthService {
      * @return AuthenticationRequestBody
      */
     private AuthenticationRequestBody getAuthenticationRequestBody() {
-        ManifestReader manifestReader = ManifestReader.getInstance(context);
 
         return new AuthenticationRequestBody(
                 manifestReader.getAppID(),
