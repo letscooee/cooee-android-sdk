@@ -4,8 +4,11 @@ import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Environment;
+import android.text.TextUtils;
 import android.util.Log;
+
 import androidx.core.content.ContextCompat;
+
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.letscooee.CooeeFactory;
@@ -13,6 +16,7 @@ import com.letscooee.exceptions.HttpRequestFailedException;
 import com.letscooee.models.AppFont;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.LocalStorageHelper;
+
 import okhttp3.ResponseBody;
 
 import java.io.File;
@@ -50,6 +54,11 @@ public class FontProcessor {
         }
 
         String appID = CooeeFactory.getManifestReader().getAppID();
+
+        if (TextUtils.isEmpty(appID)) {
+            Log.d(Constants.TAG, "Skipping getAppConfig as appID is not available");
+        }
+
         try {
             Map<String, Object> config = CooeeFactory.getBaseHTTPService().getAppConfig(appID);
 
