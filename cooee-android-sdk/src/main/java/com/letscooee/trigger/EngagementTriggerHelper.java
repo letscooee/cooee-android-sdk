@@ -148,6 +148,7 @@ public class EngagementTriggerHelper {
         renderInAppTriggerFromJSONString(context, triggerData.toString());
     }
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static void renderInAppTriggerFromJSONString(Context context, String rawTriggerData) {
         if (TextUtils.isEmpty(rawTriggerData)) {
             Log.i(Constants.TAG, "Empty/null trigger data received");
