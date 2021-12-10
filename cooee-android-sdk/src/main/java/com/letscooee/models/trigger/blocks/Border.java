@@ -5,6 +5,8 @@ import android.os.Parcelable;
 import android.text.TextUtils;
 import android.view.View;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 import com.letscooee.utils.ui.UnitUtils;
 
 import static com.letscooee.utils.ui.UnitUtils.getCalculatedValue;
@@ -13,13 +15,29 @@ public class Border implements Parcelable {
 
     public enum Style {SOLID, DASH}
 
+    @SerializedName("r")
+    @Expose
     private final String radius;
+
+    @SerializedName("w")
+    @Expose
     private final String width;
+
+    @SerializedName("dw")
+    @Expose
     private final String dashWidth;
+
+    @SerializedName("dg")
+    @Expose
     private final String dashGap;
+
+    @SerializedName("clr")
+    @Expose
     private final Colour colour;
 
-    private final Style style;
+    @SerializedName("s")
+    @Expose
+    private final int style;
 
     public static final Creator<Border> CREATOR = new Creator<Border>() {
         @Override
@@ -33,14 +51,13 @@ public class Border implements Parcelable {
         }
     };
 
-    // TODO: 07/07/21 Discus for dash type stroke
     protected Border(Parcel in) {
         radius = in.readString();
         width = in.readString();
         dashWidth = in.readString();
         dashGap = in.readString();
         colour = in.readParcelable(Colour.class.getClassLoader());
-        style = Style.valueOf(in.readString());
+        style = in.readInt();
     }
 
     @Override
@@ -55,10 +72,7 @@ public class Border implements Parcelable {
         dest.writeString(dashWidth);
         dest.writeString(dashGap);
         dest.writeParcelable(colour, flags);
-        if (style == null)
-            dest.writeString(Style.SOLID.name());
-        else
-            dest.writeString(style.name());
+        dest.writeInt(style);
     }
 
     public Colour getColor() {
@@ -67,7 +81,14 @@ public class Border implements Parcelable {
     }
 
     public Style getStyle() {
-        return style;
+        switch (style){
+            case 1:
+                return Style.SOLID;
+            case 2:
+                return Style.DASH;
+            default:
+                return Style.SOLID;
+        }
     }
 
     public int getRadius() {

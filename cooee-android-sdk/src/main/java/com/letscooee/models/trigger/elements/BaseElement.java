@@ -1,39 +1,65 @@
 package com.letscooee.models.trigger.elements;
 
+import static com.letscooee.utils.ui.UnitUtils.getScaledPixel;
+
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.text.TextUtils;
+
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+import com.letscooee.enums.trigger.PositionType;
 import com.letscooee.models.trigger.blocks.*;
+import com.letscooee.utils.ui.UnitUtils;
 
 public abstract class BaseElement implements Parcelable {
 
     protected Background bg;
+
+    @SerializedName("br")
+    @Expose
     protected Border border;
+
+    @SerializedName("clc")
+    @Expose
     protected ClickAction click;
-    protected Overflow overflow;
-    protected Position position;
+
+    @SerializedName("shd")
+    @Expose
     protected Shadow shadow;
-    protected Size size;
+
+    @SerializedName("spc")
+    @Expose
     protected Spacing spacing;
+
+    @SerializedName("trf")
+    @Expose
     protected Transform transform;
 
-    private final Integer flexGrow;
-    private final Integer flexShrink;
-    private final Integer flexOrder;
+    @SerializedName("w")
+    @Expose
+    private final String width;
+
+    @SerializedName("h")
+    @Expose
+    private final String height;
+    private final float x;
+    private final float y;
+    private final Integer z;
 
     protected BaseElement(Parcel in) {
         bg = in.readParcelable(Background.class.getClassLoader());
         border = in.readParcelable(Border.class.getClassLoader());
         click = in.readParcelable(ClickAction.class.getClassLoader());
-        overflow = in.readParcelable(Overflow.class.getClassLoader());
-        position = in.readParcelable(Position.class.getClassLoader());
         shadow = in.readParcelable(Shadow.class.getClassLoader());
         spacing = in.readParcelable(Spacing.class.getClassLoader());
-        size = in.readParcelable(Size.class.getClassLoader());
         transform = in.readParcelable(Transform.class.getClassLoader());
 
-        flexGrow = (Integer) in.readSerializable();
-        flexShrink = (Integer) in.readSerializable();
-        flexOrder = (Integer) in.readSerializable();
+        width = in.readString();
+        height = in.readString();
+        x = in.readFloat();
+        y = in.readFloat();
+        z = (Integer) in.readSerializable();
     }
 
     @Override
@@ -46,30 +72,19 @@ public abstract class BaseElement implements Parcelable {
         dest.writeParcelable(bg, flags);
         dest.writeParcelable(border, flags);
         dest.writeParcelable(click, flags);
-        dest.writeParcelable(overflow, flags);
-        dest.writeParcelable(position, flags);
         dest.writeParcelable(shadow, flags);
         dest.writeParcelable(spacing, flags);
-        dest.writeParcelable(size, flags);
         dest.writeParcelable(transform, flags);
 
-        dest.writeSerializable(flexGrow);
-        dest.writeSerializable(flexShrink);
-        dest.writeSerializable(flexOrder);
+        dest.writeString(width);
+        dest.writeString(height);
+        dest.writeFloat(x);
+        dest.writeFloat(y);
+        dest.writeSerializable(z);
     }
 
     public ClickAction getClickAction() {
         return click;
-    }
-
-    public Position getPosition() {
-        if (position == null) this.position = new Position();
-        return position;
-    }
-
-    public Size getSize() {
-        if (size == null) this.size = new Size();
-        return size;
     }
 
     public Background getBg() {
@@ -92,19 +107,24 @@ public abstract class BaseElement implements Parcelable {
         return transform;
     }
 
-    public Integer getFlexGrow() {
-        return flexGrow;
+    public Float getCalculatedHeight() {
+        return TextUtils.isEmpty(height) ? null : getScaledPixel(Float.parseFloat(height));
     }
 
-    public Integer getFlexShrink() {
-        return flexShrink;
+    public Float getCalculatedWidth() {
+        return TextUtils.isEmpty(width) ? null : getScaledPixel(Float.parseFloat(width));
     }
 
-    public Integer getFlexOrder() {
-        return flexOrder;
+    public float getY() {
+        return UnitUtils.getScaledPixel(y);
     }
 
-    public Overflow getOverflow() {
-        return overflow;
+    public float getX() {
+        return UnitUtils.getScaledPixel(x);
     }
+
+    public Integer getZ() {
+        return z;
+    }
+
 }

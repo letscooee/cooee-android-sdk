@@ -3,6 +3,7 @@ package com.letscooee.user;
 import android.content.Context;
 import android.os.Build;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
 import com.letscooee.BuildConfig;
@@ -15,8 +16,6 @@ import com.letscooee.network.SafeHTTPService;
 import com.letscooee.permission.PermissionManager;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.LocalStorageHelper;
-
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -42,7 +41,7 @@ public class NewSessionExecutor extends ContextAware {
      *
      * @param context application context
      */
-    public NewSessionExecutor(@NotNull Context context) {
+    public NewSessionExecutor(@NonNull Context context) {
         super(context);
         this.defaultUserPropertiesCollector = new DefaultUserPropertiesCollector(context);
         this.sessionManager = SessionManager.getInstance(context);

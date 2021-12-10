@@ -31,27 +31,6 @@ public class Spacing implements Parcelable {
     @Expose
     private final String paddingBottom;
 
-    @SerializedName("m")
-    @Expose
-    private final String margin;
-
-    @SerializedName("ml")
-    @Expose
-    private final String marginLeft;
-
-    @SerializedName("mr")
-    @Expose
-    private final String marginRight;
-
-    @SerializedName("mt")
-    @Expose
-    private final String marginTop;
-
-    @SerializedName("mb")
-    @Expose
-    private final String marginBottom;
-
-    private int calculatedMargin = 0;
     private int calculatedPadding = 0;
 
     protected Spacing(Parcel in) {
@@ -60,11 +39,6 @@ public class Spacing implements Parcelable {
         paddingRight = in.readString();
         paddingTop = in.readString();
         paddingBottom = in.readString();
-        margin = in.readString();
-        marginLeft = in.readString();
-        marginRight = in.readString();
-        marginTop = in.readString();
-        marginBottom = in.readString();
     }
 
     public static final Creator<Spacing> CREATOR = new Creator<Spacing>() {
@@ -80,9 +54,6 @@ public class Spacing implements Parcelable {
     };
 
     public void calculatedPaddingAndMargin(View parent) {
-        if (!TextUtils.isEmpty(margin)) {
-            calculatedMargin = getCalculatedValue(parent, margin);
-        }
         if (!TextUtils.isEmpty(padding)) {
             calculatedPadding = getCalculatedValue(parent, padding);
         }
@@ -108,26 +79,6 @@ public class Spacing implements Parcelable {
         return calculatedValue != null ? calculatedValue : calculatedPadding;
     }
 
-    public int getMarginLeft(View parent) {
-        Integer calculatedValue = getCalculatedValue(parent, marginLeft);
-        return calculatedValue != null ? calculatedValue : calculatedMargin;
-    }
-
-    public int getMarginRight(View parent) {
-        Integer calculatedValue = getCalculatedValue(parent, marginRight);
-        return calculatedValue != null ? calculatedValue : calculatedMargin;
-    }
-
-    public int getMarginTop(View parent) {
-        Integer calculatedValue = getCalculatedValue(parent, marginTop, true);
-        return calculatedValue != null ? calculatedValue : calculatedMargin;
-    }
-
-    public int getMarginBottom(View parent) {
-        Integer calculatedValue = getCalculatedValue(parent, marginBottom, true);
-        return calculatedValue != null ? calculatedValue : calculatedMargin;
-    }
-
     @Override
     public int describeContents() {
         return 0;
@@ -140,10 +91,5 @@ public class Spacing implements Parcelable {
         dest.writeString(paddingRight);
         dest.writeString(paddingTop);
         dest.writeString(paddingBottom);
-        dest.writeString(margin);
-        dest.writeString(marginLeft);
-        dest.writeString(marginRight);
-        dest.writeString(marginTop);
-        dest.writeString(marginBottom);
     }
 }

@@ -14,7 +14,6 @@ import android.widget.*;
 import androidx.annotation.RestrictTo;
 
 import com.bumptech.glide.Glide;
-import com.google.android.flexbox.FlexboxLayout;
 import com.google.android.material.card.MaterialCardView;
 import com.letscooee.BuildConfig;
 import com.letscooee.models.trigger.blocks.*;
@@ -33,8 +32,8 @@ import static com.letscooee.utils.Constants.TAG;
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public abstract class AbstractInAppRenderer implements InAppRenderer {
 
-    private static final int MP = ViewGroup.LayoutParams.MATCH_PARENT;
-    private static final int WC = ViewGroup.LayoutParams.WRAP_CONTENT;
+    protected static final int MP = ViewGroup.LayoutParams.MATCH_PARENT;
+    protected static final int WC = ViewGroup.LayoutParams.WRAP_CONTENT;
 
     protected final TriggerContext globalData;
     protected final Context context;
@@ -77,7 +76,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
      *                              |
      *                              |--- {@link #backgroundImage} Image View for Glossy/solid/image
      *                              |--- {@link #newElement} Our new element being inserted by this class. This can
-     *                                      be {@link RelativeLayout}/{@link FlexboxLayout}/TextView/Button
+     *                                      be {@link RelativeLayout}/TextView/Button
      *
      * </pre>
      */
@@ -91,30 +90,10 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
 
         backgroundImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
-        reassignParentIfAbsolute();
-
-        // Adds MaterialCardView to the base RelativeLayout of the In-App
-        // if position is ABSOLUTE
-        if (elementData.getPosition().isAbsolute()) {
-            globalData.getTriggerParentLayout().addView(materialCardView);
-        } else {
-            parentElement.addView(materialCardView);
-        }
+        parentElement.addView(materialCardView);
 
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "Parent " + parentElement.getClass().getSimpleName());
-        }
-    }
-
-    /**
-     * Check if element's position is {@link Position.PositionType#ABSOLUTE}
-     * then re-initialize {@link #parentElement} with parent of {@link #parentElement}.
-     * If {@link #newElement} is in {@link FlexboxLayout} overlapping of the element is not possible
-     * Hence accessing parent of {@link #parentElement} and placing {@link #newElement} in it.
-     */
-    private void reassignParentIfAbsolute() {
-        if (elementData.getPosition().isAbsolute()) {
-            parentElement = (FrameLayout) parentElement.getParent();
         }
     }
 
@@ -128,15 +107,15 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         }
 
         this.newElement.setTag(this.getClass().getSimpleName());
+        this.processSizeBlock();
+        this.applyPositionBlock();
+        this.processSpacing();
         this.processBackground();
         this.setBackgroundDrawable();
         this.processBorderBlock();
         this.processShadowBlock();
-        this.registerListenerOnParentElement();
         this.processTransformBlock();
         this.processClickBlock();
-        this.applyFlexParentProperties();
-        this.applyFlexItemProperties();
     }
 
     protected void insertNewElementInHierarchy() {
@@ -145,24 +124,6 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         }
 
         this.baseFrameLayout.addView(newElement);
-    }
-
-    protected void applyFlexItemProperties() {
-        if (!(this.parentElement instanceof FlexboxLayout)) {
-            return;
-        }
-
-        if (elementData.getPosition().isAbsolute()) {
-            return;
-        }
-
-        FlexboxLayout.LayoutParams lp = (FlexboxLayout.LayoutParams) materialCardView.getLayoutParams();
-
-        if (elementData.getFlexGrow() != null) lp.setFlexGrow(elementData.getFlexGrow());
-        if (elementData.getFlexShrink() != null) lp.setFlexShrink(elementData.getFlexShrink());
-        if (elementData.getFlexOrder() != null) lp.setOrder(elementData.getFlexOrder());
-
-        materialCardView.setLayoutParams(lp);
     }
 
     protected void processShadowBlock() {
@@ -190,34 +151,25 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
     }
 
     protected void processSizeBlock() {
-        final Size size = elementData.getSize();
         ViewGroup.MarginLayoutParams layoutParams;
 
-        int width;
+        int width = WC;
         int height = WC;
 
-        if (size.getDisplay() == Size.Display.BLOCK || size.getDisplay() == Size.Display.FLEX) {
-            width = MP;
-        } else {
-            width = WC;
-        }
-
-        Integer calculatedWidth = size.getCalculatedWidth(parentElement);
+        Float calculatedWidth = elementData.getCalculatedWidth();
         if (calculatedWidth != null) {
-            width = calculatedWidth;
+            width = Math.round(calculatedWidth);
         }
 
-        Integer calculatedHeight = size.getCalculatedHeight(parentElement);
+        Float calculatedHeight = elementData.getCalculatedHeight();
         if (calculatedHeight != null) {
-            height = calculatedHeight;
+            height = Math.round(calculatedHeight);
         }
 
         this.newElement.setLayoutParams(new FrameLayout.LayoutParams(width, height));
 
-        if (parentElement instanceof RelativeLayout || elementData.getPosition().isAbsolute()) {
+        if (parentElement instanceof RelativeLayout) {
             layoutParams = new RelativeLayout.LayoutParams(width, height);
-        } else if (parentElement instanceof FlexboxLayout) {
-            layoutParams = new FlexboxLayout.LayoutParams(width, height);
         } else if (parentElement instanceof LinearLayout) {
             layoutParams = new LinearLayout.LayoutParams(width, height);
         } else if (parentElement instanceof FrameLayout) {
@@ -229,107 +181,15 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         this.materialCardView.setLayoutParams(layoutParams);
     }
 
-    /**
-     * Directly applying absolute position parameters (top, left, right, bottom) does not work. So to achieve that,
-     * adding an observer to the new view to check once the view is rendered on a screen and then
-     * apply position to that view.
-     */
-    protected void registerListenerOnParentElement() {
-        parentElement.addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
-            boolean layoutChanged =
-                    // Check if height changed
-                    (bottom - top) != (oldBottom - oldTop) ||
-                            // Check if width changed
-                            (right - left) != (oldRight - oldLeft);
-
-            if (layoutChanged) {
-                this.processSizeBlock();
-                this.registerListenerOnNewElement();
-            }
-            this.applyPositionBlock();
-        });
-    }
-
-    private void registerListenerOnNewElement() {
-        newElement.addOnLayoutChangeListener((v1, left1, top1, right1, bottom1, oldLeft1, oldTop1, oldRight1, oldBottom1) -> {
-            this.processMaxSize();
-            this.processSpacing();
-            // Position calculation should be done after size and spacing are
-            // applied to the new element
-            this.applyPositionBlock();
-        });
-    }
-
-    private void processMaxSize() {
-        final Size size = elementData.getSize();
-        ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) newElement.getLayoutParams();
-        ViewGroup.MarginLayoutParams layoutParamsCardView = (ViewGroup.MarginLayoutParams) materialCardView.getLayoutParams();
-
-        int currentWidth = newElement.getMeasuredWidth();
-        int currentHeight = newElement.getMeasuredHeight();
-
-        Integer maxWidth = size.getCalculatedMaxWidth(parentElement);
-        if (maxWidth != null && maxWidth < currentWidth) {
-            layoutParams.width = maxWidth;
-            layoutParamsCardView.width = maxWidth;
-        }
-
-        Integer maxHeight = size.getCalculatedMaxHeight(parentElement);
-        if (maxHeight != null && maxHeight < currentHeight) {
-            layoutParams.height = maxHeight;
-            layoutParamsCardView.height = maxHeight;
-        }
-
-        materialCardView.setLayoutParams(layoutParamsCardView);
-        newElement.setLayoutParams(layoutParams);
-    }
-
     private void applyPositionBlock() {
-        Position position = this.elementData.getPosition();
-        if (position == null || !position.isNonStatic()) {
-            return;
-        }
 
-        int top = position.getTop(parentElement);
-        int bottom = position.getBottom(parentElement);
-        int left = position.getLeft(parentElement);
-        int right = position.getRight(parentElement);
+        float top = elementData.getY();
+        float left = elementData.getX();
 
-        // get the onscreen location of parent element as getX, getY return 0 always
-        int[] location = new int[2];
-        parentElement.getLocationOnScreen(location);
+        materialCardView.setX(left);
+        materialCardView.setY(top);
 
-        float parentX = location[0];
-        float parentY = location[1] - getTitleBarHeight();
-        float parentHeight = parentElement.getMeasuredHeight();
-        float parentWidth = parentElement.getMeasuredWidth();
-
-        float currentHeight = materialCardView.getMeasuredHeight();
-        float currentWidth = materialCardView.getMeasuredWidth();
-
-        float elementX = parentX;
-        float elementY = parentY;
-        if (top != 0) {
-            elementY += top;
-        }
-        if (left != 0) {
-            elementX += left;
-        }
-        if (bottom != 0) {
-            float parentBottom = parentY + parentHeight;
-            float currentViewBottom = parentBottom - bottom;
-            elementY = currentViewBottom - currentHeight;
-        }
-        if (right != 0) {
-            float parentRight = parentX + parentWidth;
-            float currentViewRight = parentRight - right;
-            elementX = currentViewRight - currentWidth;
-        }
-
-        materialCardView.setX(elementX);
-        materialCardView.setY(elementY);
-
-        Integer zIndex = position.getzIndex();
+        Integer zIndex = elementData.getZ();
 
         if (zIndex == null) {
             materialCardView.setTranslationZ(0);
@@ -344,11 +204,11 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
      *
      * @return <code>int</code> height of the TitleBar
      */
-    private int getTitleBarHeight() {
+    private float getTitleBarHeight() {
         Rect rectangle = new Rect();
         Window window = ((Activity) context).getWindow();
         window.getDecorView().getWindowVisibleDisplayFrame(rectangle);
-        int contentViewTop = window.findViewById(Window.ID_ANDROID_CONTENT).getTop();
+        float contentViewTop = window.findViewById(Window.ID_ANDROID_CONTENT).getTop();
         return rectangle.top - contentViewTop;
     }
 
@@ -364,7 +224,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
                 applyGlassmorphism(background.getGlossy());
 
             } else if (background.getImage() != null) {
-                Glide.with(context).asBitmap().load(background.getImage().getUrl()).into(backgroundImage);
+                Glide.with(context).asBitmap().load(background.getImage().getSrc()).into(backgroundImage);
             }
         }
     }
@@ -421,35 +281,11 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
 
         spacing.calculatedPaddingAndMargin(parentElement);
 
-        int marginLeft = spacing.getMarginLeft(parentElement);
-        int marginRight = spacing.getMarginRight(parentElement);
-        int marginTop = spacing.getMarginTop(parentElement);
-        int marginBottom = spacing.getMarginBottom(parentElement);
-
-        ViewGroup.MarginLayoutParams layoutParams = ((ViewGroup.MarginLayoutParams) this.materialCardView.getLayoutParams());
-        layoutParams.setMargins(marginLeft, marginTop, marginRight, marginBottom);
-        materialCardView.setLayoutParams(layoutParams);
-
         int paddingLeft = spacing.getPaddingLeft(parentElement);
         int paddingRight = spacing.getPaddingRight(parentElement);
         int paddingTop = spacing.getPaddingTop(parentElement);
         int paddingBottom = spacing.getPaddingBottom(parentElement);
 
         this.newElement.setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
-    }
-
-    private void applyFlexParentProperties() {
-        if (!(newElement instanceof FlexboxLayout)) {
-            return;
-        }
-
-        Size size = elementData.getSize();
-        FlexboxLayout layout = (FlexboxLayout) newElement;
-
-        layout.setFlexDirection(size.getDirection());
-        layout.setFlexWrap(size.getWrap());
-        layout.setJustifyContent(size.getJustifyContent());
-        layout.setAlignItems(size.getAlignItems());
-        layout.setAlignContent(size.getAlignContent());
     }
 }

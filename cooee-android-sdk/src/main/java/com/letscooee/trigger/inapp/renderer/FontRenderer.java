@@ -10,6 +10,7 @@ import com.letscooee.CooeeFactory;
 import com.letscooee.font.FontProcessor;
 import com.letscooee.models.trigger.blocks.Font;
 import com.letscooee.models.trigger.elements.BaseElement;
+import com.letscooee.models.trigger.elements.PartElement;
 import com.letscooee.models.trigger.elements.TextElement;
 import com.letscooee.trigger.inapp.TriggerContext;
 
@@ -26,16 +27,19 @@ import java.util.Map;
 public abstract class FontRenderer extends AbstractInAppRenderer {
 
     protected final Font font;
+    protected final TextElement textElement;
 
     protected FontRenderer(Context context, ViewGroup parentElement, BaseElement element, TriggerContext globalData) {
         super(context, parentElement, element, globalData);
+        textElement = (TextElement) element;
         font = ((TextElement) element).getFont();
     }
 
     protected void processFont() {
-        if (font == null) return;
-        this.applyFont();
-        this.applyLineHeight();
+        if (font != null) {
+            this.applyFont();
+            this.applyLineHeight();
+        }
     }
 
     private void applyLineHeight() {
@@ -62,7 +66,7 @@ public abstract class FontRenderer extends AbstractInAppRenderer {
         }
 
         if (typeface != null) {
-            ((TextView) newElement).setTypeface(typeface, font.getTypefaceStyle());
+            ((TextView) newElement).setTypeface(typeface);
         }
     }
 

@@ -1,6 +1,7 @@
 package com.letscooee.device;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.os.Build;
 import android.provider.Settings;
 import android.text.TextUtils;
@@ -27,14 +28,17 @@ public class DeviceInfo extends ContextAware {
         private int width;
         private int height;
         private float scaledDensity;
+        private int orientation;
 
         CachedInfo() {
             this.cacheName();
 
-            DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
+            Resources resources=context.getResources();
+            DisplayMetrics displayMetrics = resources.getDisplayMetrics();
             width = displayMetrics.widthPixels;
             height = displayMetrics.heightPixels;
             scaledDensity = displayMetrics.scaledDensity;
+            orientation = resources.getConfiguration().orientation;
         }
 
         private void cacheName() {
@@ -89,5 +93,9 @@ public class DeviceInfo extends ContextAware {
 
     public float getScaledDensity() {
         return this.cachedInfo.scaledDensity;
+    }
+
+    public int getOrientation(){
+        return this.cachedInfo.orientation;
     }
 }

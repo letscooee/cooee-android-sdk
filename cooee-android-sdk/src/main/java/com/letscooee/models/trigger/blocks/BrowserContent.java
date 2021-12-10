@@ -3,8 +3,13 @@ package com.letscooee.models.trigger.blocks;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
 public class BrowserContent implements Parcelable {
 
+    @SerializedName("u")
+    @Expose
     private String url;
     private boolean showAB;
 

@@ -75,18 +75,14 @@ public class ClickActionExecutor {
     }
 
     private boolean processPrompts() {
-        if (action.getPrompts() == null || action.getPrompts().length == 0) {
+        if (action.getPrompt() == null) {
             return false;
         }
 
-        List<String> permissionList = new ArrayList<>();
-        for (String permission : action.getPrompts()) {
-            PermissionType permissionType = PermissionType.valueOf(permission);
-            permissionList.add(permissionType.toString());
-        }
+        String[] permissionArray = {action.getPrompt().toString()};
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            ((Activity) context).requestPermissions(permissionList.toArray(new String[0]), Constants.PERMISSION_REQUEST_CODE);
+            ((Activity) context).requestPermissions(permissionArray, Constants.PERMISSION_REQUEST_CODE);
         }
         return true;
     }

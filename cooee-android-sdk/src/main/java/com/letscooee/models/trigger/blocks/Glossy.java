@@ -3,13 +3,24 @@ package com.letscooee.models.trigger.blocks;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
 public class Glossy implements Parcelable {
 
     private static final int DEFAULT_RADIUS = 25;
     private static final int DEFAULT_SAMPLING = 8;
 
+    @SerializedName("r")
+    @Expose
     private final int radius;
+
+    @SerializedName("s")
+    @Expose
     private final int sampling;
+
+    @SerializedName("clr")
+    @Expose
     private final Colour colour;
 
     protected Glossy(Parcel in) {

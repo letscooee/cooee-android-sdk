@@ -8,7 +8,7 @@ import com.google.gson.annotations.SerializedName;
 public class Background implements Parcelable {
 
     private Colour solid;
-    private Glossy glossy;
+    private Glossy glass;
 
     @SerializedName("img")
     @Expose
@@ -16,7 +16,7 @@ public class Background implements Parcelable {
 
     protected Background(Parcel in) {
         solid = in.readParcelable(Colour.class.getClassLoader());
-        glossy = in.readParcelable(Glossy.class.getClassLoader());
+        glass = in.readParcelable(Glossy.class.getClassLoader());
         image = in.readParcelable(Image.class.getClassLoader());
     }
 
@@ -37,7 +37,7 @@ public class Background implements Parcelable {
     }
 
     public Glossy getGlossy() {
-        return glossy;
+        return glass;
     }
 
     public Image getImage() {
@@ -52,7 +52,7 @@ public class Background implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeParcelable(solid, flags);
-        dest.writeParcelable(glossy, flags);
+        dest.writeParcelable(glass, flags);
         dest.writeParcelable(image, flags);
     }
 }

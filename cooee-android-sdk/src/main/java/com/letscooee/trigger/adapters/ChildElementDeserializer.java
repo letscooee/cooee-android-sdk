@@ -8,8 +8,8 @@ import com.letscooee.models.trigger.elements.BaseElement;
 import java.lang.reflect.Type;
 
 /**
- * A Gson deserializer to deserialize the children of {@link com.letscooee.models.trigger.inapp.Layer} or
- * {@link com.letscooee.models.trigger.elements.GroupElement}. This checks the {@code type} key in json and then idenifies
+ * A Gson deserializer to deserialize the children of {@link com.letscooee.models.trigger.inapp.InAppTrigger} elements.
+ * This checks the {@code t} key in json and then identifies
  * based on {@link ElementType#elementClass}.
  *
  * @author Shashank Agrawal
@@ -23,10 +23,28 @@ public class ChildElementDeserializer implements JsonDeserializer<BaseElement> {
             return null;
         }
 
-        String rawElementType = ((JsonObject) json).getAsJsonPrimitive("type").getAsString();
+        Integer rawElementType = ((JsonObject) json).getAsJsonPrimitive("t").getAsInt();
 
         try {
-            ElementType elementType = ElementType.valueOf(rawElementType);
+            ElementType elementType;
+
+            switch (rawElementType) {
+                case 1:
+                    elementType = ElementType.IMAGE;
+                    break;
+                case 2:
+                    elementType = ElementType.TEXT;
+                    break;
+                case 3:
+                    elementType = ElementType.BUTTON;
+                    break;
+                case 4:
+                    elementType = ElementType.VIDEO;
+                    break;
+                default:
+                    elementType = ElementType.SHAPE;
+                    break;
+            }
             return context.deserialize(json, elementType.elementClass);
 
         } catch (IllegalArgumentException e) {

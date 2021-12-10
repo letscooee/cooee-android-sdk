@@ -6,7 +6,7 @@ import com.letscooee.models.trigger.elements.BaseElement;
 
 public class Container extends BaseElement {
 
-    private Animation animation;
+    private final Animation animation;
 
     protected Container(Parcel in) {
         super(in);

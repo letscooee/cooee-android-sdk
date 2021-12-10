@@ -4,11 +4,11 @@ import android.os.Parcel;
 
 public class ImageElement extends BaseElement {
 
-    private final String url;
+    private final String src;
 
     protected ImageElement(Parcel in) {
         super(in);
-        url = in.readString();
+        src = in.readString();
     }
 
     public static final Creator<ImageElement> CREATOR = new Creator<ImageElement>() {
@@ -26,10 +26,10 @@ public class ImageElement extends BaseElement {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         super.writeToParcel(dest, flags);
-        dest.writeString(url);
+        dest.writeString(src);
     }
 
-    public String getUrl() {
-        return url;
+    public String getSrc() {
+        return src;
     }
 }

@@ -4,27 +4,24 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.view.View;
 
+import com.letscooee.enums.trigger.PositionType;
 import com.letscooee.utils.ui.UnitUtils;
 
 public class Position implements Parcelable {
 
-    public enum PositionType {STATIC, ABSOLUTE, FIXED}
+
 
     private final PositionType type;
-    private final String top;
-    private final String left;
-    private final String bottom;
-    private final String right;
+    private final String y;
+    private final String x;
 
-    private final Integer zIndex;
+    private final Integer z;
 
     public Position() {
-        this.type = PositionType.STATIC;
-        this.top = null;
-        this.bottom = null;
-        this.left = null;
-        this.right = null;
-        this.zIndex = null;
+        this.type = PositionType.FOLLOW_PARENT;
+        this.y = null;
+        this.x = null;
+        this.z = null;
     }
 
     public static final Creator<Position> CREATOR = new Creator<Position>() {
@@ -40,12 +37,10 @@ public class Position implements Parcelable {
     };
 
     protected Position(Parcel in) {
-        top = in.readString();
-        left = in.readString();
-        bottom = in.readString();
-        right = in.readString();
+        y = in.readString();
+        x = in.readString();
         type = (PositionType) in.readSerializable();
-        zIndex = (Integer) in.readSerializable();
+        z = (Integer) in.readSerializable();
     }
 
     @Override
@@ -55,12 +50,10 @@ public class Position implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(top);
-        dest.writeString(left);
-        dest.writeString(bottom);
-        dest.writeString(right);
+        dest.writeString(y);
+        dest.writeString(x);
         dest.writeSerializable(type);
-        dest.writeSerializable(zIndex);
+        dest.writeSerializable(z);
     }
 
     public PositionType getType() {
@@ -68,34 +61,24 @@ public class Position implements Parcelable {
     }
 
     public boolean isNonStatic() {
-        return this.type == PositionType.ABSOLUTE || this.type == PositionType.FIXED;
+        return this.type == PositionType.FREE_FLOATING;
     }
 
-    public int getTop(View parent) {
-        Integer calculatedValue = UnitUtils.getCalculatedValue(parent, top, true);
+    public int getY(View parent) {
+        Integer calculatedValue = UnitUtils.getCalculatedValue(parent, y, true);
         return calculatedValue != null ? calculatedValue : 0;
     }
 
-    public int getLeft(View parent) {
-        Integer calculatedValue = UnitUtils.getCalculatedValue(parent, left);
+    public int getX(View parent) {
+        Integer calculatedValue = UnitUtils.getCalculatedValue(parent, x);
         return calculatedValue != null ? calculatedValue : 0;
     }
 
-    public int getBottom(View parent) {
-        Integer calculatedValue = UnitUtils.getCalculatedValue(parent, bottom, true);
-        return calculatedValue != null ? calculatedValue : 0;
-    }
-
-    public int getRight(View parent) {
-        Integer calculatedValue = UnitUtils.getCalculatedValue(parent, right);
-        return calculatedValue != null ? calculatedValue : 0;
-    }
-
-    public Integer getzIndex() {
-        return zIndex;
+    public Integer getZ() {
+        return z;
     }
 
     public boolean isAbsolute() {
-        return this.type == Position.PositionType.ABSOLUTE;
+        return this.type == PositionType.FREE_FLOATING;
     }
 }
