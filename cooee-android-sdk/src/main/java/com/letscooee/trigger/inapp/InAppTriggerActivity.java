@@ -48,7 +48,6 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
     private Date startTime;
     private boolean isFreshLaunch;
     private boolean isSuccessfullyStarted;
-    private EmbeddedTrigger trigger;
 
     public InAppTriggerActivity() {
         sentryHelper = CooeeFactory.getSentryHelper();
@@ -94,12 +93,6 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
         if (!this.isFreshLaunch) {
             return;
         }
-
-        EmbeddedTrigger trigger = new EmbeddedTrigger(
-                triggerData.getId(),
-                triggerData.getEngagementID(),
-                triggerData.getExpireAt()
-        );
 
         Event event = new Event("CE Trigger Displayed", triggerData);
         CooeeFactory.getSafeHTTPService().sendEvent(event);
