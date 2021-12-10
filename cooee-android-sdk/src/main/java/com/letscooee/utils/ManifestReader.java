@@ -55,8 +55,8 @@ public class ManifestReader {
         }
 
         Bundle bundle = appInfo.metaData;
-        this.appID = bundle.getString("COOEE_APP_ID");
-        this.appSecret = bundle.getString("COOEE_APP_SECRET");
+        this.appID = bundle.getString("COOEE_APP_ID","");
+        this.appSecret = bundle.getString("COOEE_APP_SECRET","");
         try {
             this.shakeToDebugCount = ShakeDensity.valueOf(bundle.getString("SHAKE_TO_DEBUG_COUNT",
                     "NONE")).shakeVolume;
