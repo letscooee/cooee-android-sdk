@@ -90,6 +90,9 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
 
         backgroundImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
+        materialCardView.setCardBackgroundColor(Color.TRANSPARENT);
+        materialCardView.setCardElevation(0);
+
         parentElement.addView(materialCardView);
 
         if (BuildConfig.DEBUG) {
@@ -214,7 +217,6 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
 
     protected void processBackground() {
         Background background = elementData.getBg();
-        materialCardView.setCardBackgroundColor(Color.TRANSPARENT);
 
         if (background != null) {
             if (background.getSolid() != null) {
@@ -259,17 +261,15 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
             int borderColor = border.getColor().getHexColor();
             materialCardView.setStrokeColor(borderColor);
 
-            Integer calculatedBorder = border.getWidth(parentElement);
-            if (calculatedBorder != null) {
-                materialCardView.setStrokeWidth(calculatedBorder);
-                backgroundDrawable.setStroke(calculatedBorder, borderColor);
-            }
+            int calculatedBorder = (int) border.getWidth(parentElement);
+            materialCardView.setStrokeWidth(calculatedBorder);
+            backgroundDrawable.setStroke(calculatedBorder, borderColor);
 
-            int calculatedRadius = border.getRadius();
-            if (calculatedRadius > 0) {
-                backgroundDrawable.setCornerRadius(calculatedRadius);
-                materialCardView.setRadius(calculatedRadius);
-            }
+            float calculatedRadius = border.getRadius();
+
+            backgroundDrawable.setCornerRadius(calculatedRadius);
+            materialCardView.setRadius(calculatedRadius);
+
         }
     }
 
@@ -279,12 +279,12 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
             return;
         }
 
-        spacing.calculatedPaddingAndMargin(parentElement);
+        spacing.calculatedPaddingAndMargin();
 
-        int paddingLeft = spacing.getPaddingLeft(parentElement);
-        int paddingRight = spacing.getPaddingRight(parentElement);
-        int paddingTop = spacing.getPaddingTop(parentElement);
-        int paddingBottom = spacing.getPaddingBottom(parentElement);
+        int paddingLeft = (int) spacing.getPaddingLeft();
+        int paddingRight = (int) spacing.getPaddingRight();
+        int paddingTop = (int) spacing.getPaddingTop();
+        int paddingBottom = (int) spacing.getPaddingBottom();
 
         this.newElement.setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
     }
