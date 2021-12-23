@@ -2,14 +2,13 @@ package com.letscooee.models.trigger.blocks;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.text.TextUtils;
 import android.view.View;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.letscooee.utils.ui.UnitUtils;
 
-import static com.letscooee.utils.ui.UnitUtils.getCalculatedValue;
+import static com.letscooee.utils.ui.UnitUtils.getScaledPixel;
 
 public class Border implements Parcelable {
 
@@ -17,19 +16,19 @@ public class Border implements Parcelable {
 
     @SerializedName("r")
     @Expose
-    private final String radius;
+    private final float radius;
 
     @SerializedName("w")
     @Expose
-    private final String width;
+    private final float width;
 
     @SerializedName("dw")
     @Expose
-    private final String dashWidth;
+    private final float dashWidth;
 
     @SerializedName("dg")
     @Expose
-    private final String dashGap;
+    private final float dashGap;
 
     @SerializedName("c")
     @Expose
@@ -52,10 +51,10 @@ public class Border implements Parcelable {
     };
 
     protected Border(Parcel in) {
-        radius = in.readString();
-        width = in.readString();
-        dashWidth = in.readString();
-        dashGap = in.readString();
+        radius = in.readFloat();
+        width = in.readFloat();
+        dashWidth = in.readFloat();
+        dashGap = in.readFloat();
         colour = in.readParcelable(Colour.class.getClassLoader());
         style = in.readInt();
     }
@@ -67,10 +66,10 @@ public class Border implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(radius);
-        dest.writeString(width);
-        dest.writeString(dashWidth);
-        dest.writeString(dashGap);
+        dest.writeFloat(radius);
+        dest.writeFloat(width);
+        dest.writeFloat(dashWidth);
+        dest.writeFloat(dashGap);
         dest.writeParcelable(colour, flags);
         dest.writeInt(style);
     }
@@ -91,19 +90,19 @@ public class Border implements Parcelable {
         }
     }
 
-    public int getRadius() {
-        return !TextUtils.isEmpty(radius) ? UnitUtils.getCalculatedPixel(radius) : 0;
+    public float getRadius() {
+        return  UnitUtils.getScaledPixel(radius);
     }
 
-    public Integer getWidth(View parent) {
-        return getCalculatedValue(parent, width);
+    public float getWidth(View parent) {
+        return getScaledPixel(width);
     }
 
-    public Integer getDashWidth(View parent) {
-        return getCalculatedValue(parent, dashWidth);
+    public float getDashWidth(View parent) {
+        return getScaledPixel( dashWidth);
     }
 
-    public Integer getDashGap(View parent) {
-        return getCalculatedValue(parent, dashGap);
+    public float getDashGap(View parent) {
+        return getScaledPixel(dashGap);
     }
 }

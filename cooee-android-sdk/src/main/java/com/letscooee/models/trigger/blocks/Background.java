@@ -7,7 +7,12 @@ import com.google.gson.annotations.SerializedName;
 
 public class Background implements Parcelable {
 
+    @SerializedName("s")
+    @Expose
     private Colour solid;
+
+    @SerializedName("g")
+    @Expose
     private Glossy glass;
 
     @SerializedName("img")
