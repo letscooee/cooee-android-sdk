@@ -20,6 +20,8 @@ import com.letscooee.utils.Constants;
 import java.io.IOException;
 import java.util.Map;
 
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -118,6 +120,13 @@ public class BaseHTTPService extends ContextAware {
         Call<ResponseBody> call = externalApiService.downloadFile(url);
         Response<?> response = this.executeHTTPCall(call, "Font Download");
         return (ResponseBody) response.body();
+    }
+
+    public Map<String, Object> uploadScreeShot(MultipartBody.Part body, RequestBody parameter)
+            throws HttpRequestFailedException {
+        Call<Map<String, Object>> call = apiService.uploadScreeShot(body, parameter);
+        Response<?> response = this.executeHTTPCall(call, "Upload Request");
+        return (Map<String, Object>) response.body();
     }
 
     private Response<?> executeHTTPCall(Call<?> call, String message) throws HttpRequestFailedException {
