@@ -24,11 +24,13 @@ public class Constants {
     public static final String STORAGE_FB_TOKEN = "fb_token";
     public static final String STORAGE_DEVICE_ID = "cooee_device_id";
     public static final String STORAGE_DEVICE_UUID = "cooee_device_uuid";
+    public static final String STORAGE_SCREENSHOT_SYNC_TIME = "screenshot_sync_time";
     // endregion
 
     public static final String TAG = "CooeeSDK";
     public static final int IDLE_TIME_IN_SECONDS = 30 * 60;
     public static final int KEEP_ALIVE_TIME_IN_MS = 5 * 60 * 1000;
+    public static final int SCREENSHOT_SEND_INTERVAL_HOURS = 6;
 
     // region Push notification channel keys
     public static final String DEFAULT_CHANNEL_ID = "COOEE_DEFAULT_CHANNEL";
