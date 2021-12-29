@@ -28,6 +28,7 @@ public abstract class FontRenderer extends AbstractInAppRenderer {
 
     protected final Font font;
     protected final TextElement textElement;
+    private PartElement partElement;
 
     protected FontRenderer(Context context, ViewGroup parentElement, BaseElement element, TriggerContext globalData) {
         super(context, parentElement, element, globalData);
@@ -65,9 +66,49 @@ public abstract class FontRenderer extends AbstractInAppRenderer {
             typeface = this.getSystemTypeface();
         }
 
+        if (typeface == null) {
+            typeface = this.checkAndGetFontWithRespectToStyle();
+        }
+
         if (typeface != null) {
             ((TextView) newElement).setTypeface(typeface);
         }
+    }
+
+    protected void setPartElement(PartElement partElement) {
+        this.partElement = partElement;
+    }
+
+    /**
+     * Process font name and <code>Bold</code>, <code>Italic</code> property to the name of font to
+     * verify specific font file in local storage
+     *
+     * @return {@link Typeface} if file is present at local storage. Otherwise <code>null</code>
+     */
+    private Typeface checkAndGetFontWithRespectToStyle() {
+        if (partElement == null) {
+            return null;
+        }
+
+        String fontFileName = font.getName().toLowerCase().trim() + "-";
+
+        if (partElement.isBold()) {
+            fontFileName += "bold";
+        }
+
+        if (partElement.isItalic()) {
+            fontFileName += "italic";
+        }
+
+        File fontsDirectory = FontProcessor.getFontsStorageDirectory(context);
+
+        File fontFile = FontProcessor.getFontFile(fontsDirectory, fontFileName);
+
+        if (!fontFile.exists()) {
+            return null;
+        }
+
+        return Typeface.createFromFile(fontFile);
     }
 
     private Typeface getSystemTypeface() {
@@ -91,11 +132,12 @@ public abstract class FontRenderer extends AbstractInAppRenderer {
     private Typeface getTypeFaceFromBrandFont() {
         File fontsDirectory = FontProcessor.getFontsStorageDirectory(context);
 
-        File font = FontProcessor.getFontFile(fontsDirectory, this.font.getName());
-        if (!font.exists()) {
+        File fontFile = FontProcessor.getFontFile(fontsDirectory, this.font.getName());
+
+        if (!fontFile.exists()) {
             return null;
         }
 
-        return Typeface.createFromFile(font);
+        return Typeface.createFromFile(fontFile);
     }
 }

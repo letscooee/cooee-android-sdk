@@ -16,6 +16,9 @@ public abstract class BaseTextElement extends BaseElement {
     @SerializedName("alg")
     @Expose
     protected int alignment;
+
+    @SerializedName("f")
+    @Expose
     protected Font font;
 
     @SerializedName("c")
