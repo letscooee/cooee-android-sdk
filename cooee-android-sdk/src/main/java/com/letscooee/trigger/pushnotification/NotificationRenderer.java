@@ -232,7 +232,7 @@ public abstract class NotificationRenderer {
         }
 
         for (PartElement partElement : partElements) {
-            text.append(partElement.getText());
+            text.append(" " + partElement.getText());
         }
 
         return text.toString().replace("\n", "");
