@@ -204,7 +204,7 @@ public class ScreenshotUtility {
             screenshotTimeMap = gson.fromJson(rawString, type);
         }
 
-        if (((boolean) response.get("saved"))) {
+        if (response.get("saved") != null && ((boolean) response.get("saved"))) {
             screenshotTimeMap.put(activityName, new Date());
         }
 
