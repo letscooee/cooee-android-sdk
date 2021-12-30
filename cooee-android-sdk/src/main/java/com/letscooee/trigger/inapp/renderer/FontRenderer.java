@@ -3,6 +3,7 @@ package com.letscooee.trigger.inapp.renderer;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Typeface;
+import android.text.TextUtils;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
@@ -86,7 +87,7 @@ public abstract class FontRenderer extends AbstractInAppRenderer {
      * @return {@link Typeface} if file is present at local storage. Otherwise <code>null</code>
      */
     private Typeface checkAndGetFontWithRespectToStyle() {
-        if (partElement == null) {
+        if (partElement == null || TextUtils.isEmpty(font.getName())) {
             return null;
         }
 
