@@ -25,25 +25,22 @@ public class UnitUtils {
 
     private static final double STANDARD_RESOLUTION_HEIGHT = 1920;
     private static final double STANDARD_RESOLUTION_WIDTH = 1080;
-    private static final int DISPLAY_WIDTH;
-    private static final int DISPLAY_HEIGHT;
+    private static int DISPLAY_WIDTH;
+    private static int DISPLAY_HEIGHT;
     private static double SCALING_FACTOR;
     private static boolean IS_PORTRAIT;
-
-    static {
-        DISPLAY_WIDTH = CooeeFactory.getDeviceInfo().getDisplayWidth();
-        DISPLAY_HEIGHT = CooeeFactory.getDeviceInfo().getDisplayHeight();
-
-        if (BuildConfig.DEBUG) {
-            Log.d(TAG, "Display width: " + DISPLAY_WIDTH + ", height: " + DISPLAY_HEIGHT);
-        }
-    }
 
     private UnitUtils() {
     }
 
     public static void checkOrientationAndFindScalingFactor() {
         IS_PORTRAIT = CooeeFactory.getDeviceInfo().getOrientation() == Configuration.ORIENTATION_PORTRAIT;
+        DISPLAY_WIDTH = CooeeFactory.getDeviceInfo().getRunTimeDisplayWidth();
+        DISPLAY_HEIGHT = CooeeFactory.getDeviceInfo().getRunTimeDisplayHeight();
+
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "Display width: " + DISPLAY_WIDTH + ", height: " + DISPLAY_HEIGHT);
+        }
 
         if (IS_PORTRAIT) {
             double longEdge = Math.min(STANDARD_RESOLUTION_WIDTH, STANDARD_RESOLUTION_HEIGHT);

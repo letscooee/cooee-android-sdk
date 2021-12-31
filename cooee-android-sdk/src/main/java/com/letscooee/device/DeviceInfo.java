@@ -6,8 +6,10 @@ import android.os.Build;
 import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+
 import com.letscooee.ContextAware;
 
 /**
@@ -21,7 +23,12 @@ public class DeviceInfo extends ContextAware {
 
     private static DeviceInfo instance;
     private final CachedInfo cachedInfo;
+    private Resources resources;
+    private DisplayMetrics displayMetrics;
 
+    /**
+     * Internal class which will collect all device information
+     */
     private class CachedInfo {
 
         private String name;
@@ -33,8 +40,6 @@ public class DeviceInfo extends ContextAware {
         CachedInfo() {
             this.cacheName();
 
-            Resources resources=context.getResources();
-            DisplayMetrics displayMetrics = resources.getDisplayMetrics();
             width = displayMetrics.widthPixels;
             height = displayMetrics.heightPixels;
             scaledDensity = displayMetrics.scaledDensity;
@@ -70,7 +75,13 @@ public class DeviceInfo extends ContextAware {
 
     DeviceInfo(Context context) {
         super(context);
+        initializeResource();
         this.cachedInfo = new CachedInfo();
+    }
+
+    private void initializeResource() {
+        resources = context.getResources();
+        displayMetrics = resources.getDisplayMetrics();
     }
 
     /**
@@ -95,7 +106,17 @@ public class DeviceInfo extends ContextAware {
         return this.cachedInfo.scaledDensity;
     }
 
-    public int getOrientation(){
+    public int getOrientation() {
         return this.cachedInfo.orientation;
+    }
+
+    public int getRunTimeDisplayWidth() {
+        initializeResource();
+        return displayMetrics.widthPixels;
+    }
+
+    public int getRunTimeDisplayHeight() {
+        initializeResource();
+        return displayMetrics.heightPixels;
     }
 }
