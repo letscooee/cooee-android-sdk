@@ -41,9 +41,12 @@ public class ChildElementDeserializer implements JsonDeserializer<BaseElement> {
                 case 4:
                     elementType = ElementType.VIDEO;
                     break;
-                default:
+                case 100:
                     elementType = ElementType.SHAPE;
                     break;
+                default:
+                    CooeeFactory.getSentryHelper().captureMessage("Invalid element type");
+                    return null;
             }
             return context.deserialize(json, elementType.elementClass);
 
