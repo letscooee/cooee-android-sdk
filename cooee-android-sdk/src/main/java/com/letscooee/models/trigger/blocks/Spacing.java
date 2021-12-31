@@ -1,14 +1,12 @@
 package com.letscooee.models.trigger.blocks;
 
+import static com.letscooee.utils.ui.UnitUtils.getScaledPixel;
+
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.text.TextUtils;
-import android.view.View;
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-
-import static com.letscooee.utils.ui.UnitUtils.getCalculatedValue;
-import static com.letscooee.utils.ui.UnitUtils.getScaledPixel;
 
 public class Spacing implements Parcelable {
 
@@ -54,29 +52,29 @@ public class Spacing implements Parcelable {
         }
     };
 
-    public void calculatedPaddingAndMargin() {
+    public void calculatedPadding() {
         calculatedPadding = getScaledPixel(padding);
 
     }
 
     public float getPaddingLeft() {
         float calculatedValue = getScaledPixel(paddingLeft);
-        return calculatedValue == 0 ? calculatedValue : calculatedPadding;
+        return calculatedValue == 0 ? calculatedPadding : calculatedValue;
     }
 
     public float getPaddingRight() {
         float calculatedValue = getScaledPixel(paddingRight);
-        return calculatedValue == 0 ? calculatedValue : calculatedPadding;
+        return calculatedValue == 0 ? calculatedPadding : calculatedValue;
     }
 
     public float getPaddingTop() {
         float calculatedValue = getScaledPixel(paddingTop);
-        return calculatedValue == 0 ? calculatedValue : calculatedPadding;
+        return calculatedValue == 0 ? calculatedPadding : calculatedValue;
     }
 
     public float getPaddingBottom() {
         float calculatedValue = getScaledPixel(paddingBottom);
-        return calculatedValue == 0 ? calculatedValue : calculatedPadding;
+        return calculatedValue == 0 ? calculatedPadding : calculatedValue;
     }
 
     @Override

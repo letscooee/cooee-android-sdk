@@ -122,9 +122,9 @@ public class BaseHTTPService extends ContextAware {
         return (ResponseBody) response.body();
     }
 
-    public Map<String, Object> uploadScreeShot(MultipartBody.Part body, RequestBody parameter)
+    public Map<String, Object> uploadScreenshot(MultipartBody.Part body, RequestBody parameter)
             throws HttpRequestFailedException {
-        Call<Map<String, Object>> call = apiService.uploadScreeShot(body, parameter);
+        Call<Map<String, Object>> call = apiService.uploadScreenshot(body, parameter);
         Response<?> response = this.executeHTTPCall(call, "Upload Request");
         return (Map<String, Object>) response.body();
     }

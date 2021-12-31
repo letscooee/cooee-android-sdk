@@ -63,7 +63,6 @@ public class InAppTrigger implements Parcelable {
     }
 
     public int getOrientation() {
-
         if (orientation == 2) {
             return ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
         }

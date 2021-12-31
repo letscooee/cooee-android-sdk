@@ -177,7 +177,7 @@ public class ScreenshotUtility {
 
         CooeeExecutors.getInstance().networkExecutor().execute(() -> {
             try {
-                Map<String, Object> response = CooeeFactory.getBaseHTTPService().uploadScreeShot(body, parameter);
+                Map<String, Object> response = CooeeFactory.getBaseHTTPService().uploadScreenshot(body, parameter);
                 updateScreenshotSaveSuccessTime(response, activityName);
             } catch (HttpRequestFailedException e) {
                 CooeeFactory.getSentryHelper().captureException(e);

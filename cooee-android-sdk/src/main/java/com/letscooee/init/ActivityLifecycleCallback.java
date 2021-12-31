@@ -55,7 +55,6 @@ public class ActivityLifecycleCallback implements Application.ActivityLifecycleC
         registerShakeDetector(activity);
 
         ScreenshotHelper screenshotHelper = ScreenshotUtility.getScreenshotHelper();
-
         if (screenshotHelper != null) {
             screenshotHelper.onActivitySwitched(activity);
         }

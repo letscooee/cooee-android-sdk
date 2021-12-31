@@ -52,5 +52,5 @@ public interface APIService {
 
     @Multipart
     @POST("/v1/app/uploadScreenshot")
-    Call<Map<String, Object>> uploadScreeShot(@Part MultipartBody.Part body,@Part("screenName") RequestBody parameter);
+    Call<Map<String, Object>> uploadScreenshot(@Part MultipartBody.Part body, @Part("screenName") RequestBody parameter);
 }
