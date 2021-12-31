@@ -12,6 +12,7 @@ import com.letscooee.CooeeFactory;
 import com.letscooee.models.AuthenticationRequestBody;
 import com.letscooee.models.DeviceAuthResponse;
 import com.letscooee.schedular.CooeeJobUtils;
+import com.letscooee.screenshot.ScreenshotUtility;
 import com.letscooee.user.NewSessionExecutor;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.LocalStorageHelper;
@@ -166,6 +167,8 @@ public class DeviceAuthService {
         APIClient.setUserId(userID);
         APIClient.setAppVersion(CooeeFactory.getAppInfo().getVersion());
         this.sentryHelper.setUserId(userID);
+
+        new ScreenshotUtility(context); // Initialize ScreenshotUtility
     }
 
     /**

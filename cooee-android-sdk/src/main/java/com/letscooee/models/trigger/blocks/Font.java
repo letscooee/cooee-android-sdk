@@ -24,6 +24,10 @@ public class Font implements Parcelable {
     @Expose
     private final String name;
 
+    @SerializedName("ff")
+    @Expose
+    private final String fontFamily;
+
     @SerializedName("lh")
     @Expose
     private final String lineHeight;
@@ -33,6 +37,7 @@ public class Font implements Parcelable {
         style = (Style) in.readSerializable();
         name = in.readString();
         lineHeight = in.readString();
+        fontFamily = in.readString();
     }
 
     public static final Creator<Font> CREATOR = new Creator<Font>() {
@@ -85,10 +90,15 @@ public class Font implements Parcelable {
         dest.writeSerializable(style);
         dest.writeString(name);
         dest.writeString(lineHeight);
+        dest.writeString(fontFamily);
     }
 
     public float getSize() {
         if (size == null) return DEFAULT_SIZE;
         return UnitUtils.getScaledPixel(size);
+    }
+
+    public String getFontFamily() {
+        return fontFamily;
     }
 }
