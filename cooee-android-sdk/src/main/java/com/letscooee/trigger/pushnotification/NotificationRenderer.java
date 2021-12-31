@@ -231,9 +231,12 @@ public abstract class NotificationRenderer {
             return text.toString();
         }
 
-        for (PartElement partElement : partElements) {
-            text.append(" " + partElement.getText());
+        for (PartElement partElement : partElements.subList(0, partElements.size() - 1)) {
+            text.append(partElement.getText());
+            text.append(" ");
         }
+
+        text.append(partElements.get(partElements.size() - 1).getText());
 
         return text.toString().replace("\n", "");
     }
