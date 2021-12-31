@@ -7,16 +7,21 @@ import com.google.gson.annotations.SerializedName;
 
 public class Background implements Parcelable {
 
+    @SerializedName("s")
+    @Expose
     private Colour solid;
-    private Glossy glass;
 
-    @SerializedName("img")
+    @SerializedName("g")
+    @Expose
+    private Glassmorphism glassmorphism;
+
+    @SerializedName("i")
     @Expose
     private Image image;
 
     protected Background(Parcel in) {
         solid = in.readParcelable(Colour.class.getClassLoader());
-        glass = in.readParcelable(Glossy.class.getClassLoader());
+        glassmorphism = in.readParcelable(Glassmorphism.class.getClassLoader());
         image = in.readParcelable(Image.class.getClassLoader());
     }
 
@@ -36,8 +41,8 @@ public class Background implements Parcelable {
         return solid;
     }
 
-    public Glossy getGlossy() {
-        return glass;
+    public Glassmorphism getGlassmorphism() {
+        return glassmorphism;
     }
 
     public Image getImage() {
@@ -52,7 +57,7 @@ public class Background implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeParcelable(solid, flags);
-        dest.writeParcelable(glass, flags);
+        dest.writeParcelable(glassmorphism, flags);
         dest.writeParcelable(image, flags);
     }
 }

@@ -37,10 +37,10 @@ public class PartElement extends BaseElement {
         super(in);
         text = in.readString();
         textColour = in.readString();
-        bold = in.readInt() == 0;
-        italic = in.readInt() == 0;
-        underline = in.readInt() == 0;
-        strikeTrough = in.readInt() == 0;
+        bold = in.readByte() == 0;
+        italic = in.readByte() == 0;
+        underline = in.readByte() == 0;
+        strikeTrough = in.readByte() == 0;
     }
 
     public static final Creator<PartElement> CREATOR = new Creator<PartElement>() {
@@ -60,10 +60,10 @@ public class PartElement extends BaseElement {
         super.writeToParcel(dest, flags);
         dest.writeString(text);
         dest.writeString(textColour);
-        dest.writeInt(bold ? 0 : 1);
-        dest.writeInt(italic ? 0 : 1);
-        dest.writeInt(underline ? 0 : 1);
-        dest.writeInt(strikeTrough ? 0 : 1);
+        dest.writeByte((byte) (bold ? 0 : 1));
+        dest.writeByte((byte) (italic ? 0 : 1));
+        dest.writeByte((byte) (underline ? 0 : 1));
+        dest.writeByte((byte) (strikeTrough ? 0 : 1));
 
     }
 

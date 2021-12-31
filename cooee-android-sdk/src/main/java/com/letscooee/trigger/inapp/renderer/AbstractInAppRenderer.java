@@ -220,8 +220,8 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
             if (background.getSolid() != null) {
                 background.getSolid().updateDrawable(backgroundDrawable);
 
-            } else if (background.getGlossy() != null) {
-                applyGlassmorphism(background.getGlossy());
+            } else if (background.getGlassmorphism() != null) {
+                applyGlassmorphism(background.getGlassmorphism());
 
             } else if (background.getImage() != null) {
                 Glide.with(context).asBitmap().load(background.getImage().getSrc()).into(backgroundImage);
@@ -229,15 +229,15 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         }
     }
 
-    private void applyGlassmorphism(Glossy glossy) {
+    private void applyGlassmorphism(Glassmorphism glassmorphism) {
         Blurry.Composer blurryComposer = Blurry.with(context)
                 .animate(500);
 
-        blurryComposer.radius(glossy.getRadius());
-        blurryComposer.sampling(glossy.getSampling());
+        blurryComposer.radius(glassmorphism.getRadius());
+        blurryComposer.sampling(glassmorphism.getSampling());
 
-        if (glossy.getColor() != null)
-            blurryComposer.color(glossy.getColor().getHexColor());
+        if (glassmorphism.getColor() != null)
+            blurryComposer.color(glassmorphism.getColor().getHexColor());
 
         if (globalData.getBitmapForBlurry() != null) {
             blurryComposer

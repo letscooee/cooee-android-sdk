@@ -45,14 +45,13 @@ public abstract class BaseTextElement extends BaseElement {
 
     public int getAlignment() {
         switch (alignment) {
-            case 0:
-                return Gravity.START;
             case 1:
                 return Gravity.CENTER;
-            case 3:
+            case 2:
                 return Gravity.END;
+            default:
+                return Gravity.START;
         }
-        return Gravity.START;
     }
 
     public Font getFont() {

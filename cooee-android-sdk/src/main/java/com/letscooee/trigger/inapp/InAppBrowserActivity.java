@@ -28,10 +28,7 @@ public class InAppBrowserActivity extends AppCompatActivity {
             finish();
         }
 
-        assert browserContent != null;
-        if (!browserContent.isShowAB()) {
-            findViewById(R.id.linearLayout).setVisibility(View.GONE);
-        }
+        findViewById(R.id.linearLayout).setVisibility(View.GONE);
 
         ((TextView) findViewById(R.id.textViewIABUrl)).setText(browserContent.getUrl());
         findViewById(R.id.imageViewCloseIAB).setOnClickListener(v -> finish());

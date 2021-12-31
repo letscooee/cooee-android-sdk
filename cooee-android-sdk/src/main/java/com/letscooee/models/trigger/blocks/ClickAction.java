@@ -19,6 +19,7 @@ public class ClickAction implements Parcelable {
     private BrowserContent external;
     private BrowserContent updateApp;
     private PermissionType prompt;
+    private BrowserContent webAR;
     private HashMap<String, Object> up;
     private HashMap<String, Object> kv;
     private HashMap<String, Object> share;
@@ -83,6 +84,10 @@ public class ClickAction implements Parcelable {
 
     public boolean isClose() {
         return close;
+    }
+
+    public BrowserContent getWebAR() {
+        return webAR;
     }
 
     @Override

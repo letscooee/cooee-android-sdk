@@ -8,7 +8,6 @@ import android.text.TextUtils;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-import com.letscooee.enums.trigger.PositionType;
 import com.letscooee.models.trigger.blocks.*;
 import com.letscooee.utils.ui.UnitUtils;
 

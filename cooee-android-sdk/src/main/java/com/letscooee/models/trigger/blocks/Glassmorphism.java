@@ -6,7 +6,7 @@ import android.os.Parcelable;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class Glossy implements Parcelable {
+public class Glassmorphism implements Parcelable {
 
     private static final int DEFAULT_RADIUS = 25;
     private static final int DEFAULT_SAMPLING = 8;
@@ -19,25 +19,25 @@ public class Glossy implements Parcelable {
     @Expose
     private final int sampling;
 
-    @SerializedName("clr")
+    @SerializedName("c")
     @Expose
     private final Colour colour;
 
-    protected Glossy(Parcel in) {
+    protected Glassmorphism(Parcel in) {
         radius = in.readInt();
         sampling = in.readInt();
         colour = in.readParcelable(Colour.class.getClassLoader());
     }
 
-    public static final Creator<Glossy> CREATOR = new Creator<Glossy>() {
+    public static final Creator<Glassmorphism> CREATOR = new Creator<Glassmorphism>() {
         @Override
-        public Glossy createFromParcel(Parcel in) {
-            return new Glossy(in);
+        public Glassmorphism createFromParcel(Parcel in) {
+            return new Glassmorphism(in);
         }
 
         @Override
-        public Glossy[] newArray(int size) {
-            return new Glossy[size];
+        public Glassmorphism[] newArray(int size) {
+            return new Glassmorphism[size];
         }
     };
 

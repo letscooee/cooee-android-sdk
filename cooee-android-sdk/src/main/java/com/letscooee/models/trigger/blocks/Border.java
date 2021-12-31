@@ -81,14 +81,11 @@ public class Border implements Parcelable {
     }
 
     public Style getStyle() {
-        switch (style){
-            case 1:
-                return Style.SOLID;
-            case 2:
-                return Style.DASH;
-            default:
-                return Style.SOLID;
+        if (style == 2) {
+            return Style.DASH;
         }
+
+        return Style.SOLID;
     }
 
     public int getRadius() {
