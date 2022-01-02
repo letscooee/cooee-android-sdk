@@ -54,7 +54,6 @@ public class TextRenderer extends FontRenderer {
     protected void processParts() {
         newElement = new LinearLayout(context);
         ((LinearLayout) newElement).setGravity(Gravity.CENTER);
-        ((LinearLayout) newElement).setOrientation(LinearLayout.VERTICAL);
 
         insertNewElementInHierarchy();
         processCommonBlocks();
@@ -86,7 +85,13 @@ public class TextRenderer extends FontRenderer {
     }
 
     protected void processTextData(TextView textView) {
-        textView.setText(((PartElement) textData).getText().replace("\n", ""));
+        String text =((PartElement) textData).getText();
+
+        if (text.endsWith("\n")) {
+            text = text.substring(0, text.length() - 1);
+        }
+
+        textView.setText(text);
         this.newElement = textView;
 
         this.processColourBlock();
