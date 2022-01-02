@@ -6,9 +6,23 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
 
+import androidx.annotation.NonNull;
+
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
 public class Colour implements Parcelable {
 
+    @SerializedName("h")
+    @Expose
     private final String hex;
+
+    @SerializedName("a")
+    @Expose
+    private final int alpha;
+
+    @SerializedName("g")
+    @Expose
     private final Gradient grad;
 
     public static final Creator<Colour> CREATOR = new Creator<Colour>() {
@@ -23,13 +37,15 @@ public class Colour implements Parcelable {
         }
     };
 
-    protected Colour() {
-        hex = null;
+    public Colour() {
+        hex = "#000000";
         grad = null;
+        alpha = 100;
     }
 
     protected Colour(Parcel in) {
         hex = in.readString();
+        alpha = in.readInt();
         grad = in.readParcelable(Gradient.class.getClassLoader());
     }
 
@@ -41,12 +57,15 @@ public class Colour implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(hex);
+        dest.writeInt(alpha);
         dest.writeParcelable(grad, flags);
     }
 
     public int getHexColor() {
         if (TextUtils.isEmpty(hex)) return Color.TRANSPARENT;
-        return Color.parseColor(hex);
+
+        String aRBG = "#" + percentToHex() + hex.replace("#", "");
+        return Color.parseColor(aRBG);
     }
 
     public void updateDrawable(GradientDrawable drawable) {
@@ -55,5 +74,13 @@ public class Colour implements Parcelable {
         } else {
             grad.updateDrawable(drawable);
         }
+    }
+
+    @NonNull
+    private String percentToHex() {
+        int decimal = alpha * 255 / 100;
+        String stringAlpha = Integer.toHexString(decimal);
+
+        return stringAlpha.length() < 2 ? "0" + stringAlpha : stringAlpha;
     }
 }

@@ -3,30 +3,41 @@ package com.letscooee.models.trigger.blocks;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-public class Glossy implements Parcelable {
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
+public class Glassmorphism implements Parcelable {
 
     private static final int DEFAULT_RADIUS = 25;
     private static final int DEFAULT_SAMPLING = 8;
 
+    @SerializedName("r")
+    @Expose
     private final int radius;
+
+    @SerializedName("s")
+    @Expose
     private final int sampling;
+
+    @SerializedName("c")
+    @Expose
     private final Colour colour;
 
-    protected Glossy(Parcel in) {
+    protected Glassmorphism(Parcel in) {
         radius = in.readInt();
         sampling = in.readInt();
         colour = in.readParcelable(Colour.class.getClassLoader());
     }
 
-    public static final Creator<Glossy> CREATOR = new Creator<Glossy>() {
+    public static final Creator<Glassmorphism> CREATOR = new Creator<Glassmorphism>() {
         @Override
-        public Glossy createFromParcel(Parcel in) {
-            return new Glossy(in);
+        public Glassmorphism createFromParcel(Parcel in) {
+            return new Glassmorphism(in);
         }
 
         @Override
-        public Glossy[] newArray(int size) {
-            return new Glossy[size];
+        public Glassmorphism[] newArray(int size) {
+            return new Glassmorphism[size];
         }
     };
 

@@ -3,14 +3,15 @@ package com.letscooee.loader.http;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestBuilder;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.letscooee.utils.Closure;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Helper class to load an HTTP image from remote.
@@ -26,7 +27,7 @@ public class RemoteImageLoader implements HttpResourceLoader<Bitmap> {
         this.requestBuilder = Glide.with(context).asBitmap();
     }
 
-    public void load(@NotNull String url, @NotNull Closure<Bitmap> callback) {
+    public void load(@NonNull String url, @NonNull Closure<Bitmap> callback) {
         this.requestBuilder
                 .load(url)
                 .into(new CustomTarget<Bitmap>() {

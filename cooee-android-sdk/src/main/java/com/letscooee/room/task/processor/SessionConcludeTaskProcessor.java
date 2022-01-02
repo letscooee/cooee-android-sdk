@@ -1,10 +1,12 @@
 package com.letscooee.room.task.processor;
 
 import android.content.Context;
+
+import androidx.annotation.NonNull;
+
 import com.letscooee.exceptions.HttpRequestFailedException;
 import com.letscooee.room.task.PendingTask;
 import com.letscooee.room.task.PendingTaskType;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 
@@ -24,7 +26,7 @@ public class SessionConcludeTaskProcessor extends HttpTaskProcessor<Map<String, 
         this.baseHTTPService.sendSessionConcludedEvent(data);
     }
 
-    public boolean canProcess(@NotNull PendingTask task) {
+    public boolean canProcess(@NonNull PendingTask task) {
         return task.type == PendingTaskType.API_SESSION_CONCLUDE;
     }
 }

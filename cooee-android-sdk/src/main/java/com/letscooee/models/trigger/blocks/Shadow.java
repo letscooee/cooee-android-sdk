@@ -3,10 +3,17 @@ package com.letscooee.models.trigger.blocks;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
 public class Shadow implements Parcelable {
 
-    // TODO: 07/07/21 Discus for transitionZ
+    @SerializedName("e")
+    @Expose
     private int elevation;
+
+    @SerializedName("clr")
+    @Expose
     private Colour colour;
 
     protected Shadow(Parcel in) {

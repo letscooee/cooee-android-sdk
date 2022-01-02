@@ -1,13 +1,15 @@
 package com.letscooee.trigger.inapp.renderer;
 
 import android.content.Context;
+import android.graphics.Typeface;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import com.letscooee.models.trigger.blocks.Alignment;
-import com.letscooee.models.trigger.blocks.Size;
+
 import com.letscooee.models.trigger.elements.BaseElement;
+import com.letscooee.models.trigger.elements.PartElement;
 import com.letscooee.models.trigger.elements.TextElement;
 import com.letscooee.trigger.inapp.TriggerContext;
 
@@ -16,40 +18,65 @@ import com.letscooee.trigger.inapp.TriggerContext;
  */
 public class TextRenderer extends FontRenderer {
 
-    protected TextElement textData;
+    protected Object textData;
+    protected TextElement commonTextData;
 
-    public TextRenderer(Context context, ViewGroup parentView, BaseElement elementData, TriggerContext globalData) {
-        super(context, parentView, elementData, globalData);
-        this.textData = (TextElement) elementData;
+    public TextRenderer(Context context, ViewGroup parentView, Object elementData, TriggerContext globalData) {
+        super(context, parentView, (BaseElement) elementData, globalData);
+        this.textData = elementData;
+    }
+
+    public TextRenderer(Context context, ViewGroup parentView, Object elementData,
+                        TriggerContext globalData, TextElement commonTextData) {
+        super(context, parentView, commonTextData, globalData);
+        this.textData = elementData;
+        this.commonTextData = commonTextData;
     }
 
     @Override
     public View render() {
-        if (textData.getParts() != null && !textData.getParts().isEmpty()) {
+        if (textData instanceof TextElement) {
             this.processParts();
         } else {
             TextView textView = new TextView(context);
+            textView.setGravity(Gravity.CENTER);
             this.processTextData(textView);
             this.processFont();
+            this.processPartStyle();
         }
 
         return newElement;
     }
 
-    private void processParts() {
+    protected void processParts() {
         newElement = new LinearLayout(context);
+        ((LinearLayout) newElement).setGravity(Gravity.CENTER);
         insertNewElementInHierarchy();
         processCommonBlocks();
 
-        for (BaseElement child : textData.getParts()) {
-            // Parts will always be INLINE_BLOCK so should wrap the contents
-            child.getSize().setDisplay(Size.Display.INLINE_BLOCK);
-            new TextRenderer(context, (ViewGroup) newElement, child, globalData).render();
+        for (PartElement child : ((TextElement) textData).getParts()) {
+            new TextRenderer(context, (ViewGroup) newElement, child, globalData, (TextElement) textData).render();
         }
     }
 
+    private void processPartStyle() {
+        TextView textView = (TextView) newElement;
+        Typeface typeface = textView.getTypeface();
+        PartElement partElement = (PartElement) textData;
+
+        if (partElement.isBold() && partElement.isItalic()) {
+            typeface = Typeface.create(typeface, Typeface.BOLD_ITALIC);
+        } else if (partElement.isBold()) {
+            typeface = Typeface.create(typeface, Typeface.BOLD);
+        } else if (partElement.isItalic()) {
+            typeface = Typeface.create(typeface, Typeface.ITALIC);
+        }
+
+        textView.setTypeface(typeface);
+    }
+
     protected void processTextData(TextView textView) {
-        textView.setText(textData.getText());
+        textView.setText(((PartElement) textData).getText());
         this.newElement = textView;
 
         this.processFontBlock();
@@ -57,31 +84,30 @@ public class TextRenderer extends FontRenderer {
         this.processAlignmentBlock();
 
         insertNewElementInHierarchy();
-        processCommonBlocks();
     }
 
     protected void processAlignmentBlock() {
-        Alignment alignment = textData.getAlignment();
-        if (alignment == null) {
-            return;
+        if (commonTextData != null) {
+            ((TextView) newElement).setGravity(commonTextData.getAlignment());
         }
-
-        ((TextView) newElement).setGravity(alignment.getAlign());
     }
 
     protected void processColourBlock() {
-        if (textData.getColor() == null) {
+        if (commonTextData != null && commonTextData.getColor() != null) {
+            ((TextView) newElement).setTextColor(commonTextData.getColor().getHexColor());
+        }
+
+        PartElement partElement = (PartElement) textData;
+        if (partElement.getPartTextColour() == null) {
             return;
         }
 
-        ((TextView) newElement).setTextColor(textData.getColor().getHexColor());
+        ((TextView) newElement).setTextColor(partElement.getPartTextColour());
     }
 
     protected void processFontBlock() {
-        if (textData.getFont() == null) {
-            return;
+        if (commonTextData != null && commonTextData.getFont() != null) {
+            ((TextView) newElement).setTextSize(commonTextData.getFont().getSize());
         }
-
-        ((TextView) newElement).setTextSize(textData.getFont().getSize());
     }
 }

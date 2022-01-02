@@ -2,9 +2,9 @@ package com.letscooee.utils;
 
 import android.content.Context;
 import android.util.Log;
-import androidx.annotation.RestrictTo;
 
-import org.jetbrains.annotations.NotNull;
+import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 
 import java.util.Date;
 
@@ -41,7 +41,7 @@ public class RuntimeData {
 
     }
 
-    @NotNull
+    @NonNull
     public Boolean isInBackground() {
         return this.inBackground;
     }

@@ -3,15 +3,23 @@ package com.letscooee.models.trigger.blocks;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+import com.letscooee.utils.PermissionType;
+
 import java.util.HashMap;
 import java.util.Map;
 
 public class ClickAction implements Parcelable {
 
     private BrowserContent iab;
+
+    @SerializedName("ext")
+    @Expose
     private BrowserContent external;
     private BrowserContent updateApp;
-    private String[] prompts;
+    private PermissionType prompt;
+    private BrowserContent webAR;
     private HashMap<String, Object> up;
     private HashMap<String, Object> kv;
     private HashMap<String, Object> share;
@@ -22,7 +30,7 @@ public class ClickAction implements Parcelable {
         iab = in.readParcelable(BrowserContent.class.getClassLoader());
         external = in.readParcelable(BrowserContent.class.getClassLoader());
         updateApp = in.readParcelable(BrowserContent.class.getClassLoader());
-        prompts = in.createStringArray();
+        prompt = (PermissionType) in.readSerializable();
         close = in.readByte() != 0;
         up = (HashMap<String, Object>) in.readSerializable();
         kv = (HashMap<String, Object>) in.readSerializable();
@@ -54,8 +62,8 @@ public class ClickAction implements Parcelable {
         return updateApp;
     }
 
-    public String[] getPrompts() {
-        return prompts;
+    public PermissionType getPrompt() {
+        return prompt;
     }
 
     public Map<String, Object> getUserPropertiesToUpdate() {
@@ -78,6 +86,10 @@ public class ClickAction implements Parcelable {
         return close;
     }
 
+    public BrowserContent getWebAR() {
+        return webAR;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -88,7 +100,7 @@ public class ClickAction implements Parcelable {
         dest.writeParcelable(iab, flags);
         dest.writeParcelable(external, flags);
         dest.writeParcelable(updateApp, flags);
-        dest.writeStringArray(prompts);
+        dest.writeSerializable(prompt);
         dest.writeByte((byte) (close ? 1 : 0));
         dest.writeSerializable(up);
         dest.writeSerializable(kv);

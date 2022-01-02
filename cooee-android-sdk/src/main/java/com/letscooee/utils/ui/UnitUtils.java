@@ -1,12 +1,16 @@
 package com.letscooee.utils.ui;
 
+import android.content.res.Configuration;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+
 import com.letscooee.BuildConfig;
 import com.letscooee.CooeeFactory;
+import com.letscooee.utils.Constants;
 
 import static com.letscooee.utils.Constants.*;
 
@@ -19,17 +23,37 @@ import static com.letscooee.utils.Constants.*;
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class UnitUtils {
 
-    private static final int STANDARD_RESOLUTION = 720;
-    private static final int DISPLAY_WIDTH;
-    private static final int DISPLAY_HEIGHT;
+    private static final double STANDARD_RESOLUTION_HEIGHT = 1920;
+    private static final double STANDARD_RESOLUTION_WIDTH = 1080;
+    private static int DISPLAY_WIDTH;
+    private static int DISPLAY_HEIGHT;
+    private static double SCALING_FACTOR;
+    private static boolean IS_PORTRAIT;
 
-    static {
-        DISPLAY_WIDTH = CooeeFactory.getDeviceInfo().getDisplayWidth();
-        DISPLAY_HEIGHT = CooeeFactory.getDeviceInfo().getDisplayHeight();
+    private UnitUtils() {
+    }
+
+    public static void checkOrientationAndFindScalingFactor() {
+        IS_PORTRAIT = CooeeFactory.getDeviceInfo().getOrientation() == Configuration.ORIENTATION_PORTRAIT;
+        DISPLAY_WIDTH = CooeeFactory.getDeviceInfo().getRunTimeDisplayWidth();
+        DISPLAY_HEIGHT = CooeeFactory.getDeviceInfo().getRunTimeDisplayHeight();
 
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "Display width: " + DISPLAY_WIDTH + ", height: " + DISPLAY_HEIGHT);
         }
+
+        if (IS_PORTRAIT) {
+            double longEdge = Math.min(STANDARD_RESOLUTION_WIDTH, STANDARD_RESOLUTION_HEIGHT);
+            SCALING_FACTOR = DISPLAY_WIDTH / longEdge;
+        } else {
+            double longEdge = Math.max(STANDARD_RESOLUTION_WIDTH, STANDARD_RESOLUTION_HEIGHT);
+            SCALING_FACTOR = DISPLAY_HEIGHT / longEdge;
+        }
+    }
+
+    public static float getScaledPixel(float value) {
+        checkOrientationAndFindScalingFactor();
+        return (float) (value * SCALING_FACTOR);
     }
 
     /**
@@ -79,7 +103,7 @@ public class UnitUtils {
         if (value.contains(UNIT_PIXEL)) {
             int webPixels = getCalculatedPixel(value);
             // TODO: 26/07/21 Consider landscape mode here
-            return webPixels * DISPLAY_HEIGHT / STANDARD_RESOLUTION;
+            return webPixels * DISPLAY_HEIGHT / (int) STANDARD_RESOLUTION_HEIGHT;
 
         } else if (value.contains(UNIT_PERCENT)) {
             if (BuildConfig.DEBUG) {
@@ -97,8 +121,13 @@ public class UnitUtils {
 
         } else if (value.contains(UNIT_VIEWPORT_WIDTH)) {
             return ((parseToInt(value, UNIT_VIEWPORT_WIDTH) * DISPLAY_WIDTH) / 100);
+        } else {
+            // TODO: 02/11/21 calculation aspect ratio
+            int webPixels = getCalculatedPixel(value);
+            if (isHeight)
+                return webPixels * DISPLAY_HEIGHT / (int) STANDARD_RESOLUTION_HEIGHT;
+            else
+                return webPixels * DISPLAY_WIDTH / (int) STANDARD_RESOLUTION_WIDTH;
         }
-
-        return 0;
     }
 }

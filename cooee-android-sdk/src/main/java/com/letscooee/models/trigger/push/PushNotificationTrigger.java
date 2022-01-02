@@ -2,8 +2,10 @@ package com.letscooee.models.trigger.push;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 import com.letscooee.enums.trigger.PushNotificationImportance;
-import com.letscooee.models.trigger.blocks.ClickAction;
 import com.letscooee.models.trigger.elements.ButtonElement;
 import com.letscooee.models.trigger.elements.TextElement;
 
@@ -11,10 +13,24 @@ import java.util.ArrayList;
 
 public class PushNotificationTrigger implements Parcelable {
 
+    @SerializedName("t")
+    @Expose
     private final TextElement title;
+
+    @SerializedName("b")
+    @Expose
     private final TextElement body;
+
+    @SerializedName("si")
+    @Expose
     private final String smallImage;
+
+    @SerializedName("li")
+    @Expose
     private final String largeImage;
+
+    @SerializedName("btns")
+    @Expose
     private final ArrayList<ButtonElement> buttons;
 
     private PushNotificationImportance importance;

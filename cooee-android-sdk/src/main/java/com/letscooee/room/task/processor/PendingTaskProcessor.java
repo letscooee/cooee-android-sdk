@@ -1,7 +1,8 @@
 package com.letscooee.room.task.processor;
 
+import androidx.annotation.NonNull;
+
 import com.letscooee.room.task.PendingTask;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Skeleton of a {@link PendingTask} processor.
@@ -11,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
  */
 public interface PendingTaskProcessor {
 
-    void process(@NotNull PendingTask task);
+    void process(@NonNull PendingTask task);
 
-    boolean canProcess(@NotNull PendingTask task);
+    boolean canProcess(@NonNull PendingTask task);
 }

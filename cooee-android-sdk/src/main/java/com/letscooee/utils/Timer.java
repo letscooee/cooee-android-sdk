@@ -1,6 +1,6 @@
 package com.letscooee.utils;
 
-import org.jetbrains.annotations.NotNull;
+import androidx.annotation.NonNull;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -20,7 +20,7 @@ public class Timer {
         scheduledExecutor = Executors.newScheduledThreadPool(1);
     }
 
-    public void schedule(@NotNull Runnable runnable, long durationMillis) {
+    public void schedule(@NonNull Runnable runnable, long durationMillis) {
         scheduledExecutor.schedule(runnable, durationMillis, TimeUnit.MILLISECONDS);
     }
 }

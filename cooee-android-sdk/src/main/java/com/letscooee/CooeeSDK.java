@@ -3,6 +3,8 @@ package com.letscooee;
 import android.content.Context;
 import android.content.Intent;
 
+import androidx.annotation.NonNull;
+
 import com.letscooee.device.DebugInfoActivity;
 import com.letscooee.models.Event;
 import com.letscooee.network.SafeHTTPService;
@@ -13,8 +15,6 @@ import com.letscooee.utils.CooeeCTAListener;
 import com.letscooee.utils.PropertyNameException;
 import com.letscooee.utils.RuntimeData;
 import com.letscooee.utils.SentryHelper;
-
-import org.jetbrains.annotations.NotNull;
 
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
@@ -44,7 +44,7 @@ public class CooeeSDK {
      *
      * @param context application context
      */
-    private CooeeSDK(@NotNull Context context) {
+    private CooeeSDK(@NonNull Context context) {
         this.context = context.getApplicationContext();
         this.runtimeData = CooeeFactory.getRuntimeData();
         this.sentryHelper = CooeeFactory.getSentryHelper();

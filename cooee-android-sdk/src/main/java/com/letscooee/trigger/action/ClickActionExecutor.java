@@ -11,16 +11,16 @@ import android.text.TextUtils;
 import com.letscooee.CooeeFactory;
 import com.letscooee.CooeeSDK;
 import com.letscooee.ar.ARHelper;
+import com.letscooee.models.trigger.TriggerData;
+import com.letscooee.models.trigger.blocks.AppAR;
+import com.letscooee.models.trigger.blocks.BrowserContent;
 import com.letscooee.models.trigger.blocks.ClickAction;
 import com.letscooee.trigger.inapp.InAppBrowserActivity;
 import com.letscooee.trigger.inapp.TriggerContext;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.CooeeCTAListener;
-import com.letscooee.utils.PermissionType;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -47,25 +47,61 @@ public class ClickActionExecutor {
         executeInAppBrowser();
         boolean requestedAnyPermission = processPrompts();
         loadAR();
+        loadWebAR();
+        shareContent();
+        updateApp();
 
-        if (action.getUpdateApp() != null) {
-            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(action.getUpdateApp().getUrl()));
-            startActivity(browserIntent);
-        }
-
-        if (action.getShare() != null) {
-            String shareBody = Objects.requireNonNull(action.getShare().get("text")).toString();
-
-            Intent intent = new Intent(Intent.ACTION_SEND);
-            intent.setType("text/plain");
-            intent.putExtra(Intent.EXTRA_TEXT, shareBody);
-            startActivity(Intent.createChooser(intent, "Share with"));
-        }
         if (action.isClose() && !requestedAnyPermission) {
             globalData.closeInApp("CTA");
         }
     }
 
+    /**
+     * Check and process <code>update</code> and launch external browser
+     */
+    private void updateApp() {
+        if (action.getUpdateApp() == null) {
+            return;
+        }
+
+        openURL(action.getUpdateApp().getUrl());
+
+    }
+
+    /**
+     * Check and process <code>share</code> and launch {@link Intent} for {@link Intent#ACTION_SEND}
+     */
+    private void shareContent() {
+        if (action.getShare() == null) {
+            return;
+        }
+
+        String shareBody = Objects.requireNonNull(action.getShare().get("text")).toString();
+
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.setType("text/plain");
+        intent.putExtra(Intent.EXTRA_TEXT, shareBody);
+        startActivity(Intent.createChooser(intent, "Share with"));
+
+    }
+
+    /**
+     * Check and process <code>webAR</code> and launch external browser
+     */
+    private void loadWebAR() {
+        BrowserContent webAR = action.getWebAR();
+
+        if (webAR == null) {
+            return;
+        }
+
+        openURL(webAR.getUrl());
+    }
+
+    /**
+     * Check and process <code>appAR</code> and give control to
+     * {@link ARHelper#checkForARAndLaunch(Activity, AppAR, TriggerData)} to launch AR
+     */
     private void loadAR() {
         if (action.getAR() == null) {
             return;
@@ -74,19 +110,20 @@ public class ClickActionExecutor {
         ARHelper.checkForARAndLaunch((Activity) context, action.getAR(), globalData.getTriggerData());
     }
 
+    /**
+     * Check and process <code>prompt</code> and request application permission
+     *
+     * @return <code>true</code> if permission is prompted; Otherwise <code>false</code>
+     */
     private boolean processPrompts() {
-        if (action.getPrompts() == null || action.getPrompts().length == 0) {
+        if (action.getPrompt() == null) {
             return false;
         }
 
-        List<String> permissionList = new ArrayList<>();
-        for (String permission : action.getPrompts()) {
-            PermissionType permissionType = PermissionType.valueOf(permission);
-            permissionList.add(permissionType.toString());
-        }
+        String[] permissionArray = {action.getPrompt().toString()};
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            ((Activity) context).requestPermissions(permissionList.toArray(new String[0]), Constants.PERMISSION_REQUEST_CODE);
+            ((Activity) context).requestPermissions(permissionArray, Constants.PERMISSION_REQUEST_CODE);
         }
         return true;
     }
@@ -102,6 +139,9 @@ public class ClickActionExecutor {
         }
     }
 
+    /**
+     * Check and process <code>up</code> and update user property
+     */
     private void updateUserProperties() {
         if (action.getUserPropertiesToUpdate() == null) {
             return;
@@ -113,6 +153,9 @@ public class ClickActionExecutor {
         CooeeFactory.getSafeHTTPService().updateUserProfile(userProfile);
     }
 
+    /**
+     * Check and process <code>iab</code> and launch {@link InAppBrowserActivity}
+     */
     private void executeInAppBrowser() {
         if (action.getIab() == null) {
             return;
@@ -131,6 +174,9 @@ public class ClickActionExecutor {
         startActivity(intent);
     }
 
+    /**
+     * process <code>external</code> and launch web browser
+     */
     private void executeExternal() {
         if (action.getExternal() == null) {
             return;
@@ -138,6 +184,15 @@ public class ClickActionExecutor {
 
         // TODO: 25/07/21 Append data
         String url = action.getExternal().getUrl();
+        openURL(url);
+    }
+
+    /**
+     * Check and open WEB URL in external browser
+     *
+     * @param url web URL in {@link String}
+     */
+    private void openURL(String url) {
         if (TextUtils.isEmpty(url)) {
             return;
         }

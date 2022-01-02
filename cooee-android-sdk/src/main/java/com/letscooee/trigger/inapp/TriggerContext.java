@@ -4,9 +4,10 @@ import android.graphics.Bitmap;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 
+import androidx.annotation.NonNull;
+
 import com.letscooee.models.trigger.TriggerData;
 import com.letscooee.utils.Closure;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -31,7 +32,7 @@ public class TriggerContext {
         return closedEventProps;
     }
 
-    public void onExit(@NotNull Closure<Map<String, Object>> callback) {
+    public void onExit(@NonNull Closure<Map<String, Object>> callback) {
         this.callback = callback;
     }
 

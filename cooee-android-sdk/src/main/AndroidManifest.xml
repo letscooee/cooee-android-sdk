@@ -31,7 +31,7 @@
 
         <activity
             android:name=".trigger.inapp.InAppTriggerActivity"
-            android:configChanges="orientation|keyboardHidden"
+            android:configChanges="keyboardHidden"
             android:theme="@style/AppTheme.PopUp" />
 
         <activity android:name=".trigger.CooeeEmptyActivity" />
@@ -51,7 +51,7 @@
             android:permission="android.permission.BIND_JOB_SERVICE" />
 
         <receiver android:name=".broadcast.OnPushNotificationButtonClick" />
-        <receiver android:name=".broadcast.CooeeJobSchedulerBroadcast">
+        <receiver android:name=".broadcast.CooeeJobSchedulerBroadcast" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>

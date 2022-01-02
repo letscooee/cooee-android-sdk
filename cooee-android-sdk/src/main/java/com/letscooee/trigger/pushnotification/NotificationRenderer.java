@@ -11,19 +11,24 @@ import android.service.notification.StatusBarNotification;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.RemoteViews;
+
 import androidx.core.app.NotificationCompat;
+
 import com.letscooee.CooeeFactory;
 import com.letscooee.R;
 import com.letscooee.loader.http.RemoteImageLoader;
 import com.letscooee.models.Event;
 import com.letscooee.models.trigger.TriggerData;
 import com.letscooee.enums.trigger.PushNotificationImportance;
+import com.letscooee.models.trigger.elements.PartElement;
+import com.letscooee.models.trigger.elements.TextElement;
 import com.letscooee.models.trigger.push.PushNotificationTrigger;
 import com.letscooee.network.SafeHTTPService;
 import com.letscooee.services.PushNotificationIntentService;
 import com.letscooee.utils.Constants;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * Main class to build and render a push notification from the received {@link TriggerData}.
@@ -83,10 +88,10 @@ public abstract class NotificationRenderer {
         String title = null;
         String body = null;
         if (this.triggerData.getPn().getTitle() != null)
-            title = this.triggerData.getPn().getTitle().getText();
+            title = getTextFromTextElement(this.triggerData.getPn().getTitle());
 
         if (this.triggerData.getPn().getBody() != null)
-            body = this.triggerData.getPn().getBody().getText();
+            body = getTextFromTextElement(this.triggerData.getPn().getBody());
 
         if (!TextUtils.isEmpty(title)) {
             this.notificationBuilder.setContentTitle(title);
@@ -209,5 +214,27 @@ public abstract class NotificationRenderer {
         this.notificationManager.notify(this.notificationID, notification);
 
         this.checkForNotificationViewed();
+    }
+
+    /**
+     * Convert all parts to one string
+     *
+     * @param textElement instance {@link TextElement} containing {@link List} of
+     *                    {@link PartElement}
+     * @return single {@link String} from all parts
+     */
+    private String getTextFromTextElement(TextElement textElement) {
+        StringBuilder text = new StringBuilder();
+        List<PartElement> partElements = textElement.getParts();
+
+        if (partElements == null || partElements.isEmpty()) {
+            return text.toString();
+        }
+
+        for (PartElement partElement : partElements) {
+            text.append(partElement.getText());
+        }
+
+        return text.toString().replace("\n", "");
     }
 }

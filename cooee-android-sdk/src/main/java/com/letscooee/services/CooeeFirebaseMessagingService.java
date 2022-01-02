@@ -7,9 +7,11 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.core.app.NotificationCompat;
+
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.google.gson.Gson;
@@ -33,8 +35,6 @@ import com.letscooee.trigger.pushnotification.NotificationRenderer;
 import com.letscooee.trigger.pushnotification.SimpleNotificationRenderer;
 import com.letscooee.utils.Constants;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.util.HashMap;
 
 /**
@@ -49,12 +49,12 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
     Context context;
 
     @Override
-    public void onNewToken(@NonNull @NotNull String token) {
+    public void onNewToken(@NonNull String token) {
         sendTokenToServer(token);
     }
 
     @Override
-    public void onMessageReceived(@NonNull @NotNull RemoteMessage remoteMessage) {
+    public void onMessageReceived(@NonNull RemoteMessage remoteMessage) {
         super.onMessageReceived(remoteMessage);
         this.context = getApplicationContext();
         if (remoteMessage.getData().size() == 0) {

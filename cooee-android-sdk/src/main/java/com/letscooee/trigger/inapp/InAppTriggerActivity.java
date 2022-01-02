@@ -48,7 +48,6 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
     private Date startTime;
     private boolean isFreshLaunch;
     private boolean isSuccessfullyStarted;
-    private EmbeddedTrigger trigger;
 
     public InAppTriggerActivity() {
         sentryHelper = CooeeFactory.getSentryHelper();
@@ -95,12 +94,6 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
             return;
         }
 
-        EmbeddedTrigger trigger = new EmbeddedTrigger(
-                triggerData.getId(),
-                triggerData.getEngagementID(),
-                triggerData.getExpireAt()
-        );
-
         Event event = new Event("CE Trigger Displayed", triggerData);
         CooeeFactory.getSafeHTTPService().sendEvent(event);
     }
@@ -117,7 +110,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
         Container containerData = inAppData.getContainer();
         RelativeLayout rootViewElement = findViewById(R.id.inAppTriggerRoot);
         triggerContext.setTriggerParentLayout(rootViewElement);
-        new ContainerRenderer(this, rootViewElement, containerData, inAppData.getLayers(), triggerContext).render();
+        new ContainerRenderer(this, rootViewElement, containerData, inAppData, triggerContext).render();
     }
 
     /**

@@ -2,15 +2,20 @@ package com.letscooee.models.trigger.elements;
 
 import android.os.Parcel;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
 import java.util.ArrayList;
 
 public class TextElement extends BaseTextElement {
 
-    private ArrayList<TextElement> parts;
+    @SerializedName("prs")
+    @Expose
+    private ArrayList<PartElement> parts;
 
     protected TextElement(Parcel in) {
         super(in);
-        parts = in.readArrayList(TextElement.class.getClassLoader());
+        parts = in.readArrayList(getClass().getClassLoader());
     }
 
     public static final Creator<TextElement> CREATOR = new Creator<TextElement>() {
@@ -25,7 +30,7 @@ public class TextElement extends BaseTextElement {
         }
     };
 
-    public ArrayList<TextElement> getParts() {
+    public ArrayList<PartElement> getParts() {
         return parts;
     }
 

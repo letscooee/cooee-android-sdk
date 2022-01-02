@@ -56,7 +56,7 @@ public class CooeeFactory {
         baseHTTPService = new BaseHTTPService(context);
 
         // This is required in PendingTaskService (ultimately). TODO make this a strong dependency
-        deviceAuthService = new DeviceAuthService(context, sentryHelper);
+        deviceAuthService = new DeviceAuthService(context, sentryHelper, manifestReader);
         deviceAuthService.populateUserDataFromStorage();
 
         pendingTaskService = new PendingTaskService(context, sentryHelper);

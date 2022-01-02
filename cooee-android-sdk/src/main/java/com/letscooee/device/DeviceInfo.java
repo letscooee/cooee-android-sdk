@@ -1,12 +1,15 @@
 package com.letscooee.device;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.os.Build;
 import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+
 import com.letscooee.ContextAware;
 
 /**
@@ -20,21 +23,27 @@ public class DeviceInfo extends ContextAware {
 
     private static DeviceInfo instance;
     private final CachedInfo cachedInfo;
+    private Resources resources;
+    private DisplayMetrics displayMetrics;
 
+    /**
+     * Internal class which will collect all device information
+     */
     private class CachedInfo {
 
         private String name;
         private int width;
         private int height;
         private float scaledDensity;
+        private int orientation;
 
         CachedInfo() {
             this.cacheName();
 
-            DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
             width = displayMetrics.widthPixels;
             height = displayMetrics.heightPixels;
             scaledDensity = displayMetrics.scaledDensity;
+            orientation = resources.getConfiguration().orientation;
         }
 
         private void cacheName() {
@@ -66,7 +75,13 @@ public class DeviceInfo extends ContextAware {
 
     DeviceInfo(Context context) {
         super(context);
+        initializeResource();
         this.cachedInfo = new CachedInfo();
+    }
+
+    private void initializeResource() {
+        resources = context.getResources();
+        displayMetrics = resources.getDisplayMetrics();
     }
 
     /**
@@ -89,5 +104,19 @@ public class DeviceInfo extends ContextAware {
 
     public float getScaledDensity() {
         return this.cachedInfo.scaledDensity;
+    }
+
+    public int getOrientation() {
+        return this.cachedInfo.orientation;
+    }
+
+    public int getRunTimeDisplayWidth() {
+        initializeResource();
+        return displayMetrics.widthPixels;
+    }
+
+    public int getRunTimeDisplayHeight() {
+        initializeResource();
+        return displayMetrics.heightPixels;
     }
 }
