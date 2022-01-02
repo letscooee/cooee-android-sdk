@@ -51,11 +51,13 @@ public class TextRenderer extends FontRenderer {
     protected void processParts() {
         newElement = new LinearLayout(context);
         ((LinearLayout) newElement).setGravity(Gravity.CENTER);
+        ((LinearLayout) newElement).setOrientation(LinearLayout.VERTICAL);
+
         insertNewElementInHierarchy();
         processCommonBlocks();
-
         for (PartElement child : ((TextElement) textData).getParts()) {
-            new TextRenderer(context, (ViewGroup) newElement, child, globalData, (TextElement) textData).render();
+            if (child.getText().replace("\n", "").trim().length() > 0)
+                new TextRenderer(context, (ViewGroup) newElement, child, globalData, (TextElement) textData).render();
         }
     }
 
@@ -76,7 +78,7 @@ public class TextRenderer extends FontRenderer {
     }
 
     protected void processTextData(TextView textView) {
-        textView.setText(((PartElement) textData).getText());
+        textView.setText(((PartElement) textData).getText().replace("\n", ""));
         this.newElement = textView;
 
         this.processFontBlock();

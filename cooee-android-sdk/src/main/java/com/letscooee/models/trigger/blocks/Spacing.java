@@ -1,44 +1,43 @@
 package com.letscooee.models.trigger.blocks;
 
+import static com.letscooee.utils.ui.UnitUtils.getScaledPixel;
+
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.text.TextUtils;
-import android.view.View;
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-
-import static com.letscooee.utils.ui.UnitUtils.getCalculatedValue;
 
 public class Spacing implements Parcelable {
 
     @SerializedName("p")
     @Expose
-    private final String padding;
+    private final Float padding;
 
     @SerializedName("pl")
     @Expose
-    private final String paddingLeft;
+    private final Float paddingLeft;
 
     @SerializedName("pr")
     @Expose
-    private final String paddingRight;
+    private final Float paddingRight;
 
     @SerializedName("pt")
     @Expose
-    private final String paddingTop;
+    private final Float paddingTop;
 
     @SerializedName("pb")
     @Expose
-    private final String paddingBottom;
+    private final Float paddingBottom;
 
-    private int calculatedPadding = 0;
+    private float calculatedPadding = 0;
 
     protected Spacing(Parcel in) {
-        padding = in.readString();
-        paddingLeft = in.readString();
-        paddingRight = in.readString();
-        paddingTop = in.readString();
-        paddingBottom = in.readString();
+        padding = in.readFloat();
+        paddingLeft = in.readFloat();
+        paddingRight = in.readFloat();
+        paddingTop = in.readFloat();
+        paddingBottom = in.readFloat();
     }
 
     public static final Creator<Spacing> CREATOR = new Creator<Spacing>() {
@@ -53,30 +52,29 @@ public class Spacing implements Parcelable {
         }
     };
 
-    public void calculatedPaddingAndMargin(View parent) {
-        if (!TextUtils.isEmpty(padding)) {
-            calculatedPadding = getCalculatedValue(parent, padding);
-        }
+    public void calculatedPadding() {
+        calculatedPadding = getScaledPixel(padding);
+
     }
 
-    public int getPaddingLeft(View parent) {
-        Integer calculatedValue = getCalculatedValue(parent, paddingLeft);
-        return calculatedValue != null ? calculatedValue : calculatedPadding;
+    public float getPaddingLeft() {
+        float calculatedValue = getScaledPixel(paddingLeft);
+        return calculatedValue == 0 ? calculatedPadding : calculatedValue;
     }
 
-    public int getPaddingRight(View parent) {
-        Integer calculatedValue = getCalculatedValue(parent, paddingRight);
-        return calculatedValue != null ? calculatedValue : calculatedPadding;
+    public float getPaddingRight() {
+        float calculatedValue = getScaledPixel(paddingRight);
+        return calculatedValue == 0 ? calculatedPadding : calculatedValue;
     }
 
-    public int getPaddingTop(View parent) {
-        Integer calculatedValue = getCalculatedValue(parent, paddingTop, true);
-        return calculatedValue != null ? calculatedValue : calculatedPadding;
+    public float getPaddingTop() {
+        float calculatedValue = getScaledPixel(paddingTop);
+        return calculatedValue == 0 ? calculatedPadding : calculatedValue;
     }
 
-    public int getPaddingBottom(View parent) {
-        Integer calculatedValue = getCalculatedValue(parent, paddingBottom, true);
-        return calculatedValue != null ? calculatedValue : calculatedPadding;
+    public float getPaddingBottom() {
+        float calculatedValue = getScaledPixel(paddingBottom);
+        return calculatedValue == 0 ? calculatedPadding : calculatedValue;
     }
 
     @Override
@@ -86,10 +84,10 @@ public class Spacing implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(padding);
-        dest.writeString(paddingLeft);
-        dest.writeString(paddingRight);
-        dest.writeString(paddingTop);
-        dest.writeString(paddingBottom);
+        dest.writeFloat(padding);
+        dest.writeFloat(paddingLeft);
+        dest.writeFloat(paddingRight);
+        dest.writeFloat(paddingTop);
+        dest.writeFloat(paddingBottom);
     }
 }

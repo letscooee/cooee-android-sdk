@@ -57,6 +57,7 @@ public class FontProcessor {
 
         if (TextUtils.isEmpty(appID)) {
             Log.d(Constants.TAG, "Skipping getAppConfig as appID is not available");
+            return;
         }
 
         try {

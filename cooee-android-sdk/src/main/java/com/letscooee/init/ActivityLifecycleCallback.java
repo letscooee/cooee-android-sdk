@@ -12,6 +12,8 @@ import androidx.annotation.Nullable;
 import com.letscooee.CooeeFactory;
 import com.letscooee.device.DebugInfoActivity;
 import com.letscooee.gesture.ShakeDetector;
+import com.letscooee.screenshot.ScreenshotHelper;
+import com.letscooee.screenshot.ScreenshotUtility;
 import com.letscooee.trigger.CooeeEmptyActivity;
 import com.letscooee.trigger.EngagementTriggerHelper;
 import com.letscooee.trigger.inapp.InAppTriggerActivity;
@@ -51,6 +53,11 @@ public class ActivityLifecycleCallback implements Application.ActivityLifecycleC
         }
 
         registerShakeDetector(activity);
+
+        ScreenshotHelper screenshotHelper = ScreenshotUtility.getScreenshotHelper();
+        if (screenshotHelper != null) {
+            screenshotHelper.onActivitySwitched(activity);
+        }
     }
 
     /**
