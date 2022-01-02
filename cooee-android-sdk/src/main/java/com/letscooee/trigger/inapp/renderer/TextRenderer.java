@@ -2,6 +2,7 @@ package com.letscooee.trigger.inapp.renderer;
 
 import android.content.Context;
 import android.graphics.Typeface;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,6 +30,7 @@ public class TextRenderer extends FontRenderer {
     public TextRenderer(Context context, ViewGroup parentView, Object elementData,
                         TriggerContext globalData, TextElement commonTextData) {
         super(context, parentView, commonTextData, globalData);
+        super.setPartElement((PartElement) elementData);
         this.textData = elementData;
         this.commonTextData = commonTextData;
     }
@@ -43,6 +45,7 @@ public class TextRenderer extends FontRenderer {
             this.processTextData(textView);
             this.processFont();
             this.processPartStyle();
+            this.processFontBlock();
         }
 
         return newElement;
@@ -51,7 +54,6 @@ public class TextRenderer extends FontRenderer {
     protected void processParts() {
         newElement = new LinearLayout(context);
         ((LinearLayout) newElement).setGravity(Gravity.CENTER);
-        ((LinearLayout) newElement).setOrientation(LinearLayout.VERTICAL);
 
         insertNewElementInHierarchy();
         processCommonBlocks();
@@ -64,6 +66,11 @@ public class TextRenderer extends FontRenderer {
     private void processPartStyle() {
         TextView textView = (TextView) newElement;
         Typeface typeface = textView.getTypeface();
+
+        if (typeface == null) {
+            typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL);
+        }
+
         PartElement partElement = (PartElement) textData;
 
         if (partElement.isBold() && partElement.isItalic()) {
@@ -78,10 +85,15 @@ public class TextRenderer extends FontRenderer {
     }
 
     protected void processTextData(TextView textView) {
-        textView.setText(((PartElement) textData).getText().replace("\n", ""));
+        String text = ((PartElement) textData).getText();
+
+        if (text.endsWith("\n")) {
+            text = text.substring(0, text.length() - 1);
+        }
+
+        textView.setText(text);
         this.newElement = textView;
 
-        this.processFontBlock();
         this.processColourBlock();
         this.processAlignmentBlock();
 
@@ -91,6 +103,7 @@ public class TextRenderer extends FontRenderer {
     protected void processAlignmentBlock() {
         if (commonTextData != null) {
             ((TextView) newElement).setGravity(commonTextData.getAlignment());
+            ((LinearLayout) parentElement).setGravity(commonTextData.getAlignment());
         }
     }
 
@@ -109,7 +122,7 @@ public class TextRenderer extends FontRenderer {
 
     protected void processFontBlock() {
         if (commonTextData != null && commonTextData.getFont() != null) {
-            ((TextView) newElement).setTextSize(commonTextData.getFont().getSize());
+            ((TextView) newElement).setTextSize(TypedValue.COMPLEX_UNIT_PX, commonTextData.getFont().getSize());
         }
     }
 }

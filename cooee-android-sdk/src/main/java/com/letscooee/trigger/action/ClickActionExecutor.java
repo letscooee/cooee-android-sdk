@@ -47,7 +47,6 @@ public class ClickActionExecutor {
         executeInAppBrowser();
         boolean requestedAnyPermission = processPrompts();
         loadAR();
-        loadWebAR();
         shareContent();
         updateApp();
 
@@ -64,7 +63,13 @@ public class ClickActionExecutor {
             return;
         }
 
-        openURL(action.getUpdateApp().getUrl());
+        String appLink = action.getUpdateApp().getUrl();
+
+        if (TextUtils.isEmpty(appLink)) {
+            appLink = Constants.PLAY_STORE_LINK + CooeeFactory.getAppInfo().getPackageName();
+        }
+
+        openURL(appLink);
 
     }
 
@@ -86,23 +91,20 @@ public class ClickActionExecutor {
     }
 
     /**
-     * Check and process <code>webAR</code> and launch external browser
-     */
-    private void loadWebAR() {
-        BrowserContent webAR = action.getWebAR();
-
-        if (webAR == null) {
-            return;
-        }
-
-        openURL(webAR.getUrl());
-    }
-
-    /**
      * Check and process <code>appAR</code> and give control to
      * {@link ARHelper#checkForARAndLaunch(Activity, AppAR, TriggerData)} to launch AR
      */
     private void loadAR() {
+        int launchFeature = action.getLaunchFeature();
+
+        if (launchFeature == 2) {
+            // TODO: 02/01/22 launch self AR
+        } else if (launchFeature == 3) {
+            launchNativeAR();
+        }
+    }
+
+    private void launchNativeAR() {
         if (action.getAR() == null) {
             return;
         }
@@ -161,7 +163,6 @@ public class ClickActionExecutor {
             return;
         }
 
-        // TODO: 25/07/21 Append data
         String url = action.getIab().getUrl();
         if (TextUtils.isEmpty(url)) {
             return;

@@ -25,6 +25,10 @@ public class TriggerData implements Parcelable {
     private final Map<String, Object> config;
     private final long expireAt;
 
+    @SerializedName("ar")
+    @Expose
+    private final Map<String, Object> selfARData;
+
     /**
      * No longer used and is replaced by {@link #expireAt}. This was used to append time after notification was
      * received.
@@ -44,6 +48,8 @@ public class TriggerData implements Parcelable {
         config = new HashMap<>();
         in.readMap(config, Object.class.getClassLoader());
         expireAt = in.readLong();
+        selfARData = new HashMap<>();
+        in.readMap(selfARData, Object.class.getClassLoader());
     }
 
     public static final Creator<TriggerData> CREATOR = new Creator<TriggerData>() {
@@ -115,5 +121,6 @@ public class TriggerData implements Parcelable {
         dest.writeByte((byte) (internal ? 1 : 0));
         dest.writeMap(config);
         dest.writeLong(expireAt);
+        dest.writeMap(selfARData);
     }
 }

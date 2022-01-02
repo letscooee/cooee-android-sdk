@@ -6,6 +6,7 @@ import android.os.Parcelable;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.letscooee.enums.trigger.PushNotificationImportance;
+import com.letscooee.models.trigger.blocks.ClickAction;
 import com.letscooee.models.trigger.elements.ButtonElement;
 import com.letscooee.models.trigger.elements.TextElement;
 
@@ -33,6 +34,10 @@ public class PushNotificationTrigger implements Parcelable {
     @Expose
     private final ArrayList<ButtonElement> buttons;
 
+    @SerializedName("clc")
+    @Expose
+    private final ClickAction clickAction;
+
     private PushNotificationImportance importance;
     public final boolean vibrate = true;
     public final boolean sound = true;
@@ -51,6 +56,7 @@ public class PushNotificationTrigger implements Parcelable {
         smallImage = in.readString();
         largeImage = in.readString();
         buttons = in.createTypedArrayList(ButtonElement.CREATOR);
+        clickAction = in.readParcelable(ClickAction.class.getClassLoader());
     }
 
     public static final Creator<PushNotificationTrigger> CREATOR = new Creator<PushNotificationTrigger>() {
@@ -85,6 +91,10 @@ public class PushNotificationTrigger implements Parcelable {
         return buttons;
     }
 
+    public ClickAction getClickAction() {
+        return clickAction;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -97,5 +107,6 @@ public class PushNotificationTrigger implements Parcelable {
         dest.writeString(smallImage);
         dest.writeString(largeImage);
         dest.writeTypedList(buttons);
+        dest.writeParcelable(clickAction, flags);
     }
 }
