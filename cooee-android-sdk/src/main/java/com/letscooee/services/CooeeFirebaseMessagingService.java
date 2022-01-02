@@ -97,7 +97,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
 
             assert baseTriggerData != null;
 
-            Double version = (Double) baseTriggerData.get("version");
+            Double version = (Double) baseTriggerData.get("v");
             if (version == null || version >= 5 || version < 4) {
                 Log.d(Constants.TAG, "Unsupported payload version received " + version);
                 return;
