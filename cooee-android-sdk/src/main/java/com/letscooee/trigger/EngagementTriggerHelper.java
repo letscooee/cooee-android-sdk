@@ -14,9 +14,11 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.letscooee.BuildConfig;
 import com.letscooee.CooeeFactory;
+import com.letscooee.ar.ARHelper;
 import com.letscooee.models.Event;
 import com.letscooee.models.trigger.EmbeddedTrigger;
 import com.letscooee.models.trigger.TriggerData;
+import com.letscooee.models.trigger.blocks.ClickAction;
 import com.letscooee.models.trigger.elements.BaseElement;
 import com.letscooee.models.trigger.inapp.InAppTrigger;
 import com.letscooee.trigger.adapters.ChildElementDeserializer;
@@ -205,6 +207,31 @@ public class EngagementTriggerHelper {
             return;
         }
 
+        ClickAction pushClickAction = triggerData.getPn().getClickAction();
+
+        if (pushClickAction == null) {
+            launchInApp(context, triggerData);
+            return;
+        }
+
+        int launchFeature = pushClickAction.getLaunchFeature();
+
+        if (launchFeature == 1) {
+            launchInApp(context, triggerData);
+        } else if (launchFeature == 2) {
+            // TODO: 02/01/22 launch self AR
+        } else if (launchFeature == 3) {
+            if (pushClickAction.getAR() == null) {
+                return;
+            }
+
+            ARHelper.checkForARAndLaunch(activity, pushClickAction.getAR(), triggerData);
+        }
+
+
+    }
+
+    private static void launchInApp(Context context, TriggerData triggerData) {
         RuntimeData runtimeData = CooeeFactory.getRuntimeData();
         // If app is being launched from the "cold state"
         if (runtimeData.isFirstForeground()) {

@@ -95,6 +95,16 @@ public class ClickActionExecutor {
      * {@link ARHelper#checkForARAndLaunch(Activity, AppAR, TriggerData)} to launch AR
      */
     private void loadAR() {
+        int launchFeature = action.getLaunchFeature();
+
+        if (launchFeature == 2) {
+            // TODO: 02/01/22 launch self AR
+        } else if (launchFeature == 3) {
+            launchNativeAR();
+        }
+    }
+
+    private void launchNativeAR() {
         if (action.getAR() == null) {
             return;
         }
@@ -153,7 +163,6 @@ public class ClickActionExecutor {
             return;
         }
 
-        // TODO: 25/07/21 Append data
         String url = action.getIab().getUrl();
         if (TextUtils.isEmpty(url)) {
             return;
