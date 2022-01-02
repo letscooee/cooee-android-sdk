@@ -7,7 +7,10 @@ import android.text.TextUtils;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.core.content.res.ResourcesCompat;
+
 import com.letscooee.CooeeFactory;
+import com.letscooee.R;
 import com.letscooee.font.FontProcessor;
 import com.letscooee.models.trigger.blocks.Font;
 import com.letscooee.models.trigger.elements.BaseElement;
@@ -73,6 +76,10 @@ public abstract class FontRenderer extends AbstractInAppRenderer {
 
         if (typeface == null) {
             typeface = this.getFontWRToStyle();
+        }
+
+        if (typeface == null) {
+            typeface = ResourcesCompat.getFont(context, R.font.arial);
         }
 
         if (typeface != null) {
