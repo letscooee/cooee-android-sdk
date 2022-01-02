@@ -85,7 +85,7 @@ public class TextRenderer extends FontRenderer {
     }
 
     protected void processTextData(TextView textView) {
-        String text =((PartElement) textData).getText();
+        String text = ((PartElement) textData).getText();
 
         if (text.endsWith("\n")) {
             text = text.substring(0, text.length() - 1);
@@ -103,6 +103,7 @@ public class TextRenderer extends FontRenderer {
     protected void processAlignmentBlock() {
         if (commonTextData != null) {
             ((TextView) newElement).setGravity(commonTextData.getAlignment());
+            ((LinearLayout) parentElement).setGravity(commonTextData.getAlignment());
         }
     }
 
