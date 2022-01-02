@@ -47,7 +47,6 @@ public class ClickActionExecutor {
         executeInAppBrowser();
         boolean requestedAnyPermission = processPrompts();
         loadAR();
-        loadWebAR();
         shareContent();
         updateApp();
 
@@ -64,7 +63,13 @@ public class ClickActionExecutor {
             return;
         }
 
-        openURL(action.getUpdateApp().getUrl());
+        String appLink = action.getUpdateApp().getUrl();
+
+        if (TextUtils.isEmpty(appLink)) {
+            appLink = Constants.PLAY_STORE_LINK + CooeeFactory.getAppInfo().getPackageName();
+        }
+
+        openURL(appLink);
 
     }
 
@@ -83,19 +88,6 @@ public class ClickActionExecutor {
         intent.putExtra(Intent.EXTRA_TEXT, shareBody);
         startActivity(Intent.createChooser(intent, "Share with"));
 
-    }
-
-    /**
-     * Check and process <code>webAR</code> and launch external browser
-     */
-    private void loadWebAR() {
-        BrowserContent webAR = action.getWebAR();
-
-        if (webAR == null) {
-            return;
-        }
-
-        openURL(webAR.getUrl());
     }
 
     /**
