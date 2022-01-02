@@ -27,6 +27,7 @@ import com.letscooee.network.SafeHTTPService;
 import com.letscooee.services.PushNotificationIntentService;
 import com.letscooee.utils.Constants;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -224,20 +225,30 @@ public abstract class NotificationRenderer {
      * @return single {@link String} from all parts
      */
     private String getTextFromTextElement(TextElement textElement) {
-        StringBuilder text = new StringBuilder();
         List<PartElement> partElements = textElement.getParts();
+        List<String> partTextList = new ArrayList<>();
 
         if (partElements == null || partElements.isEmpty()) {
-            return text.toString();
+            return "";
         }
 
-        for (PartElement partElement : partElements.subList(0, partElements.size() - 1)) {
-            text.append(partElement.getText());
-            text.append(" ");
+        for (PartElement partElement : partElements) {
+            String partText = partElement.getText();
+
+            if (TextUtils.isEmpty(partText.replace("\n", "").trim())) {
+                // Skip part text if its only \n (New Line character)
+                continue;
+            }
+
+            String replacedLastNewLineCharacter = partText;
+
+            if (partText.endsWith("\n")) {
+                replacedLastNewLineCharacter = partText.substring(0, partText.length() - 1);
+            }
+
+            partTextList.add(replacedLastNewLineCharacter.replace("\n", " "));
         }
 
-        text.append(partElements.get(partElements.size() - 1).getText());
-
-        return text.toString().replace("\n", "");
+        return TextUtils.join(" ", partTextList);
     }
 }
