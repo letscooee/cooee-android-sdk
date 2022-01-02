@@ -17,6 +17,8 @@ import com.letscooee.trigger.inapp.TriggerContext;
 
 import java.io.File;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -93,15 +95,20 @@ public abstract class FontRenderer extends AbstractInAppRenderer {
             return null;
         }
 
-        String fontFileName = font.getName().toLowerCase().trim() + "-";
+        List<String> fontNameArray = new ArrayList<>();
+        String fontFileName = font.getName().toLowerCase().trim();
+
+        fontNameArray.add(fontFileName);
 
         if (partElement.isBold()) {
-            fontFileName += "bold";
+            fontNameArray.add("bold");
         }
 
         if (partElement.isItalic()) {
-            fontFileName += "italic";
+            fontNameArray.add("italic");
         }
+
+        fontFileName = TextUtils.join("-", fontNameArray);
 
         File fontFile = FontProcessor.getFontFile(this.fontsDirectory, fontFileName);
 
