@@ -17,14 +17,25 @@ public class ClickAction implements Parcelable {
     @SerializedName("ext")
     @Expose
     private BrowserContent external;
+
+    @SerializedName("updt")
+    @Expose
     private BrowserContent updateApp;
+
+    @SerializedName("pmpt")
+    @Expose
     private PermissionType prompt;
-    private BrowserContent webAR;
     private HashMap<String, Object> up;
     private HashMap<String, Object> kv;
     private HashMap<String, Object> share;
     private boolean close;
+
+    @SerializedName("ntvAR")
+    @Expose
     private AppAR appAR;
+
+    @SerializedName("open")
+    private int launchFeature;
 
     protected ClickAction(Parcel in) {
         iab = in.readParcelable(BrowserContent.class.getClassLoader());
@@ -36,6 +47,7 @@ public class ClickAction implements Parcelable {
         kv = (HashMap<String, Object>) in.readSerializable();
         share = (HashMap<String, Object>) in.readSerializable();
         appAR = in.readParcelable(AppAR.class.getClassLoader());
+        launchFeature = in.readInt();
     }
 
     public static final Creator<ClickAction> CREATOR = new Creator<ClickAction>() {
@@ -86,8 +98,8 @@ public class ClickAction implements Parcelable {
         return close;
     }
 
-    public BrowserContent getWebAR() {
-        return webAR;
+    public int getLaunchFeature() {
+        return launchFeature;
     }
 
     @Override
@@ -106,5 +118,6 @@ public class ClickAction implements Parcelable {
         dest.writeSerializable(kv);
         dest.writeSerializable(share);
         dest.writeParcelable(appAR, flags);
+        dest.writeInt(launchFeature);
     }
 }
