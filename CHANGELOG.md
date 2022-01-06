@@ -1,5 +1,19 @@
 # Change Log
 
+## v1.1.0
+
+### Feature
+
+1. Templates Engagement (Using payload version 4)
+2. Tracking of expired Engagement
+3. Add Support to the latest Android 12
+
+### Fixes
+
+1. Fix issue with `DebugInfoActivity`. Now developer will decide when to activate
+2. Job scheduler issue with Android M
+3. Fix issue with permission data
+
 ## v1.0.2
 
 ### Fixes
