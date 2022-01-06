@@ -8,14 +8,14 @@ import android.widget.RelativeLayout;
 import com.letscooee.models.trigger.elements.BaseElement;
 import com.letscooee.models.trigger.elements.ButtonElement;
 import com.letscooee.models.trigger.elements.ImageElement;
+import com.letscooee.models.trigger.elements.ShapeElement;
 import com.letscooee.models.trigger.elements.TextElement;
 import com.letscooee.models.trigger.elements.VideoElement;
-import com.letscooee.models.trigger.inapp.Container;
 import com.letscooee.models.trigger.inapp.InAppTrigger;
 import com.letscooee.trigger.inapp.TriggerContext;
 
 /**
- * Renders the top most container of the in-app.
+ * Renders the topmost container of the in-app.
  *
  * @author Shashank Agrawal
  * @since 1.0.0
@@ -57,7 +57,7 @@ public class ContainerRenderer extends AbstractInAppRenderer {
             } else if (child instanceof VideoElement) {
                 new VideoRenderer(context, (ViewGroup) newElement, child, globalData).render();
 
-            } else if (child instanceof Container) {
+            } else if (child instanceof ShapeElement) {
                 new ShapeRenderer(context, (ViewGroup) newElement, child, globalData).render();
 
             }
