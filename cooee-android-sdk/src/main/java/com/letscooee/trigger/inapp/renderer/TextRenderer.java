@@ -44,6 +44,22 @@ public class TextRenderer extends FontRenderer {
                         backgroundImage.setLayoutParams(new FrameLayout.LayoutParams(right, bottom))
         );
 
+        // region fix rendering negative positioned text
+        float top = elementData.getY();
+        float left = elementData.getX();
+
+        if (left < 0) {
+            newElement.setX(left);
+            left = 0;
+        }
+        if (top < 0) {
+            newElement.setY(top);
+            top = 0;
+        }
+        materialCardView.setX(left);
+        materialCardView.setY(top);
+        // endregion
+
         return newElement;
     }
 
