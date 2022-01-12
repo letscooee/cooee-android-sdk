@@ -79,8 +79,12 @@ public class PartElement extends BaseElement {
         return underline;
     }
 
-    public Integer getPartTextColour() {
-        return TextUtils.isEmpty(textColour) ? null : Color.parseColor(textColour);
+    public String getPartTextColour() {
+        if (textColour == null || !TextUtils.isEmpty(textColour)) {
+            return null;
+        }
+
+        return "#" + textColour.substring(3) + textColour.substring(1, 3);
     }
 
     public boolean isStrikeTrough() {
