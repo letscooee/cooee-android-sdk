@@ -5,6 +5,7 @@ import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import androidx.core.text.HtmlCompat;
@@ -36,6 +37,12 @@ public class TextRenderer extends FontRenderer {
         this.processTextData(textView, textData);
         this.processFont();
         this.processFontBlock();
+
+        // resize background image when text view is updated/rendered.
+        newElement.addOnLayoutChangeListener(
+                (view, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) ->
+                        backgroundImage.setLayoutParams(new FrameLayout.LayoutParams(right, bottom))
+        );
 
         return newElement;
     }
