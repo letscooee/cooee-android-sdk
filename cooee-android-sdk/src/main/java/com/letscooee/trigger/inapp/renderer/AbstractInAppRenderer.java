@@ -263,13 +263,11 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
 
             int calculatedBorder = (int) border.getWidth(parentElement);
             materialCardView.setStrokeWidth(calculatedBorder);
-            backgroundDrawable.setStroke(calculatedBorder, borderColor);
 
             float calculatedRadius = border.getRadius();
 
             backgroundDrawable.setCornerRadius(calculatedRadius);
             materialCardView.setRadius(calculatedRadius);
-
         }
     }
 
