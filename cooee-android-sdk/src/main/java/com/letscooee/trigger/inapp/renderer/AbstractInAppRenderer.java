@@ -259,9 +259,10 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
 
         if (border != null) {
             int borderColor = border.getColor().getHexColor();
-            materialCardView.setStrokeColor(borderColor);
-
             int calculatedBorder = (int) border.getWidth(parentElement);
+
+            materialCardView.setContentPadding(calculatedBorder, calculatedBorder, calculatedBorder, calculatedBorder);
+            materialCardView.setStrokeColor(borderColor);
             materialCardView.setStrokeWidth(calculatedBorder);
 
             float calculatedRadius = border.getRadius();
