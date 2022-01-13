@@ -40,11 +40,22 @@ public class ContainerRenderer extends AbstractInAppRenderer {
         if (inAppTrigger != null) {
             processChildren();
         }
+
         // For container it is necessary to be of size of device i.e. match_parent
         FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(MP, MP);
-        materialCardView.setLayoutParams(new RelativeLayout.LayoutParams(MP, MP));
         baseFrameLayout.setLayoutParams(layoutParams);
         newElement.setLayoutParams(layoutParams);
+
+        // Displaying elements with respect to client portal mobile viewport
+        materialCardView.setLayoutParams(new RelativeLayout.LayoutParams(1080, 1920));
+
+        // Moving backgroundImage from base frame layout and putting it in root view layout.
+        baseFrameLayout.removeView(backgroundImage);
+        globalData.getTriggerParentLayout().addView(backgroundImage);
+
+        // Removing and Adding material view to render it on top layer
+        globalData.getTriggerParentLayout().removeView(materialCardView);
+        globalData.getTriggerParentLayout().addView(materialCardView);
 
         return newElement;
     }
