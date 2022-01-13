@@ -84,7 +84,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         baseFrameLayout.addView(backgroundImage);
         materialCardView.addView(baseFrameLayout);
 
-        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(MP, MP);
+        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(WC, WC);
         baseFrameLayout.setLayoutParams(layoutParams);
         backgroundImage.setLayoutParams(layoutParams);
 

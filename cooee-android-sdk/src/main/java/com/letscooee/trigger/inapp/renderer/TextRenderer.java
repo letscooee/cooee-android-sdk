@@ -23,7 +23,7 @@ public class TextRenderer extends FontRenderer {
     protected TextElement textData;
 
     public TextRenderer(Context context, ViewGroup parentView, BaseElement elementData, TriggerContext globalData) {
-        super(context, parentView, (BaseElement) elementData, globalData);
+        super(context, parentView, elementData, globalData);
         this.textData = (TextElement) elementData;
     }
 
@@ -44,29 +44,13 @@ public class TextRenderer extends FontRenderer {
                         backgroundImage.setLayoutParams(new FrameLayout.LayoutParams(right, bottom))
         );
 
-        // region fix rendering negative positioned text
-        float top = elementData.getY();
-        float left = elementData.getX();
-
-        if (left < 0) {
-            newElement.setX(left);
-            left = 0;
-        }
-        if (top < 0) {
-            newElement.setY(top);
-            top = 0;
-        }
-        materialCardView.setX(left);
-        materialCardView.setY(top);
-        // endregion
-
         return newElement;
     }
 
     protected String processParts() {
         String allText = "";
 
-        for (PartElement child : ((TextElement) textData).getParts()) {
+        for (PartElement child : (textData).getParts()) {
             String partText = child.getText();
 
             if (child.isBold()) {
@@ -116,11 +100,11 @@ public class TextRenderer extends FontRenderer {
     }
 
     protected void processAlignmentBlock() {
-        ((TextView) newElement).setGravity(((TextElement) textData).getAlignment());
+        ((TextView) newElement).setGravity((textData).getAlignment());
     }
 
     protected void processColourBlock() {
-        ((TextView) newElement).setTextColor(((TextElement) textData).getColor().getHexColor());
+        ((TextView) newElement).setTextColor((textData).getColor().getHexColor());
     }
 
     protected void processFontBlock() {

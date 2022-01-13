@@ -38,22 +38,6 @@ public class ImageRenderer extends AbstractInAppRenderer {
         insertNewElementInHierarchy();
         processCommonBlocks();
 
-        // region fix rendering negative positioned image
-        float top = elementData.getY();
-        float left = elementData.getX();
-
-        if (left < 0) {
-            newElement.setX(left);
-            left = 0;
-        }
-        if (top < 0) {
-            newElement.setY(top);
-            top = 0;
-        }
-        materialCardView.setX(left);
-        materialCardView.setY(top);
-        // endregion
-
         return newElement;
     }
 }

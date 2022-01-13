@@ -3,6 +3,7 @@ package com.letscooee.trigger.inapp.renderer;
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 
 import com.letscooee.models.trigger.elements.BaseElement;
@@ -32,13 +33,19 @@ public class ContainerRenderer extends AbstractInAppRenderer {
 
     @Override
     public View render() {
-        newElement = new RelativeLayout(context);
+        newElement = new FrameLayout(context);
 
         insertNewElementInHierarchy();
         processCommonBlocks();
         if (inAppTrigger != null) {
             processChildren();
         }
+        // For container it is necessary to be of size of device i.e. match_parent
+        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(MP, MP);
+        materialCardView.setLayoutParams(new RelativeLayout.LayoutParams(MP, MP));
+        baseFrameLayout.setLayoutParams(layoutParams);
+        newElement.setLayoutParams(layoutParams);
+
         return newElement;
     }
 
