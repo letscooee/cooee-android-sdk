@@ -257,7 +257,11 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
     protected void processBorderBlock() {
         Border border = this.elementData.getBorder();
 
-        if (border != null) {
+        if (border == null) {
+            return;
+        }
+
+        if (border.getStyle() == Border.Style.SOLID) {
             int borderColor = border.getColor().getHexColor();
             int calculatedBorder = (int) border.getWidth(parentElement);
 
@@ -269,6 +273,16 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
 
             backgroundDrawable.setCornerRadius(calculatedRadius);
             materialCardView.setRadius(calculatedRadius);
+        } else if (border.getStyle() == Border.Style.DASH) {
+            int borderColor = border.getColor().getHexColor();
+            int calculatedBorder = (int) border.getWidth(parentElement);
+            float dashWidth = calculatedBorder * 2;
+
+            baseFrameLayout.setBackgroundResource(0);
+            backgroundDrawable.setCornerRadius(border.getRadius());
+            materialCardView.setBackground(backgroundDrawable);
+            materialCardView.setContentPadding(calculatedBorder, calculatedBorder, calculatedBorder, calculatedBorder);
+            backgroundDrawable.setStroke(calculatedBorder, borderColor, dashWidth, calculatedBorder);
         }
     }
 
