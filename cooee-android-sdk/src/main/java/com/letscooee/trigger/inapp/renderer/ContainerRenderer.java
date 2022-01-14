@@ -1,11 +1,14 @@
 package com.letscooee.trigger.inapp.renderer;
 
 import android.content.Context;
+import android.graphics.drawable.GradientDrawable;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 
+import com.letscooee.models.trigger.blocks.Colour;
 import com.letscooee.models.trigger.elements.BaseElement;
 import com.letscooee.models.trigger.elements.ButtonElement;
 import com.letscooee.models.trigger.elements.ImageElement;
@@ -42,16 +45,31 @@ public class ContainerRenderer extends AbstractInAppRenderer {
         }
 
         // For container it is necessary to be of size of device i.e. match_parent
-        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(MP, MP);
-        baseFrameLayout.setLayoutParams(layoutParams);
-        newElement.setLayoutParams(layoutParams);
+        FrameLayout.LayoutParams frameLayoutParams = new FrameLayout.LayoutParams(MP, MP);
+        baseFrameLayout.setLayoutParams(frameLayoutParams);
+        newElement.setLayoutParams(frameLayoutParams);
 
-        // Displaying elements with respect to client portal mobile viewport
-        materialCardView.setLayoutParams(new RelativeLayout.LayoutParams(1080, 1920));
+        // Displaying elements with respect to client portal mobile viewport and aligning the
+        // elements from the center
+        RelativeLayout.LayoutParams materialViewLayoutParams = new RelativeLayout.LayoutParams(1080, 1920);
+        materialViewLayoutParams.addRule(RelativeLayout.CENTER_IN_PARENT, RelativeLayout.TRUE);
+        materialCardView.setLayoutParams(materialViewLayoutParams);
 
-        // Moving backgroundImage from base frame layout and putting it in root view layout.
-        baseFrameLayout.removeView(backgroundImage);
-        globalData.getTriggerParentLayout().addView(backgroundImage);
+        // Moving backgroundImage and drawable from base frame layout and putting it in root view layout.
+        Colour solid = elementData.getBg().getSolid();
+        if (solid != null) {
+            GradientDrawable drawable = new GradientDrawable();
+            drawable.setColor(solid.getHexColor());
+            baseFrameLayout.setBackgroundResource(0);
+            globalData.getTriggerParentLayout().setBackground(drawable);
+        } else {
+            baseFrameLayout.removeView(backgroundImage);
+            globalData.getTriggerParentLayout().addView(backgroundImage);
+        }
+
+        // Setting Trigger Parent Layout's gravity to Center. Element will be placed from the center.
+        globalData.getTriggerParentLayout().setGravity(Gravity.CENTER);
+
 
         // Removing and Adding material view to render it on top layer
         globalData.getTriggerParentLayout().removeView(materialCardView);
