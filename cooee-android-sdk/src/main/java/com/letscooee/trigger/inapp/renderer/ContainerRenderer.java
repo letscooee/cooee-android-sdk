@@ -15,6 +15,7 @@ import com.letscooee.models.trigger.elements.ImageElement;
 import com.letscooee.models.trigger.elements.ShapeElement;
 import com.letscooee.models.trigger.elements.TextElement;
 import com.letscooee.models.trigger.elements.VideoElement;
+import com.letscooee.models.trigger.inapp.Container;
 import com.letscooee.models.trigger.inapp.InAppTrigger;
 import com.letscooee.trigger.inapp.TriggerContext;
 
@@ -49,12 +50,6 @@ public class ContainerRenderer extends AbstractInAppRenderer {
         baseFrameLayout.setLayoutParams(frameLayoutParams);
         newElement.setLayoutParams(frameLayoutParams);
 
-        // Displaying elements with respect to client portal mobile viewport and aligning the
-        // elements from the center
-        RelativeLayout.LayoutParams materialViewLayoutParams = new RelativeLayout.LayoutParams(1080, 1920);
-        materialViewLayoutParams.addRule(RelativeLayout.CENTER_IN_PARENT, RelativeLayout.TRUE);
-        materialCardView.setLayoutParams(materialViewLayoutParams);
-
         // Moving backgroundImage and drawable from base frame layout and putting it in root view layout.
         Colour solid = elementData.getBg().getSolid();
         if (solid != null) {
@@ -67,9 +62,8 @@ public class ContainerRenderer extends AbstractInAppRenderer {
             globalData.getTriggerParentLayout().addView(backgroundImage);
         }
 
-        // Setting Trigger Parent Layout's gravity to Center. Element will be placed from the center.
-        globalData.getTriggerParentLayout().setGravity(Gravity.CENTER);
-
+        // Setting Trigger Parent Layout's gravity to Center. Element will be placed as provided from the data.
+        this.processGravity();
 
         // Removing and Adding material view to render it on top layer
         globalData.getTriggerParentLayout().removeView(materialCardView);
@@ -79,7 +73,6 @@ public class ContainerRenderer extends AbstractInAppRenderer {
     }
 
     protected void processChildren() {
-
         for (BaseElement child : inAppTrigger.getElements()) {
             if (child instanceof ImageElement) {
                 new ImageRenderer(context, (ViewGroup) newElement, child, globalData).render();
@@ -111,5 +104,13 @@ public class ContainerRenderer extends AbstractInAppRenderer {
         cardLayoutParams.height = AbstractInAppRenderer.MP;
         cardLayoutParams.width = AbstractInAppRenderer.MP;
         materialCardView.setLayoutParams(cardLayoutParams);
+    }
+
+    private void processGravity() {
+        // Displaying elements with respect to client portal mobile viewport
+        RelativeLayout.LayoutParams materialViewLayoutParams = new RelativeLayout.LayoutParams(1080, 1920);
+
+        globalData.getTriggerParentLayout().setGravity(((Container) elementData).getGravity(materialViewLayoutParams));
+        materialCardView.setLayoutParams(materialViewLayoutParams);
     }
 }
