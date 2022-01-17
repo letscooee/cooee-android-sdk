@@ -19,7 +19,9 @@ import android.os.Environment;
 import android.os.StatFs;
 import android.telephony.TelephonyManager;
 import android.util.DisplayMetrics;
+
 import androidx.core.app.ActivityCompat;
+
 import com.letscooee.CooeeFactory;
 import com.letscooee.utils.SentryHelper;
 
@@ -27,8 +29,10 @@ import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import static android.content.Context.ACTIVITY_SERVICE;
 
@@ -258,19 +262,21 @@ public class DefaultUserPropertiesCollector {
     }
 
     /**
-     * Get device battery percentage
+     * Get device battery information
      *
-     * @return battery percent(eg - 89,94)
+     * @return map battery info
      */
-    public int getBatteryLevel() {
+    public Map getBatteryInfo() {
         BatteryManager batteryManager = (BatteryManager) context.getSystemService(Context.BATTERY_SERVICE);
-        int batteryLevel = 0;
 
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-            assert batteryManager != null;
-            batteryLevel = batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY);
+        Map<String, Object> battery = new HashMap<>();
+        battery.put("l", batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY));
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            battery.put("c", batteryManager.isCharging());
         }
-        return batteryLevel;
+
+        return battery;
     }
 
     /**

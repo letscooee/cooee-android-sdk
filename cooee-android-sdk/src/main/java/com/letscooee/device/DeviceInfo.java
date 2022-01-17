@@ -119,4 +119,13 @@ public class DeviceInfo extends ContextAware {
         initializeResource();
         return displayMetrics.heightPixels;
     }
+
+    /**
+     * Get pixel density
+     *
+     * @return dpi (eg - 300)
+     */
+    public int getDpi() {
+        return displayMetrics.densityDpi;
+    }
 }
