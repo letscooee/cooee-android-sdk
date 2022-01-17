@@ -18,6 +18,7 @@ import com.letscooee.models.trigger.elements.VideoElement;
 import com.letscooee.models.trigger.inapp.Container;
 import com.letscooee.models.trigger.inapp.InAppTrigger;
 import com.letscooee.trigger.inapp.TriggerContext;
+import com.letscooee.utils.ui.UnitUtils;
 
 /**
  * Renders the topmost container of the in-app.
@@ -108,7 +109,10 @@ public class ContainerRenderer extends AbstractInAppRenderer {
 
     private void processGravity() {
         // Displaying elements with respect to client portal mobile viewport
-        RelativeLayout.LayoutParams materialViewLayoutParams = new RelativeLayout.LayoutParams(1080, 1920);
+        RelativeLayout.LayoutParams materialViewLayoutParams = new RelativeLayout.LayoutParams(
+                (int) UnitUtils.getScaledPixel(1080),
+                (int) UnitUtils.getScaledPixel(1920)
+        );
 
         globalData.getTriggerParentLayout().setGravity(((Container) elementData).getGravity(materialViewLayoutParams));
         materialCardView.setLayoutParams(materialViewLayoutParams);
