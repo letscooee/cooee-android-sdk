@@ -5,6 +5,8 @@ import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -267,14 +269,17 @@ public class DefaultUserPropertiesCollector {
      * @return map battery info
      */
     public Map getBatteryInfo() {
-        BatteryManager batteryManager = (BatteryManager) context.getSystemService(Context.BATTERY_SERVICE);
-
         Map<String, Object> battery = new HashMap<>();
-        battery.put("l", batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY));
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            battery.put("c", batteryManager.isCharging());
-        }
+        // https://developer.android.com/training/monitoring-device-state/battery-monitoring#DetermineChargeState
+        IntentFilter filter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+        Intent batteryStatus = context.registerReceiver(null, filter);
+        int status = batteryStatus.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
+        boolean isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING ||
+                status == BatteryManager.BATTERY_STATUS_FULL;
+
+        battery.put("l", batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1));
+        battery.put("c", isCharging);
 
         return battery;
     }

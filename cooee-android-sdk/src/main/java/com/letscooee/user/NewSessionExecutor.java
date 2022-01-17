@@ -80,7 +80,7 @@ public class NewSessionExecutor extends ContextAware {
      */
     private void sendFirstLaunchEvent() {
         Map<String, Object> deviceProperties = new HashMap<>();
-        deviceProperties.put("CE First Launch Time", new Date());
+        deviceProperties.put("firstLaunch", new Date());
         deviceProperties.putAll(getImmutableDeviceProps());
         deviceProperties.putAll(getMutableDeviceProps());
 
@@ -93,7 +93,6 @@ public class NewSessionExecutor extends ContextAware {
      * Runs every time when app is opened for a new session
      */
     private void sendSuccessiveLaunchEvent() {
-
         Event event = new Event("CE App Launched");
         event.setDeviceProps(getMutableDeviceProps());
         safeHTTPService.sendEvent(event);
