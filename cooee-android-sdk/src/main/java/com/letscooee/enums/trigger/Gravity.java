@@ -1,5 +1,8 @@
 package com.letscooee.enums.trigger;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Assigning origin of the in-app trigger. This enum is named Gravity as in Android it is used as Gravity.
  *
@@ -17,9 +20,26 @@ public enum Gravity {
     BOTTOM_CENTER((byte) 8),
     BOTTOM_RIGHT((byte) 9);
 
+    private static final Map<Byte, Gravity> byteToGravity = new HashMap<>();
+
+    static {
+        for (Gravity type : Gravity.values()) {
+            byteToGravity.put(type.gravity, type);
+        }
+    }
+
     public final byte gravity;
 
     Gravity(byte gravity) {
         this.gravity = gravity;
+    }
+
+    public static Gravity fromByte(byte i) {
+        Gravity type = byteToGravity.get(i);
+        if (type == null) {
+            return Gravity.CENTER;
+        }
+
+        return type;
     }
 }

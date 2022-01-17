@@ -3,6 +3,7 @@ package com.letscooee.models.trigger.inapp;
 import android.os.Parcel;
 import android.widget.RelativeLayout;
 
+import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.letscooee.enums.trigger.Gravity;
 import com.letscooee.models.trigger.blocks.Animation;
@@ -14,12 +15,13 @@ public class Container extends BaseElement {
 
     // o -> origin
     @SerializedName("o")
-    private final Gravity gravity;
+    @Expose
+    private final byte gravity;
 
     protected Container(Parcel in) {
         super(in);
         animation = in.readParcelable(getClass().getClassLoader());
-        gravity = (Gravity) in.readSerializable();
+        gravity = in.readByte();
     }
 
     public static final Creator<Container> CREATOR = new Creator<Container>() {
@@ -40,12 +42,9 @@ public class Container extends BaseElement {
 
     // Returns actual view gravity
     public int getGravity(RelativeLayout.LayoutParams layoutParams) {
-        if (gravity == null) {
-            layoutParams.addRule(RelativeLayout.CENTER_IN_PARENT, RelativeLayout.TRUE);
-            return android.view.Gravity.START;
-        }
+        Gravity g = Gravity.fromByte(gravity);
 
-        switch (gravity) {
+        switch (g) {
             case TOP_LEFT: {
                 layoutParams.addRule(RelativeLayout.ALIGN_PARENT_START, RelativeLayout.TRUE);
                 return android.view.Gravity.START;
@@ -95,6 +94,6 @@ public class Container extends BaseElement {
     public void writeToParcel(Parcel dest, int flags) {
         super.writeToParcel(dest, flags);
         dest.writeParcelable(animation, flags);
-        dest.writeSerializable(gravity);
+        dest.writeByte(gravity);
     }
 }
