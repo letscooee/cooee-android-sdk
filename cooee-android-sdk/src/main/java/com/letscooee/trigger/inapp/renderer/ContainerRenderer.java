@@ -60,6 +60,7 @@ public class ContainerRenderer extends AbstractInAppRenderer {
             globalData.getTriggerParentLayout().setBackground(drawable);
         } else {
             baseFrameLayout.removeView(backgroundImage);
+            backgroundImage.setLayoutParams(new RelativeLayout.LayoutParams(MP, MP));
             globalData.getTriggerParentLayout().addView(backgroundImage);
         }
 
