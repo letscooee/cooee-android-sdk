@@ -261,29 +261,24 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
             return;
         }
 
-        if (border.getStyle() == Border.Style.SOLID) {
-            int borderColor = border.getColor().getHexColor();
-            int calculatedBorder = (int) border.getWidth(parentElement);
+        int borderColor = border.getColor().getHexColor();
+        int calculatedBorder = (int) border.getWidth(parentElement);
+        float calculatedRadius = border.getRadius() - calculatedBorder;
 
-            materialCardView.setContentPadding(calculatedBorder, calculatedBorder, calculatedBorder, calculatedBorder);
+        if (border.getStyle() == Border.Style.SOLID) {
             materialCardView.setStrokeColor(borderColor);
             materialCardView.setStrokeWidth(calculatedBorder);
-
-            float calculatedRadius = border.getRadius();
-
-            backgroundDrawable.setCornerRadius(calculatedRadius);
             materialCardView.setRadius(calculatedRadius);
         } else if (border.getStyle() == Border.Style.DASH) {
-            int borderColor = border.getColor().getHexColor();
-            int calculatedBorder = (int) border.getWidth(parentElement);
             float dashWidth = calculatedBorder * 2;
 
             baseFrameLayout.setBackgroundResource(0);
-            backgroundDrawable.setCornerRadius(border.getRadius());
             materialCardView.setBackground(backgroundDrawable);
-            materialCardView.setContentPadding(calculatedBorder, calculatedBorder, calculatedBorder, calculatedBorder);
             backgroundDrawable.setStroke(calculatedBorder, borderColor, dashWidth, calculatedBorder);
         }
+
+        materialCardView.setContentPadding(calculatedBorder, calculatedBorder, calculatedBorder, calculatedBorder);
+        backgroundDrawable.setCornerRadius(calculatedRadius);
     }
 
     protected void processSpacing() {
