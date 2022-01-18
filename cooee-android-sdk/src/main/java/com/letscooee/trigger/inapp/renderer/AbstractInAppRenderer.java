@@ -264,6 +264,12 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         int borderColor = border.getColor().getHexColor();
         int calculatedBorder = Math.round(border.getWidth(parentElement));
 
+        // Resize element to adjust with border
+        FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) newElement.getLayoutParams();
+        layoutParams.width -= calculatedBorder * 2;
+        layoutParams.height -= calculatedBorder * 2;
+        newElement.setLayoutParams(layoutParams);
+
         if (border.getStyle() == Border.Style.SOLID) {
             materialCardView.setStrokeColor(borderColor);
             materialCardView.setStrokeWidth(calculatedBorder);
