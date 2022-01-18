@@ -262,23 +262,24 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         }
 
         int borderColor = border.getColor().getHexColor();
-        int calculatedBorder = (int) border.getWidth(parentElement);
-        float calculatedRadius = border.getRadius() - calculatedBorder;
+        int calculatedBorder = Math.round(border.getWidth(parentElement));
 
         if (border.getStyle() == Border.Style.SOLID) {
             materialCardView.setStrokeColor(borderColor);
             materialCardView.setStrokeWidth(calculatedBorder);
-            materialCardView.setRadius(calculatedRadius);
         } else if (border.getStyle() == Border.Style.DASH) {
             float dashWidth = calculatedBorder * 2;
 
-            baseFrameLayout.setBackgroundResource(0);
-            materialCardView.setBackground(backgroundDrawable);
-            backgroundDrawable.setStroke(calculatedBorder, borderColor, dashWidth, calculatedBorder);
+            GradientDrawable drawable = new GradientDrawable();
+            drawable.setStroke(calculatedBorder, borderColor, dashWidth, calculatedBorder);
+            drawable.setCornerRadius(border.getRadius());
+            materialCardView.setBackground(drawable);
         }
 
+        // TODO: Get a solution for when image is used as background in shape.
         materialCardView.setContentPadding(calculatedBorder, calculatedBorder, calculatedBorder, calculatedBorder);
-        backgroundDrawable.setCornerRadius(calculatedRadius);
+        materialCardView.setRadius(border.getRadius());
+        backgroundDrawable.setCornerRadius(border.getRadius() - calculatedBorder);
     }
 
     protected void processSpacing() {
