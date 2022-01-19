@@ -1,6 +1,9 @@
 package com.letscooee.trigger.inapp.renderer;
 
 import android.content.Context;
+import android.graphics.text.LineBreaker;
+import android.os.Build;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
@@ -100,6 +103,11 @@ public class TextRenderer extends FontRenderer {
 
     protected void processTextData(TextView textView, String text) {
         textView.setText(HtmlCompat.fromHtml(text, 0));
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            textView.setBreakStrategy(LineBreaker.BREAK_STRATEGY_BALANCED);
+        }
+
         this.newElement = textView;
 
         this.processColourBlock();
