@@ -170,6 +170,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         }
 
         this.newElement.setLayoutParams(new FrameLayout.LayoutParams(width, height));
+        this.backgroundImage.setLayoutParams(new FrameLayout.LayoutParams(width, height));
 
         if (parentElement instanceof RelativeLayout) {
             layoutParams = new RelativeLayout.LayoutParams(width, height);
