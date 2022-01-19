@@ -1,9 +1,9 @@
 package com.letscooee.trigger.inapp.renderer;
 
 import android.content.Context;
+import android.graphics.drawable.GradientDrawable;
 import android.graphics.text.LineBreaker;
 import android.os.Build;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import androidx.core.text.HtmlCompat;
 
+import com.letscooee.models.trigger.blocks.Border;
 import com.letscooee.models.trigger.elements.BaseElement;
 import com.letscooee.models.trigger.elements.PartElement;
 import com.letscooee.models.trigger.elements.TextElement;
@@ -48,14 +49,32 @@ public class TextRenderer extends FontRenderer {
         );
 
         // Resize element to adjust with border
-        if (elementData.getBorder() != null) {
-            int calculatedBorder = (int) elementData.getBorder().getWidth(parentElement);
-            FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) newElement.getLayoutParams();
-            layoutParams.width -= calculatedBorder * 2;
-            layoutParams.height -= calculatedBorder * 2;
-            newElement.setLayoutParams(layoutParams);
-            materialCardView.setContentPadding(calculatedBorder, calculatedBorder, calculatedBorder, calculatedBorder);
+        Border border = elementData.getBorder();
+        if (border == null) {
+            return newElement;
         }
+
+        int calculatedBorder = (int) border.getWidth(parentElement);
+        baseFrameLayout.setPadding(calculatedBorder, calculatedBorder, calculatedBorder, 0);
+
+        FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) newElement.getLayoutParams();
+        layoutParams.width -= calculatedBorder * 2;
+        layoutParams.height -= calculatedBorder * 2;
+        newElement.setLayoutParams(layoutParams);
+
+        if (border.getStyle() != Border.Style.DASH) {
+            return newElement;
+        }
+        int borderColor = border.getColor().getHexColor();
+        float dashWidth = calculatedBorder * 2;
+
+        int w = Math.round(elementData.getCalculatedWidth());
+        baseFrameLayout.setLayoutParams(new FrameLayout.LayoutParams(w, WC));
+
+        GradientDrawable elementDrawable = new GradientDrawable();
+        elementDrawable.setStroke(calculatedBorder, borderColor, dashWidth, calculatedBorder);
+        elementDrawable.setCornerRadius(border.getRadius() - (calculatedBorder / 2));
+        baseFrameLayout.setBackground(elementDrawable);
 
         return newElement;
     }

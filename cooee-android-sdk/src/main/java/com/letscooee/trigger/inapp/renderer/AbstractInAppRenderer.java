@@ -269,16 +269,18 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
             materialCardView.setStrokeColor(borderColor);
             materialCardView.setStrokeWidth(calculatedBorder);
         } else if (border.getStyle() == Border.Style.DASH) {
-            float dashWidth = calculatedBorder * 2;
-
-            GradientDrawable drawable = new GradientDrawable();
-            drawable.setStroke(calculatedBorder, borderColor, dashWidth, calculatedBorder);
-            drawable.setCornerRadius(border.getRadius());
-            materialCardView.setBackground(drawable);
+            // Actual dash border code is there on respective element renderer. Here just adding
+            // background color and corner radius.
+            GradientDrawable materialDrawable = new GradientDrawable();
+            materialDrawable.setCornerRadius(border.getRadius());
+            if (this.elementData.getBg().getSolid() != null) {
+                materialDrawable.setColor(this.elementData.getBg().getSolid().getHexColor());
+            }
+            materialCardView.setBackground(materialDrawable);
         }
 
         materialCardView.setRadius(border.getRadius());
-        backgroundDrawable.setCornerRadius(border.getRadius() - calculatedBorder);
+        backgroundDrawable.setCornerRadius(border.getRadius());
     }
 
     protected void processSpacing() {

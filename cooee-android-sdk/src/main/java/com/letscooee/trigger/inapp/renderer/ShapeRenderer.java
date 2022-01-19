@@ -36,16 +36,9 @@ public class ShapeRenderer extends AbstractInAppRenderer {
 
         float dashWidth = calculatedBorder * 2;
 
-        GradientDrawable materialDrawable = new GradientDrawable();
-        materialDrawable.setCornerRadius(border.getRadius() + dashWidth);
-        if (this.elementData.getBg().getSolid() != null) {
-            materialDrawable.setColor(this.elementData.getBg().getSolid().getHexColor());
-        }
-        materialCardView.setBackground(materialDrawable);
-
         GradientDrawable elementDrawable = new GradientDrawable();
         elementDrawable.setStroke(calculatedBorder, borderColor, dashWidth, calculatedBorder);
-        elementDrawable.setCornerRadius(border.getRadius() + calculatedBorder);
+        elementDrawable.setCornerRadius(border.getRadius() - (calculatedBorder / 2));
 
         newElement.setBackground(elementDrawable);
         // endregion
