@@ -44,6 +44,16 @@ public class TextRenderer extends FontRenderer {
                         backgroundImage.setLayoutParams(new FrameLayout.LayoutParams(right, bottom))
         );
 
+        // Resize element to adjust with border
+        if (elementData.getBorder() != null) {
+            int calculatedBorder = (int) elementData.getBorder().getWidth(parentElement);
+            FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) newElement.getLayoutParams();
+            layoutParams.width -= calculatedBorder * 2;
+            layoutParams.height -= calculatedBorder * 2;
+            newElement.setLayoutParams(layoutParams);
+            materialCardView.setContentPadding(calculatedBorder, calculatedBorder, calculatedBorder, calculatedBorder);
+        }
+
         return newElement;
     }
 
