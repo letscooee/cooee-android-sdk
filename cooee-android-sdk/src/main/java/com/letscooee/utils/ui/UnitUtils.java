@@ -43,12 +43,14 @@ public class UnitUtils {
         }
 
         if (IS_PORTRAIT) {
-            double longEdge = Math.min(STANDARD_RESOLUTION_WIDTH, STANDARD_RESOLUTION_HEIGHT);
-            SCALING_FACTOR = DISPLAY_WIDTH / longEdge;
+            double shortEdge = Math.min(STANDARD_RESOLUTION_WIDTH, STANDARD_RESOLUTION_HEIGHT);
+            SCALING_FACTOR = DISPLAY_WIDTH / shortEdge;
         } else {
             double longEdge = Math.max(STANDARD_RESOLUTION_WIDTH, STANDARD_RESOLUTION_HEIGHT);
             SCALING_FACTOR = DISPLAY_HEIGHT / longEdge;
         }
+
+        SCALING_FACTOR = Math.min(SCALING_FACTOR, 1);
     }
 
     public static float getScaledPixel(float value) {
