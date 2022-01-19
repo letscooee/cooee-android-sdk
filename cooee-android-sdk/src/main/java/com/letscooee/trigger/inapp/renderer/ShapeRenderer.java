@@ -8,7 +8,7 @@ import android.widget.RelativeLayout;
 import com.letscooee.models.trigger.elements.BaseElement;
 import com.letscooee.trigger.inapp.TriggerContext;
 
-public class ShapeRenderer extends AbstractInAppRenderer{
+public class ShapeRenderer extends AbstractInAppRenderer {
     protected ShapeRenderer(Context context, ViewGroup parentElement, BaseElement element, TriggerContext globalData) {
         super(context, parentElement, element, globalData);
     }

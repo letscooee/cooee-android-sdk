@@ -34,6 +34,7 @@ public class ContainerRenderer extends AbstractInAppRenderer {
                              TriggerContext globalData) {
         super(context, parentView, element, globalData);
         this.inAppTrigger = inAppTrigger;
+        replaceStandardDisplaySize();
     }
 
     @Override
@@ -93,6 +94,14 @@ public class ContainerRenderer extends AbstractInAppRenderer {
 
             }
         }
+    }
+
+    /**
+     * Replace standard resolution from trigger data.
+     */
+    private void replaceStandardDisplaySize() {
+        UnitUtils.STANDARD_RESOLUTION_WIDTH = inAppTrigger.getWidth();
+        UnitUtils.STANDARD_RESOLUTION_HEIGHT = inAppTrigger.getHeight();
     }
 
     @Override
