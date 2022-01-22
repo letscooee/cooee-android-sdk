@@ -81,7 +81,7 @@ public class BaseHTTPService extends ContextAware {
     }
 
     public void updatePushToken(Map<String, Object> data) throws HttpRequestFailedException {
-        Call<ResponseBody> call = apiService.setFirebaseToken(data);
+        Call<ResponseBody> call = apiService.setPushToken(data);
         Response<?> response = this.executeHTTPCall(call, "Update user profile");
 
         // TODO: 03/06/21 should we close ResponseBody.close()

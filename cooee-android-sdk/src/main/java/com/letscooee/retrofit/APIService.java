@@ -44,8 +44,8 @@ public interface APIService {
     @POST("/v1/session/keepAlive")
     Call<ResponseBody> keepAlive(@Body Map<String, Object> keepAliveRequest);
 
-    @POST("/v1/user/setFirebaseToken")
-    Call<ResponseBody> setFirebaseToken(@Body Map<String, Object> tokenRequest);
+    @POST("/v1/user/setPushToken")
+    Call<ResponseBody> setPushToken(@Body Map<String, Object> tokenRequest);
 
     @GET("/v1/trigger/details/{triggerID}")
     Call<Map<String, Object>> loadTriggerDetails(@Path("triggerID") String triggerID);
