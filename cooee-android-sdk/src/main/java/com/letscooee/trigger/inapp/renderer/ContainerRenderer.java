@@ -71,6 +71,7 @@ public class ContainerRenderer extends AbstractInAppRenderer {
         // Removing and Adding material view to render it on top layer
         globalData.getTriggerParentLayout().removeView(materialCardView);
         globalData.getTriggerParentLayout().addView(materialCardView);
+        materialCardView.setRadius(0);
 
         return newElement;
     }
