@@ -140,6 +140,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
     @Override
     public void finish() {
         super.finish();
+        setAnimations();
         if (!isSuccessfullyStarted) {
             return;
         }
