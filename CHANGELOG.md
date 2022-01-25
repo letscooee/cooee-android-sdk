@@ -1,5 +1,22 @@
 # Change Log
 
+## v1.1.1
+
+### Feature
+
+1. Add ability to move In-App at any side of screen.
+2. Now In-App can be of any size.
+
+### Improvements
+
+1. Collection of event property is now grouped and renamed.
+
+### Fixes
+
+1. Fix issue with Part Rendering.
+2. Fix issue with view's background & border.
+3. Fix issue with Image rendering when out of viewport.
+
 ## v1.1.0
 
 ### Feature
