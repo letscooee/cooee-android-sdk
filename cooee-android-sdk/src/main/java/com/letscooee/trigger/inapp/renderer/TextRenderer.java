@@ -1,14 +1,19 @@
 package com.letscooee.trigger.inapp.renderer;
 
 import android.content.Context;
-import android.graphics.Typeface;
+import android.graphics.drawable.GradientDrawable;
+import android.graphics.text.LineBreaker;
+import android.os.Build;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 
+import androidx.core.text.HtmlCompat;
+
+import com.letscooee.models.trigger.blocks.Border;
 import com.letscooee.models.trigger.elements.BaseElement;
 import com.letscooee.models.trigger.elements.PartElement;
 import com.letscooee.models.trigger.elements.TextElement;
@@ -19,110 +24,127 @@ import com.letscooee.trigger.inapp.TriggerContext;
  */
 public class TextRenderer extends FontRenderer {
 
-    protected Object textData;
-    protected TextElement commonTextData;
+    protected TextElement textData;
 
-    public TextRenderer(Context context, ViewGroup parentView, Object elementData, TriggerContext globalData) {
-        super(context, parentView, (BaseElement) elementData, globalData);
-        this.textData = elementData;
-    }
-
-    public TextRenderer(Context context, ViewGroup parentView, Object elementData,
-                        TriggerContext globalData, TextElement commonTextData) {
-        super(context, parentView, commonTextData, globalData);
-        super.setPartElement((PartElement) elementData);
-        this.textData = elementData;
-        this.commonTextData = commonTextData;
+    public TextRenderer(Context context, ViewGroup parentView, BaseElement elementData, TriggerContext globalData) {
+        super(context, parentView, elementData, globalData);
+        this.textData = (TextElement) elementData;
     }
 
     @Override
     public View render() {
-        if (textData instanceof TextElement) {
-            this.processParts();
-        } else {
-            TextView textView = new TextView(context);
-            textView.setGravity(Gravity.CENTER);
-            this.processTextData(textView);
-            this.processFont();
-            this.processPartStyle();
-            this.processFontBlock();
+        String textData = this.processParts();
+
+        TextView textView = new TextView(context);
+        textView.setGravity(Gravity.CENTER);
+
+        this.processTextData(textView, textData);
+        this.processFont();
+        this.processFontBlock();
+
+        // resize background image when text view is updated/rendered.
+        newElement.addOnLayoutChangeListener(
+                (view, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) ->
+                        backgroundImage.setLayoutParams(new FrameLayout.LayoutParams(right, bottom))
+        );
+
+        // Resize element to adjust with border
+        Border border = elementData.getBorder();
+        if (border == null) {
+            return newElement;
         }
+
+        int calculatedBorder = (int) border.getWidth(parentElement);
+        baseFrameLayout.setPadding(calculatedBorder, calculatedBorder, calculatedBorder, 0);
+
+        FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) newElement.getLayoutParams();
+        layoutParams.width -= calculatedBorder * 2;
+        layoutParams.height -= calculatedBorder * 2;
+        newElement.setLayoutParams(layoutParams);
+
+        if (border.getStyle() != Border.Style.DASH) {
+            return newElement;
+        }
+        int borderColor = border.getColor().getHexColor();
+        float dashWidth = calculatedBorder * 2;
+
+        int w = Math.round(elementData.getCalculatedWidth());
+        baseFrameLayout.setLayoutParams(new FrameLayout.LayoutParams(w, WC));
+
+        GradientDrawable elementDrawable = new GradientDrawable();
+        elementDrawable.setStroke(calculatedBorder, borderColor, dashWidth, calculatedBorder);
+        elementDrawable.setCornerRadius(border.getRadius() - (calculatedBorder / 2));
+        baseFrameLayout.setBackground(elementDrawable);
 
         return newElement;
     }
 
-    protected void processParts() {
-        newElement = new LinearLayout(context);
-        ((LinearLayout) newElement).setGravity(Gravity.CENTER);
+    protected String processParts() {
+        String allText = "";
 
-        insertNewElementInHierarchy();
-        processCommonBlocks();
-        for (PartElement child : ((TextElement) textData).getParts()) {
-            if (child.getText().replace("\n", "").trim().length() > 0)
-                new TextRenderer(context, (ViewGroup) newElement, child, globalData, (TextElement) textData).render();
+        for (PartElement child : (textData).getParts()) {
+            String partText = child.getText();
+
+            if (child.isBold()) {
+                partText = "<b>" + partText + "</b>";
+            }
+
+            if (child.isItalic()) {
+                partText = "<i>" + partText + "</i>";
+            }
+
+            if (child.isStrikeTrough()) {
+                partText = "<strike>" + partText + "</strike>";
+            }
+
+            if (child.isUnderline()) {
+                partText = "<u>" + partText + "</u>";
+            }
+
+            String color = child.getPartTextColour();
+            if (color != null) {
+                partText = "<font color='" + color + "'>" + partText + "</font>";
+            }
+
+            allText = allText.concat(partText);
         }
+
+        return replaceNewLineToHTMLNewLine(allText);
     }
 
-    private void processPartStyle() {
-        TextView textView = (TextView) newElement;
-        Typeface typeface = textView.getTypeface();
-
-        if (typeface == null) {
-            typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL);
-        }
-
-        PartElement partElement = (PartElement) textData;
-
-        if (partElement.isBold() && partElement.isItalic()) {
-            typeface = Typeface.create(typeface, Typeface.BOLD_ITALIC);
-        } else if (partElement.isBold()) {
-            typeface = Typeface.create(typeface, Typeface.BOLD);
-        } else if (partElement.isItalic()) {
-            typeface = Typeface.create(typeface, Typeface.ITALIC);
-        }
-
-        textView.setTypeface(typeface);
-    }
-
-    protected void processTextData(TextView textView) {
-        String text = ((PartElement) textData).getText();
-
+    private String replaceNewLineToHTMLNewLine(String text) {
         if (text.endsWith("\n")) {
             text = text.substring(0, text.length() - 1);
         }
 
-        textView.setText(text);
+        return text.replaceAll("\n", "<br/>");
+    }
+
+    protected void processTextData(TextView textView, String text) {
+        textView.setText(HtmlCompat.fromHtml(text, 0));
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            textView.setBreakStrategy(LineBreaker.BREAK_STRATEGY_BALANCED);
+        }
+
         this.newElement = textView;
 
         this.processColourBlock();
         this.processAlignmentBlock();
 
         insertNewElementInHierarchy();
+        processCommonBlocks();
     }
 
     protected void processAlignmentBlock() {
-        if (commonTextData != null) {
-            ((TextView) newElement).setGravity(commonTextData.getAlignment());
-            ((LinearLayout) parentElement).setGravity(commonTextData.getAlignment());
-        }
+        ((TextView) newElement).setGravity((textData).getAlignment());
     }
 
     protected void processColourBlock() {
-        if (commonTextData != null && commonTextData.getColor() != null) {
-            ((TextView) newElement).setTextColor(commonTextData.getColor().getHexColor());
-        }
-
-        PartElement partElement = (PartElement) textData;
-        if (partElement.getPartTextColour() == null) {
-            return;
-        }
-
-        ((TextView) newElement).setTextColor(partElement.getPartTextColour());
+        ((TextView) newElement).setTextColor((textData).getColor().getHexColor());
     }
 
     protected void processFontBlock() {
-        if (commonTextData != null && commonTextData.getFont() != null) {
-            ((TextView) newElement).setTextSize(TypedValue.COMPLEX_UNIT_PX, commonTextData.getFont().getSize());
-        }
+        ((TextView) newElement).setTextSize(TypedValue.COMPLEX_UNIT_PX, textData.getFont().getSize());
     }
 }

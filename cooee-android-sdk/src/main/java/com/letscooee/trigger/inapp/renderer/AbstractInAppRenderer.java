@@ -84,7 +84,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         baseFrameLayout.addView(backgroundImage);
         materialCardView.addView(baseFrameLayout);
 
-        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(MP, MP);
+        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(WC, WC);
         baseFrameLayout.setLayoutParams(layoutParams);
         backgroundImage.setLayoutParams(layoutParams);
 
@@ -170,6 +170,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         }
 
         this.newElement.setLayoutParams(new FrameLayout.LayoutParams(width, height));
+        this.backgroundImage.setLayoutParams(new FrameLayout.LayoutParams(width, height));
 
         if (parentElement instanceof RelativeLayout) {
             layoutParams = new RelativeLayout.LayoutParams(width, height);
@@ -257,20 +258,29 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
     protected void processBorderBlock() {
         Border border = this.elementData.getBorder();
 
-        if (border != null) {
-            int borderColor = border.getColor().getHexColor();
-            materialCardView.setStrokeColor(borderColor);
-
-            int calculatedBorder = (int) border.getWidth(parentElement);
-            materialCardView.setStrokeWidth(calculatedBorder);
-            backgroundDrawable.setStroke(calculatedBorder, borderColor);
-
-            float calculatedRadius = border.getRadius();
-
-            backgroundDrawable.setCornerRadius(calculatedRadius);
-            materialCardView.setRadius(calculatedRadius);
-
+        if (border == null) {
+            return;
         }
+
+        int borderColor = border.getColor().getHexColor();
+        int calculatedBorder = Math.round(border.getWidth(parentElement));
+
+        if (border.getStyle() == Border.Style.SOLID) {
+            materialCardView.setStrokeColor(borderColor);
+            materialCardView.setStrokeWidth(calculatedBorder);
+        } else if (border.getStyle() == Border.Style.DASH) {
+            // Actual dash border code is there on respective element renderer. Here just adding
+            // background color and corner radius.
+            GradientDrawable materialDrawable = new GradientDrawable();
+            materialDrawable.setCornerRadius(border.getRadius());
+            if (this.elementData.getBg().getSolid() != null) {
+                materialDrawable.setColor(this.elementData.getBg().getSolid().getHexColor());
+            }
+            materialCardView.setBackground(materialDrawable);
+        }
+
+        materialCardView.setRadius(border.getRadius());
+        backgroundDrawable.setCornerRadius(border.getRadius());
     }
 
     protected void processSpacing() {

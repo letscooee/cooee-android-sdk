@@ -18,7 +18,7 @@ public class ButtonRenderer extends TextRenderer {
 
     @Override
     public View render() {
-        processParts();
+        super.render();
 
         return newElement;
     }

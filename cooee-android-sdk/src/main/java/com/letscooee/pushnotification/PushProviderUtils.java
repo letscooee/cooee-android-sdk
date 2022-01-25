@@ -27,7 +27,7 @@ public class PushProviderUtils {
 
         lastSentToken = token;
         Map<String, Object> requestData = new HashMap<>();
-        requestData.put("firebaseToken", token);
+        requestData.put("pushToken", token);
 
         CooeeFactory.getSafeHTTPService().updatePushToken(requestData);
     }

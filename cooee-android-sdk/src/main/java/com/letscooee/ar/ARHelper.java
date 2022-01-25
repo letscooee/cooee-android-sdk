@@ -49,7 +49,7 @@ public class ARHelper {
             return;
         }
 
-        sendDeviceProperty("CE AR Supported", availability.isSupported());
+        sendDeviceProperty("ar", availability.isSupported());
     }
 
     /**
@@ -95,12 +95,12 @@ public class ARHelper {
             }
         } catch (UnavailableUserDeclinedInstallationException e) {
             // User has declined to install AR Service.
-            sendDeviceProperty("CE AR Service Declined", true);
+            sendDeviceProperty("arServiceDeclined", true);
             launchAR = true;
         } catch (UnavailableDeviceNotCompatibleException e) {
             // Device is not supported
             launchAR = true;
-            sendDeviceProperty("CE AR Supported", false);
+            sendDeviceProperty("ar", false);
         } finally {
             if (launchAR) launchARViaUnity(activity, appAR, triggerData);
         }

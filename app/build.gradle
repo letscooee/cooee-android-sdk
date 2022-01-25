@@ -9,8 +9,8 @@ android {
         applicationId "com.letscooee.tester"
         minSdkVersion 21
         targetSdkVersion 30
-        versionCode 9
-        versionName "0.0.9"
+        versionCode 16
+        versionName "0.0.16"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }

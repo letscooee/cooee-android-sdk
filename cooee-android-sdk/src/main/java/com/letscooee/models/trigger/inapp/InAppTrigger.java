@@ -24,10 +24,20 @@ public class InAppTrigger implements Parcelable {
     @Expose
     private int orientation;
 
+    @SerializedName("w")
+    @Expose
+    private double width;
+
+    @SerializedName("h")
+    @Expose
+    private double height;
+
     protected InAppTrigger(Parcel in) {
         container = in.readParcelable(Container.class.getClassLoader());
         elements = in.readArrayList(getClass().getClassLoader());
         orientation = in.readInt();
+        width = in.readDouble();
+        height = in.readDouble();
     }
 
     public static final Creator<InAppTrigger> CREATOR = new Creator<InAppTrigger>() {
@@ -60,6 +70,8 @@ public class InAppTrigger implements Parcelable {
         dest.writeParcelable(container, flags);
         dest.writeList(elements);
         dest.writeInt(orientation);
+        dest.writeDouble(width);
+        dest.writeDouble(height);
     }
 
     public int getOrientation() {
@@ -68,5 +80,21 @@ public class InAppTrigger implements Parcelable {
         }
 
         return ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+    }
+
+    public int getWidth() {
+        if (width <= 0) {
+            return 1080; // default width
+        }
+
+        return (int) Math.round(width);
+    }
+
+    public int getHeight() {
+        if (height <= 0) {
+            return 1920; // / default height
+        }
+
+        return (int) Math.round(height);
     }
 }

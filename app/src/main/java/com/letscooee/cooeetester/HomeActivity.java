@@ -40,7 +40,7 @@ public class HomeActivity extends AppCompatActivity implements CooeeCTAListener 
 
         binding.btnSendImageEvent.setOnClickListener(view -> cooeeSDK.sendEvent("image", new HashMap<>()));
 
-        binding.inApp1.setOnClickListener(view -> this.openInApp(R.raw.sample_payload_v4));
+//        binding.inApp1.setOnClickListener(view -> this.openInApp(R.raw.sample_payload_v4));
 
         binding.btnProfile.setOnClickListener(view -> startActivity(new Intent(this, ProfileActivity.class)));
 

@@ -5,6 +5,8 @@ import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -19,7 +21,9 @@ import android.os.Environment;
 import android.os.StatFs;
 import android.telephony.TelephonyManager;
 import android.util.DisplayMetrics;
+
 import androidx.core.app.ActivityCompat;
+
 import com.letscooee.CooeeFactory;
 import com.letscooee.utils.SentryHelper;
 
@@ -27,8 +31,10 @@ import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import static android.content.Context.ACTIVITY_SERVICE;
 
@@ -258,19 +264,24 @@ public class DefaultUserPropertiesCollector {
     }
 
     /**
-     * Get device battery percentage
+     * Get device battery information
      *
-     * @return battery percent(eg - 89,94)
+     * @return map battery info
      */
-    public int getBatteryLevel() {
-        BatteryManager batteryManager = (BatteryManager) context.getSystemService(Context.BATTERY_SERVICE);
-        int batteryLevel = 0;
+    public Map getBatteryInfo() {
+        Map<String, Object> battery = new HashMap<>();
 
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-            assert batteryManager != null;
-            batteryLevel = batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY);
-        }
-        return batteryLevel;
+        // https://developer.android.com/training/monitoring-device-state/battery-monitoring#DetermineChargeState
+        IntentFilter filter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+        Intent batteryStatus = context.registerReceiver(null, filter);
+        int status = batteryStatus.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
+        boolean isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING ||
+                status == BatteryManager.BATTERY_STATUS_FULL;
+
+        battery.put("l", batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1));
+        battery.put("c", isCharging);
+
+        return battery;
     }
 
     /**
