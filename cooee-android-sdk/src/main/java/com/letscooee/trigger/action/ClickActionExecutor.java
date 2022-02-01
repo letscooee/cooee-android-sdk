@@ -50,11 +50,23 @@ public class ClickActionExecutor {
         loadAR();
         shareContent();
         updateApp();
+        closeInApp(requestedAnyPermission);
+    }
 
-        if (action.isClose() && !requestedAnyPermission && !action.isOnlyCloseCTA()) {
-            globalData.closeInApp("CTA");
-        } else if (action.isClose() && action.isOnlyCloseCTA()) {
+    /**
+     * Closes in app if CTA contains close action
+     *
+     * @param requestedAnyPermission flag that can holds <code>globalData.closeInApp</code> execution
+     */
+    private void closeInApp(boolean requestedAnyPermission) {
+        if (!action.isClose()) {
+            return;
+        }
+
+        if (action.isOnlyCloseCTA()) {
             globalData.closeInApp("Close");
+        } else if (!requestedAnyPermission) {
+            globalData.closeInApp("CTA");
         }
     }
 
@@ -184,7 +196,7 @@ public class ClickActionExecutor {
         }
 
         if (isChromeAvailable) {
-            customTabsIntent.intent.setPackage("com.android.chrome");
+            customTabsIntent.intent.setPackage(chromePackageName);
         }
 
         customTabsIntent.launchUrl(this.context, Uri.parse(url));
