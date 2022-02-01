@@ -98,6 +98,16 @@ public class ClickAction implements Parcelable {
         return close;
     }
 
+    /**
+     * Tells if CTA is only for closing In-App
+     *
+     * @return <code>true</code> if all other CTA's are <code>null</code>; Otherwise <code>false</code>
+     */
+    public boolean isOnlyCloseCTA() {
+        return iab == null && external == null && updateApp == null && prompt == null
+                && up == null && kv == null && share == null && launchFeature == 0;
+    }
+
     public int getLaunchFeature() {
         return launchFeature;
     }

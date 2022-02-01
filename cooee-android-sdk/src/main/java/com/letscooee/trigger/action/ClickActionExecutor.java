@@ -13,7 +13,6 @@ import com.letscooee.CooeeSDK;
 import com.letscooee.ar.ARHelper;
 import com.letscooee.models.trigger.TriggerData;
 import com.letscooee.models.trigger.blocks.AppAR;
-import com.letscooee.models.trigger.blocks.BrowserContent;
 import com.letscooee.models.trigger.blocks.ClickAction;
 import com.letscooee.trigger.inapp.InAppBrowserActivity;
 import com.letscooee.trigger.inapp.TriggerContext;
@@ -50,8 +49,10 @@ public class ClickActionExecutor {
         shareContent();
         updateApp();
 
-        if (action.isClose() && !requestedAnyPermission) {
+        if (action.isClose() && !requestedAnyPermission && !action.isOnlyCloseCTA()) {
             globalData.closeInApp("CTA");
+        } else if (action.isClose() && action.isOnlyCloseCTA()) {
+            globalData.closeInApp("Close");
         }
     }
 
