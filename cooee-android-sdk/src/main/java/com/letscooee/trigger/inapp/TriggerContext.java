@@ -39,7 +39,9 @@ public class TriggerContext {
     public void closeInApp(String closeBehaviour) {
         closedEventProps.put("closeBehaviour", closeBehaviour);
 
-        callback.call(null);
+        if (callback != null) {
+            callback.call(null);
+        }
     }
 
     public Bitmap getBitmapForBlurry() {
