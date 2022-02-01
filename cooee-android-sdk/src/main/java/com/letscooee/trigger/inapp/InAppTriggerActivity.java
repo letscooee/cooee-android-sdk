@@ -148,7 +148,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
         Map<String, Object> closedEventProps = triggerContext.getClosedEventProps();
 
         int duration = (int) ((new Date().getTime() - startTime.getTime()) / 1000);
-        closedEventProps.put("Duration", duration);
+        closedEventProps.put("duration", duration);
 
         Event event = new Event("CE Trigger Closed", closedEventProps);
         event.withTrigger(triggerData);
