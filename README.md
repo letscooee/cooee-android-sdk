@@ -1,12 +1,14 @@
 # Cooee Android SDK
 
-[![GitHub version](https://badge.fury.io/gh/letscooee%2Fcooee-android-sdk.svg)](https://badge.fury.io/gh/letscooee%2Fcooee-android-sdk)
+![GitHub tag (latest SemVer)](https://img.shields.io/github/v/tag/letscooee/cooee-android-sdk?label=Latest%20Release)
 
 ## What is Cooee?
 
 Let’s Cooee powers hyper-personalized and real time engagements for mobile apps based on machine learning. The SaaS platform, hosted on
  cloud infrastructure processes millions of user transactions and data attributes to create unique and contextual user engagement
  triggers for end users with simple SDK integration that requires no coding at mobile app level.
+
+ For More information visit our [website](https://www.letscooee.com/) and [documentation](https://docs.letscooee.com/developers/ios/quickstart).
  
 ## System Requirements
 
@@ -24,146 +26,9 @@ Let’s Cooee powers hyper-personalized and real time engagements for mobile app
 3. Rendering engagement triggers - SDK will render the campaign trigger at real-time with the help of server http calls.
 4. Average SDK size – 5-6 MB(including dependency SDK’s).
 
-## Installation
+## Installation & Uses
 
-Following are the guidelines for installing Cooee SDK on to your Android mobile app.
-
-### Step 1: Project Level
-
-Add following in project level `build.gradle`:
-
-```groovy
-allprojects {
-    repositories {
-        maven { url "https://letscooee.jfrog.io/artifactory/default-maven-local" }
-    }
-}
-```
-
-### Step 2: App Level
-
-Add following in app level `build.gradle`:
-
-```groovy
-android {
-    ...
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
-}
-
-dependencies {
-    implementation 'com.letscooee:cooee-android-sdk:x.x.x'
-}
-```
-
-### Step 3: Configure credentials
-
-Add following in `AndroidManifest.xml` inside `application` tag:
-
-```xml
-<meta-data
-        android:name="COOEE_APP_ID"
-        android:value="MY_COOEE_APP_ID"/>
-
-<meta-data
-        android:name="COOEE_APP_SECRET"
-        android:value="MY_COOEE_APP_SECRET"/>
-```
-
-Replace `MY_COOEE_APP_ID` & `MY_COOEE_APP_SECRET` with the app id & secret given to you separately.
-
-### Step 4: Initialize the Cooee SDK
-
-In the `onCreate()` method of your application’s main activity, add the below line. This will initialize the Cooee SDK.
-
-```java
-CooeeSDK cooeeSDK = CooeeSDK.getDefaultInstance(this);
-```
-
-### Step 5: Track custom Events
-
-Once you integrate the SDK, Cooee will automatically start tracking events. You can view the collected events in System Default Events. Apart from these, you can track custom events as well.
-
-```java
-CooeeSDK sdkInstance = CooeeSDK.getDefaultInstance(context);
-
-Map<String, Object> eventProperties = new HashMap<>();
-userData.put("product id", "1234");
-userData.put("product name", "Wooden Table");
-
-sdkInstance.sendEvent("Add To Cart", eventProperties);
-```
-
-### Step 6: Track User Properties
-
-As the user launches the app for the first time, Cooee will create a user profile for them. By default, we add multiple properties for a
- particular user which you can see in System Default User Properties. Along with these default properties, additional custom attributes
- properties can also be shared. We encourage mobile apps to share all properties for better machine learning modelling.
-
-```java
-CooeeSDK sdkInstance = CooeeSDK.getDefaultInstance(context);
-
-Map<String, Object> userProperties = new HashMap<>();
-userProperties.put("purchased_before", "yes");
-userProperties.put("foo", "bar");
-userProperties.put("product_viewed", 5);
-
-Map<String, Object> userData = new HashMap<>();
-userData.put("name", "John Doe");
-userData.put("mobile", "9876543210");
-userData.put("email", "john@example.com");
-
-sdkInstance.updateUserProfile(userData, userProperties);
-```
-
-### Step 7: Show debug information (Optional)
-
-To see CooeeSDK debug information for you can add `SHAKE_TO_DEBUG_COUNT` in `AndroidManifest.xml`
-
-```xml
-<meta-data
-    android:name="SHAKE_TO_DEBUG_COUNT"
-    android:value="LOW" />
-<!--
-    NONE - It's a default value and keep shake to debug disabled.
-    LOW - Debug information will open on small shake
-    MEDIUM - Debug information will open on medium shake
-    HIGH - Debug information will open on long shake
--->
-```
-
-Or you can also see information by calling `showDebugInfo()` method
-
-```java
-CooeeSDK sdkInstance = CooeeSDK.getDefaultInstance(context);
-sdkInstance.showDebugInfo();
-```
-
-**Note**
-Debug Information holds confidential data and is password protected. While accessing this information Cooee representative is required.
-
-### Step 8: Track user actions
-
-Implement your `Activity` with `CooeeCTAListener` and then register listener with `CooeeSDK.setCTAListener(...)`
-
-```java
-public class YourActivity implements CooeeCTAListener {
-    ...
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        CooeeSDK sdkInstance = CooeeSDK.getDefaultInstance(context);
-     sdkInstance.setCTAListener(this);
-        ...
-    }
-
-    @Override
-    public void onResponse(HashMap<String, Object> hashMap) {
-        
-    }
-}
-```
+For detailed installation & uses, Refer [Android](https://docs.letscooee.com/developers/android/quickstart) documentation.
 
 ## Development
 
