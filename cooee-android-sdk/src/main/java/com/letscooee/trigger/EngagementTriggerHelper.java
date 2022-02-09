@@ -14,15 +14,16 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.letscooee.BuildConfig;
 import com.letscooee.CooeeFactory;
-import com.letscooee.ar.ARHelper;
 import com.letscooee.models.Event;
 import com.letscooee.models.trigger.EmbeddedTrigger;
 import com.letscooee.models.trigger.TriggerData;
 import com.letscooee.models.trigger.blocks.ClickAction;
 import com.letscooee.models.trigger.elements.BaseElement;
 import com.letscooee.models.trigger.inapp.InAppTrigger;
+import com.letscooee.trigger.action.ClickActionExecutor;
 import com.letscooee.trigger.adapters.ChildElementDeserializer;
 import com.letscooee.trigger.inapp.InAppTriggerActivity;
+import com.letscooee.trigger.inapp.TriggerContext;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.LocalStorageHelper;
 import com.letscooee.utils.RuntimeData;
@@ -216,19 +217,14 @@ public class EngagementTriggerHelper {
 
         int launchFeature = pushClickAction.getLaunchFeature();
 
-        if (launchFeature == 1) {
+        if (launchFeature == 0 || launchFeature == 1) {
             launchInApp(context, triggerData);
-        } else if (launchFeature == 2) {
-            // TODO: 02/01/22 launch self AR
-        } else if (launchFeature == 3) {
-            if (pushClickAction.getAR() == null) {
-                return;
-            }
+        } else {
+            TriggerContext triggerContext =new TriggerContext();
+            triggerContext.setTriggerData(triggerData);
 
-            ARHelper.checkForARAndLaunch(activity, pushClickAction.getAR(), triggerData);
+            new ClickActionExecutor(context, pushClickAction, triggerContext).execute();
         }
-
-
     }
 
     private static void launchInApp(Context context, TriggerData triggerData) {

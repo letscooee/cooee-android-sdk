@@ -12,6 +12,7 @@ import com.letscooee.R;
 import com.letscooee.models.trigger.blocks.BrowserContent;
 import com.letscooee.utils.Constants;
 
+@Deprecated
 public class InAppBrowserActivity extends AppCompatActivity {
 
     @Override

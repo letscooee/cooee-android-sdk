@@ -3,19 +3,20 @@ package com.letscooee.trigger.action;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Bundle;
 import android.text.TextUtils;
+
+import androidx.browser.customtabs.CustomTabsIntent;
 
 import com.letscooee.CooeeFactory;
 import com.letscooee.CooeeSDK;
 import com.letscooee.ar.ARHelper;
 import com.letscooee.models.trigger.TriggerData;
 import com.letscooee.models.trigger.blocks.AppAR;
-import com.letscooee.models.trigger.blocks.BrowserContent;
 import com.letscooee.models.trigger.blocks.ClickAction;
-import com.letscooee.trigger.inapp.InAppBrowserActivity;
 import com.letscooee.trigger.inapp.TriggerContext;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.CooeeCTAListener;
@@ -49,8 +50,22 @@ public class ClickActionExecutor {
         loadAR();
         shareContent();
         updateApp();
+        closeInApp(requestedAnyPermission);
+    }
 
-        if (action.isClose() && !requestedAnyPermission) {
+    /**
+     * Closes in app if CTA contains close action
+     *
+     * @param requestedAnyPermission flag that can holds <code>globalData.closeInApp</code> execution
+     */
+    private void closeInApp(boolean requestedAnyPermission) {
+        if (!action.isClose()) {
+            return;
+        }
+
+        if (action.isOnlyCloseCTA()) {
+            globalData.closeInApp("Close");
+        } else if (!requestedAnyPermission) {
             globalData.closeInApp("CTA");
         }
     }
@@ -156,7 +171,7 @@ public class ClickActionExecutor {
     }
 
     /**
-     * Check and process <code>iab</code> and launch {@link InAppBrowserActivity}
+     * Check and process <code>iab</code> and launch url using {@link CustomTabsIntent}
      */
     private void executeInAppBrowser() {
         if (action.getIab() == null) {
@@ -168,11 +183,23 @@ public class ClickActionExecutor {
             return;
         }
 
-        Intent intent = new Intent(context, InAppBrowserActivity.class);
-        Bundle bundle = new Bundle();
-        bundle.putParcelable(Constants.INTENT_BUNDLE_KEY, action.getIab());
-        intent.putExtras(bundle);
-        startActivity(intent);
+        CustomTabsIntent.Builder customTabBuilder = new CustomTabsIntent.Builder();
+        CustomTabsIntent customTabsIntent = customTabBuilder.build();
+        String chromePackageName = "com.android.chrome";
+        boolean isChromeAvailable;
+
+        try {
+            ApplicationInfo applicationInfo = this.context.getPackageManager().getApplicationInfo(chromePackageName, 0);
+            isChromeAvailable = applicationInfo.enabled;
+        } catch (PackageManager.NameNotFoundException e) {
+            isChromeAvailable = false;
+        }
+
+        if (isChromeAvailable) {
+            customTabsIntent.intent.setPackage(chromePackageName);
+        }
+
+        customTabsIntent.launchUrl(this.context, Uri.parse(url));
     }
 
     /**

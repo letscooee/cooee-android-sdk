@@ -136,6 +136,7 @@ dependencies {
     api 'androidx.constraintlayout:constraintlayout:2.1.0'
     api "androidx.lifecycle:lifecycle-process:$lifecycleVersion"
     api "androidx.lifecycle:lifecycle-common-java8:$lifecycleVersion"
+    api "androidx.browser:browser:1.4.0"
     // endregion
 
     // region Retrofit dependencies
