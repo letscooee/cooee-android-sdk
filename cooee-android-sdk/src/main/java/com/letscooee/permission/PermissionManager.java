@@ -33,7 +33,6 @@ public class PermissionManager {
     /**
      * Check for all permissions and fetch permission related data and add to <code>deviceProps</code>
      *
-     *
      * @return {@link Map} of permission info
      */
     @NonNull
@@ -50,16 +49,17 @@ public class PermissionManager {
 
             if (permissionType == PermissionType.LOCATION && permissionStatus) {
                 double[] location = devicePropsCollector.getLocation();
-                deviceProps.put("coordinates", location);
-
-            } else if (permissionType == PermissionType.PHONE_DETAILS && permissionStatus) {
-                String[] networkData = devicePropsCollector.getNetworkData();
-                deviceProps.put("CE Network Operator", networkData[0]);
-                deviceProps.put("CE Network Type", networkData[1]);
+                deviceProps.put("coords", location);
             }
 
             deviceProps.put("perm", permissionMap);
         }
+
+        String[] networkData = devicePropsCollector.getNetworkData();
+        Map<String, Object> network = new HashMap<>();
+        network.put("opr", networkData[0]);
+        network.put("type", networkData[1]);
+        deviceProps.put("net", network);
 
         return deviceProps;
     }
