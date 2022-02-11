@@ -74,12 +74,19 @@ public class InAppTrigger implements Parcelable {
         dest.writeDouble(height);
     }
 
-    public int getOrientation() {
-        if (orientation == 2) {
-            return ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+    /**
+     * Process In-App gravity on the screen
+     *
+     * @param layoutParams {@link RelativeLayout.LayoutParams} of the view
+     * @return Return Nullable {@link android.view.Gravity} as {@link Integer} value
+     */
+    @Nullable
+    public Integer getGravity(@NonNull RelativeLayout.LayoutParams layoutParams) {
+        if (gravity == 0) {
+            return null;
         }
 
-        return ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+        return GravityUtil.processGravity(Gravity.fromByte(gravity), layoutParams);
     }
 
     public int getWidth() {

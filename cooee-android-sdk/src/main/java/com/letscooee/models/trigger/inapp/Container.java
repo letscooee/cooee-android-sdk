@@ -8,6 +8,7 @@ import com.google.gson.annotations.SerializedName;
 import com.letscooee.enums.trigger.Gravity;
 import com.letscooee.models.trigger.blocks.Animation;
 import com.letscooee.models.trigger.elements.BaseElement;
+import com.letscooee.trigger.inapp.renderer.utils.GravityUtil;
 
 public class Container extends BaseElement {
 
@@ -40,54 +41,16 @@ public class Container extends BaseElement {
         return animation;
     }
 
-    // Returns actual view gravity
+    /**
+     * Process In-App gravity on the screen
+     *
+     * @param layoutParams {@link RelativeLayout.LayoutParams} of the view
+     * @return Return Nullable {@link android.view.Gravity} as {@link Integer} value
+     */
     public int getGravity(RelativeLayout.LayoutParams layoutParams) {
-        Gravity g = Gravity.fromByte(gravity);
+        Gravity inAppGravity = Gravity.fromByte(gravity);
 
-        switch (g) {
-            case TOP_LEFT: {
-                layoutParams.addRule(RelativeLayout.ALIGN_PARENT_START, RelativeLayout.TRUE);
-                return android.view.Gravity.START;
-            }
-            case TOP_CENTER: {
-                layoutParams.addRule(RelativeLayout.ALIGN_PARENT_START, RelativeLayout.TRUE);
-                layoutParams.addRule(RelativeLayout.CENTER_HORIZONTAL, RelativeLayout.TRUE);
-                return android.view.Gravity.CENTER_HORIZONTAL;
-            }
-            case TOP_RIGHT: {
-                layoutParams.addRule(RelativeLayout.ALIGN_PARENT_END, RelativeLayout.TRUE);
-                return android.view.Gravity.END;
-            }
-            case CENTER_LEFT: {
-                layoutParams.addRule(RelativeLayout.ALIGN_PARENT_START, RelativeLayout.TRUE);
-                layoutParams.addRule(RelativeLayout.CENTER_VERTICAL, RelativeLayout.TRUE);
-                return android.view.Gravity.START | android.view.Gravity.CENTER;
-            }
-            case CENTER_RIGHT: {
-                layoutParams.addRule(RelativeLayout.ALIGN_PARENT_END, RelativeLayout.TRUE);
-                layoutParams.addRule(RelativeLayout.CENTER_VERTICAL, RelativeLayout.TRUE);
-                return android.view.Gravity.END | android.view.Gravity.CENTER;
-            }
-            case BOTTOM_LEFT: {
-                layoutParams.addRule(RelativeLayout.ALIGN_PARENT_START, RelativeLayout.TRUE);
-                layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
-                return android.view.Gravity.START | android.view.Gravity.BOTTOM;
-            }
-            case BOTTOM_CENTER: {
-                layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
-                layoutParams.addRule(RelativeLayout.CENTER_HORIZONTAL, RelativeLayout.TRUE);
-                return android.view.Gravity.CENTER | android.view.Gravity.BOTTOM;
-            }
-            case BOTTOM_RIGHT: {
-                layoutParams.addRule(RelativeLayout.ALIGN_PARENT_END, RelativeLayout.TRUE);
-                layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
-                return android.view.Gravity.END | android.view.Gravity.BOTTOM;
-            }
-            default: {
-                layoutParams.addRule(RelativeLayout.CENTER_IN_PARENT, RelativeLayout.TRUE);
-                return android.view.Gravity.CENTER;
-            }
-        }
+        return GravityUtil.processGravity(inAppGravity, layoutParams);
     }
 
     @Override
