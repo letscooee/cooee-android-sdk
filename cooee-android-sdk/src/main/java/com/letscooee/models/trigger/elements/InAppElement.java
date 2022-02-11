@@ -9,6 +9,9 @@ import com.letscooee.models.trigger.blocks.ClickAction;
 
 /**
  * Provides {@link BaseElement} instance to process InAppTrigger's background and clickAction
+ *
+ * @author Ashish Gaikwad
+ * @since 1.1.2
  */
 public class InAppElement extends BaseElement {
 
