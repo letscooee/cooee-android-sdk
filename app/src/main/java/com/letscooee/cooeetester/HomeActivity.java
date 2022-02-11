@@ -38,7 +38,10 @@ public class HomeActivity extends AppCompatActivity implements CooeeCTAListener 
 
         Log.d(TAG, "User ID " + cooeeSDK.getUserID());
 
-        binding.btnSendImageEvent.setOnClickListener(view -> cooeeSDK.sendEvent("image", new HashMap<>()));
+        binding.btnSendImageEvent.setOnClickListener(view -> {
+            cooeeSDK.sendEvent("Add  To Cart", new HashMap<>());
+            cooeeSDK.sendEvent("Add  To Cart");
+        });
 
 //        binding.inApp1.setOnClickListener(view -> this.openInApp(R.raw.sample_payload_v4));
 
