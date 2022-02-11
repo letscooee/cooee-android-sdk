@@ -49,19 +49,6 @@ public class ContainerRenderer extends AbstractInAppRenderer {
         baseFrameLayout.setLayoutParams(frameLayoutParams);
         newElement.setLayoutParams(frameLayoutParams);
 
-        // Moving backgroundImage and drawable from base frame layout and putting it in root view layout.
-        Colour solid = elementData.getBg().getSolid();
-        if (solid != null) {
-            GradientDrawable drawable = new GradientDrawable();
-            drawable.setColor(solid.getHexColor());
-            baseFrameLayout.setBackgroundResource(0);
-            globalData.getTriggerParentLayout().setBackground(drawable);
-        } else {
-            baseFrameLayout.removeView(backgroundImage);
-            backgroundImage.setLayoutParams(new RelativeLayout.LayoutParams(MP, MP));
-            globalData.getTriggerParentLayout().addView(backgroundImage);
-        }
-
         // Setting Trigger Parent Layout's gravity to Center. Element will be placed as provided from the data.
         this.processGravity();
 

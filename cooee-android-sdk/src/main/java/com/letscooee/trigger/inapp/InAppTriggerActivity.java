@@ -13,19 +13,15 @@ import androidx.annotation.RestrictTo;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.letscooee.CooeeFactory;
-import com.letscooee.CooeeSDK;
 import com.letscooee.R;
 import com.letscooee.models.Event;
-import com.letscooee.models.trigger.EmbeddedTrigger;
 import com.letscooee.models.trigger.TriggerData;
 import com.letscooee.models.trigger.blocks.Animation;
-import com.letscooee.models.trigger.inapp.Container;
+import com.letscooee.models.trigger.elements.InAppElement;
 import com.letscooee.models.trigger.inapp.InAppTrigger;
 import com.letscooee.permission.PermissionManager;
-import com.letscooee.trigger.inapp.renderer.ContainerRenderer;
+import com.letscooee.trigger.inapp.renderer.InAppBodyRenderer;
 import com.letscooee.utils.Constants;
-import com.letscooee.utils.LocalStorageHelper;
-import com.letscooee.utils.PermissionType;
 import com.letscooee.utils.SentryHelper;
 
 import java.util.Date;
@@ -74,7 +70,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
             this.triggerContext.setTriggerData(triggerData);
 
             setAnimations();
-            renderContainerAndLayers();
+            renderInApp();
             sendTriggerDisplayedEvent();
         } catch (Exception e) {
             sentryHelper.captureException(e);
@@ -106,11 +102,12 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
         overridePendingTransition(enterAnimation, exitAnimation);
     }
 
-    private void renderContainerAndLayers() {
-        Container containerData = inAppData.getContainer();
+    private void renderInApp() {
         RelativeLayout rootViewElement = findViewById(R.id.inAppTriggerRoot);
         triggerContext.setTriggerParentLayout(rootViewElement);
-        new ContainerRenderer(this, rootViewElement, containerData, inAppData, triggerContext).render();
+
+        InAppElement inAppElement = new InAppElement(inAppData.getBackground(),inAppData.getClickAction());
+        new InAppBodyRenderer(this, rootViewElement, inAppElement, inAppData, triggerContext).render();
     }
 
     /**
