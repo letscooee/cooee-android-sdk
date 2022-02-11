@@ -115,8 +115,9 @@ public class DeviceAuthService {
      * other endpoints.
      */
     private void getSDKTokenFromServer() {
-        if (TextUtils.isEmpty(manifestReader.getAppID()) || TextUtils.isEmpty(manifestReader.getAppSecret())){
-            Log.i(Constants.TAG, "Missing App credentials in AndroidManifest.xml");
+        if (TextUtils.isEmpty(manifestReader.getAppID())) {
+            Log.i(Constants.TAG, "Missing App credentials in AndroidManifest.xml",
+                    new Exception("Check Integration https://docs.letscooee.com/developers/android/quickstart"));
             return;
         }
 
@@ -180,7 +181,6 @@ public class DeviceAuthService {
 
         return new AuthenticationRequestBody(
                 manifestReader.getAppID(),
-                manifestReader.getAppSecret(),
                 uuid,
                 sessionExecutor.getImmutableDeviceProps());
     }
