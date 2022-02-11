@@ -37,6 +37,7 @@ public class APIClient {
     private static String apiToken;
     private static String userId = "";
     private static String appVersion = "";
+    private static String wrapperName = "";
     private static Gson gson = new GsonBuilder().registerTypeAdapter(Date.class, new GsonDateAdapter()).create();
 
     public static APIService getAPIService() {
@@ -79,6 +80,10 @@ public class APIClient {
                     requestBuilder.addHeader("sdk-version-code", String.valueOf(BuildConfig.VERSION_CODE));
                     requestBuilder.addHeader("app-version", appVersion);
 
+                    if (!TextUtils.isEmpty(wrapperName)) {
+                        requestBuilder.addHeader("sdk-wrapper", wrapperName);
+                    }
+
                     Log.d(TAG, "Request: " + requestBuilder.build().toString());
                     return chain.proceed(requestBuilder.build());
                 })
@@ -105,5 +110,10 @@ public class APIClient {
 
     public static void setAppVersion(String version) {
         appVersion = TextUtils.isEmpty(version) ? "" : version;
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static void setWrapperName(String name){
+        wrapperName = name;
     }
 }
