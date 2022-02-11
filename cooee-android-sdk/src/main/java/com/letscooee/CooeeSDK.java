@@ -75,10 +75,23 @@ public class CooeeSDK {
     /**
      * Sends custom events to the server and returns with the campaign details(if any)
      *
+     * @param eventName Name the event like onDeviceReady
+     */
+    public void sendEvent(@NonNull String eventName) {
+        Event event = new Event(eventName);
+
+        this.safeHTTPService.sendEvent(event);
+    }
+
+    /**
+     * Sends custom events to the server and returns with the campaign details(if any)
+     *
      * @param eventName       Name the event like onDeviceReady
      * @param eventProperties Properties associated with the event
+     * @throws PropertyNameException if property name starts "CE "
      */
-    public void sendEvent(String eventName, Map<String, Object> eventProperties) {
+    public void sendEvent(@NonNull String eventName, @NonNull Map<String, Object> eventProperties)
+            throws PropertyNameException {
         for (String key : eventProperties.keySet()) {
             if (key.substring(0, 3).equalsIgnoreCase(SYSTEM_DATA_PREFIX)) {
                 throw new PropertyNameException();
