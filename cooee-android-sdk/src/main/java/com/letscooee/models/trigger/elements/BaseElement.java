@@ -6,6 +6,8 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
 
+import androidx.annotation.*;
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.letscooee.models.trigger.blocks.*;
@@ -45,6 +47,18 @@ public abstract class BaseElement implements Parcelable {
     private final float x;
     private final float y;
     private final Integer z;
+
+    // Main purpose of this constructor is to initialize BaseElement for InAppBodyRenderer with
+    // InAppTrigger's custom background and clickAction
+    protected BaseElement(@Nullable Background background,@NonNull ClickAction clickAction) {
+        this.bg = background;
+        this.click = clickAction;
+        this.width = null;
+        this.height = null;
+        this.x = 0;
+        this.y = 0;
+        this.z = null;
+    }
 
     protected BaseElement(Parcel in) {
         bg = in.readParcelable(Background.class.getClassLoader());
@@ -126,4 +140,11 @@ public abstract class BaseElement implements Parcelable {
         return z;
     }
 
+    public void setClick(ClickAction click) {
+        this.click = click;
+    }
+
+    public void setBg(Background bg) {
+        this.bg = bg;
+    }
 }

@@ -37,6 +37,12 @@ public class ClickAction implements Parcelable {
     @SerializedName("open")
     private int launchFeature;
 
+    // Main purpose of this constructor is to initialise click listener for InApp's main background
+    // click event
+    public ClickAction(boolean close) {
+        this.close = close;
+    }
+
     protected ClickAction(Parcel in) {
         iab = in.readParcelable(BrowserContent.class.getClassLoader());
         external = in.readParcelable(BrowserContent.class.getClassLoader());
