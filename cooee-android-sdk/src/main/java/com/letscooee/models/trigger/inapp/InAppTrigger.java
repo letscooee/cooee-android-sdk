@@ -1,12 +1,19 @@
 package com.letscooee.models.trigger.inapp;
 
-import android.content.pm.ActivityInfo;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.widget.RelativeLayout;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import com.letscooee.enums.trigger.Gravity;
+import com.letscooee.models.trigger.blocks.Background;
+import com.letscooee.models.trigger.blocks.ClickAction;
 import com.letscooee.models.trigger.elements.BaseElement;
+import com.letscooee.trigger.inapp.renderer.utils.GravityUtil;
 
 import java.util.ArrayList;
 
@@ -22,7 +29,7 @@ public class InAppTrigger implements Parcelable {
 
     @SerializedName("o")
     @Expose
-    private int orientation;
+    private byte gravity;
 
     @SerializedName("w")
     @Expose
@@ -32,12 +39,22 @@ public class InAppTrigger implements Parcelable {
     @Expose
     private double height;
 
+    @SerializedName("clc")
+    @Expose
+    private ClickAction clickAction;
+
+    @SerializedName("bg")
+    @Expose
+    private Background background;
+
     protected InAppTrigger(Parcel in) {
         container = in.readParcelable(Container.class.getClassLoader());
         elements = in.readArrayList(getClass().getClassLoader());
-        orientation = in.readInt();
+        gravity = in.readByte();
         width = in.readDouble();
         height = in.readDouble();
+        background = in.readParcelable(Background.class.getClassLoader());
+        clickAction = in.readParcelable(ClickAction.class.getClassLoader());
     }
 
     public static final Creator<InAppTrigger> CREATOR = new Creator<InAppTrigger>() {
@@ -69,9 +86,11 @@ public class InAppTrigger implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeParcelable(container, flags);
         dest.writeList(elements);
-        dest.writeInt(orientation);
+        dest.writeByte(gravity);
         dest.writeDouble(width);
         dest.writeDouble(height);
+        dest.writeParcelable(background, flags);
+        dest.writeParcelable(clickAction, flags);
     }
 
     /**
@@ -103,5 +122,29 @@ public class InAppTrigger implements Parcelable {
         }
 
         return (int) Math.round(height);
+    }
+
+    /**
+     * Checks and returns {@link ClickAction} for {@link InAppTrigger}. If <code>clickAction</code>
+     * is <code>null</code> then creates new {@link ClickAction} and assign it to variable
+     *
+     * @return Returns non-null {@link ClickAction}
+     */
+    @NonNull
+    public ClickAction getClickAction() {
+        if (clickAction == null) {
+            clickAction = new ClickAction(true);
+        }
+
+        return clickAction;
+    }
+
+    @Nullable
+    public Background getBackground() {
+        if (background == null){
+            background = container.getBg();
+        }
+
+        return background;
     }
 }
