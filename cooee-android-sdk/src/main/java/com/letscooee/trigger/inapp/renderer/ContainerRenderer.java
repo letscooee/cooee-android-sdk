@@ -1,14 +1,11 @@
 package com.letscooee.trigger.inapp.renderer;
 
 import android.content.Context;
-import android.graphics.drawable.GradientDrawable;
-import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 
-import com.letscooee.models.trigger.blocks.Colour;
 import com.letscooee.models.trigger.elements.BaseElement;
 import com.letscooee.models.trigger.elements.ButtonElement;
 import com.letscooee.models.trigger.elements.ImageElement;
@@ -125,7 +122,13 @@ public class ContainerRenderer extends AbstractInAppRenderer {
                 (int) UnitUtils.getScaledPixel(1920)
         );
 
-        globalData.getTriggerParentLayout().setGravity(((Container) elementData).getGravity(materialViewLayoutParams));
+        Integer inAppGravity = inAppTrigger.getGravity(materialViewLayoutParams);
+
+        if (inAppGravity == null) {
+            inAppGravity = ((Container) elementData).getGravity(materialViewLayoutParams);
+        }
+
+        globalData.getTriggerParentLayout().setGravity(inAppGravity);
         materialCardView.setLayoutParams(materialViewLayoutParams);
     }
 }
