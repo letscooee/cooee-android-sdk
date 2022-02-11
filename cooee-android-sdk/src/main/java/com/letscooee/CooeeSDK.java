@@ -111,7 +111,9 @@ public class CooeeSDK {
      * Send given user data to the server
      *
      * @param userData The common user data like name, email.
+     * @deprecated use {@link CooeeSDK#updateUserProfile(Map)} instead
      */
+    @Deprecated
     public void updateUserData(Map<String, Object> userData) {
         updateUserProfile(userData, null);
     }
@@ -120,7 +122,9 @@ public class CooeeSDK {
      * Send given user properties to the server
      *
      * @param userProperties The additional user properties.
+     * @deprecated use {@link CooeeSDK#updateUserProfile(Map)} instead
      */
+    @Deprecated
     public void updateUserProperties(Map<String, Object> userProperties) {
         updateUserProfile(null, userProperties);
     }
@@ -130,7 +134,9 @@ public class CooeeSDK {
      *
      * @param userData       The common user data like name, email.
      * @param userProperties The additional user properties.
+     * @deprecated use {@link CooeeSDK#updateUserProfile(Map)} instead
      */
+    @Deprecated
     public void updateUserProfile(Map<String, Object> userData, Map<String, Object> userProperties) {
         if (userProperties != null) {
             for (String key : userProperties.keySet()) {
@@ -141,20 +147,33 @@ public class CooeeSDK {
         }
 
         Map<String, Object> userMap = new HashMap<>();
-        if (userData == null) {
-            userMap.put("userData", new HashMap<>());
-        } else {
-            userMap.put("userData", userData);
+        if (userData != null) {
+            userMap.putAll(userData);
         }
 
-        if (userProperties == null) {
-            userMap.put("userProperties", new HashMap<>());
-        } else {
-            userMap.put("userProperties", userProperties);
+        if (userProperties != null) {
+            userMap.putAll(userProperties);
         }
 
         this.sentryHelper.setUserInfo(userData);
         this.safeHTTPService.updateUserProfile(userMap);
+    }
+
+    /**
+     * Send the given user data and user properties to the server.
+     *
+     * @param userData The common user data like name, email, etc.
+     * @see <a href="https://docs.letscooee.com/developers/android/track-props">Tracking Properties</a>
+     */
+    public void updateUserProfile(@NonNull Map<String, Object> userData) {
+        for (String key : userData.keySet()) {
+            if (key.substring(0, 3).equalsIgnoreCase(SYSTEM_DATA_PREFIX)) {
+                throw new PropertyNameException();
+            }
+        }
+
+        this.sentryHelper.setUserInfo(userData);
+        this.safeHTTPService.updateUserProfile(userData);
     }
 
     /**

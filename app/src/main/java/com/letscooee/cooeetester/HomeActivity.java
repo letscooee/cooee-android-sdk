@@ -43,8 +43,6 @@ public class HomeActivity extends AppCompatActivity implements CooeeCTAListener 
             cooeeSDK.sendEvent("Add  To Cart");
         });
 
-//        binding.inApp1.setOnClickListener(view -> this.openInApp(R.raw.sample_payload_v4));
-
         binding.btnProfile.setOnClickListener(view -> startActivity(new Intent(this, ProfileActivity.class)));
 
         binding.tvUid.setOnClickListener(v -> {

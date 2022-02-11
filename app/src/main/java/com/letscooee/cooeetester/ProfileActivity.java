@@ -47,7 +47,7 @@ public class ProfileActivity extends AppCompatActivity {
             userData.put("email", binding.edtEmail.getText().toString());
 
             try {
-                cooee.updateUserData(userData);
+                cooee.updateUserProfile(userData);
                 Toast.makeText(this, "Data Sent", Toast.LENGTH_SHORT).show();
             } catch (PropertyNameException e) {
                 e.printStackTrace();
