@@ -29,10 +29,6 @@ public class SignUpActivity extends AppCompatActivity {
         buttonSubmit = findViewById(R.id.buttonSubmit);
 
         buttonSubmit.setOnClickListener(view -> {
-            Map<String, String> userProperties = new HashMap<>();
-            userProperties.put("name1", "v1");
-            userProperties.put("name2", "v2");
-            userProperties.put("name3", "v3");
             Map<String, Object> userData = new HashMap<>();
             userData.put("name", editTextName.getText().toString());
             userData.put("mobile", editTextMobile.getText().toString());
@@ -40,7 +36,7 @@ public class SignUpActivity extends AppCompatActivity {
 
             CooeeSDK cooeeSDK = CooeeSDK.getDefaultInstance(getApplicationContext());
             try {
-                cooeeSDK.updateUserData(userData);
+                cooeeSDK.updateUserProfile(userData);
             } catch (Exception e) {
                 e.printStackTrace();
             }

@@ -52,7 +52,7 @@ public class ARActionPerformed extends BroadcastReceiver {
 
     /**
      * Send event to the server received in <code>rawResponse</code>; Then will check for CTA in <code>rawResponse</code>,
-     * if found any will send {@link ClickAction#getUserPropertiesToUpdate()} to the {@link CooeeSDK#updateUserProperties(Map)}
+     * if found any will send {@link ClickAction#getUserPropertiesToUpdate()} to the {@link CooeeSDK#updateUserProfile(Map)}
      *
      * @param context     application context
      * @param rawResponse json string sent via AR as event.
@@ -85,7 +85,7 @@ public class ARActionPerformed extends BroadcastReceiver {
             return;
         }
 
-        CooeeSDK.getDefaultInstance(context).updateUserProperties(userProperty);
+        CooeeSDK.getDefaultInstance(context).updateUserProfile(userProperty);
     }
 
     /**
