@@ -48,9 +48,14 @@ public abstract class BaseElement implements Parcelable {
     private final float y;
     private final Integer z;
 
-    // Main purpose of this constructor is to initialize BaseElement for InAppBodyRenderer with
-    // InAppTrigger's custom background and clickAction
-    protected BaseElement(@Nullable Background background,@NonNull ClickAction clickAction) {
+    /**
+     * Main purpose of this constructor is to initialize BaseElement for InAppBodyRenderer with
+     * InAppTrigger's custom background and clickAction
+     *
+     * @param background  Nullable instance of {@link Background}
+     * @param clickAction NonNull instance of {@link ClickAction}
+     */
+    protected BaseElement(@Nullable Background background, @NonNull ClickAction clickAction) {
         this.bg = background;
         this.click = clickAction;
         this.width = null;

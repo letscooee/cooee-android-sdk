@@ -37,8 +37,13 @@ public class ClickAction implements Parcelable {
     @SerializedName("open")
     private int launchFeature;
 
-    // Main purpose of this constructor is to initialise click listener for InApp's main background
-    // click event
+    /**
+     * Initialize the {@link ClickAction} with close variable
+     * Main purpose of this constructor is to initialise click listener for InApp's main background
+     * click event
+     *
+     * @param close <code>boolean</code> value
+     */
     public ClickAction(boolean close) {
         this.close = close;
     }

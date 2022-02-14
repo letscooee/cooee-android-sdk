@@ -132,17 +132,23 @@ public class InAppTrigger implements Parcelable {
      */
     @NonNull
     public ClickAction getClickAction() {
-        if (clickAction == null) {
-            clickAction = new ClickAction(true);
-        }
 
-        return clickAction;
+        return clickAction == null ? new ClickAction(true) : clickAction;
     }
 
+    /**
+     * Check for {@link InAppTrigger} <code>background</code> and return it.
+     * If <code>background</code> is <code>null</code> method will pick <code>background</code> from
+     * {@link Container} and will add to InApp's <code>background</code> and then replace Container's
+     * background with <code>null</code>
+     *
+     * @return NonNull instance of {@link Background}
+     */
     @Nullable
     public Background getBackground() {
-        if (background == null){
+        if (background == null) {
             background = container.getBg();
+            container.setBg(null);
         }
 
         return background;
