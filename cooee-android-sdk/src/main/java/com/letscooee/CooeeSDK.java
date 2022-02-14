@@ -80,9 +80,7 @@ public class CooeeSDK {
      * more details.
      */
     public void sendEvent(@NonNull String eventName) {
-        Event event = new Event(eventName);
-
-        this.safeHTTPService.sendEvent(event);
+        sendEvent(eventName, null);
     }
 
     /**
@@ -94,15 +92,16 @@ public class CooeeSDK {
      * @see <a href="https://docs.letscooee.com/developers/android/track-events">Track Events</a> for
      * more details.
      */
-    public void sendEvent(@NonNull String eventName, @NonNull Map<String, Object> eventProperties)
+    public void sendEvent(@NonNull String eventName, Map<String, Object> eventProperties)
             throws PropertyNameException {
-        for (String key : eventProperties.keySet()) {
-            if (key.substring(0, 3).equalsIgnoreCase(SYSTEM_DATA_PREFIX)) {
-                throw new PropertyNameException();
-            }
+        Event event;
+        if (eventProperties == null) {
+            event = new Event(eventName);
+        } else if (isContainSystemDataPrefix(eventProperties)) {
+            throw new PropertyNameException();
+        } else {
+            event = new Event(eventName, eventProperties);
         }
-
-        Event event = new Event(eventName, eventProperties);
 
         this.safeHTTPService.sendEvent(event);
     }
@@ -111,10 +110,11 @@ public class CooeeSDK {
      * Send given user data to the server
      *
      * @param userData The common user data like name, email.
+     * @throws PropertyNameException if property name starts with "CE "
      * @deprecated use {@link CooeeSDK#updateUserProfile(Map)} instead
      */
     @Deprecated
-    public void updateUserData(Map<String, Object> userData) {
+    public void updateUserData(Map<String, Object> userData) throws PropertyNameException {
         updateUserProfile(userData, null);
     }
 
@@ -122,10 +122,11 @@ public class CooeeSDK {
      * Send given user properties to the server
      *
      * @param userProperties The additional user properties.
+     * @throws PropertyNameException if property name starts with "CE "
      * @deprecated use {@link CooeeSDK#updateUserProfile(Map)} instead
      */
     @Deprecated
-    public void updateUserProperties(Map<String, Object> userProperties) {
+    public void updateUserProperties(Map<String, Object> userProperties) throws PropertyNameException {
         updateUserProfile(null, userProperties);
     }
 
@@ -134,18 +135,11 @@ public class CooeeSDK {
      *
      * @param userData       The common user data like name, email.
      * @param userProperties The additional user properties.
+     * @throws PropertyNameException if property name starts with "CE "
      * @deprecated use {@link CooeeSDK#updateUserProfile(Map)} instead
      */
     @Deprecated
-    public void updateUserProfile(Map<String, Object> userData, Map<String, Object> userProperties) {
-        if (userProperties != null) {
-            for (String key : userProperties.keySet()) {
-                if (key.substring(0, 3).equalsIgnoreCase(SYSTEM_DATA_PREFIX)) {
-                    throw new PropertyNameException();
-                }
-            }
-        }
-
+    public void updateUserProfile(Map<String, Object> userData, Map<String, Object> userProperties) throws PropertyNameException {
         Map<String, Object> userMap = new HashMap<>();
         if (userData != null) {
             userMap.putAll(userData);
@@ -155,21 +149,23 @@ public class CooeeSDK {
             userMap.putAll(userProperties);
         }
 
-        this.sentryHelper.setUserInfo(userData);
-        this.safeHTTPService.updateUserProfile(userMap);
+        updateUserProfile(userMap);
     }
 
     /**
      * Send the given user data and user properties to the server.
      *
      * @param userData The common user data like name, email, etc.
-     * @see <a href="https://docs.letscooee.com/developers/android/track-props">Tracking Properties</a>
+     * @throws PropertyNameException if property name starts with "CE "
+     * @see <a href="https://docs.letscooee.com/developers/android/track-props">Tracking User Properties</a>
      */
-    public void updateUserProfile(@NonNull Map<String, Object> userData) {
-        for (String key : userData.keySet()) {
-            if (key.substring(0, 3).equalsIgnoreCase(SYSTEM_DATA_PREFIX)) {
-                throw new PropertyNameException();
-            }
+    public void updateUserProfile(Map<String, Object> userData) throws PropertyNameException, NullPointerException {
+        if (userData == null) {
+            return;
+        }
+
+        if (isContainSystemDataPrefix(userData)) {
+            throw new PropertyNameException();
         }
 
         this.sentryHelper.setUserInfo(userData);
@@ -214,11 +210,26 @@ public class CooeeSDK {
 
     /**
      * Launch {@link DebugInfoActivity} activity which holds debug information.
-     * These information is useful to debug problem with the SDK.
+     * This information is useful to debug problem with the SDK.
      */
     public void showDebugInfo() {
         Intent intent = new Intent(context, DebugInfoActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         context.startActivity(intent);
+    }
+
+    /**
+     * Check if map key starts with {@link #SYSTEM_DATA_PREFIX}
+     *
+     * @param map map to check
+     * @return true if map key starts with {@link #SYSTEM_DATA_PREFIX}, otherwise false
+     */
+    private boolean isContainSystemDataPrefix(Map<String, Object> map) {
+        for (String key : map.keySet()) {
+            if (key.substring(0, 3).equalsIgnoreCase(SYSTEM_DATA_PREFIX)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
