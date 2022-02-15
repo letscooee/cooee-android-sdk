@@ -107,7 +107,8 @@ public class DeviceInfo extends ContextAware {
     }
 
     public int getOrientation() {
-        return this.cachedInfo.orientation;
+        initializeResource();
+        return resources.getConfiguration().orientation;
     }
 
     public int getRunTimeDisplayWidth() {

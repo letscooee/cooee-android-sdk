@@ -1,17 +1,14 @@
 package com.letscooee.models.trigger.elements;
 
-import static com.letscooee.utils.ui.UnitUtils.getScaledPixel;
-
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.text.TextUtils;
 
-import androidx.annotation.*;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.letscooee.models.trigger.blocks.*;
-import com.letscooee.utils.ui.UnitUtils;
 
 public abstract class BaseElement implements Parcelable {
 
@@ -39,11 +36,11 @@ public abstract class BaseElement implements Parcelable {
 
     @SerializedName("w")
     @Expose
-    private final String width;
+    protected final double width;
 
     @SerializedName("h")
     @Expose
-    private final String height;
+    protected final double height;
     private final float x;
     private final float y;
     private final Integer z;
@@ -58,8 +55,8 @@ public abstract class BaseElement implements Parcelable {
     protected BaseElement(@Nullable Background background, @NonNull ClickAction clickAction) {
         this.bg = background;
         this.click = clickAction;
-        this.width = null;
-        this.height = null;
+        this.width = 0;
+        this.height = 0;
         this.x = 0;
         this.y = 0;
         this.z = null;
@@ -73,8 +70,8 @@ public abstract class BaseElement implements Parcelable {
         spacing = in.readParcelable(Spacing.class.getClassLoader());
         transform = in.readParcelable(Transform.class.getClassLoader());
 
-        width = in.readString();
-        height = in.readString();
+        width = in.readDouble();
+        height = in.readDouble();
         x = in.readFloat();
         y = in.readFloat();
         z = (Integer) in.readSerializable();
@@ -94,8 +91,8 @@ public abstract class BaseElement implements Parcelable {
         dest.writeParcelable(spacing, flags);
         dest.writeParcelable(transform, flags);
 
-        dest.writeString(width);
-        dest.writeString(height);
+        dest.writeDouble(width);
+        dest.writeDouble(height);
         dest.writeFloat(x);
         dest.writeFloat(y);
         dest.writeSerializable(z);
@@ -125,20 +122,12 @@ public abstract class BaseElement implements Parcelable {
         return transform;
     }
 
-    public Float getCalculatedHeight() {
-        return TextUtils.isEmpty(height) ? null : getScaledPixel(Float.parseFloat(height));
-    }
-
-    public Float getCalculatedWidth() {
-        return TextUtils.isEmpty(width) ? null : getScaledPixel(Float.parseFloat(width));
-    }
-
     public float getY() {
-        return UnitUtils.getScaledPixel(y);
+        return y;
     }
 
     public float getX() {
-        return UnitUtils.getScaledPixel(x);
+        return x;
     }
 
     public Integer getZ() {
@@ -151,5 +140,13 @@ public abstract class BaseElement implements Parcelable {
 
     public void setBg(Background bg) {
         this.bg = bg;
+    }
+
+    public double getWidth() {
+        return width;
+    }
+
+    public double getHeight() {
+        return height;
     }
 }

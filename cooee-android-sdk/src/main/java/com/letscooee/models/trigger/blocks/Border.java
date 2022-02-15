@@ -6,9 +6,6 @@ import android.view.View;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-import com.letscooee.utils.ui.UnitUtils;
-
-import static com.letscooee.utils.ui.UnitUtils.getScaledPixel;
 
 public class Border implements Parcelable {
 
@@ -88,18 +85,18 @@ public class Border implements Parcelable {
     }
 
     public float getRadius() {
-        return  UnitUtils.getScaledPixel(radius);
+        return radius;
     }
 
-    public float getWidth(View parent) {
-        return getScaledPixel(width);
+    public float getWidth() {
+        return width;
     }
 
     public float getDashWidth(View parent) {
-        return getScaledPixel( dashWidth);
+        return dashWidth;
     }
 
     public float getDashGap(View parent) {
-        return getScaledPixel(dashGap);
+        return dashGap;
     }
 }

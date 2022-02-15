@@ -54,7 +54,7 @@ public class TextRenderer extends FontRenderer {
             return newElement;
         }
 
-        int calculatedBorder = (int) border.getWidth(parentElement);
+        int calculatedBorder = (int) Math.round(getScaledPixel(border.getWidth()));
         baseFrameLayout.setPadding(calculatedBorder, calculatedBorder, calculatedBorder, 0);
 
         FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) newElement.getLayoutParams();
@@ -68,12 +68,12 @@ public class TextRenderer extends FontRenderer {
         int borderColor = border.getColor().getHexColor();
         float dashWidth = calculatedBorder * 2;
 
-        int w = Math.round(elementData.getCalculatedWidth());
+        int w = (int) Math.round(getScaledPixel(elementData.getWidth()));
         baseFrameLayout.setLayoutParams(new FrameLayout.LayoutParams(w, WC));
 
         GradientDrawable elementDrawable = new GradientDrawable();
         elementDrawable.setStroke(calculatedBorder, borderColor, dashWidth, calculatedBorder);
-        elementDrawable.setCornerRadius(border.getRadius() - (calculatedBorder / 2));
+        elementDrawable.setCornerRadius(((float) getScaledPixel(border.getRadius())) - (calculatedBorder / 2));
         baseFrameLayout.setBackground(elementDrawable);
 
         return newElement;
@@ -145,6 +145,7 @@ public class TextRenderer extends FontRenderer {
     }
 
     protected void processFontBlock() {
-        ((TextView) newElement).setTextSize(TypedValue.COMPLEX_UNIT_PX, textData.getFont().getSize());
+        ((TextView) newElement).setTextSize(TypedValue.COMPLEX_UNIT_PX,
+                textData.getFont().getSize(globalData.getScalingFactor()));
     }
 }

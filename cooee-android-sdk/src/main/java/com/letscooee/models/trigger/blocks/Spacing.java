@@ -1,7 +1,5 @@
 package com.letscooee.models.trigger.blocks;
 
-import static com.letscooee.utils.ui.UnitUtils.getScaledPixel;
-
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -53,28 +51,24 @@ public class Spacing implements Parcelable {
     };
 
     public void calculatedPadding() {
-        calculatedPadding = getScaledPixel(padding);
+        calculatedPadding = padding;
 
     }
 
     public float getPaddingLeft() {
-        float calculatedValue = getScaledPixel(paddingLeft);
-        return calculatedValue == 0 ? calculatedPadding : calculatedValue;
+        return paddingLeft == 0 ? calculatedPadding : paddingLeft;
     }
 
     public float getPaddingRight() {
-        float calculatedValue = getScaledPixel(paddingRight);
-        return calculatedValue == 0 ? calculatedPadding : calculatedValue;
+        return paddingRight == 0 ? calculatedPadding : paddingRight;
     }
 
     public float getPaddingTop() {
-        float calculatedValue = getScaledPixel(paddingTop);
-        return calculatedValue == 0 ? calculatedPadding : calculatedValue;
+        return paddingTop == 0 ? calculatedPadding : paddingTop;
     }
 
     public float getPaddingBottom() {
-        float calculatedValue = getScaledPixel(paddingBottom);
-        return calculatedValue == 0 ? calculatedPadding : calculatedValue;
+        return paddingBottom == 0 ? calculatedPadding : paddingBottom;
     }
 
     @Override

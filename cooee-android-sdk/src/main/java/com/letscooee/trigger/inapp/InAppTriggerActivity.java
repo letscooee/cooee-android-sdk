@@ -17,7 +17,6 @@ import com.letscooee.R;
 import com.letscooee.models.Event;
 import com.letscooee.models.trigger.TriggerData;
 import com.letscooee.models.trigger.blocks.Animation;
-import com.letscooee.models.trigger.elements.InAppElement;
 import com.letscooee.models.trigger.inapp.InAppTrigger;
 import com.letscooee.permission.PermissionManager;
 import com.letscooee.trigger.inapp.renderer.InAppBodyRenderer;
@@ -68,7 +67,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
             this.triggerContext.setViewGroupForBlurry((ViewGroup) lastActiveWindow.getDecorView());
             this.triggerContext.onExit(data -> this.finish());
             this.triggerContext.setTriggerData(triggerData);
-
+            this.triggerContext.setDeviceInfo(CooeeFactory.getDeviceInfo());
             setAnimations();
             renderInApp();
             sendTriggerDisplayedEvent();
@@ -106,8 +105,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
         RelativeLayout rootViewElement = findViewById(R.id.inAppTriggerRoot);
         triggerContext.setTriggerParentLayout(rootViewElement);
 
-        InAppElement inAppElement = new InAppElement(inAppData.getBackground(),inAppData.getClickAction());
-        new InAppBodyRenderer(this, rootViewElement, inAppElement, inAppData, triggerContext).render();
+        new InAppBodyRenderer(this, rootViewElement, inAppData, inAppData, triggerContext).render();
     }
 
     /**

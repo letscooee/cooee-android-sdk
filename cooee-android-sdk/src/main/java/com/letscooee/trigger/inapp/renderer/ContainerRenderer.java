@@ -1,21 +1,19 @@
 package com.letscooee.trigger.inapp.renderer;
 
+import static com.letscooee.utils.Constants.TAG;
+
 import android.content.Context;
+import android.content.res.Configuration;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 
-import com.letscooee.models.trigger.elements.BaseElement;
-import com.letscooee.models.trigger.elements.ButtonElement;
-import com.letscooee.models.trigger.elements.ImageElement;
-import com.letscooee.models.trigger.elements.ShapeElement;
-import com.letscooee.models.trigger.elements.TextElement;
-import com.letscooee.models.trigger.elements.VideoElement;
-import com.letscooee.models.trigger.inapp.Container;
+import com.letscooee.BuildConfig;
+import com.letscooee.models.trigger.elements.*;
 import com.letscooee.models.trigger.inapp.InAppTrigger;
 import com.letscooee.trigger.inapp.TriggerContext;
-import com.letscooee.utils.ui.UnitUtils;
 
 /**
  * Renders the topmost container of the in-app.
@@ -31,7 +29,7 @@ public class ContainerRenderer extends AbstractInAppRenderer {
                              TriggerContext globalData) {
         super(context, parentView, element, globalData);
         this.inAppTrigger = inAppTrigger;
-        replaceStandardDisplaySize();
+        updateScalingFactor();
     }
 
     @Override
@@ -78,14 +76,6 @@ public class ContainerRenderer extends AbstractInAppRenderer {
         }
     }
 
-    /**
-     * Replace standard resolution from trigger data.
-     */
-    private void replaceStandardDisplaySize() {
-        UnitUtils.STANDARD_RESOLUTION_WIDTH = inAppTrigger.getWidth();
-        UnitUtils.STANDARD_RESOLUTION_HEIGHT = inAppTrigger.getHeight();
-    }
-
     @Override
     protected void processSizeBlock() {
         ViewGroup.LayoutParams layoutParams = parentElement.getLayoutParams();
@@ -93,10 +83,49 @@ public class ContainerRenderer extends AbstractInAppRenderer {
         layoutParams.width = AbstractInAppRenderer.MP;
         parentElement.setLayoutParams(layoutParams);
 
-        RelativeLayout.LayoutParams cardLayoutParams = (RelativeLayout.LayoutParams) materialCardView.getLayoutParams();
-        cardLayoutParams.height = AbstractInAppRenderer.MP;
-        cardLayoutParams.width = AbstractInAppRenderer.MP;
-        materialCardView.setLayoutParams(cardLayoutParams);
+        double containerWidth = elementData.getWidth() <= 0 ? 1080 : elementData.getWidth();
+        double containerHeight = elementData.getHeight() <= 0 ? 1920 : elementData.getHeight();
+        RelativeLayout.LayoutParams layoutParams1 = new RelativeLayout.LayoutParams(
+                (int) getScaledPixel(containerWidth), (int) getScaledPixel(containerHeight)
+        );
+        materialCardView.setLayoutParams(layoutParams1);
     }
 
+    /**
+     * Override applyPositionBlock to prevent position of container.
+     */
+    @Override
+    protected void applyPositionBlock() {
+        // No position block for container
+    }
+
+    /**
+     * Calculates the scaling factor for the container and add it to {@link TriggerContext}.
+     */
+    private void updateScalingFactor() {
+
+        boolean isPortrait = globalData.getDeviceInfo().getOrientation() == Configuration.ORIENTATION_PORTRAIT;
+        int displayWidth = globalData.getDeviceInfo().getRunTimeDisplayWidth();
+        int displayHeight = globalData.getDeviceInfo().getRunTimeDisplayHeight();
+
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "Display width: " + displayWidth + ", height: " + displayHeight);
+        }
+
+        double containerWidth = elementData.getWidth() <= 0 ? 1080 : elementData.getWidth();
+        double containerHeight = elementData.getHeight() <= 0 ? 1920 : elementData.getHeight();
+
+        double scalingFactor;
+        if (isPortrait) {
+            double shortEdge = Math.min(containerWidth, containerHeight);
+            scalingFactor = displayWidth / shortEdge;
+        } else {
+            double longEdge = Math.max(containerWidth, containerHeight);
+            scalingFactor = displayHeight / longEdge;
+        }
+
+        scalingFactor = Math.min(scalingFactor, 1);
+        Log.d(TAG, "updateScalingFactor: " + scalingFactor);
+        globalData.setScalingFactor(scalingFactor);
+    }
 }

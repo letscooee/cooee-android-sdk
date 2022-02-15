@@ -9,7 +9,6 @@ import android.text.TextUtils;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.letscooee.enums.trigger.Style;
-import com.letscooee.utils.ui.UnitUtils;
 
 public class Font implements Parcelable {
 
@@ -68,10 +67,6 @@ public class Font implements Parcelable {
     public Float getLineHeight() {
         if (TextUtils.isEmpty(lineHeight)) return null;
 
-        if (lineHeight.contains(UNIT_PIXEL)) {
-            return UnitUtils.parseToFloat(lineHeight, UNIT_PIXEL);
-        }
-
         return Float.parseFloat(lineHeight);
     }
 
@@ -93,9 +88,8 @@ public class Font implements Parcelable {
         dest.writeString(fontFamily);
     }
 
-    public float getSize() {
-        if (size == null) return DEFAULT_SIZE;
-        return UnitUtils.getScaledPixel(size);
+    public float getSize(double scalingFactor) {
+        return size == null ? DEFAULT_SIZE : ((float) (size * scalingFactor));
     }
 
     public String getFontFamily() {

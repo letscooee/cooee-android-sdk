@@ -1,14 +1,11 @@
 package com.letscooee.models.trigger.inapp;
 
 import android.os.Parcel;
-import android.widget.RelativeLayout;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-import com.letscooee.enums.trigger.Gravity;
 import com.letscooee.models.trigger.blocks.Animation;
 import com.letscooee.models.trigger.elements.BaseElement;
-import com.letscooee.trigger.inapp.renderer.utils.GravityUtil;
 
 public class Container extends BaseElement {
 
@@ -42,15 +39,12 @@ public class Container extends BaseElement {
     }
 
     /**
-     * Process In-App gravity on the screen
+     * Provides containers gravity
      *
-     * @param layoutParams {@link RelativeLayout.LayoutParams} of the view
      * @return Return Nullable {@link android.view.Gravity} as {@link Integer} value
      */
-    public int getGravity(RelativeLayout.LayoutParams layoutParams) {
-        Gravity inAppGravity = Gravity.fromByte(gravity);
-
-        return GravityUtil.processGravity(inAppGravity, layoutParams);
+    public byte getGravity() {
+        return gravity;
     }
 
     @Override

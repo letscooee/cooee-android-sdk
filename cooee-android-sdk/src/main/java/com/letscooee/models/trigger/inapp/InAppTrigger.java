@@ -1,8 +1,9 @@
 package com.letscooee.models.trigger.inapp;
 
+import static com.letscooee.utils.Constants.TAG;
+
 import android.os.Parcel;
-import android.os.Parcelable;
-import android.widget.RelativeLayout;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -13,11 +14,10 @@ import com.letscooee.enums.trigger.Gravity;
 import com.letscooee.models.trigger.blocks.Background;
 import com.letscooee.models.trigger.blocks.ClickAction;
 import com.letscooee.models.trigger.elements.BaseElement;
-import com.letscooee.trigger.inapp.renderer.utils.GravityUtil;
 
 import java.util.ArrayList;
 
-public class InAppTrigger implements Parcelable {
+public class InAppTrigger extends BaseElement {
 
     @SerializedName("cont")
     @Expose
@@ -31,30 +31,11 @@ public class InAppTrigger implements Parcelable {
     @Expose
     private byte gravity;
 
-    @SerializedName("w")
-    @Expose
-    private double width;
-
-    @SerializedName("h")
-    @Expose
-    private double height;
-
-    @SerializedName("clc")
-    @Expose
-    private ClickAction clickAction;
-
-    @SerializedName("bg")
-    @Expose
-    private Background background;
-
     protected InAppTrigger(Parcel in) {
+        super(in);
         container = in.readParcelable(Container.class.getClassLoader());
         elements = in.readArrayList(getClass().getClassLoader());
         gravity = in.readByte();
-        width = in.readDouble();
-        height = in.readDouble();
-        background = in.readParcelable(Background.class.getClassLoader());
-        clickAction = in.readParcelable(ClickAction.class.getClassLoader());
     }
 
     public static final Creator<InAppTrigger> CREATOR = new Creator<InAppTrigger>() {
@@ -84,44 +65,35 @@ public class InAppTrigger implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        super.writeToParcel(dest, flags);
         dest.writeParcelable(container, flags);
         dest.writeList(elements);
         dest.writeByte(gravity);
-        dest.writeDouble(width);
-        dest.writeDouble(height);
-        dest.writeParcelable(background, flags);
-        dest.writeParcelable(clickAction, flags);
     }
 
     /**
      * Process In-App gravity on the screen
      *
-     * @param layoutParams {@link RelativeLayout.LayoutParams} of the view
      * @return Return Nullable {@link android.view.Gravity} as {@link Integer} value
      */
-    @Nullable
-    public Integer getGravity(@NonNull RelativeLayout.LayoutParams layoutParams) {
+    public Gravity getGravity() {
         if (gravity == 0) {
-            return null;
+            gravity = container.getGravity();
         }
 
-        return GravityUtil.processGravity(Gravity.fromByte(gravity), layoutParams);
+        return Gravity.fromByte(gravity);
     }
 
-    public int getWidth() {
-        if (width <= 0) {
-            return 1080; // default width
-        }
-
-        return (int) Math.round(width);
+    @Override
+    public double getWidth() {
+        Log.d(TAG, "updateScalingFactor: Container width" + width);
+        return width <= 0 ? 1080 : width;
     }
 
-    public int getHeight() {
-        if (height <= 0) {
-            return 1920; // / default height
-        }
-
-        return (int) Math.round(height);
+    @Override
+    public double getHeight() {
+        Log.d(TAG, "updateScalingFactor: Container height" + height);
+        return height <= 0 ? 1920 : height;
     }
 
     /**
@@ -131,9 +103,9 @@ public class InAppTrigger implements Parcelable {
      * @return Returns non-null {@link ClickAction}
      */
     @NonNull
+    @Override
     public ClickAction getClickAction() {
-
-        return clickAction == null ? new ClickAction(true) : clickAction;
+        return super.getClickAction() == null ? new ClickAction(true) : super.getClickAction();
     }
 
     /**
@@ -145,12 +117,13 @@ public class InAppTrigger implements Parcelable {
      * @return NonNull instance of {@link Background}
      */
     @Nullable
-    public Background getBackground() {
-        if (background == null) {
-            background = container.getBg();
+    @Override
+    public Background getBg() {
+        if (bg == null) {
+            bg = container.getBg();
             container.setBg(null);
-        }
 
-        return background;
+        }
+        return bg;
     }
 }
