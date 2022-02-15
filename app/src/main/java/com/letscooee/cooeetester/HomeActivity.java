@@ -39,8 +39,8 @@ public class HomeActivity extends AppCompatActivity implements CooeeCTAListener 
         Log.d(TAG, "User ID " + cooeeSDK.getUserID());
 
         binding.btnSendImageEvent.setOnClickListener(view -> {
-            cooeeSDK.sendEvent("Add  To Cart", new HashMap<>());
-            cooeeSDK.sendEvent("Add  To Cart");
+            cooeeSDK.sendEvent("Add To Cart", new HashMap<>());
+            cooeeSDK.sendEvent("Add To Cart");
         });
 
         binding.btnProfile.setOnClickListener(view -> startActivity(new Intent(this, ProfileActivity.class)));
