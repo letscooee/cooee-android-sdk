@@ -125,7 +125,6 @@ public class ContainerRenderer extends AbstractInAppRenderer {
         }
 
         scalingFactor = Math.min(scalingFactor, 1);
-        Log.d(TAG, "updateScalingFactor: " + scalingFactor);
         globalData.setScalingFactor(scalingFactor);
     }
 }

@@ -86,13 +86,11 @@ public class InAppTrigger extends BaseElement {
 
     @Override
     public double getWidth() {
-        Log.d(TAG, "updateScalingFactor: Container width" + width);
         return width <= 0 ? 1080 : width;
     }
 
     @Override
     public double getHeight() {
-        Log.d(TAG, "updateScalingFactor: Container height" + height);
         return height <= 0 ? 1920 : height;
     }
 
