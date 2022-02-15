@@ -49,9 +49,6 @@ public class ContainerRenderer extends AbstractInAppRenderer {
         baseFrameLayout.setLayoutParams(frameLayoutParams);
         newElement.setLayoutParams(frameLayoutParams);
 
-        // Setting Trigger Parent Layout's gravity to Center. Element will be placed as provided from the data.
-        this.processGravity();
-
         // Removing and Adding material view to render it on top layer
         globalData.getTriggerParentLayout().removeView(materialCardView);
         globalData.getTriggerParentLayout().addView(materialCardView);
@@ -102,20 +99,4 @@ public class ContainerRenderer extends AbstractInAppRenderer {
         materialCardView.setLayoutParams(cardLayoutParams);
     }
 
-    private void processGravity() {
-        // Displaying elements with respect to client portal mobile viewport
-        RelativeLayout.LayoutParams materialViewLayoutParams = new RelativeLayout.LayoutParams(
-                (int) UnitUtils.getScaledPixel(1080),
-                (int) UnitUtils.getScaledPixel(1920)
-        );
-
-        Integer inAppGravity = inAppTrigger.getGravity(materialViewLayoutParams);
-
-        if (inAppGravity == null) {
-            inAppGravity = ((Container) elementData).getGravity(materialViewLayoutParams);
-        }
-
-        globalData.getTriggerParentLayout().setGravity(inAppGravity);
-        materialCardView.setLayoutParams(materialViewLayoutParams);
-    }
 }
