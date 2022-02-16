@@ -76,10 +76,12 @@ public class CooeeSDK {
      * Sends custom events to the server and returns with the campaign details(if any)
      *
      * @param eventName Name the event like onDeviceReady
+     * @throws PropertyNameException if property name starts with "CE "
+     * @throws NullPointerException  if eventName is null
      * @see <a href="https://docs.letscooee.com/developers/android/track-events">Track Events</a> for
      * more details.
      */
-    public void sendEvent(@NonNull String eventName) {
+    public void sendEvent(String eventName) throws PropertyNameException, NullPointerException {
         sendEvent(eventName, null);
     }
 
@@ -88,16 +90,21 @@ public class CooeeSDK {
      *
      * @param eventName       Name the event like onDeviceReady
      * @param eventProperties Properties associated with the event
-     * @throws PropertyNameException if property name starts "CE "
+     * @throws PropertyNameException if property name starts with "CE "
+     * @throws NullPointerException  if eventName is null
      * @see <a href="https://docs.letscooee.com/developers/android/track-events">Track Events</a> for
      * more details.
      */
-    public void sendEvent(@NonNull String eventName, Map<String, Object> eventProperties)
-            throws PropertyNameException {
+    public void sendEvent(String eventName, Map<String, Object> eventProperties)
+            throws PropertyNameException, NullPointerException {
+        if (eventName == null) {
+            throw new NullPointerException("Event name cannot be null");
+        }
+
         Event event;
         if (eventProperties == null) {
             event = new Event(eventName);
-        } else if (isContainSystemDataPrefix(eventProperties)) {
+        } else if (containsSystemDataPrefix(eventProperties)) {
             throw new PropertyNameException();
         } else {
             event = new Event(eventName, eventProperties);
@@ -157,14 +164,15 @@ public class CooeeSDK {
      *
      * @param userData The common user data like name, email, etc.
      * @throws PropertyNameException if property name starts with "CE "
+     * @throws NullPointerException  if userData is null
      * @see <a href="https://docs.letscooee.com/developers/android/track-props">Tracking User Properties</a>
      */
     public void updateUserProfile(Map<String, Object> userData) throws PropertyNameException, NullPointerException {
         if (userData == null) {
-            return;
+            throw new NullPointerException("userData cannot be null");
         }
 
-        if (isContainSystemDataPrefix(userData)) {
+        if (containsSystemDataPrefix(userData)) {
             throw new PropertyNameException();
         }
 
@@ -224,7 +232,7 @@ public class CooeeSDK {
      * @param map map to check
      * @return true if map key starts with {@link #SYSTEM_DATA_PREFIX}, otherwise false
      */
-    private boolean isContainSystemDataPrefix(Map<String, Object> map) {
+    private boolean containsSystemDataPrefix(Map<String, Object> map) {
         for (String key : map.keySet()) {
             if (key.substring(0, 3).equalsIgnoreCase(SYSTEM_DATA_PREFIX)) {
                 return true;

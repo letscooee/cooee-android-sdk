@@ -1,13 +1,8 @@
 package com.letscooee.models.trigger.inapp;
 
-import static com.letscooee.utils.Constants.TAG;
-
 import android.os.Parcel;
-import android.util.Log;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.letscooee.enums.trigger.Gravity;
@@ -27,7 +22,7 @@ public class InAppTrigger extends BaseElement {
     @Expose
     private ArrayList<BaseElement> elements;
 
-    @SerializedName("o")
+    @SerializedName("gvt")
     @Expose
     private byte gravity;
 
@@ -120,7 +115,6 @@ public class InAppTrigger extends BaseElement {
         if (bg == null) {
             bg = container.getBg();
             container.setBg(null);
-
         }
         return bg;
     }

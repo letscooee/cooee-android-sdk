@@ -103,7 +103,6 @@ public class ContainerRenderer extends AbstractInAppRenderer {
      * Calculates the scaling factor for the container and add it to {@link TriggerContext}.
      */
     private void updateScalingFactor() {
-
         boolean isPortrait = globalData.getDeviceInfo().getOrientation() == Configuration.ORIENTATION_PORTRAIT;
         int displayWidth = globalData.getDeviceInfo().getRunTimeDisplayWidth();
         int displayHeight = globalData.getDeviceInfo().getRunTimeDisplayHeight();
@@ -124,7 +123,6 @@ public class ContainerRenderer extends AbstractInAppRenderer {
             scalingFactor = displayHeight / longEdge;
         }
 
-        scalingFactor = Math.min(scalingFactor, 1);
-        globalData.setScalingFactor(scalingFactor);
+        globalData.setScalingFactor(Math.min(scalingFactor, 1));
     }
 }

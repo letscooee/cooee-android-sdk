@@ -36,31 +36,14 @@ public abstract class BaseElement implements Parcelable {
 
     @SerializedName("w")
     @Expose
-    protected final double width;
+    protected final float width;
 
     @SerializedName("h")
     @Expose
-    protected final double height;
+    protected final float height;
     private final float x;
     private final float y;
     private final Integer z;
-
-    /**
-     * Main purpose of this constructor is to initialize BaseElement for InAppBodyRenderer with
-     * InAppTrigger's custom background and clickAction
-     *
-     * @param background  Nullable instance of {@link Background}
-     * @param clickAction NonNull instance of {@link ClickAction}
-     */
-    protected BaseElement(@Nullable Background background, @NonNull ClickAction clickAction) {
-        this.bg = background;
-        this.click = clickAction;
-        this.width = 0;
-        this.height = 0;
-        this.x = 0;
-        this.y = 0;
-        this.z = null;
-    }
 
     protected BaseElement(Parcel in) {
         bg = in.readParcelable(Background.class.getClassLoader());
@@ -70,8 +53,8 @@ public abstract class BaseElement implements Parcelable {
         spacing = in.readParcelable(Spacing.class.getClassLoader());
         transform = in.readParcelable(Transform.class.getClassLoader());
 
-        width = in.readDouble();
-        height = in.readDouble();
+        width = in.readFloat();
+        height = in.readFloat();
         x = in.readFloat();
         y = in.readFloat();
         z = (Integer) in.readSerializable();
@@ -91,8 +74,8 @@ public abstract class BaseElement implements Parcelable {
         dest.writeParcelable(spacing, flags);
         dest.writeParcelable(transform, flags);
 
-        dest.writeDouble(width);
-        dest.writeDouble(height);
+        dest.writeFloat(width);
+        dest.writeFloat(height);
         dest.writeFloat(x);
         dest.writeFloat(y);
         dest.writeSerializable(z);
@@ -132,10 +115,6 @@ public abstract class BaseElement implements Parcelable {
 
     public Integer getZ() {
         return z;
-    }
-
-    public void setClick(ClickAction click) {
-        this.click = click;
     }
 
     public void setBg(Background bg) {

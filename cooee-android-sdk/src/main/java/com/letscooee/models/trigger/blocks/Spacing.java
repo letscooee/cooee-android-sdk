@@ -10,25 +10,23 @@ public class Spacing implements Parcelable {
 
     @SerializedName("p")
     @Expose
-    private final Float padding;
+    private final float padding;
 
     @SerializedName("pl")
     @Expose
-    private final Float paddingLeft;
+    private final float paddingLeft;
 
     @SerializedName("pr")
     @Expose
-    private final Float paddingRight;
+    private final float paddingRight;
 
     @SerializedName("pt")
     @Expose
-    private final Float paddingTop;
+    private final float paddingTop;
 
     @SerializedName("pb")
     @Expose
-    private final Float paddingBottom;
-
-    private float calculatedPadding = 0;
+    private final float paddingBottom;
 
     protected Spacing(Parcel in) {
         padding = in.readFloat();
@@ -50,25 +48,20 @@ public class Spacing implements Parcelable {
         }
     };
 
-    public void calculatedPadding() {
-        calculatedPadding = padding;
-
-    }
-
     public float getPaddingLeft() {
-        return paddingLeft == 0 ? calculatedPadding : paddingLeft;
+        return paddingLeft == 0 ? padding : paddingLeft;
     }
 
     public float getPaddingRight() {
-        return paddingRight == 0 ? calculatedPadding : paddingRight;
+        return paddingRight == 0 ? padding : paddingRight;
     }
 
     public float getPaddingTop() {
-        return paddingTop == 0 ? calculatedPadding : paddingTop;
+        return paddingTop == 0 ? padding : paddingTop;
     }
 
     public float getPaddingBottom() {
-        return paddingBottom == 0 ? calculatedPadding : paddingBottom;
+        return paddingBottom == 0 ? padding : paddingBottom;
     }
 
     @Override

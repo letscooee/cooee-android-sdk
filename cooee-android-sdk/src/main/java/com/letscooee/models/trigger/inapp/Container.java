@@ -11,6 +11,7 @@ public class Container extends BaseElement {
 
     private final Animation animation;
 
+    // TODO: 16/02/22 This would be removed in future when client-portal sends gravity in InAppTrigger class instead of Container class.
     // o -> origin
     @SerializedName("o")
     @Expose

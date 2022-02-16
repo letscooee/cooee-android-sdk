@@ -54,9 +54,9 @@ public class ClickAction implements Parcelable {
         updateApp = in.readParcelable(BrowserContent.class.getClassLoader());
         prompt = (PermissionType) in.readSerializable();
         close = in.readByte() != 0;
-        up = (HashMap<String, Object>) in.readSerializable();
-        kv = (HashMap<String, Object>) in.readSerializable();
-        share = (HashMap<String, Object>) in.readSerializable();
+        in.readMap(up, Map.class.getClassLoader());
+        in.readMap(kv, Map.class.getClassLoader());
+        in.readMap(share, Map.class.getClassLoader());
         appAR = in.readParcelable(AppAR.class.getClassLoader());
         launchFeature = in.readInt();
     }

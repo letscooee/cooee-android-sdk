@@ -6,6 +6,7 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 
+import com.letscooee.enums.trigger.Gravity;
 import com.letscooee.models.trigger.elements.BaseElement;
 import com.letscooee.models.trigger.inapp.InAppTrigger;
 import com.letscooee.trigger.inapp.TriggerContext;
@@ -43,7 +44,7 @@ public class InAppBodyRenderer extends AbstractInAppRenderer {
      * Process the gravity of the {@link InAppTrigger} and applies it to the {@link com.letscooee.models.trigger.inapp.Container}
      */
     private void processGravity() {
-        com.letscooee.enums.trigger.Gravity gravity = inAppTrigger.getGravity();
+        Gravity gravity = inAppTrigger.getGravity();
         View view = globalData.getTriggerParentLayout().getChildAt(1);
         RelativeLayout.LayoutParams layoutParams =
                 (RelativeLayout.LayoutParams) view.getLayoutParams();
@@ -58,6 +59,7 @@ public class InAppBodyRenderer extends AbstractInAppRenderer {
     protected void processSizeBlock() {
         RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(MP, MP);
         materialCardView.setLayoutParams(layoutParams);
+
         FrameLayout.LayoutParams frameLayoutParams = new FrameLayout.LayoutParams(MP, MP);
         baseFrameLayout.setLayoutParams(frameLayoutParams);
         backgroundImage.setLayoutParams(frameLayoutParams);

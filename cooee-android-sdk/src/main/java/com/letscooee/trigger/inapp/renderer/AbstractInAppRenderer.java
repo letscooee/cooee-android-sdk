@@ -289,8 +289,6 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
             return;
         }
 
-        spacing.calculatedPadding();
-
         int paddingLeft = (int) getScaledPixel(spacing.getPaddingLeft());
         int paddingRight = (int) getScaledPixel(spacing.getPaddingRight());
         int paddingTop = (int) getScaledPixel(spacing.getPaddingTop());
