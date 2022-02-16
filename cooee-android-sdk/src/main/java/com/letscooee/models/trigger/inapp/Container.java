@@ -6,6 +6,7 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.letscooee.models.trigger.blocks.Animation;
 import com.letscooee.models.trigger.elements.BaseElement;
+import com.letscooee.utils.Constants;
 
 public class Container extends BaseElement {
 
@@ -53,5 +54,15 @@ public class Container extends BaseElement {
         super.writeToParcel(dest, flags);
         dest.writeParcelable(animation, flags);
         dest.writeByte(gravity);
+    }
+
+    @Override
+    public double getWidth() {
+        return width <= 0 ? Constants.DEFAULT_CONTAINER_WIDTH : width;
+    }
+
+    @Override
+    public double getHeight() {
+        return height <= 0 ? Constants.DEFAULT_CONTAINER_HEIGHT : height;
     }
 }

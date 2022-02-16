@@ -79,16 +79,6 @@ public class InAppTrigger extends BaseElement {
         return Gravity.fromByte(gravity);
     }
 
-    @Override
-    public double getWidth() {
-        return width <= 0 ? 1080 : width;
-    }
-
-    @Override
-    public double getHeight() {
-        return height <= 0 ? 1920 : height;
-    }
-
     /**
      * Checks and returns {@link ClickAction} for {@link InAppTrigger}. If <code>clickAction</code>
      * is <code>null</code> then creates new {@link ClickAction} and assign it to variable

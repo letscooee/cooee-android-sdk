@@ -8,7 +8,6 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
-import android.widget.RelativeLayout;
 
 import com.letscooee.BuildConfig;
 import com.letscooee.models.trigger.elements.*;
@@ -78,17 +77,12 @@ public class ContainerRenderer extends AbstractInAppRenderer {
 
     @Override
     protected void processSizeBlock() {
+        super.processSizeBlock();
         ViewGroup.LayoutParams layoutParams = parentElement.getLayoutParams();
         layoutParams.height = AbstractInAppRenderer.MP;
         layoutParams.width = AbstractInAppRenderer.MP;
         parentElement.setLayoutParams(layoutParams);
 
-        double containerWidth = elementData.getWidth() <= 0 ? 1080 : elementData.getWidth();
-        double containerHeight = elementData.getHeight() <= 0 ? 1920 : elementData.getHeight();
-        RelativeLayout.LayoutParams layoutParams1 = new RelativeLayout.LayoutParams(
-                (int) getScaledPixel(containerWidth), (int) getScaledPixel(containerHeight)
-        );
-        materialCardView.setLayoutParams(layoutParams1);
     }
 
     /**
@@ -111,8 +105,8 @@ public class ContainerRenderer extends AbstractInAppRenderer {
             Log.d(TAG, "Display width: " + displayWidth + ", height: " + displayHeight);
         }
 
-        double containerWidth = elementData.getWidth() <= 0 ? 1080 : elementData.getWidth();
-        double containerHeight = elementData.getHeight() <= 0 ? 1920 : elementData.getHeight();
+        double containerWidth = elementData.getWidth();
+        double containerHeight = elementData.getHeight();
 
         double scalingFactor;
         if (isPortrait) {
