@@ -92,11 +92,11 @@ public class Border implements Parcelable {
         return width;
     }
 
-    public float getDashWidth(View parent) {
+    public float getDashWidth() {
         return dashWidth;
     }
 
-    public float getDashGap(View parent) {
+    public float getDashGap() {
         return dashGap;
     }
 }
