@@ -117,6 +117,6 @@ public class ContainerRenderer extends AbstractInAppRenderer {
             scalingFactor = displayHeight / longEdge;
         }
 
-        globalData.setScalingFactor(Math.min(scalingFactor, 1));
+        globalData.setScalingFactor(scalingFactor);
     }
 }

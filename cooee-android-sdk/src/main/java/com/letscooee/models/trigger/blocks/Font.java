@@ -12,7 +12,7 @@ import com.letscooee.enums.trigger.Style;
 
 public class Font implements Parcelable {
 
-    private static final int DEFAULT_SIZE = 15;
+    private static final int DEFAULT_SIZE = 60;
 
     @SerializedName("s")
     @Expose
@@ -88,8 +88,8 @@ public class Font implements Parcelable {
         dest.writeString(fontFamily);
     }
 
-    public float getSize(double scalingFactor) {
-        return size == null ? DEFAULT_SIZE : ((float) (size * scalingFactor));
+    public float getSize() {
+        return size == null ? DEFAULT_SIZE : size;
     }
 
     public String getFontFamily() {

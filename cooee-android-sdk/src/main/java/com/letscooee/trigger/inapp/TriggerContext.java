@@ -6,7 +6,6 @@ import android.widget.RelativeLayout;
 
 import androidx.annotation.NonNull;
 
-import com.letscooee.device.DeviceInfo;
 import com.letscooee.models.trigger.TriggerData;
 import com.letscooee.utils.Closure;
 
@@ -28,7 +27,6 @@ public class TriggerContext {
     private Closure<Map<String, Object>> callback;
     private TriggerData triggerData;
     private RelativeLayout triggerParentLayout;
-    private DeviceInfo deviceInfo;
     private double scalingFactor;
 
     public Map<String, Object> getClosedEventProps() {
@@ -79,19 +77,11 @@ public class TriggerContext {
         this.triggerParentLayout = triggerParentLayout;
     }
 
-    public DeviceInfo getDeviceInfo() {
-        return deviceInfo;
-    }
-
-    public void setDeviceInfo(DeviceInfo deviceInfo) {
-        this.deviceInfo = deviceInfo;
-    }
-
     public double getScalingFactor() {
         return scalingFactor;
     }
 
     public void setScalingFactor(double scalingFactor) {
-        this.scalingFactor = scalingFactor;
+        this.scalingFactor = Math.min(scalingFactor, 1);
     }
 }

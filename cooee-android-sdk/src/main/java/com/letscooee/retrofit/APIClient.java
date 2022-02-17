@@ -63,7 +63,7 @@ public class APIClient {
                         requestBuilder.addHeader("x-sdk-token", apiToken);
                     }
 
-                    if (!isPublicAPI && userId != null){
+                    if (!isPublicAPI && userId != null) {
                         requestBuilder.addHeader("user-id", userId);
                     }
 
@@ -112,8 +112,15 @@ public class APIClient {
         appVersion = TextUtils.isEmpty(version) ? "" : version;
     }
 
+    /**
+     * Method will set the wrapper name to the header variable
+     *
+     * @param name wrapper name
+     * @apiNote This method should be called only wrapper plugin and data should be in lower case,without spaces
+     * & <code>wrapper_name-version_no</code> format
+     */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public static void setWrapperName(String name){
+    public static void setWrapperName(String name) {
         wrapperName = name;
     }
 }
