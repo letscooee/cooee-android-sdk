@@ -43,10 +43,13 @@ public class TextRenderer extends FontRenderer {
         this.processFontBlock();
 
         // resize background image when text view is updated/rendered.
-        newElement.addOnLayoutChangeListener(
-                (view, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) ->
-                        backgroundImage.setLayoutParams(new FrameLayout.LayoutParams(right, bottom))
-        );
+        newElement.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+            @Override
+            public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                newElement.removeOnLayoutChangeListener(this);
+                backgroundImage.setLayoutParams(new FrameLayout.LayoutParams(right, bottom));
+            }
+        });
 
         // Resize element to adjust with border
         Border border = elementData.getBorder();
