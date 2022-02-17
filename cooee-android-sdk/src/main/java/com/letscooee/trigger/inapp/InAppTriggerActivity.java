@@ -20,7 +20,7 @@ import com.letscooee.models.trigger.TriggerData;
 import com.letscooee.models.trigger.blocks.Animation;
 import com.letscooee.models.trigger.inapp.InAppTrigger;
 import com.letscooee.permission.PermissionManager;
-import com.letscooee.trigger.inapp.renderer.InAppBodyRenderer;
+import com.letscooee.trigger.inapp.renderer.InAppTriggerRenderer;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.SentryHelper;
 
@@ -106,7 +106,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
         RelativeLayout rootViewElement = findViewById(R.id.inAppTriggerRoot);
         triggerContext.setTriggerParentLayout(rootViewElement);
 
-        new InAppBodyRenderer(this, rootViewElement, inAppData, inAppData, triggerContext).render();
+        new InAppTriggerRenderer(this, rootViewElement, inAppData, inAppData, triggerContext).render();
     }
 
     /**

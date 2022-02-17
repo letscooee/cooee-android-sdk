@@ -13,17 +13,17 @@ import com.letscooee.trigger.inapp.TriggerContext;
 import com.letscooee.trigger.inapp.renderer.utils.GravityUtil;
 
 /**
- * Special purpose ofInAppBodyRenderer is to process background & click action of the of {@link InAppTrigger}
+ * Special purpose of InAppTriggerRenderer is to process background & click action of the of {@link InAppTrigger}
  *
  * @author Ashish Gaikwad 09/02/22
  * @since 1.1.2
  */
-public class InAppBodyRenderer extends AbstractInAppRenderer {
+public class InAppTriggerRenderer extends AbstractInAppRenderer {
 
     private final InAppTrigger inAppTrigger;
 
-    public InAppBodyRenderer(Context context, ViewGroup parentElement, BaseElement element,
-                             InAppTrigger inAppTrigger, TriggerContext globalData) {
+    public InAppTriggerRenderer(Context context, ViewGroup parentElement, BaseElement element,
+                                InAppTrigger inAppTrigger, TriggerContext globalData) {
         super(context, parentElement, element, globalData);
 
         this.inAppTrigger = inAppTrigger;
