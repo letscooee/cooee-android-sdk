@@ -32,13 +32,13 @@ public class ShapeRenderer extends AbstractInAppRenderer {
         }
 
         int borderColor = border.getColor().getHexColor();
-        int calculatedBorder = (int) Math.round(getScaledPixel(border.getWidth()));
+        int calculatedBorder = getScaledPixelAsInt(border.getWidth());
 
         float dashWidth = calculatedBorder * 2;
 
         GradientDrawable elementDrawable = new GradientDrawable();
         elementDrawable.setStroke(calculatedBorder, borderColor, dashWidth, calculatedBorder);
-        elementDrawable.setCornerRadius(((float) getScaledPixel(border.getRadius())) - (calculatedBorder / 2));
+        elementDrawable.setCornerRadius(getScaledPixelAsFloat(border.getRadius()) - (calculatedBorder / 2));
 
         newElement.setBackground(elementDrawable);
         // endregion

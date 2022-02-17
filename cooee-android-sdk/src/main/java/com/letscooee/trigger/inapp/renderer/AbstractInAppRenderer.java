@@ -159,14 +159,14 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         int width = WC;
         int height = WC;
 
-        double calculatedWidth = getScaledPixel(elementData.getWidth());
+        int calculatedWidth = getScaledPixelAsInt(elementData.getWidth());
         if (calculatedWidth != 0) {
-            width = (int) Math.round(calculatedWidth);
+            width = calculatedWidth;
         }
 
-        double calculatedHeight = getScaledPixel(elementData.getHeight());
+        int calculatedHeight = getScaledPixelAsInt(elementData.getHeight());
         if (calculatedHeight != 0) {
-            height = (int) Math.round(calculatedHeight);
+            height = calculatedHeight;
         }
 
         this.newElement.setLayoutParams(new FrameLayout.LayoutParams(width, height));
@@ -187,11 +187,11 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
 
     protected void applyPositionBlock() {
 
-        double top = getScaledPixel(elementData.getY());
-        double left = getScaledPixel(elementData.getX());
+        float top = getScaledPixelAsFloat(elementData.getY());
+        float left = getScaledPixelAsFloat(elementData.getX());
 
-        materialCardView.setX((float) left);
-        materialCardView.setY((float) top);
+        materialCardView.setX(left);
+        materialCardView.setY(top);
 
         Integer zIndex = elementData.getZ();
 
@@ -263,7 +263,8 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         }
 
         int borderColor = border.getColor().getHexColor();
-        int calculatedBorder = (int) Math.round(getScaledPixel(border.getWidth()));
+        int calculatedBorder = getScaledPixelAsInt(border.getWidth());
+        float cornerRadius = getScaledPixelAsFloat(border.getRadius());
 
         if (border.getStyle() == Border.Style.SOLID) {
             materialCardView.setStrokeColor(borderColor);
@@ -272,15 +273,15 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
             // Actual dash border code is there on respective element renderer. Here just adding
             // background color and corner radius.
             GradientDrawable materialDrawable = new GradientDrawable();
-            materialDrawable.setCornerRadius((float) getScaledPixel(border.getRadius()));
+            materialDrawable.setCornerRadius(cornerRadius);
             if (this.elementData.getBg().getSolid() != null) {
                 materialDrawable.setColor(this.elementData.getBg().getSolid().getHexColor());
             }
             materialCardView.setBackground(materialDrawable);
         }
 
-        materialCardView.setRadius((float) getScaledPixel(border.getRadius()));
-        backgroundDrawable.setCornerRadius((float) getScaledPixel(border.getRadius()));
+        materialCardView.setRadius(cornerRadius);
+        backgroundDrawable.setCornerRadius(cornerRadius);
     }
 
     protected void processSpacing() {
@@ -289,10 +290,10 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
             return;
         }
 
-        int paddingLeft = (int) getScaledPixel(spacing.getPaddingLeft());
-        int paddingRight = (int) getScaledPixel(spacing.getPaddingRight());
-        int paddingTop = (int) getScaledPixel(spacing.getPaddingTop());
-        int paddingBottom = (int) getScaledPixel(spacing.getPaddingBottom());
+        int paddingLeft = getScaledPixelAsInt(spacing.getPaddingLeft());
+        int paddingRight = getScaledPixelAsInt(spacing.getPaddingRight());
+        int paddingTop = getScaledPixelAsInt(spacing.getPaddingTop());
+        int paddingBottom = getScaledPixelAsInt(spacing.getPaddingBottom());
 
         this.newElement.setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
     }
@@ -300,10 +301,30 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
     /**
      * This method is used to get the scaled pixel value.
      *
-     * @param value <code>float</code> value to be scaled
-     * @return <code>float</code> value after scaling
+     * @param value <code>double</code> value to be scaled
+     * @return <code>double</code> value after scaling
      */
     protected double getScaledPixel(double value) {
         return value * globalData.getScalingFactor();
+    }
+
+    /**
+     * This method is used to get the scaled pixel value in <code>float</code> format.
+     *
+     * @param value <code>double</code> value to be scaled
+     * @return <code>float</code> value after scaling
+     */
+    protected float getScaledPixelAsFloat(double value) {
+        return (float) getScaledPixel(value);
+    }
+
+    /**
+     * This method is used to get the scaled pixel value in <code>int</code> format.
+     *
+     * @param value <code>double</code> value to be scaled
+     * @return <code>int</code> value after scaling
+     */
+    protected int getScaledPixelAsInt(double value) {
+        return (int) Math.round(getScaledPixel(value));
     }
 }
