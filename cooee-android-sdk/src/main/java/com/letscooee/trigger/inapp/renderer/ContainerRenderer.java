@@ -10,6 +10,8 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 import com.letscooee.BuildConfig;
+import com.letscooee.CooeeFactory;
+import com.letscooee.device.DeviceInfo;
 import com.letscooee.models.trigger.elements.*;
 import com.letscooee.models.trigger.inapp.InAppTrigger;
 import com.letscooee.trigger.inapp.TriggerContext;
@@ -23,11 +25,13 @@ import com.letscooee.trigger.inapp.TriggerContext;
 public class ContainerRenderer extends AbstractInAppRenderer {
 
     private final InAppTrigger inAppTrigger;
+    private final DeviceInfo deviceInfo;
 
     public ContainerRenderer(Context context, ViewGroup parentView, BaseElement element, InAppTrigger inAppTrigger,
                              TriggerContext globalData) {
         super(context, parentView, element, globalData);
         this.inAppTrigger = inAppTrigger;
+        this.deviceInfo = CooeeFactory.getDeviceInfo();
         updateScalingFactor();
     }
 
@@ -97,9 +101,9 @@ public class ContainerRenderer extends AbstractInAppRenderer {
      * Calculates the scaling factor for the container and add it to {@link TriggerContext}.
      */
     private void updateScalingFactor() {
-        boolean isPortrait = globalData.getDeviceInfo().getOrientation() == Configuration.ORIENTATION_PORTRAIT;
-        int displayWidth = globalData.getDeviceInfo().getRunTimeDisplayWidth();
-        int displayHeight = globalData.getDeviceInfo().getRunTimeDisplayHeight();
+        boolean isPortrait = deviceInfo.getOrientation() == Configuration.ORIENTATION_PORTRAIT;
+        int displayWidth = deviceInfo.getRunTimeDisplayWidth();
+        int displayHeight = deviceInfo.getRunTimeDisplayHeight();
 
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "Display width: " + displayWidth + ", height: " + displayHeight);

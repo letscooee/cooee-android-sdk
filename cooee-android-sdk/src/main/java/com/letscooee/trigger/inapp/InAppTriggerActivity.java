@@ -68,7 +68,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
             this.triggerContext.setViewGroupForBlurry((ViewGroup) lastActiveWindow.getDecorView());
             this.triggerContext.onExit(data -> this.finish());
             this.triggerContext.setTriggerData(triggerData);
-            this.triggerContext.setDeviceInfo(CooeeFactory.getDeviceInfo());
+
             setAnimations();
             renderInApp();
             sendTriggerDisplayedEvent();
