@@ -49,19 +49,19 @@ public class Spacing implements Parcelable {
     };
 
     public float getPaddingLeft() {
-        return paddingLeft == 0 ? padding : paddingLeft;
+        return paddingLeft;
     }
 
     public float getPaddingRight() {
-        return paddingRight == 0 ? padding : paddingRight;
+        return paddingRight;
     }
 
     public float getPaddingTop() {
-        return paddingTop == 0 ? padding : paddingTop;
+        return paddingTop;
     }
 
     public float getPaddingBottom() {
-        return paddingBottom == 0 ? padding : paddingBottom;
+        return paddingBottom;
     }
 
     @Override
