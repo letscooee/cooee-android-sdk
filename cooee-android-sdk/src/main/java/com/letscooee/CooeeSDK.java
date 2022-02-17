@@ -82,7 +82,7 @@ public class CooeeSDK {
      * more details.
      */
     public void sendEvent(String eventName) throws PropertyNameException, NullPointerException {
-        sendEvent(eventName, null);
+        sendEvent(eventName, new HashMap<>());
     }
 
     /**
@@ -101,15 +101,9 @@ public class CooeeSDK {
             throw new NullPointerException("Event name cannot be null");
         }
 
-        Event event;
-        if (eventProperties == null) {
-            event = new Event(eventName);
-        } else if (containsSystemDataPrefix(eventProperties)) {
-            throw new PropertyNameException();
-        } else {
-            event = new Event(eventName, eventProperties);
-        }
+        containsSystemDataPrefix(eventProperties);
 
+        Event event = new Event(eventName, eventProperties);
         this.safeHTTPService.sendEvent(event);
     }
 
@@ -172,9 +166,7 @@ public class CooeeSDK {
             throw new NullPointerException("userData cannot be null");
         }
 
-        if (containsSystemDataPrefix(userData)) {
-            throw new PropertyNameException();
-        }
+        containsSystemDataPrefix(userData);
 
         this.sentryHelper.setUserInfo(userData);
         this.safeHTTPService.updateUserProfile(userData);
@@ -230,14 +222,17 @@ public class CooeeSDK {
      * Check if map key starts with {@link #SYSTEM_DATA_PREFIX}
      *
      * @param map map to check
-     * @return true if map key starts with {@link #SYSTEM_DATA_PREFIX}, otherwise false
+     * @throws PropertyNameException if map key starts with {@link #SYSTEM_DATA_PREFIX}
      */
-    private boolean containsSystemDataPrefix(Map<String, Object> map) {
+    private void containsSystemDataPrefix(Map<String, Object> map) throws PropertyNameException {
+        if (map == null) {
+            return;
+        }
+
         for (String key : map.keySet()) {
             if (key.substring(0, 3).equalsIgnoreCase(SYSTEM_DATA_PREFIX)) {
-                return true;
+                throw new PropertyNameException();
             }
         }
-        return false;
     }
 }
