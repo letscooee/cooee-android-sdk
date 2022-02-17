@@ -79,7 +79,10 @@ public class DeviceInfo extends ContextAware {
         this.cachedInfo = new CachedInfo();
     }
 
-    private void initializeResource() {
+    /**
+     * Re-Initialize the resources and display metrics.
+     */
+    public void initializeResource() {
         resources = context.getResources();
         displayMetrics = resources.getDisplayMetrics();
     }
@@ -107,17 +110,14 @@ public class DeviceInfo extends ContextAware {
     }
 
     public int getOrientation() {
-        initializeResource();
         return resources.getConfiguration().orientation;
     }
 
     public int getRunTimeDisplayWidth() {
-        initializeResource();
         return displayMetrics.widthPixels;
     }
 
     public int getRunTimeDisplayHeight() {
-        initializeResource();
         return displayMetrics.heightPixels;
     }
 

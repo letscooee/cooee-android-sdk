@@ -1,6 +1,7 @@
 package com.letscooee.trigger.inapp;
 
 import android.app.Activity;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.ViewGroup;
@@ -153,7 +154,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
     /**
      * Set Bitmap which can be used by {@link Blurry}. Mostly used by Flutter plugin.
      *
-     * @param bitmap
+     * @param bitmap {@link Bitmap}
      */
     public void setBitmapForBlurry(Bitmap bitmap) {
         this.triggerContext.setBitmapForBlurry(bitmap);
@@ -170,5 +171,15 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
 
         CooeeFactory.getSafeHTTPService().updateDeviceProperty(deviceProp);
         triggerContext.closeInApp("CTA");
+    }
+
+    @Override
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        /*
+         * As we added orientation configuration (in AndroidManifest.xml) changes should be listened in the activity.
+         * As soon as orientation changes, this method will be called. and we need to update the device resource
+         */
+        CooeeFactory.getDeviceInfo().initializeResource();
     }
 }
