@@ -1,5 +1,6 @@
 package com.letscooee.cooeetester;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.widget.Toast;
@@ -17,16 +18,23 @@ import java.util.Map;
 public class ProfileActivity extends AppCompatActivity {
 
     private static final String TAG = "ProfileActivity";
-    ActivityProfileBinding binding;
-    CooeeSDK cooee;
+    private ActivityProfileBinding binding;
+    private CooeeSDK cooee;
+    private String animation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityProfileBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        Intent intent = getIntent();
+        animation = intent.getStringExtra("animation");
+        overrideAnimation(animation);
+
         cooee = CooeeSDK.getDefaultInstance(this);
-        binding.ivBack.setOnClickListener(v -> finish());
+        binding.ivBack.setOnClickListener(v -> {
+            finish();
+        });
         cooee.setCurrentScreen(TAG);
         binding.btnSave.setOnClickListener(v -> {
             if (TextUtils.isEmpty(binding.edtPersonName.getText().toString())) {
@@ -54,5 +62,33 @@ public class ProfileActivity extends AppCompatActivity {
             }
 
         });
+    }
+
+    @Override
+    public void onBackPressed() {
+        finish();
+    }
+
+    @Override
+    public void finish() {
+        super.finish();
+        overrideAnimation(animation);
+
+    }
+
+    private void overrideAnimation(String animation) {
+        switch (animation) {
+            case "top_right":
+                overridePendingTransition(R.anim.slide_in_top_right, R.anim.slide_out_top_right);
+                break;
+            case "bottom_left":
+                overridePendingTransition(R.anim.slide_in_bottom_left, R.anim.slide_out_bottom_left);
+                break;
+            case "bottom_right":
+                overridePendingTransition(R.anim.slide_in_bottom_right, R.anim.slide_out_bottom_right);
+                break;
+            default:
+                overridePendingTransition(R.anim.slide_in_top_left, R.anim.slide_out_top_left);
+        }
     }
 }

@@ -6,11 +6,13 @@ import android.os.Parcelable;
 public class Animation implements Parcelable {
 
     public enum EntranceAnimation {
-        SLIDE_IN_TOP, SLIDE_IN_DOWN, SLIDE_IN_LEFT, SLIDE_IN_RIGHT
+        SLIDE_IN_TOP, SLIDE_IN_DOWN, SLIDE_IN_LEFT, SLIDE_IN_RIGHT, SLIDE_IN_TOP_LEFT, SLIDE_IN_TOP_RIGHT,
+        SLIDE_IN_BOTTOM_LEFT, SLIDE_IN_BOTTOM_RIGHT
     }
 
     public enum ExitAnimation {
-        SLIDE_OUT_TOP, SLIDE_OUT_DOWN, SLIDE_OUT_LEFT, SLIDE_OUT_RIGHT
+        SLIDE_OUT_TOP, SLIDE_OUT_DOWN, SLIDE_OUT_LEFT, SLIDE_OUT_RIGHT, SLIDE_OUT_TOP_LEFT, SLIDE_OUT_TOP_RIGHT,
+        SLIDE_OUT_BOTTOM_LEFT, SLIDE_OUT_BOTTOM_RIGHT
     }
 
     private EntranceAnimation enter;
