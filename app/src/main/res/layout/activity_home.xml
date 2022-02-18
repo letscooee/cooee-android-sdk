@@ -15,6 +15,7 @@
         android:layout_height="@dimen/length_30"
         android:layout_marginTop="@dimen/length_20"
         android:text="Open InApp 1"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btnSendImageEvent" />
@@ -53,6 +54,58 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btnProfile" />
+
+    <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnTopLeft"
+            style="@style/PrimaryButton"
+            android:layout_width="@dimen/length_200"
+            android:layout_height="@dimen/length_30"
+            android:layout_marginTop="20dp"
+            android:gravity="center"
+            android:text="Open from Top Left"
+            android:visibility="visible"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvUid"/>
+
+    <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnTopRight"
+            style="@style/PrimaryButton"
+            android:layout_width="@dimen/length_200"
+            android:layout_height="@dimen/length_30"
+            android:layout_marginTop="20dp"
+            android:gravity="center"
+            android:text="Open from Top Right"
+            android:visibility="visible"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/btnTopLeft"/>
+
+    <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnBottomLeft"
+            style="@style/PrimaryButton"
+            android:layout_width="@dimen/length_200"
+            android:layout_height="@dimen/length_30"
+            android:layout_marginTop="20dp"
+            android:gravity="center"
+            android:text="Open from Bottom Left"
+            android:visibility="visible"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/btnTopRight"/>
+
+    <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnBottomRight"
+            style="@style/PrimaryButton"
+            android:layout_width="@dimen/length_200"
+            android:layout_height="@dimen/length_30"
+            android:layout_marginTop="20dp"
+            android:gravity="center"
+            android:text="Open from Bottom Right"
+            android:visibility="visible"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/btnBottomLeft"/>
 
     <ImageView
         android:id="@+id/ivDebugInfo"

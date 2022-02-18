@@ -23,6 +23,14 @@ public class InAppAnimationProvider {
                 return R.anim.slide_in_up;
             case SLIDE_IN_DOWN:
                 return R.anim.slide_in_down;
+            case SLIDE_IN_TOP_LEFT:
+                return R.anim.slide_in_top_left;
+            case SLIDE_IN_TOP_RIGHT:
+                return R.anim.slide_in_top_right;
+            case SLIDE_IN_BOTTOM_LEFT:
+                return R.anim.slide_in_bottom_left;
+            case SLIDE_IN_BOTTOM_RIGHT:
+                return R.anim.slide_in_bottom_right;
             default:
                 return R.anim.slide_in_right;
         }
@@ -42,6 +50,14 @@ public class InAppAnimationProvider {
                 return R.anim.slide_out_up;
             case SLIDE_OUT_DOWN:
                 return R.anim.slide_out_down;
+            case SLIDE_OUT_TOP_LEFT:
+                return R.anim.slide_in_top_left;
+            case SLIDE_OUT_TOP_RIGHT:
+                return R.anim.slide_in_top_right;
+            case SLIDE_OUT_BOTTOM_LEFT:
+                return R.anim.slide_in_bottom_left;
+            case SLIDE_OUT_BOTTOM_RIGHT:
+                return R.anim.slide_in_bottom_right;
             default:
                 return R.anim.slide_out_right;
         }

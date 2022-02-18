@@ -7,15 +7,12 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.core.app.NotificationCompat;
-
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import com.letscooee.CooeeFactory;
@@ -24,16 +21,15 @@ import com.letscooee.font.FontProcessor;
 import com.letscooee.loader.http.RemoteImageLoader;
 import com.letscooee.models.Event;
 import com.letscooee.models.trigger.TriggerData;
-import com.letscooee.models.trigger.elements.BaseElement;
 import com.letscooee.models.trigger.elements.ButtonElement;
 import com.letscooee.models.trigger.push.PushNotificationTrigger;
 import com.letscooee.pushnotification.PushProviderUtils;
 import com.letscooee.trigger.CooeeEmptyActivity;
 import com.letscooee.trigger.EngagementTriggerHelper;
-import com.letscooee.trigger.adapters.ChildElementDeserializer;
 import com.letscooee.trigger.pushnotification.NotificationRenderer;
 import com.letscooee.trigger.pushnotification.SimpleNotificationRenderer;
 import com.letscooee.utils.Constants;
+import com.letscooee.trigger.adapters.TriggerGsonDeserializer;
 
 import java.util.HashMap;
 
@@ -103,9 +99,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
                 return;
             }
 
-            gson = new GsonBuilder()
-                    .registerTypeAdapter(BaseElement.class, new ChildElementDeserializer())
-                    .create();
+            gson = TriggerGsonDeserializer.getGson();
             triggerData = gson.fromJson(rawTriggerData, TriggerData.class);
 
         } catch (JsonSyntaxException e) {

@@ -6,6 +6,7 @@ import androidx.annotation.Nullable;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.letscooee.enums.trigger.Gravity;
+import com.letscooee.models.trigger.blocks.Animation;
 import com.letscooee.models.trigger.blocks.Background;
 import com.letscooee.models.trigger.blocks.ClickAction;
 import com.letscooee.models.trigger.elements.BaseElement;
@@ -26,11 +27,16 @@ public class InAppTrigger extends BaseElement {
     @Expose
     private byte gravity;
 
+    @SerializedName("anim")
+    @Expose
+    private final Animation animation;
+
     protected InAppTrigger(Parcel in) {
         super(in);
         container = in.readParcelable(Container.class.getClassLoader());
         elements = in.readArrayList(getClass().getClassLoader());
         gravity = in.readByte();
+        animation = in.readParcelable(Animation.class.getClassLoader());
     }
 
     public static final Creator<InAppTrigger> CREATOR = new Creator<InAppTrigger>() {
@@ -64,6 +70,7 @@ public class InAppTrigger extends BaseElement {
         dest.writeParcelable(container, flags);
         dest.writeList(elements);
         dest.writeByte(gravity);
+        dest.writeParcelable(animation, flags);
     }
 
     /**
@@ -107,5 +114,13 @@ public class InAppTrigger extends BaseElement {
             container.setBg(null);
         }
         return bg;
+    }
+
+    /**
+     * Check for {@link InAppTrigger} <code>animation</code> and return it.
+     * @return Nullable instance of {@link Animation}
+     */
+    public Animation getAnimation() {
+        return animation;
     }
 }

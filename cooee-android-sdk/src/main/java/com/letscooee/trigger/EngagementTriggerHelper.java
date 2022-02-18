@@ -6,35 +6,24 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
-
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.letscooee.BuildConfig;
 import com.letscooee.CooeeFactory;
 import com.letscooee.models.Event;
 import com.letscooee.models.trigger.EmbeddedTrigger;
 import com.letscooee.models.trigger.TriggerData;
 import com.letscooee.models.trigger.blocks.ClickAction;
-import com.letscooee.models.trigger.elements.BaseElement;
 import com.letscooee.models.trigger.inapp.InAppTrigger;
 import com.letscooee.trigger.action.ClickActionExecutor;
-import com.letscooee.trigger.adapters.ChildElementDeserializer;
+import com.letscooee.trigger.adapters.TriggerGsonDeserializer;
 import com.letscooee.trigger.inapp.InAppTriggerActivity;
 import com.letscooee.trigger.inapp.TriggerContext;
-import com.letscooee.utils.Constants;
-import com.letscooee.utils.LocalStorageHelper;
-import com.letscooee.utils.RuntimeData;
 import com.letscooee.utils.Timer;
+import com.letscooee.utils.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * A small helper class for any kind of engagement trigger like caching or retriving from local storage.
@@ -99,7 +88,7 @@ public class EngagementTriggerHelper {
         }
 
         if (BuildConfig.DEBUG) {
-            Log.d(Constants.TAG, "Current active triggers: " + activeTriggers.toString());
+            Log.d(Constants.TAG, "Current active triggers: " + activeTriggers);
         }
 
         setActiveTrigger(context, triggerData);
@@ -158,9 +147,7 @@ public class EngagementTriggerHelper {
             return;
         }
 
-        Gson gson = new GsonBuilder()
-                .registerTypeAdapter(BaseElement.class, new ChildElementDeserializer())
-                .create();
+        Gson gson = TriggerGsonDeserializer.getGson();
 
         TriggerData triggerData = gson.fromJson(rawTriggerData, TriggerData.class);
 
@@ -220,7 +207,7 @@ public class EngagementTriggerHelper {
         if (launchFeature == 0 || launchFeature == 1) {
             launchInApp(context, triggerData);
         } else {
-            TriggerContext triggerContext =new TriggerContext();
+            TriggerContext triggerContext = new TriggerContext();
             triggerContext.setTriggerData(triggerData);
 
             new ClickActionExecutor(context, pushClickAction, triggerContext).execute();

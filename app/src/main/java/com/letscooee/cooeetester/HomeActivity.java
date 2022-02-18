@@ -43,7 +43,8 @@ public class HomeActivity extends AppCompatActivity implements CooeeCTAListener 
             cooeeSDK.sendEvent("Add To Cart");
         });
 
-        binding.btnProfile.setOnClickListener(view -> startActivity(new Intent(this, ProfileActivity.class)));
+        Intent intent = new Intent(this, ProfileActivity.class);
+        binding.btnProfile.setOnClickListener(view -> startActivity(intent));
 
         binding.tvUid.setOnClickListener(v -> {
             ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
@@ -53,6 +54,28 @@ public class HomeActivity extends AppCompatActivity implements CooeeCTAListener 
         });
 
         binding.ivDebugInfo.setOnClickListener(v -> cooeeSDK.showDebugInfo());
+
+        /************** Animation Calls **********************/
+
+        binding.btnTopLeft.setOnClickListener(view -> {
+            intent.putExtra("animation", "top_left");
+            startActivity(intent);
+        });
+
+        binding.btnTopRight.setOnClickListener(view -> {
+            intent.putExtra("animation", "top_right");
+            startActivity(intent);
+        });
+
+        binding.btnBottomLeft.setOnClickListener(view -> {
+            intent.putExtra("animation", "bottom_left");
+            startActivity(intent);
+        });
+
+        binding.btnBottomRight.setOnClickListener(view -> {
+            intent.putExtra("animation", "bottom_right");
+            startActivity(intent);
+        });
     }
 
     @SuppressWarnings("SameParameterValue")
