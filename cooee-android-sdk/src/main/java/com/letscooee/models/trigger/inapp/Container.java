@@ -10,8 +10,6 @@ import com.letscooee.utils.Constants;
 
 public class Container extends BaseElement {
 
-    private final Animation animation;
-
     // TODO: 16/02/22 This would be removed in future when client-portal sends gravity in InAppTrigger class instead of Container class.
     // o -> origin
     @SerializedName("o")
@@ -20,7 +18,6 @@ public class Container extends BaseElement {
 
     protected Container(Parcel in) {
         super(in);
-        animation = in.readParcelable(getClass().getClassLoader());
         gravity = in.readByte();
     }
 
@@ -36,10 +33,6 @@ public class Container extends BaseElement {
         }
     };
 
-    public Animation getAnimation() {
-        return animation;
-    }
-
     /**
      * Provides containers gravity
      *
@@ -52,7 +45,6 @@ public class Container extends BaseElement {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         super.writeToParcel(dest, flags);
-        dest.writeParcelable(animation, flags);
         dest.writeByte(gravity);
     }
 

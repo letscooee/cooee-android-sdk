@@ -95,7 +95,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
     }
 
     private void setAnimations() {
-        Animation animation = inAppData.getContainer().getAnimation();
+        Animation animation = inAppData.getAnimation();
         int enterAnimation = InAppAnimationProvider.getEnterAnimation(animation);
         int exitAnimation = InAppAnimationProvider.getExitAnimation(animation);
 

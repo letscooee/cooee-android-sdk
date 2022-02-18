@@ -21,27 +21,20 @@ public class PermissionTypeDeserializer implements JsonDeserializer<PermissionTy
     public PermissionType deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
         int promptType = json.getAsInt();
 
-        PermissionType permissionType;
         switch (promptType) {
             case 0:
-                permissionType = null;
-                break;
+                return null;
             case 1:
-                permissionType = PermissionType.CAMERA;
-                break;
+                return PermissionType.CAMERA;
             case 2:
-                permissionType = PermissionType.LOCATION;
-                break;
+                return PermissionType.LOCATION;
             case 4:
-                permissionType = PermissionType.PHONE_DETAILS;
-                break;
+                return PermissionType.PHONE_DETAILS;
             case 5:
-                permissionType = PermissionType.STORAGE;
-                break;
+                return PermissionType.STORAGE;
             default:
-                permissionType = null;
                 CooeeFactory.getSentryHelper().captureMessage("Unknown permission type: " + promptType);
+                return null;
         }
-        return permissionType;
     }
 }
