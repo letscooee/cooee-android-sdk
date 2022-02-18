@@ -22,12 +22,10 @@ import com.letscooee.models.trigger.elements.BaseElement;
 import com.letscooee.models.trigger.inapp.InAppTrigger;
 import com.letscooee.trigger.action.ClickActionExecutor;
 import com.letscooee.trigger.adapters.ChildElementDeserializer;
+import com.letscooee.trigger.adapters.PermissionTypeDeserializer;
 import com.letscooee.trigger.inapp.InAppTriggerActivity;
 import com.letscooee.trigger.inapp.TriggerContext;
-import com.letscooee.utils.Constants;
-import com.letscooee.utils.LocalStorageHelper;
-import com.letscooee.utils.RuntimeData;
-import com.letscooee.utils.Timer;
+import com.letscooee.utils.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -160,6 +158,7 @@ public class EngagementTriggerHelper {
 
         Gson gson = new GsonBuilder()
                 .registerTypeAdapter(BaseElement.class, new ChildElementDeserializer())
+                .registerTypeAdapter(PermissionType.class, new PermissionTypeDeserializer())
                 .create();
 
         TriggerData triggerData = gson.fromJson(rawTriggerData, TriggerData.class);

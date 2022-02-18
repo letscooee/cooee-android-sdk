@@ -9,9 +9,9 @@ import com.letscooee.models.trigger.elements.BaseElement;
 import com.letscooee.models.trigger.inapp.InAppTrigger;
 import com.letscooee.task.CooeeExecutors;
 import com.letscooee.trigger.adapters.ChildElementDeserializer;
+import com.letscooee.trigger.adapters.PermissionTypeDeserializer;
 import com.letscooee.utils.Closure;
-
-import java.util.Map;
+import com.letscooee.utils.PermissionType;
 
 /**
  * A small helper class for in-app trigger for fetching data from server.
@@ -69,6 +69,7 @@ public class InAppTriggerHelper {
 
         Gson gson = new GsonBuilder()
                 .registerTypeAdapter(BaseElement.class, new ChildElementDeserializer())
+                .registerTypeAdapter(PermissionType.class, new PermissionTypeDeserializer())
                 .create();
 
         return gson.fromJson(gson.toJson(rawInApp), InAppTrigger.class);

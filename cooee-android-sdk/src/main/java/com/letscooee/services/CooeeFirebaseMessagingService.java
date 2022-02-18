@@ -31,9 +31,11 @@ import com.letscooee.pushnotification.PushProviderUtils;
 import com.letscooee.trigger.CooeeEmptyActivity;
 import com.letscooee.trigger.EngagementTriggerHelper;
 import com.letscooee.trigger.adapters.ChildElementDeserializer;
+import com.letscooee.trigger.adapters.PermissionTypeDeserializer;
 import com.letscooee.trigger.pushnotification.NotificationRenderer;
 import com.letscooee.trigger.pushnotification.SimpleNotificationRenderer;
 import com.letscooee.utils.Constants;
+import com.letscooee.utils.PermissionType;
 
 import java.util.HashMap;
 
@@ -105,6 +107,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
 
             gson = new GsonBuilder()
                     .registerTypeAdapter(BaseElement.class, new ChildElementDeserializer())
+                    .registerTypeAdapter(PermissionType.class, new PermissionTypeDeserializer())
                     .create();
             triggerData = gson.fromJson(rawTriggerData, TriggerData.class);
 
