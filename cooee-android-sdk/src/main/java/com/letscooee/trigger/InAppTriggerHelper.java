@@ -1,17 +1,13 @@
 package com.letscooee.trigger;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.letscooee.CooeeFactory;
 import com.letscooee.exceptions.HttpRequestFailedException;
 import com.letscooee.models.trigger.TriggerData;
-import com.letscooee.models.trigger.elements.BaseElement;
 import com.letscooee.models.trigger.inapp.InAppTrigger;
 import com.letscooee.task.CooeeExecutors;
-import com.letscooee.trigger.adapters.ChildElementDeserializer;
-import com.letscooee.trigger.adapters.PermissionTypeDeserializer;
 import com.letscooee.utils.Closure;
-import com.letscooee.utils.PermissionType;
+import com.letscooee.trigger.adapters.TriggerGsonDeserializer;
 
 /**
  * A small helper class for in-app trigger for fetching data from server.
@@ -67,10 +63,7 @@ public class InAppTriggerHelper {
             return null;
         }
 
-        Gson gson = new GsonBuilder()
-                .registerTypeAdapter(BaseElement.class, new ChildElementDeserializer())
-                .registerTypeAdapter(PermissionType.class, new PermissionTypeDeserializer())
-                .create();
+        Gson gson = TriggerGsonDeserializer.getGson();
 
         return gson.fromJson(gson.toJson(rawInApp), InAppTrigger.class);
     }
