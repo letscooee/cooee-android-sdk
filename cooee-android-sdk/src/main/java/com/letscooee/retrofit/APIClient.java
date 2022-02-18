@@ -37,6 +37,7 @@ public class APIClient {
     private static String apiToken;
     private static String userId = "";
     private static String appVersion = "";
+    private static String wrapperName = "";
     private static Gson gson = new GsonBuilder().registerTypeAdapter(Date.class, new GsonDateAdapter()).create();
 
     public static APIService getAPIService() {
@@ -62,7 +63,7 @@ public class APIClient {
                         requestBuilder.addHeader("x-sdk-token", apiToken);
                     }
 
-                    if (!isPublicAPI && userId != null){
+                    if (!isPublicAPI && userId != null) {
                         requestBuilder.addHeader("user-id", userId);
                     }
 
@@ -78,6 +79,10 @@ public class APIClient {
                     requestBuilder.addHeader("sdk-version", BuildConfig.VERSION_NAME);
                     requestBuilder.addHeader("sdk-version-code", String.valueOf(BuildConfig.VERSION_CODE));
                     requestBuilder.addHeader("app-version", appVersion);
+
+                    if (!TextUtils.isEmpty(wrapperName)) {
+                        requestBuilder.addHeader("sdk-wrapper", wrapperName);
+                    }
 
                     Log.d(TAG, "Request: " + requestBuilder.build().toString());
                     return chain.proceed(requestBuilder.build());
@@ -105,5 +110,17 @@ public class APIClient {
 
     public static void setAppVersion(String version) {
         appVersion = TextUtils.isEmpty(version) ? "" : version;
+    }
+
+    /**
+     * Method will set the wrapper name to the header variable
+     *
+     * @param name wrapper name
+     * @apiNote This method should be called only wrapper plugin and data should be in lower case,without spaces
+     * & <code>wrapper_name-version_no</code> format
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static void setWrapperName(String name) {
+        wrapperName = name;
     }
 }

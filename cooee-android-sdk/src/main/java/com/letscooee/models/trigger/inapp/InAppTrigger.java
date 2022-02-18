@@ -1,16 +1,18 @@
 package com.letscooee.models.trigger.inapp;
 
-import android.content.pm.ActivityInfo;
 import android.os.Parcel;
-import android.os.Parcelable;
-
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import com.letscooee.enums.trigger.Gravity;
+import com.letscooee.models.trigger.blocks.Background;
+import com.letscooee.models.trigger.blocks.ClickAction;
 import com.letscooee.models.trigger.elements.BaseElement;
 
 import java.util.ArrayList;
 
-public class InAppTrigger implements Parcelable {
+public class InAppTrigger extends BaseElement {
 
     @SerializedName("cont")
     @Expose
@@ -20,24 +22,15 @@ public class InAppTrigger implements Parcelable {
     @Expose
     private ArrayList<BaseElement> elements;
 
-    @SerializedName("o")
+    @SerializedName("gvt")
     @Expose
-    private int orientation;
-
-    @SerializedName("w")
-    @Expose
-    private double width;
-
-    @SerializedName("h")
-    @Expose
-    private double height;
+    private byte gravity;
 
     protected InAppTrigger(Parcel in) {
+        super(in);
         container = in.readParcelable(Container.class.getClassLoader());
         elements = in.readArrayList(getClass().getClassLoader());
-        orientation = in.readInt();
-        width = in.readDouble();
-        height = in.readDouble();
+        gravity = in.readByte();
     }
 
     public static final Creator<InAppTrigger> CREATOR = new Creator<InAppTrigger>() {
@@ -67,34 +60,52 @@ public class InAppTrigger implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        super.writeToParcel(dest, flags);
         dest.writeParcelable(container, flags);
         dest.writeList(elements);
-        dest.writeInt(orientation);
-        dest.writeDouble(width);
-        dest.writeDouble(height);
+        dest.writeByte(gravity);
     }
 
-    public int getOrientation() {
-        if (orientation == 2) {
-            return ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+    /**
+     * Process In-App gravity on the screen
+     *
+     * @return Return Nullable {@link android.view.Gravity} as {@link Integer} value
+     */
+    public Gravity getGravity() {
+        if (gravity == 0) {
+            gravity = container.getGravity();
         }
 
-        return ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+        return Gravity.fromByte(gravity);
     }
 
-    public int getWidth() {
-        if (width <= 0) {
-            return 1080; // default width
-        }
-
-        return (int) Math.round(width);
+    /**
+     * Checks and returns {@link ClickAction} for {@link InAppTrigger}. If <code>clickAction</code>
+     * is <code>null</code> then creates new {@link ClickAction} and assign it to variable
+     *
+     * @return Returns non-null {@link ClickAction}
+     */
+    @NonNull
+    @Override
+    public ClickAction getClickAction() {
+        return super.getClickAction() == null ? new ClickAction(true) : super.getClickAction();
     }
 
-    public int getHeight() {
-        if (height <= 0) {
-            return 1920; // / default height
+    /**
+     * Check for {@link InAppTrigger} <code>background</code> and return it.
+     * If <code>background</code> is <code>null</code> method will pick <code>background</code> from
+     * {@link Container} and will add to InApp's <code>background</code> and then replace Container's
+     * background with <code>null</code>
+     *
+     * @return NonNull instance of {@link Background}
+     */
+    @Nullable
+    @Override
+    public Background getBg() {
+        if (bg == null) {
+            bg = container.getBg();
+            container.setBg(null);
         }
-
-        return (int) Math.round(height);
+        return bg;
     }
 }

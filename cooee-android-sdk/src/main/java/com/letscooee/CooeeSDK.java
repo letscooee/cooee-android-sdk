@@ -75,18 +75,35 @@ public class CooeeSDK {
     /**
      * Sends custom events to the server and returns with the campaign details(if any)
      *
+     * @param eventName Name the event like onDeviceReady
+     * @throws PropertyNameException if property name starts with "CE "
+     * @throws NullPointerException  if eventName is null
+     * @see <a href="https://docs.letscooee.com/developers/android/track-events">Track Events</a> for
+     * more details.
+     */
+    public void sendEvent(String eventName) throws PropertyNameException, NullPointerException {
+        sendEvent(eventName, new HashMap<>());
+    }
+
+    /**
+     * Sends custom events to the server and returns with the campaign details(if any)
+     *
      * @param eventName       Name the event like onDeviceReady
      * @param eventProperties Properties associated with the event
+     * @throws PropertyNameException if property name starts with "CE "
+     * @throws NullPointerException  if eventName is null
+     * @see <a href="https://docs.letscooee.com/developers/android/track-events">Track Events</a> for
+     * more details.
      */
-    public void sendEvent(String eventName, Map<String, Object> eventProperties) {
-        for (String key : eventProperties.keySet()) {
-            if (key.substring(0, 3).equalsIgnoreCase(SYSTEM_DATA_PREFIX)) {
-                throw new PropertyNameException();
-            }
+    public void sendEvent(String eventName, Map<String, Object> eventProperties)
+            throws PropertyNameException, NullPointerException {
+        if (eventName == null) {
+            throw new NullPointerException("Event name cannot be null");
         }
 
-        Event event = new Event(eventName, eventProperties);
+        containsSystemDataPrefix(eventProperties);
 
+        Event event = new Event(eventName, eventProperties);
         this.safeHTTPService.sendEvent(event);
     }
 
@@ -94,8 +111,11 @@ public class CooeeSDK {
      * Send given user data to the server
      *
      * @param userData The common user data like name, email.
+     * @throws PropertyNameException if property name starts with "CE "
+     * @deprecated use {@link CooeeSDK#updateUserProfile(Map)} instead
      */
-    public void updateUserData(Map<String, Object> userData) {
+    @Deprecated
+    public void updateUserData(Map<String, Object> userData) throws PropertyNameException {
         updateUserProfile(userData, null);
     }
 
@@ -103,8 +123,11 @@ public class CooeeSDK {
      * Send given user properties to the server
      *
      * @param userProperties The additional user properties.
+     * @throws PropertyNameException if property name starts with "CE "
+     * @deprecated use {@link CooeeSDK#updateUserProfile(Map)} instead
      */
-    public void updateUserProperties(Map<String, Object> userProperties) {
+    @Deprecated
+    public void updateUserProperties(Map<String, Object> userProperties) throws PropertyNameException {
         updateUserProfile(null, userProperties);
     }
 
@@ -113,31 +136,40 @@ public class CooeeSDK {
      *
      * @param userData       The common user data like name, email.
      * @param userProperties The additional user properties.
+     * @throws PropertyNameException if property name starts with "CE "
+     * @deprecated use {@link CooeeSDK#updateUserProfile(Map)} instead
      */
-    public void updateUserProfile(Map<String, Object> userData, Map<String, Object> userProperties) {
-        if (userProperties != null) {
-            for (String key : userProperties.keySet()) {
-                if (key.substring(0, 3).equalsIgnoreCase(SYSTEM_DATA_PREFIX)) {
-                    throw new PropertyNameException();
-                }
-            }
-        }
-
+    @Deprecated
+    public void updateUserProfile(Map<String, Object> userData, Map<String, Object> userProperties) throws PropertyNameException {
         Map<String, Object> userMap = new HashMap<>();
-        if (userData == null) {
-            userMap.put("userData", new HashMap<>());
-        } else {
-            userMap.put("userData", userData);
+        if (userData != null) {
+            userMap.putAll(userData);
         }
 
-        if (userProperties == null) {
-            userMap.put("userProperties", new HashMap<>());
-        } else {
-            userMap.put("userProperties", userProperties);
+        if (userProperties != null) {
+            userMap.putAll(userProperties);
         }
+
+        updateUserProfile(userMap);
+    }
+
+    /**
+     * Send the given user data and user properties to the server.
+     *
+     * @param userData The common user data like name, email, etc.
+     * @throws PropertyNameException if property name starts with "CE "
+     * @throws NullPointerException  if userData is null
+     * @see <a href="https://docs.letscooee.com/developers/android/track-props">Tracking User Properties</a>
+     */
+    public void updateUserProfile(Map<String, Object> userData) throws PropertyNameException, NullPointerException {
+        if (userData == null) {
+            throw new NullPointerException("userData cannot be null");
+        }
+
+        containsSystemDataPrefix(userData);
 
         this.sentryHelper.setUserInfo(userData);
-        this.safeHTTPService.updateUserProfile(userMap);
+        this.safeHTTPService.updateUserProfile(userData);
     }
 
     /**
@@ -178,11 +210,29 @@ public class CooeeSDK {
 
     /**
      * Launch {@link DebugInfoActivity} activity which holds debug information.
-     * These information is useful to debug problem with the SDK.
+     * This information is useful to debug problem with the SDK.
      */
     public void showDebugInfo() {
         Intent intent = new Intent(context, DebugInfoActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         context.startActivity(intent);
+    }
+
+    /**
+     * Check if map key starts with {@link #SYSTEM_DATA_PREFIX}
+     *
+     * @param map map to check
+     * @throws PropertyNameException if map key starts with {@link #SYSTEM_DATA_PREFIX}
+     */
+    private void containsSystemDataPrefix(Map<String, Object> map) throws PropertyNameException {
+        if (map == null) {
+            return;
+        }
+
+        for (String key : map.keySet()) {
+            if (key.substring(0, 3).equalsIgnoreCase(SYSTEM_DATA_PREFIX)) {
+                throw new PropertyNameException();
+            }
+        }
     }
 }

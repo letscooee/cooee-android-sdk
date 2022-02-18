@@ -8,7 +8,6 @@ import android.util.Log;
 
 import androidx.annotation.RestrictTo;
 
-import com.letscooee.CooeeFactory;
 import com.letscooee.enums.gesture.ShakeDensity;
 
 import io.sentry.Sentry;
@@ -25,7 +24,6 @@ public class ManifestReader {
     private static ManifestReader instance;
 
     private String appID = "";
-    private String appSecret = "";
     private int shakeToDebugCount = 0;
 
     public synchronized static ManifestReader getInstance(Context context) {
@@ -55,8 +53,7 @@ public class ManifestReader {
         }
 
         Bundle bundle = appInfo.metaData;
-        this.appID = bundle.getString("COOEE_APP_ID","");
-        this.appSecret = bundle.getString("COOEE_APP_SECRET","");
+        this.appID = bundle.getString("COOEE_APP_ID", "");
         try {
             this.shakeToDebugCount = ShakeDensity.valueOf(bundle.getString("SHAKE_TO_DEBUG_COUNT",
                     "NONE")).shakeVolume;
@@ -68,10 +65,6 @@ public class ManifestReader {
 
     public String getAppID() {
         return this.appID;
-    }
-
-    public String getAppSecret() {
-        return this.appSecret;
     }
 
     public int getShakeToDebugCount() {

@@ -15,24 +15,18 @@ import java.util.Map;
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class AuthenticationRequestBody {
     private final String appID;
-    private final String appSecret;
     private final String uuid;
     private final String sdk = Constants.PLATFORM;
     private final Map<String, Object> props;
 
-    public AuthenticationRequestBody(String appID, String appSecret, String uuid, Map<String, Object> props) {
+    public AuthenticationRequestBody(String appID, String uuid, Map<String, Object> props) {
         this.appID = appID;
-        this.appSecret = appSecret;
         this.uuid = uuid;
         this.props = props;
     }
 
     public String getAppID() {
         return appID;
-    }
-
-    public String getAppSecret() {
-        return appSecret;
     }
 
     public Map<String, Object> getDeviceData() {

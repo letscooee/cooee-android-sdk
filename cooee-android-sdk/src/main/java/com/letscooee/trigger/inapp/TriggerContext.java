@@ -27,6 +27,7 @@ public class TriggerContext {
     private Closure<Map<String, Object>> callback;
     private TriggerData triggerData;
     private RelativeLayout triggerParentLayout;
+    private double scalingFactor;
 
     public Map<String, Object> getClosedEventProps() {
         return closedEventProps;
@@ -74,5 +75,13 @@ public class TriggerContext {
 
     public void setTriggerParentLayout(RelativeLayout triggerParentLayout) {
         this.triggerParentLayout = triggerParentLayout;
+    }
+
+    public double getScalingFactor() {
+        return scalingFactor;
+    }
+
+    public void setScalingFactor(double scalingFactor) {
+        this.scalingFactor = Math.min(scalingFactor, 1);
     }
 }

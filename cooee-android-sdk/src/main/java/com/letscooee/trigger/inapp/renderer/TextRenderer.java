@@ -43,10 +43,13 @@ public class TextRenderer extends FontRenderer {
         this.processFontBlock();
 
         // resize background image when text view is updated/rendered.
-        newElement.addOnLayoutChangeListener(
-                (view, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) ->
-                        backgroundImage.setLayoutParams(new FrameLayout.LayoutParams(right, bottom))
-        );
+        newElement.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+            @Override
+            public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                newElement.removeOnLayoutChangeListener(this);
+                backgroundImage.setLayoutParams(new FrameLayout.LayoutParams(right, bottom));
+            }
+        });
 
         // Resize element to adjust with border
         Border border = elementData.getBorder();
@@ -54,7 +57,7 @@ public class TextRenderer extends FontRenderer {
             return newElement;
         }
 
-        int calculatedBorder = (int) border.getWidth(parentElement);
+        int calculatedBorder = getScaledPixelAsInt(border.getWidth());
         baseFrameLayout.setPadding(calculatedBorder, calculatedBorder, calculatedBorder, 0);
 
         FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) newElement.getLayoutParams();
@@ -68,12 +71,12 @@ public class TextRenderer extends FontRenderer {
         int borderColor = border.getColor().getHexColor();
         float dashWidth = calculatedBorder * 2;
 
-        int w = Math.round(elementData.getCalculatedWidth());
+        int w = getScaledPixelAsInt(elementData.getWidth());
         baseFrameLayout.setLayoutParams(new FrameLayout.LayoutParams(w, WC));
 
         GradientDrawable elementDrawable = new GradientDrawable();
         elementDrawable.setStroke(calculatedBorder, borderColor, dashWidth, calculatedBorder);
-        elementDrawable.setCornerRadius(border.getRadius() - (calculatedBorder / 2));
+        elementDrawable.setCornerRadius(getScaledPixelAsFloat(border.getRadius()) - (calculatedBorder / 2));
         baseFrameLayout.setBackground(elementDrawable);
 
         return newElement;
@@ -145,6 +148,7 @@ public class TextRenderer extends FontRenderer {
     }
 
     protected void processFontBlock() {
-        ((TextView) newElement).setTextSize(TypedValue.COMPLEX_UNIT_PX, textData.getFont().getSize());
+        ((TextView) newElement).setTextSize(TypedValue.COMPLEX_UNIT_PX,
+                getScaledPixelAsFloat(textData.getFont().getSize()));
     }
 }

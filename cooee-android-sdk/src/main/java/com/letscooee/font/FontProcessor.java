@@ -56,7 +56,7 @@ public class FontProcessor {
         String appID = CooeeFactory.getManifestReader().getAppID();
 
         if (TextUtils.isEmpty(appID)) {
-            Log.d(Constants.TAG, "Skipping getAppConfig as appID is not available");
+            Log.d(Constants.TAG, "Skipping font caching as appID is missing");
             return;
         }
 

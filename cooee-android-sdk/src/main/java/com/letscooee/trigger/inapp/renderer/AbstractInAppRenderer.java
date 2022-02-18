@@ -1,5 +1,7 @@
 package com.letscooee.trigger.inapp.renderer;
 
+import static com.letscooee.utils.Constants.TAG;
+
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
@@ -22,8 +24,6 @@ import com.letscooee.trigger.action.ClickActionExecutor;
 import com.letscooee.trigger.inapp.TriggerContext;
 
 import jp.wasabeef.blurry.Blurry;
-
-import static com.letscooee.utils.Constants.TAG;
 
 /**
  * @author Ashish Gaikwad 09/07/21
@@ -159,14 +159,14 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         int width = WC;
         int height = WC;
 
-        Float calculatedWidth = elementData.getCalculatedWidth();
-        if (calculatedWidth != null) {
-            width = Math.round(calculatedWidth);
+        int calculatedWidth = getScaledPixelAsInt(elementData.getWidth());
+        if (calculatedWidth != 0) {
+            width = calculatedWidth;
         }
 
-        Float calculatedHeight = elementData.getCalculatedHeight();
-        if (calculatedHeight != null) {
-            height = Math.round(calculatedHeight);
+        int calculatedHeight = getScaledPixelAsInt(elementData.getHeight());
+        if (calculatedHeight != 0) {
+            height = calculatedHeight;
         }
 
         this.newElement.setLayoutParams(new FrameLayout.LayoutParams(width, height));
@@ -185,10 +185,10 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         this.materialCardView.setLayoutParams(layoutParams);
     }
 
-    private void applyPositionBlock() {
+    protected void applyPositionBlock() {
 
-        float top = elementData.getY();
-        float left = elementData.getX();
+        float top = getScaledPixelAsFloat(elementData.getY());
+        float left = getScaledPixelAsFloat(elementData.getX());
 
         materialCardView.setX(left);
         materialCardView.setY(top);
@@ -263,7 +263,8 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         }
 
         int borderColor = border.getColor().getHexColor();
-        int calculatedBorder = Math.round(border.getWidth(parentElement));
+        int calculatedBorder = getScaledPixelAsInt(border.getWidth());
+        float cornerRadius = getScaledPixelAsFloat(border.getRadius());
 
         if (border.getStyle() == Border.Style.SOLID) {
             materialCardView.setStrokeColor(borderColor);
@@ -272,15 +273,15 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
             // Actual dash border code is there on respective element renderer. Here just adding
             // background color and corner radius.
             GradientDrawable materialDrawable = new GradientDrawable();
-            materialDrawable.setCornerRadius(border.getRadius());
+            materialDrawable.setCornerRadius(cornerRadius);
             if (this.elementData.getBg().getSolid() != null) {
                 materialDrawable.setColor(this.elementData.getBg().getSolid().getHexColor());
             }
             materialCardView.setBackground(materialDrawable);
         }
 
-        materialCardView.setRadius(border.getRadius());
-        backgroundDrawable.setCornerRadius(border.getRadius());
+        materialCardView.setRadius(cornerRadius);
+        backgroundDrawable.setCornerRadius(cornerRadius);
     }
 
     protected void processSpacing() {
@@ -289,13 +290,41 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
             return;
         }
 
-        spacing.calculatedPadding();
-
-        int paddingLeft = (int) spacing.getPaddingLeft();
-        int paddingRight = (int) spacing.getPaddingRight();
-        int paddingTop = (int) spacing.getPaddingTop();
-        int paddingBottom = (int) spacing.getPaddingBottom();
+        int paddingLeft = getScaledPixelAsInt(spacing.getPaddingLeft());
+        int paddingRight = getScaledPixelAsInt(spacing.getPaddingRight());
+        int paddingTop = getScaledPixelAsInt(spacing.getPaddingTop());
+        int paddingBottom = getScaledPixelAsInt(spacing.getPaddingBottom());
 
         this.newElement.setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
+    }
+
+    /**
+     * This method is used to get the scaled pixel value.
+     *
+     * @param value <code>double</code> value to be scaled
+     * @return <code>double</code> value after scaling
+     */
+    protected double getScaledPixel(double value) {
+        return value * globalData.getScalingFactor();
+    }
+
+    /**
+     * This method is used to get the scaled pixel value in <code>float</code> format.
+     *
+     * @param value <code>double</code> value to be scaled
+     * @return <code>float</code> value after scaling
+     */
+    protected float getScaledPixelAsFloat(double value) {
+        return (float) getScaledPixel(value);
+    }
+
+    /**
+     * This method is used to get the scaled pixel value in <code>int</code> format.
+     *
+     * @param value <code>double</code> value to be scaled
+     * @return <code>int</code> value after scaling
+     */
+    protected int getScaledPixelAsInt(double value) {
+        return (int) Math.round(getScaledPixel(value));
     }
 }

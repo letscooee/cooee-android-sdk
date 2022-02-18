@@ -1,6 +1,5 @@
 package com.letscooee.utils;
 
-import com.letscooee.utils.ui.UnitUtils;
 import org.junit.Test;
 
 import static org.junit.Assert.*;

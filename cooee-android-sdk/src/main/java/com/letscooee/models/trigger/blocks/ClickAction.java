@@ -37,15 +37,26 @@ public class ClickAction implements Parcelable {
     @SerializedName("open")
     private int launchFeature;
 
+    /**
+     * Initialize the {@link ClickAction} with close variable
+     * Main purpose of this constructor is to initialise click listener for InApp's main background
+     * click event
+     *
+     * @param close <code>boolean</code> value
+     */
+    public ClickAction(boolean close) {
+        this.close = close;
+    }
+
     protected ClickAction(Parcel in) {
         iab = in.readParcelable(BrowserContent.class.getClassLoader());
         external = in.readParcelable(BrowserContent.class.getClassLoader());
         updateApp = in.readParcelable(BrowserContent.class.getClassLoader());
         prompt = (PermissionType) in.readSerializable();
         close = in.readByte() != 0;
-        up = (HashMap<String, Object>) in.readSerializable();
-        kv = (HashMap<String, Object>) in.readSerializable();
-        share = (HashMap<String, Object>) in.readSerializable();
+        in.readMap(up, Map.class.getClassLoader());
+        in.readMap(kv, Map.class.getClassLoader());
+        in.readMap(share, Map.class.getClassLoader());
         appAR = in.readParcelable(AppAR.class.getClassLoader());
         launchFeature = in.readInt();
     }
