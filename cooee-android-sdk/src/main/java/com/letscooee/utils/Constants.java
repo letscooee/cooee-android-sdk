@@ -64,4 +64,9 @@ public class Constants {
     public static final String PLAY_STORE_LINK = "https://play.google.com/store/apps/details?id=";
     public static final int DEFAULT_CONTAINER_WIDTH = 1080;
     public static final int DEFAULT_CONTAINER_HEIGHT = 1920;
+
+    // region AR
+    public static final String AR_INTENT = "com.letscooee.launchCooeeAR";
+    public static final String AR_BROADCAST_CLASS = "com.unity3d.player.broadcast.CooeeLaunchAR";
+    // endregion
 }
