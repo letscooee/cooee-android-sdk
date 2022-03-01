@@ -14,13 +14,11 @@ import com.google.gson.Gson;
 import com.letscooee.CooeeFactory;
 import com.letscooee.models.trigger.TriggerData;
 import com.letscooee.models.trigger.blocks.AppAR;
+import com.letscooee.utils.Constants;
 import com.letscooee.utils.Timer;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import static com.letscooee.utils.Constants.AR_BROADCAST_CLASS;
-import static com.letscooee.utils.Constants.AR_INTENT;
 
 /**
  * Utility class for Augmented Reality
@@ -117,15 +115,16 @@ public class ARHelper {
         Bundle bundle = new Bundle();
         String arData = new Gson().toJson(appAR);
         String appPackageName = CooeeFactory.getAppInfo().getPackageName();
-        bundle.putString("intentType", "CooeeARLaunch");
-        bundle.putString("arData", arData);
-        bundle.putString("app_package", appPackageName);
-        final Intent i = new Intent();
-        i.putExtras(bundle);
-        i.setAction(AR_INTENT);
-        i.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
-        i.setComponent(new ComponentName(appPackageName, AR_BROADCAST_CLASS));
-        context.sendBroadcast(i);
+        bundle.putString(Constants.AR_INTENT_TYPE, Constants.AR_LAUNCH_INTENT);
+        bundle.putString(Constants.AR_DATA, arData);
+        bundle.putString(Constants.AR_PACKAGE_NAME, appPackageName);
+
+        Intent intent = new Intent();
+        intent.putExtras(bundle);
+        intent.setAction(Constants.AR_INTENT);
+        intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
+        intent.setComponent(new ComponentName(appPackageName, Constants.AR_BROADCAST_CLASS));
+        context.sendBroadcast(intent);
     }
 
     /**
