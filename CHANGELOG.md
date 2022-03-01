@@ -1,6 +1,12 @@
 # Change Log
 
-## v1.3.0
+## v1.3.3
+
+### Improvement 
+
+1. AR SDK is now optional.
+
+## v1.3.2
 
 ### Feature
 
