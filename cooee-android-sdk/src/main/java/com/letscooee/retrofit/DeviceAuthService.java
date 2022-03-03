@@ -73,11 +73,13 @@ public class DeviceAuthService {
         sdkToken = LocalStorageHelper.getString(context, Constants.STORAGE_SDK_TOKEN, null);
         if (TextUtils.isEmpty(sdkToken)) {
             Log.d(Constants.TAG, "No SDK token found in preference");
+            return;
         }
 
         userID = LocalStorageHelper.getString(context, Constants.STORAGE_USER_ID, null);
         if (TextUtils.isEmpty(userID)) {
             Log.d(Constants.TAG, "No user ID found in preference");
+            return;
         }
 
         this.updateAPIClient();
