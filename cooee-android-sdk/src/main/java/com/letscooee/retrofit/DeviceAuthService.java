@@ -3,10 +3,8 @@ package com.letscooee.retrofit;
 import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
-
 import com.letscooee.BuildConfig;
 import com.letscooee.CooeeFactory;
 import com.letscooee.models.AuthenticationRequestBody;
@@ -18,9 +16,7 @@ import com.letscooee.utils.Constants;
 import com.letscooee.utils.LocalStorageHelper;
 import com.letscooee.utils.ManifestReader;
 import com.letscooee.utils.SentryHelper;
-
 import org.bson.types.ObjectId;
-
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -73,13 +69,11 @@ public class DeviceAuthService {
         sdkToken = LocalStorageHelper.getString(context, Constants.STORAGE_SDK_TOKEN, null);
         if (TextUtils.isEmpty(sdkToken)) {
             Log.d(Constants.TAG, "No SDK token found in preference");
-            return;
         }
 
         userID = LocalStorageHelper.getString(context, Constants.STORAGE_USER_ID, null);
         if (TextUtils.isEmpty(userID)) {
             Log.d(Constants.TAG, "No user ID found in preference");
-            return;
         }
 
         this.updateAPIClient();
@@ -171,7 +165,9 @@ public class DeviceAuthService {
         APIClient.setAppVersion(CooeeFactory.getAppInfo().getVersion());
         this.sentryHelper.setUserId(userID);
 
-        new ScreenshotUtility(context); // Initialize ScreenshotUtility
+        if (!TextUtils.isEmpty(sdkToken)) {
+            new ScreenshotUtility(context); // Initialize ScreenshotUtility
+        }
     }
 
     /**
