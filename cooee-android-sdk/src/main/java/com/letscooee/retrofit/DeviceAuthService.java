@@ -73,11 +73,13 @@ public class DeviceAuthService {
         sdkToken = LocalStorageHelper.getString(context, Constants.STORAGE_SDK_TOKEN, null);
         if (TextUtils.isEmpty(sdkToken)) {
             Log.d(Constants.TAG, "No SDK token found in preference");
+            return;
         }
 
         userID = LocalStorageHelper.getString(context, Constants.STORAGE_USER_ID, null);
         if (TextUtils.isEmpty(userID)) {
             Log.d(Constants.TAG, "No user ID found in preference");
+            return;
         }
 
         this.updateAPIClient();
@@ -116,7 +118,7 @@ public class DeviceAuthService {
      */
     private void getSDKTokenFromServer() {
         if (TextUtils.isEmpty(manifestReader.getAppID())) {
-            Log.i(Constants.TAG, "Missing App credentials in AndroidManifest.xml",
+            Log.w(Constants.TAG, "Missing App credentials in AndroidManifest.xml",
                     new Exception("Check Integration https://docs.letscooee.com/developers/android/quickstart"));
             return;
         }
