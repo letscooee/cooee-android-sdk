@@ -54,9 +54,17 @@ public class ClickAction implements Parcelable {
         updateApp = in.readParcelable(BrowserContent.class.getClassLoader());
         prompt = (PermissionType) in.readSerializable();
         close = in.readByte() != 0;
-        in.readMap(up, Map.class.getClassLoader());
-        in.readMap(kv, Map.class.getClassLoader());
-        in.readMap(share, Map.class.getClassLoader());
+
+        // TODO: 04/03/22 readMap(Map, ClassLoader) is deprecated in android API Tiramisu.
+        //  And readMap(Map, ClassLoader, Class<Key>, Class<Value>) is added.
+        //  New Method Ref: https://developer.android.com/reference/android/os/Parcel#readMap(java.util.Map%3C?%20super%20K,%20?%20super%20V%3E,%20java.lang.ClassLoader,%20java.lang.Class%3CK%3E,%20java.lang.Class%3CV%3E)
+        //  Old Method Ref: https://developer.android.com/reference/android/os/Parcel#readMap(java.util.Map,%20java.lang.ClassLoader)
+        up = new HashMap<>();
+        in.readMap(up, Object.class.getClassLoader());
+        kv = new HashMap<>();
+        in.readMap(kv, Object.class.getClassLoader());
+        share = new HashMap<>();
+        in.readMap(share, Object.class.getClassLoader());
         appAR = in.readParcelable(AppAR.class.getClassLoader());
         launchFeature = in.readInt();
     }
@@ -116,7 +124,7 @@ public class ClickAction implements Parcelable {
      */
     public boolean isOnlyCloseCTA() {
         return iab == null && external == null && updateApp == null && prompt == null
-                && up == null && kv == null && share == null && launchFeature == 0;
+                && (up == null || up.isEmpty()) && (kv == null || kv.isEmpty()) && (share == null || share.isEmpty()) && launchFeature == 0;
     }
 
     public int getLaunchFeature() {
@@ -135,9 +143,9 @@ public class ClickAction implements Parcelable {
         dest.writeParcelable(updateApp, flags);
         dest.writeSerializable(prompt);
         dest.writeByte((byte) (close ? 1 : 0));
-        dest.writeSerializable(up);
-        dest.writeSerializable(kv);
-        dest.writeSerializable(share);
+        dest.writeMap(up);
+        dest.writeMap(kv);
+        dest.writeMap(share);
         dest.writeParcelable(appAR, flags);
         dest.writeInt(launchFeature);
     }
