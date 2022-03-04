@@ -8,9 +8,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.text.TextUtils;
-
 import androidx.browser.customtabs.CustomTabsIntent;
-
 import com.letscooee.CooeeFactory;
 import com.letscooee.CooeeSDK;
 import com.letscooee.ar.ARHelper;
@@ -22,7 +20,6 @@ import com.letscooee.utils.Constants;
 import com.letscooee.utils.CooeeCTAListener;
 
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -92,7 +89,7 @@ public class ClickActionExecutor {
      * Check and process <code>share</code> and launch {@link Intent} for {@link Intent#ACTION_SEND}
      */
     private void shareContent() {
-        if (action.getShare() == null) {
+        if (action.getShare().isEmpty()) {
             return;
         }
 
@@ -151,23 +148,22 @@ public class ClickActionExecutor {
     private void passKeyValueToApp() {
         CooeeCTAListener listener = CooeeSDK.getDefaultInstance(context).getCTAListener();
 
-        if (listener != null && action.getKeyValue() != null) {
-            listener.onResponse((HashMap<String, Object>) action.getKeyValue());
+        if (listener == null || action.getKeyValue().isEmpty()) {
+            return;
         }
+
+        listener.onResponse((HashMap<String, Object>) action.getKeyValue());
     }
 
     /**
      * Check and process <code>up</code> and update user property
      */
     private void updateUserProperties() {
-        if (action.getUserPropertiesToUpdate() == null) {
+        if (action.getUserPropertiesToUpdate().isEmpty()) {
             return;
         }
 
-        Map<String, Object> userProfile = new HashMap<>();
-        userProfile.put("userData", new HashMap<>());
-        userProfile.put("userProperties", action.getUserPropertiesToUpdate());
-        CooeeFactory.getSafeHTTPService().updateUserProfile(userProfile);
+        CooeeFactory.getSafeHTTPService().updateUserProfile(action.getUserPropertiesToUpdate());
     }
 
     /**

@@ -22,12 +22,12 @@ public class TriggerData implements Parcelable {
     private final PushNotificationTrigger pn;
     private final String engagementID;
     private final boolean internal;
-    private final Map<String, Object> config;
+    private final Map<String, Object> config = new HashMap<>();
     private final long expireAt;
 
     @SerializedName("ar")
     @Expose
-    private final Map<String, Object> selfARData;
+    private final Map<String, Object> selfARData = new HashMap<>();
 
     /**
      * No longer used and is replaced by {@link #expireAt}. This was used to append time after notification was
@@ -45,10 +45,13 @@ public class TriggerData implements Parcelable {
         pn = in.readParcelable(PushNotificationTrigger.class.getClassLoader());
         engagementID = in.readString();
         internal = in.readByte() != 0;
-        config = new HashMap<>();
+
+        // TODO: 04/03/22 readMap(Map, ClassLoader) is deprecated in android API Tiramisu.
+        //  And readMap(Map, ClassLoader, Class<Key>, Class<Value>) is added.
+        //  New Method Ref: https://developer.android.com/reference/android/os/Parcel#readMap(java.util.Map%3C?%20super%20K,%20?%20super%20V%3E,%20java.lang.ClassLoader,%20java.lang.Class%3CK%3E,%20java.lang.Class%3CV%3E)
+        //  Old Method Ref: https://developer.android.com/reference/android/os/Parcel#readMap(java.util.Map,%20java.lang.ClassLoader)
         in.readMap(config, Object.class.getClassLoader());
         expireAt = in.readLong();
-        selfARData = new HashMap<>();
         in.readMap(selfARData, Object.class.getClassLoader());
     }
 

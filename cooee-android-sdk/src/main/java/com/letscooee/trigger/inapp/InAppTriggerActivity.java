@@ -136,10 +136,11 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
     @Override
     public void finish() {
         super.finish();
-        setAnimations();
         if (!isSuccessfullyStarted) {
             return;
         }
+
+        setAnimations();
 
         Map<String, Object> closedEventProps = triggerContext.getClosedEventProps();
 
