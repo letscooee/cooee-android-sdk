@@ -45,6 +45,11 @@ public class TriggerData implements Parcelable {
         pn = in.readParcelable(PushNotificationTrigger.class.getClassLoader());
         engagementID = in.readString();
         internal = in.readByte() != 0;
+
+        // TODO: 04/03/22 readMap(Map, ClassLoader) is deprecated in android API Tiramisu.
+        //  And readMap(Map, ClassLoader, Class<Key>, Class<Value>) is added.
+        //  New Method Ref: https://developer.android.com/reference/android/os/Parcel#readMap(java.util.Map%3C?%20super%20K,%20?%20super%20V%3E,%20java.lang.ClassLoader,%20java.lang.Class%3CK%3E,%20java.lang.Class%3CV%3E)
+        //  Old Method Ref: https://developer.android.com/reference/android/os/Parcel#readMap(java.util.Map,%20java.lang.ClassLoader)
         config = new HashMap<>();
         in.readMap(config, Object.class.getClassLoader());
         expireAt = in.readLong();
