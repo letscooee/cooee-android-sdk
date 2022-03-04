@@ -25,10 +25,10 @@ public class ClickAction implements Parcelable {
     @SerializedName("pmpt")
     @Expose
     private PermissionType prompt;
-    private HashMap<String, Object> up;
-    private HashMap<String, Object> kv;
-    private HashMap<String, Object> share;
-    private boolean close;
+    private final HashMap<String, Object> up = new HashMap<>();
+    private final HashMap<String, Object> kv = new HashMap<>();
+    private final HashMap<String, Object> share = new HashMap<>();
+    private final boolean close;
 
     @SerializedName("ntvAR")
     @Expose
@@ -59,11 +59,8 @@ public class ClickAction implements Parcelable {
         //  And readMap(Map, ClassLoader, Class<Key>, Class<Value>) is added.
         //  New Method Ref: https://developer.android.com/reference/android/os/Parcel#readMap(java.util.Map%3C?%20super%20K,%20?%20super%20V%3E,%20java.lang.ClassLoader,%20java.lang.Class%3CK%3E,%20java.lang.Class%3CV%3E)
         //  Old Method Ref: https://developer.android.com/reference/android/os/Parcel#readMap(java.util.Map,%20java.lang.ClassLoader)
-        up = new HashMap<>();
         in.readMap(up, Object.class.getClassLoader());
-        kv = new HashMap<>();
         in.readMap(kv, Object.class.getClassLoader());
-        share = new HashMap<>();
         in.readMap(share, Object.class.getClassLoader());
         appAR = in.readParcelable(AppAR.class.getClassLoader());
         launchFeature = in.readInt();
@@ -123,8 +120,8 @@ public class ClickAction implements Parcelable {
      * @return <code>true</code> if all other CTA's are <code>null</code>; Otherwise <code>false</code>
      */
     public boolean isOnlyCloseCTA() {
-        return iab == null && external == null && updateApp == null && prompt == null
-                && (up == null || up.isEmpty()) && (kv == null || kv.isEmpty()) && (share == null || share.isEmpty()) && launchFeature == 0;
+        return iab == null && external == null && updateApp == null && prompt == null && up.isEmpty() && kv.isEmpty()
+                && share.isEmpty() && launchFeature == 0;
     }
 
     public int getLaunchFeature() {

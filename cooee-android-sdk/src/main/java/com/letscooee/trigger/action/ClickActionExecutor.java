@@ -8,11 +8,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.text.TextUtils;
-
-import android.util.Log;
 import androidx.browser.customtabs.CustomTabsIntent;
-
-import com.google.gson.Gson;
 import com.letscooee.CooeeFactory;
 import com.letscooee.CooeeSDK;
 import com.letscooee.ar.ARHelper;
@@ -25,8 +21,6 @@ import com.letscooee.utils.CooeeCTAListener;
 
 import java.util.HashMap;
 import java.util.Objects;
-
-import static com.letscooee.utils.Constants.TAG;
 
 /**
  * @author Shashank Agrawal
@@ -95,7 +89,7 @@ public class ClickActionExecutor {
      * Check and process <code>share</code> and launch {@link Intent} for {@link Intent#ACTION_SEND}
      */
     private void shareContent() {
-        if (action.getShare() == null || action.getShare().isEmpty()) {
+        if (action.getShare().isEmpty()) {
             return;
         }
 
@@ -154,7 +148,7 @@ public class ClickActionExecutor {
     private void passKeyValueToApp() {
         CooeeCTAListener listener = CooeeSDK.getDefaultInstance(context).getCTAListener();
 
-        if (listener == null || action.getKeyValue() == null || action.getKeyValue().isEmpty()) {
+        if (listener == null || action.getKeyValue().isEmpty()) {
             return;
         }
 
@@ -165,7 +159,7 @@ public class ClickActionExecutor {
      * Check and process <code>up</code> and update user property
      */
     private void updateUserProperties() {
-        if (action.getUserPropertiesToUpdate() == null || action.getUserPropertiesToUpdate().isEmpty()) {
+        if (action.getUserPropertiesToUpdate().isEmpty()) {
             return;
         }
 
