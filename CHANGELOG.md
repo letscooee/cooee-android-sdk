@@ -1,5 +1,13 @@
 # Change Log
 
+## v1.3.4
+
+### Fixes
+
+1. Prevent uploading screenshot if token is not acquired.
+2. Fix handling of key-value in CTA.
+3. Prevent possibility of animation close exception if in-app wasn't loaded properly.
+
 ## v1.3.3
 
 ### Improvement 
