@@ -51,13 +51,13 @@ public class InAppAnimationProvider {
             case SLIDE_OUT_DOWN:
                 return R.anim.slide_out_down;
             case SLIDE_OUT_TOP_LEFT:
-                return R.anim.slide_in_top_left;
+                return R.anim.slide_out_top_left;
             case SLIDE_OUT_TOP_RIGHT:
-                return R.anim.slide_in_top_right;
+                return R.anim.slide_out_top_right;
             case SLIDE_OUT_BOTTOM_LEFT:
-                return R.anim.slide_in_bottom_left;
+                return R.anim.slide_out_bottom_left;
             case SLIDE_OUT_BOTTOM_RIGHT:
-                return R.anim.slide_in_bottom_right;
+                return R.anim.slide_out_bottom_right;
             default:
                 return R.anim.slide_out_right;
         }
