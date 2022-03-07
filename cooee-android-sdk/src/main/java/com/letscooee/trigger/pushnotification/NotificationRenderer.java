@@ -165,7 +165,28 @@ public abstract class NotificationRenderer {
         deleteIntent.putExtra(Constants.INTENT_TRIGGER_DATA_KEY, triggerData);
         deleteIntent.setAction(Constants.ACTION_DELETE_NOTIFICATION);
 
-        notification.deleteIntent = PendingIntent.getService(context, 0, deleteIntent, PendingIntent.FLAG_ONE_SHOT);
+        /*
+         * Android 12 added more security with the PendingIntents. Now we need to tell that if PendingIntent
+         * can be mutated or not.
+         * Ref: https://developer.android.com/about/versions/12/behavior-changes-12#pending-intent-mutability
+         * FLAG_IMMUTABLE: https://developer.android.com/reference/android/app/PendingIntent#FLAG_IMMUTABLE
+         * FLAG_MUTABLE: https://developer.android.com/reference/android/app/PendingIntent#FLAG_MUTABLE
+         */
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            notification.deleteIntent = PendingIntent.getService(
+                    context,
+                    0,
+                    deleteIntent,
+                    PendingIntent.FLAG_IMMUTABLE
+            );
+        } else {
+            notification.deleteIntent = PendingIntent.getService(
+                    context,
+                    0,
+                    deleteIntent,
+                    PendingIntent.FLAG_ONE_SHOT
+            );
+        }
     }
 
     private void checkForNotificationViewed() {

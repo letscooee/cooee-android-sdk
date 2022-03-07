@@ -134,7 +134,29 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
         appLaunchIntent.putExtra(Constants.INTENT_BUNDLE_KEY, bundle);
         appLaunchIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
-        PendingIntent appLaunchPendingIntent = PendingIntent.getActivity(context, triggerData.getId().hashCode(), appLaunchIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        /*
+         * Android 12 added more security with the PendingIntents. Now we need to tell that if PendingIntent
+         * can be mutated or not.
+         * Ref: https://developer.android.com/about/versions/12/behavior-changes-12#pending-intent-mutability
+         * FLAG_IMMUTABLE: https://developer.android.com/reference/android/app/PendingIntent#FLAG_IMMUTABLE
+         * FLAG_MUTABLE: https://developer.android.com/reference/android/app/PendingIntent#FLAG_MUTABLE
+         */
+        PendingIntent appLaunchPendingIntent = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+            appLaunchPendingIntent = PendingIntent.getActivity(
+                    context,
+                    triggerData.getId().hashCode(),
+                    appLaunchIntent,
+                    PendingIntent.FLAG_IMMUTABLE
+            );
+        } else {
+            appLaunchPendingIntent = PendingIntent.getActivity(
+                    context,
+                    triggerData.getId().hashCode(),
+                    appLaunchIntent,
+                    PendingIntent.FLAG_UPDATE_CURRENT
+            );
+        }
 
         renderer.addActions(createActionButtons(triggerData.getPn(), renderer.getNotificationID()));
 
@@ -168,8 +190,29 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
             actionButtonIntent.putExtra(Constants.INTENT_TRIGGER_DATA_KEY, triggerData);
             actionButtonIntent.putExtra("notificationId", notificationID);
 
-            PendingIntent pendingIntent = PendingIntent.getService(getApplicationContext(), requestCode++, actionButtonIntent,
-                    PendingIntent.FLAG_ONE_SHOT);
+            /*
+             * Android 12 added more security with the PendingIntents. Now we need to tell that if PendingIntent
+             * can be mutated or not.
+             * Ref: https://developer.android.com/about/versions/12/behavior-changes-12#pending-intent-mutability
+             * FLAG_IMMUTABLE: https://developer.android.com/reference/android/app/PendingIntent#FLAG_IMMUTABLE
+             * FLAG_MUTABLE: https://developer.android.com/reference/android/app/PendingIntent#FLAG_MUTABLE
+             */
+            PendingIntent pendingIntent = null;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+                pendingIntent = PendingIntent.getService(
+                        getApplicationContext(),
+                        requestCode++,
+                        actionButtonIntent,
+                        PendingIntent.FLAG_IMMUTABLE
+                );
+            } else {
+                pendingIntent = PendingIntent.getService(
+                        getApplicationContext(),
+                        requestCode++,
+                        actionButtonIntent,
+                        PendingIntent.FLAG_ONE_SHOT
+                );
+            }
 
             actions[i++] = new NotificationCompat.Action(R.drawable.common_google_signin_btn_icon_dark, title, pendingIntent);
 
