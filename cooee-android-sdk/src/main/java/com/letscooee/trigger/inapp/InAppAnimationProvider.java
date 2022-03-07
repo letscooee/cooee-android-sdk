@@ -17,8 +17,6 @@ public class InAppAnimationProvider {
         switch (animation.getEnter()) {
             case SLIDE_IN_LEFT:
                 return android.R.anim.slide_in_left;
-            case SLIDE_IN_RIGHT:
-                return R.anim.slide_in_right;
             case SLIDE_IN_TOP:
                 return R.anim.slide_in_up;
             case SLIDE_IN_DOWN:
@@ -44,8 +42,6 @@ public class InAppAnimationProvider {
         switch (animation.getExit()) {
             case SLIDE_OUT_LEFT:
                 return R.anim.slide_out_left;
-            case SLIDE_OUT_RIGHT:
-                return R.anim.slide_out_right;
             case SLIDE_OUT_TOP:
                 return R.anim.slide_out_up;
             case SLIDE_OUT_DOWN:
