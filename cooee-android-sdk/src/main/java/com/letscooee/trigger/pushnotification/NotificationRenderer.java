@@ -24,6 +24,7 @@ import com.letscooee.models.trigger.elements.PartElement;
 import com.letscooee.models.trigger.elements.TextElement;
 import com.letscooee.models.trigger.push.PushNotificationTrigger;
 import com.letscooee.network.SafeHTTPService;
+import com.letscooee.pushnotification.PushProviderUtils;
 import com.letscooee.services.PushNotificationIntentService;
 import com.letscooee.utils.Constants;
 
@@ -164,29 +165,12 @@ public abstract class NotificationRenderer {
         Intent deleteIntent = new Intent(this.context, PushNotificationIntentService.class);
         deleteIntent.putExtra(Constants.INTENT_TRIGGER_DATA_KEY, triggerData);
         deleteIntent.setAction(Constants.ACTION_DELETE_NOTIFICATION);
+        notification.deleteIntent = PushProviderUtils.getPendingIntentService(
+                context,
+                0,
+                deleteIntent
+        );
 
-        /*
-         * Android 12 added more security with the PendingIntents. Now we need to tell that if PendingIntent
-         * can be mutated or not.
-         * Ref: https://developer.android.com/about/versions/12/behavior-changes-12#pending-intent-mutability
-         * FLAG_IMMUTABLE: https://developer.android.com/reference/android/app/PendingIntent#FLAG_IMMUTABLE
-         * FLAG_MUTABLE: https://developer.android.com/reference/android/app/PendingIntent#FLAG_MUTABLE
-         */
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            notification.deleteIntent = PendingIntent.getService(
-                    context,
-                    0,
-                    deleteIntent,
-                    PendingIntent.FLAG_IMMUTABLE
-            );
-        } else {
-            notification.deleteIntent = PendingIntent.getService(
-                    context,
-                    0,
-                    deleteIntent,
-                    PendingIntent.FLAG_ONE_SHOT
-            );
-        }
     }
 
     private void checkForNotificationViewed() {
