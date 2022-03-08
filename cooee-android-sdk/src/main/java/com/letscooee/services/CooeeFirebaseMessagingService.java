@@ -30,6 +30,7 @@ import com.letscooee.trigger.pushnotification.NotificationRenderer;
 import com.letscooee.trigger.pushnotification.SimpleNotificationRenderer;
 import com.letscooee.utils.Constants;
 import com.letscooee.trigger.adapters.TriggerGsonDeserializer;
+import com.letscooee.utils.PendingIntentUtility;
 
 import java.util.HashMap;
 
@@ -134,7 +135,11 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
         appLaunchIntent.putExtra(Constants.INTENT_BUNDLE_KEY, bundle);
         appLaunchIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
-        PendingIntent appLaunchPendingIntent = PendingIntent.getActivity(context, triggerData.getId().hashCode(), appLaunchIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent appLaunchPendingIntent = PendingIntentUtility.getActivity(
+                context,
+                triggerData.getId().hashCode(),
+                appLaunchIntent
+        );
 
         renderer.addActions(createActionButtons(triggerData.getPn(), renderer.getNotificationID()));
 
@@ -168,8 +173,11 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
             actionButtonIntent.putExtra(Constants.INTENT_TRIGGER_DATA_KEY, triggerData);
             actionButtonIntent.putExtra("notificationId", notificationID);
 
-            PendingIntent pendingIntent = PendingIntent.getService(getApplicationContext(), requestCode++, actionButtonIntent,
-                    PendingIntent.FLAG_ONE_SHOT);
+            PendingIntent pendingIntent = PendingIntentUtility.getService(
+                    getApplicationContext(),
+                    requestCode++,
+                    actionButtonIntent
+            );
 
             actions[i++] = new NotificationCompat.Action(R.drawable.common_google_signin_btn_icon_dark, title, pendingIntent);
 
