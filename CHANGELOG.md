@@ -1,5 +1,12 @@
 # Change Log
 
+## v1.3.5
+
+### Fixes
+
+1. Fix push notification rendering in Android 12.
+2. Fix close In-App animation from corners.
+
 ## v1.3.4
 
 ### Fixes
