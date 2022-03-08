@@ -3,7 +3,6 @@ package com.letscooee.trigger.pushnotification;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
@@ -24,9 +23,9 @@ import com.letscooee.models.trigger.elements.PartElement;
 import com.letscooee.models.trigger.elements.TextElement;
 import com.letscooee.models.trigger.push.PushNotificationTrigger;
 import com.letscooee.network.SafeHTTPService;
-import com.letscooee.pushnotification.PushProviderUtils;
 import com.letscooee.services.PushNotificationIntentService;
 import com.letscooee.utils.Constants;
+import com.letscooee.utils.PendingIntentUtility;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -165,12 +164,7 @@ public abstract class NotificationRenderer {
         Intent deleteIntent = new Intent(this.context, PushNotificationIntentService.class);
         deleteIntent.putExtra(Constants.INTENT_TRIGGER_DATA_KEY, triggerData);
         deleteIntent.setAction(Constants.ACTION_DELETE_NOTIFICATION);
-        notification.deleteIntent = PushProviderUtils.getPendingIntentService(
-                context,
-                0,
-                deleteIntent
-        );
-
+        notification.deleteIntent = PendingIntentUtility.getService(context, 0, deleteIntent);
     }
 
     private void checkForNotificationViewed() {

@@ -30,6 +30,7 @@ import com.letscooee.trigger.pushnotification.NotificationRenderer;
 import com.letscooee.trigger.pushnotification.SimpleNotificationRenderer;
 import com.letscooee.utils.Constants;
 import com.letscooee.trigger.adapters.TriggerGsonDeserializer;
+import com.letscooee.utils.PendingIntentUtility;
 
 import java.util.HashMap;
 
@@ -134,30 +135,11 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
         appLaunchIntent.putExtra(Constants.INTENT_BUNDLE_KEY, bundle);
         appLaunchIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
-        /*
-         * Android 12 added more security with the PendingIntents. Now we need to tell that if PendingIntent
-         * can be mutated or not.
-         * Ref: https://developer.android.com/about/versions/12/behavior-changes-12#pending-intent-mutability
-         * FLAG_IMMUTABLE: https://developer.android.com/reference/android/app/PendingIntent#FLAG_IMMUTABLE
-         * FLAG_MUTABLE: https://developer.android.com/reference/android/app/PendingIntent#FLAG_MUTABLE
-         */
-        PendingIntent appLaunchPendingIntent = null;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-            appLaunchPendingIntent = PendingIntent.getActivity(
-                    context,
-                    triggerData.getId().hashCode(),
-                    appLaunchIntent,
-                    PendingIntent.FLAG_IMMUTABLE
-            );
-        } else {
-            //Update FLAG_UPDATE_CURRENT with FLAT_ONE_SHOT as we are not going to update that intent any time
-            appLaunchPendingIntent = PendingIntent.getActivity(
-                    context,
-                    triggerData.getId().hashCode(),
-                    appLaunchIntent,
-                    PendingIntent.FLAG_ONE_SHOT
-            );
-        }
+        PendingIntent appLaunchPendingIntent = PendingIntentUtility.getActivity(
+                context,
+                triggerData.getId().hashCode(),
+                appLaunchIntent
+        );
 
         renderer.addActions(createActionButtons(triggerData.getPn(), renderer.getNotificationID()));
 
@@ -191,7 +173,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
             actionButtonIntent.putExtra(Constants.INTENT_TRIGGER_DATA_KEY, triggerData);
             actionButtonIntent.putExtra("notificationId", notificationID);
 
-            PendingIntent pendingIntent = PushProviderUtils.getPendingIntentService(
+            PendingIntent pendingIntent = PendingIntentUtility.getService(
                     getApplicationContext(),
                     requestCode++,
                     actionButtonIntent
