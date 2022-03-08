@@ -56,12 +56,13 @@ public class PushProviderUtils {
      * @since 1.3.5
      */
     public static PendingIntent getPendingIntentService(Context context, int requestCode, Intent intent) {
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP) {
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             return PendingIntent.getService(
                     context,
                     requestCode,
                     intent,
-                    PendingIntent.FLAG_ONE_SHOT
+                    PendingIntent.FLAG_IMMUTABLE
             );
         }
 
@@ -69,7 +70,7 @@ public class PushProviderUtils {
                 context,
                 requestCode,
                 intent,
-                PendingIntent.FLAG_IMMUTABLE
+                PendingIntent.FLAG_ONE_SHOT
         );
     }
 }
