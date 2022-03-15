@@ -6,6 +6,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.letscooee.BaseTestCase;
 import junit.framework.TestCase;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,46 +19,27 @@ import java.util.Locale;
 import static com.google.common.truth.Truth.assertThat;
 
 @RunWith(AndroidJUnit4.class)
-public class AppInfoTest extends TestCase {
-
-    AppInfo appInfo;
-    ApplicationInfo applicationInfo;
-    PackageManager packageManager;
-    PackageInfo packageInfo;
-
-    @Before
-    @Override
-    public void setUp() {
-        Context context = ApplicationProvider.getApplicationContext();
-        applicationInfo = context.getApplicationInfo();
-        packageManager = context.getPackageManager();
-        appInfo = AppInfo.getInstance(context);
-        try {
-            packageInfo = packageManager.getPackageInfo(context.getPackageName(), 0);
-        } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
-        }
-    }
+public class AppInfoTest extends BaseTestCase {
 
     @Test
     public void getAppName() {
         String applicationName = applicationInfo.loadLabel(packageManager).toString();
         String appName = appInfo.getName();
-        assertThat(appName).isEqualTo(applicationName);
+        assertThat(appName).isEqualTo("com.letscooee.init.AppController");
     }
 
     @Test
     public void getAppVersion() {
         String appVersion = packageInfo.versionName + "+" + packageInfo.getLongVersionCode();
         String appVersionBySDK = appInfo.getVersion();
-        assertThat(appVersionBySDK).isEqualTo(appVersion);
+        assertThat(appVersionBySDK).isEqualTo("1.3.5+10305");
     }
 
     @Test
     public void getAppPackageName() {
         String packageName = packageInfo.packageName;
         String packageNameBySDK = appInfo.getPackageName();
-        assertThat(packageNameBySDK).isEqualTo(packageName);
+        assertThat(packageNameBySDK).isEqualTo("com.letscooee.tester");
     }
 
     @Test
