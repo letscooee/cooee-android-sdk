@@ -12,6 +12,7 @@ Validate MR:
   stage: test
   script:
     - ./gradlew cooee-android-sdk:test
+    - ./gradlew cooee-android-sdk:connectedAndroidTest
     - ./gradlew cooee-android-sdk:publishToMavenLocal
   only:
     - merge_requests
