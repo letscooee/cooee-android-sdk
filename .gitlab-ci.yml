@@ -1,8 +1,31 @@
-image: jangrewe/gitlab-ci-android
+image: openjdk:8-jdk
+
+variables:
+  ANDROID_COMPILE_SDK: "28"
+  ANDROID_BUILD_TOOLS: "28.0.2"
+  ANDROID_SDK_TOOLS:   "4333796"
+  CMAKE:               "3.10.2.4988404"
 
 before_script:
-    - export GRADLE_USER_HOME=$(pwd)/.gradle
-    - chmod +x ./gradlew
+  - apt-get --quiet update --yes
+  - apt-get --quiet install --yes wget tar unzip lib32stdc++6 lib32z1
+
+  - wget --quiet --output-document=android-sdk.zip https://dl.google.com/android/repository/sdk-tools-linux-${ANDROID_SDK_TOOLS}.zip
+  - unzip -d android-sdk-linux android-sdk.zip
+  - echo y | android-sdk-linux/tools/bin/sdkmanager  "platforms;android-${ANDROID_COMPILE_SDK}" >/dev/null
+  - echo y | android-sdk-linux/tools/bin/sdkmanager  "platform-tools" >/dev/null
+  - echo y | android-sdk-linux/tools/bin/sdkmanager  "build-tools;${ANDROID_BUILD_TOOLS}" >/dev/null
+  - echo y | android-sdk-linux/tools/bin/sdkmanager  "ndk-bundle" >/dev/null
+  - echo y | android-sdk-linux/tools/bin/sdkmanager  "cmake;${CMAKE}" >/dev/null
+
+  - export ANDROID_HOME=$PWD/android-sdk-linux/
+  - export CMAKE_HOME=$PWD/android-sdk-linux/cmake/${CMAKE}/bin/
+  - export PATH=$PATH:$PWD/android-sdk-linux/platform-tools/:$CMAKE_HOME
+
+  - chmod +x ./gradlew
+  - set +o pipefail
+  - yes | android-sdk-linux/tools/bin/sdkmanager --licenses
+  - set -o pipefail
 
 stages:
     - test
@@ -11,8 +34,12 @@ stages:
 Validate MR:
   stage: test
   script:
-    - ./gradlew cooee-android-sdk:test
+    - echo y | android-sdk-linux/tools/bin/sdkmanager  "emulator" >/dev/null
+    - echo y | android-sdk-linux/tools/bin/sdkmanager "system-images;android-${ANDROID_COMPILE_SDK};google_apis;x86"
+    - echo y | android-sdk-linux/tools/bin/avdmanager create avd -f -n testAVD -k "system-images;android-${ANDROID_COMPILE_SDK};google_apis;x86"
+    - android-sdk-linux/emulator/emulator -avd testAVD -no-audio -no-window &
     - ./gradlew cooee-android-sdk:connectedAndroidTest
+    - ./gradlew cooee-android-sdk:test
     - ./gradlew cooee-android-sdk:publishToMavenLocal
   only:
     - merge_requests
