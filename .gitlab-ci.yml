@@ -20,7 +20,7 @@ before_script:
     - export PATH=$PATH:$PWD/android-sdk-linux/cmdline-tools/bin:$ANDROID_HOME:$PWD/android-sdk-linux/cmdline-tools
     - echo y | sdkmanager --update --sdk_root=/android-sdk-linux
 
-    - export GRADLE_USER_HOME=$(pwd)/.gradle/gradle
+    - export GRADLE_USER_HOME=$(pwd)/.gradle/gradle-5.0
     - chmod +x ./gradlew
     - set +o pipefail
     - set -o pipefail
