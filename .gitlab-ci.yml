@@ -23,6 +23,7 @@ before_script:
     - export GRADLE_USER_HOME=$(pwd)/.gradle/gradle-5.0
     - chmod +x ./gradlew
     - set +o pipefail
+    - yes | sdkmanager --licenses --sdk_root=/android-sdk-linux
     - set -o pipefail
 
 stages:
@@ -33,9 +34,11 @@ Validate MR:
   stage: test
   script:
     - echo y | sdkmanager "system-images;android-${ANDROID_COMPILE_SDK};google_apis;x86" --sdk_root=/android-sdk-linux
-    - echo y | cd android-sdk-linux && avdmanager create avd -f -n testAVD -k "system-images;android-${ANDROID_COMPILE_SDK};google_apis;x86"
-    - android-sdk-linux/emulator/emulator -avd testAVD -no-audio -no-window &
-    - cd .. && ./gradlew cooee-android-sdk:connectedAndroidTest
+    - cd android-sdk-linux
+    - echo y | avdmanager create avd -f -n testAVD -k "system-images;android-${ANDROID_COMPILE_SDK};google_apis;x86"
+    - android-sdk-linux/emulator/emulator -avd testAVD -no-audio -no-window
+    - cd ..
+    - ./gradlew cooee-android-sdk:connectedAndroidTest
     - ./gradlew cooee-android-sdk:test
     - ./gradlew cooee-android-sdk:publishToMavenLocal
   only:
