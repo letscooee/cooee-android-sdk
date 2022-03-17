@@ -7,25 +7,20 @@ variables:
   CMAKE:               "3.10.2.4988404"
 
 before_script:
-  - apt-get --quiet update --yes
-  - apt-get --quiet install --yes wget tar unzip lib32stdc++6 lib32z1
+    - apt-get --quiet update --yes
+    - apt-get --quiet install --yes wget tar unzip lib32stdc++6 lib32z1
 
-  - wget --quiet --output-document=android-sdk.zip https://dl.google.com/android/repository/sdk-tools-linux-${ANDROID_SDK_TOOLS}.zip
-  - unzip -d android-sdk-linux android-sdk.zip
-  - echo y | android-sdk-linux/tools/bin/sdkmanager  "platforms;android-${ANDROID_COMPILE_SDK}" >/dev/null
-  - echo y | android-sdk-linux/tools/bin/sdkmanager  "platform-tools" >/dev/null
-  - echo y | android-sdk-linux/tools/bin/sdkmanager  "build-tools;${ANDROID_BUILD_TOOLS}" >/dev/null
-  - echo y | android-sdk-linux/tools/bin/sdkmanager  "ndk-bundle" >/dev/null
-  - echo y | android-sdk-linux/tools/bin/sdkmanager  "cmake;${CMAKE}" >/dev/null
+    - wget --quiet --output-document=android-sdk.zip https://dl.google.com/android/repository/commandlinetools-linux-8092744_latest.zip
+    - unzip -d android-sdk-linux android-sdk.zip
 
-  - export ANDROID_HOME=$PWD/android-sdk-linux/
-  - export CMAKE_HOME=$PWD/android-sdk-linux/cmake/${CMAKE}/bin/
-  - export PATH=$PATH:$PWD/android-sdk-linux/platform-tools/:$CMAKE_HOME
+    - export ANDROID_HOME=$PWD/android-sdk-linux/
+    - export ANDROID_SDK_ROOT=$PWD/android-sdk-linux/
+    - export PATH=$PATH:$PWD/android-sdk-linux/cmdline-tools/bin:$ANDROID_HOME:$PWD/android-sdk-linux/cmdline-tools
+    - echo y | sdkmanager --update --sdk_root=/android-sdk-linux
 
-  - chmod +x ./gradlew
-  - set +o pipefail
-  - yes | android-sdk-linux/tools/bin/sdkmanager --licenses
-  - set -o pipefail
+    - chmod +x ./gradlew
+    - set +o pipefail
+    - set -o pipefail
 
 stages:
     - test
@@ -34,11 +29,10 @@ stages:
 Validate MR:
   stage: test
   script:
-    - echo y | android-sdk-linux/tools/bin/sdkmanager  "emulator" >/dev/null
-    - echo y | android-sdk-linux/tools/bin/sdkmanager "system-images;android-${ANDROID_COMPILE_SDK};google_apis;x86"
-    - echo y | android-sdk-linux/tools/bin/avdmanager create avd -f -n testAVD -k "system-images;android-${ANDROID_COMPILE_SDK};google_apis;x86"
+    - echo y | sdkmanager "system-images;android-${ANDROID_COMPILE_SDK};google_apis;x86" --sdk_root=/android-sdk-linux
+    - echo y | cd android-sdk-linux && avdmanager create avd -f -n testAVD -k "system-images;android-${ANDROID_COMPILE_SDK};google_apis;x86"
     - android-sdk-linux/emulator/emulator -avd testAVD -no-audio -no-window &
-    - ./gradlew cooee-android-sdk:connectedAndroidTest
+    - cd .. && ./gradlew cooee-android-sdk:connectedAndroidTest
     - ./gradlew cooee-android-sdk:test
     - ./gradlew cooee-android-sdk:publishToMavenLocal
   only:
