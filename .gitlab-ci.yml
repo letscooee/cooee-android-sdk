@@ -1,47 +1,27 @@
-image: openjdk:11-jdk
-
-variables:
-  ANDROID_COMPILE_SDK: "28"
-  ANDROID_SDK_TOOLS:   "8092744"
+image: jangrewe/gitlab-ci-android
 
 before_script:
   - export GRADLE_USER_HOME=$(pwd)/.gradle
   - chmod +x ./gradlew
 
 stages:
-    - test
-    - deploy
+  - test
+  - deploy
 
 Validate MR:
   stage: test
   script:
-    - apt-get --quiet update --yes
-    - apt-get --quiet install --yes wget tar unzip lib32stdc++6 lib32z1
-    - wget --quiet --output-document=android-sdk.zip https://dl.google.com/android/repository/commandlinetools-linux-${ANDROID_SDK_TOOLS}_latest.zip
-    - unzip -d android-sdk-linux android-sdk.zip
-    - export ANDROID_HOME=$PWD/android-sdk-linux/
-    - export ANDROID_SDK_ROOT=$PWD/android-sdk-linux/
-    - export PATH=$PATH:$PWD/android-sdk-linux/cmdline-tools/bin:$ANDROID_HOME:$PWD/android-sdk-linux/cmdline-tools
-    - echo y | sdkmanager --update --sdk_root=/android-sdk-linux
-    - set +o pipefail
-    - yes | sdkmanager --licenses --sdk_root=android-sdk-linux
-    - yes | sdkmanager emulator --sdk_root=android-sdk-linux
-    - set -o pipefail
-    - echo y | sdkmanager "system-images;android-${ANDROID_COMPILE_SDK};google_apis;x86" --sdk_root=/android-sdk-linux
-    - echo "no" | cd android-sdk-linux && avdmanager create avd -f -n testAVD -k "system-images;android-${ANDROID_COMPILE_SDK};google_apis;x86"
-    - echo "no" | android-sdk-linux/emulator/emulator -avd testAVD -wipe-data -noaudio -no-window -gpu off -verbose -qemu -vnc :2 &
-    - timeout 180 ./gradlew cooee-android-sdk:connectedAndroidTest
     - ./gradlew cooee-android-sdk:test
     - ./gradlew cooee-android-sdk:publishToMavenLocal
   only:
     - merge_requests
 
 Publish to JFrog:
-    stage: deploy
-    script:
-        - ./gradlew clean cooee-android-sdk:artifactoryPublish -PartifactoryUser=${ARTIFACTORY_USER} -PartifactoryPassword=${ARTIFACTORY_PASS}
-    only:
-        - tags
-    artifacts:
-        paths:
-            - cooee-android-sdk/build/outputs/aar
+  stage: deploy
+  script:
+    - ./gradlew clean cooee-android-sdk:artifactoryPublish -PartifactoryUser=${ARTIFACTORY_USER} -PartifactoryPassword=${ARTIFACTORY_PASS}
+  only:
+    - tags
+  artifacts:
+    paths:
+      - cooee-android-sdk/build/outputs/aar

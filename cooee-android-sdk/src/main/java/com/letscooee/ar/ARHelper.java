@@ -7,9 +7,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
-import com.google.ar.core.ArCoreApk;
+/*import com.google.ar.core.ArCoreApk;
 import com.google.ar.core.exceptions.UnavailableDeviceNotCompatibleException;
-import com.google.ar.core.exceptions.UnavailableUserDeclinedInstallationException;
+import com.google.ar.core.exceptions.UnavailableUserDeclinedInstallationException;*/
 import com.google.gson.Gson;
 import com.letscooee.CooeeFactory;
 import com.letscooee.models.trigger.TriggerData;
@@ -29,25 +29,25 @@ import java.util.Map;
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class ARHelper {
 
-    private static ArCoreApk.Availability availability;
+    /*private static ArCoreApk.Availability availability;
     private static AppAR pendingAR;
-    private static TriggerData pendingTriggerData;
+    private static TriggerData pendingTriggerData;*/
 
     /**
-     * Initialize {@link ArCoreApk.Availability} to check if device supports AR or not
+     * Initialize to check if device supports AR or not
      * It also send data to backend
      *
      * @param context will be instance if {@link Context}
      */
     public static void checkDeviceSupport(Context context) {
-        availability = ArCoreApk.getInstance().checkAvailability(context);
+        /*availability = ArCoreApk.getInstance().checkAvailability(context);
 
         if (availability.isTransient()) {
             new Timer().schedule(() -> checkDeviceSupport(context), 200);
             return;
         }
 
-        sendDeviceProperty("ar", availability.isSupported());
+        sendDeviceProperty("ar", availability.isSupported());*/
     }
 
     /**
@@ -75,7 +75,7 @@ public class ARHelper {
      * @param triggerData {@link TriggerData} of the active trigger
      */
     public static void checkForARAndLaunch(Activity activity, AppAR appAR, TriggerData triggerData) {
-        if (availability == null || !availability.isSupported()) {
+        /*if (availability == null || !availability.isSupported()) {
             launchARViaUnity(activity, appAR, triggerData);
             return;
         }
@@ -101,7 +101,7 @@ public class ARHelper {
             sendDeviceProperty("ar", false);
         } finally {
             if (launchAR) launchARViaUnity(activity, appAR, triggerData);
-        }
+        }*/
     }
 
     /**
@@ -133,12 +133,12 @@ public class ARHelper {
      * @param context instance of {@link Context}
      */
     public static void launchPendingAR(Context context) {
-        if (pendingAR == null) {
+        /*if (pendingAR == null) {
             return;
         }
 
         launchARViaUnity(context, pendingAR, pendingTriggerData);
         pendingAR = null;
-        pendingTriggerData = null;
+        pendingTriggerData = null;*/
     }
 }
