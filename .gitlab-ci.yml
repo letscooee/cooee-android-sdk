@@ -1,4 +1,4 @@
-image: openjdk:8-jdk
+image: jangrewe/gitlab-ci-android
 
 variables:
   ANDROID_COMPILE_SDK: "28"
@@ -7,24 +7,8 @@ variables:
   CMAKE:               "3.10.2.4988404"
 
 before_script:
-    - apt-get --quiet update --yes
-    - apt-get --quiet install --yes wget tar unzip lib32stdc++6 lib32z1
-
-    - wget --quiet --output-document=android-sdk.zip https://dl.google.com/android/repository/commandlinetools-linux-8092744_latest.zip
-    - unzip -d android-sdk-linux android-sdk.zip
-    - wget --quiet --output-document=gradle.zip https://services.gradle.org/distributions/gradle-5.0-bin.zip
-    - unzip -d .gradle gradle.zip
-
-    - export ANDROID_HOME=$PWD/android-sdk-linux/
-    - export ANDROID_SDK_ROOT=$PWD/android-sdk-linux/
-    - export PATH=$PATH:$PWD/android-sdk-linux/cmdline-tools/bin:$ANDROID_HOME:$PWD/android-sdk-linux/cmdline-tools
-    - echo y | sdkmanager --update --sdk_root=/android-sdk-linux
-
-    - export GRADLE_USER_HOME=$(pwd)/.gradle/gradle-5.0
-    - chmod +x ./gradlew
-    - set +o pipefail
-    - yes | sdkmanager --licenses --sdk_root=/android-sdk-linux
-    - set -o pipefail
+  - export GRADLE_USER_HOME=$(pwd)/.gradle
+  - chmod +x ./gradlew
 
 stages:
     - test
@@ -33,11 +17,11 @@ stages:
 Validate MR:
   stage: test
   script:
-    - echo y | sdkmanager "system-images;android-${ANDROID_COMPILE_SDK};google_apis;x86" --sdk_root=/android-sdk-linux
-    - cd android-sdk-linux
-    - echo y | avdmanager create avd -f -n testAVD -k "system-images;android-${ANDROID_COMPILE_SDK};google_apis;x86"
-    - android-sdk-linux/emulator/emulator -avd testAVD -no-audio -no-window
-    - cd ..
+    - apt-get -qq update && apt-get install -qqy --no-install-recommends qemu-kvm && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+    - sdkmanager --verbose 'system-images;android-25;google_apis;x86_64'
+    - echo "no" | avdmanager create avd -f -n api25 -k 'system-images;android-25;google_apis;x86_64' -d "pixel" -c 128M
+    - echo "no" | /sdk/tools/emulator -avd api25 -wipe-data -noaudio -no-window -gpu off -verbose -qemu -vnc :2 &
+    - timeout 180 /sdk/platform-tools/adb wait-for-device
     - ./gradlew cooee-android-sdk:connectedAndroidTest
     - ./gradlew cooee-android-sdk:test
     - ./gradlew cooee-android-sdk:publishToMavenLocal
