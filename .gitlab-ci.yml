@@ -1,10 +1,8 @@
-image: jangrewe/gitlab-ci-android
+image: openjdk:11-jdk
 
 variables:
   ANDROID_COMPILE_SDK: "28"
-  ANDROID_BUILD_TOOLS: "28.0.2"
-  ANDROID_SDK_TOOLS:   "4333796"
-  CMAKE:               "3.10.2.4988404"
+  ANDROID_SDK_TOOLS:   "8092744"
 
 before_script:
   - export GRADLE_USER_HOME=$(pwd)/.gradle
@@ -17,12 +15,22 @@ stages:
 Validate MR:
   stage: test
   script:
-    - apt-get -qq update && apt-get install -qqy --no-install-recommends qemu-kvm && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-    - sdkmanager --verbose 'system-images;android-25;google_apis;x86_64'
-    - echo "no" | avdmanager create avd -f -n api25 -k 'system-images;android-25;google_apis;x86_64' -d "pixel" -c 128M
-    - echo "no" | /sdk/tools/emulator -avd api25 -wipe-data -noaudio -no-window -gpu off -verbose -qemu -vnc :2 &
-    - timeout 180 /sdk/platform-tools/adb wait-for-device
-    - ./gradlew cooee-android-sdk:connectedAndroidTest
+    - apt-get --quiet update --yes
+    - apt-get --quiet install --yes wget tar unzip lib32stdc++6 lib32z1
+    - wget --quiet --output-document=android-sdk.zip https://dl.google.com/android/repository/commandlinetools-linux-${ANDROID_SDK_TOOLS}_latest.zip
+    - unzip -d android-sdk-linux android-sdk.zip
+    - export ANDROID_HOME=$PWD/android-sdk-linux/
+    - export ANDROID_SDK_ROOT=$PWD/android-sdk-linux/
+    - export PATH=$PATH:$PWD/android-sdk-linux/cmdline-tools/bin:$ANDROID_HOME:$PWD/android-sdk-linux/cmdline-tools
+    - echo y | sdkmanager --update --sdk_root=/android-sdk-linux
+    - set +o pipefail
+    - yes | sdkmanager --licenses --sdk_root=android-sdk-linux
+    - yes | sdkmanager emulator --sdk_root=android-sdk-linux
+    - set -o pipefail
+    - echo y | sdkmanager "system-images;android-${ANDROID_COMPILE_SDK};google_apis;x86" --sdk_root=/android-sdk-linux
+    - echo "no" | cd android-sdk-linux && avdmanager create avd -f -n testAVD -k "system-images;android-${ANDROID_COMPILE_SDK};google_apis;x86"
+    - echo "no" | android-sdk-linux/emulator/emulator -avd testAVD -wipe-data -noaudio -no-window -gpu off -verbose -qemu -vnc :2 &
+    - timeout 180 ./gradlew cooee-android-sdk:connectedAndroidTest
     - ./gradlew cooee-android-sdk:test
     - ./gradlew cooee-android-sdk:publishToMavenLocal
   only:
