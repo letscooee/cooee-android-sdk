@@ -8,7 +8,9 @@ import androidx.test.core.app.ApplicationProvider;
 import com.letscooee.device.AppInfo;
 import junit.framework.TestCase;
 import org.junit.Before;
+import org.junit.Ignore;
 
+@Ignore("It is a base class which do not contains any test")
 public class BaseTestCase extends TestCase {
     protected AppInfo appInfo;
     protected ApplicationInfo applicationInfo;

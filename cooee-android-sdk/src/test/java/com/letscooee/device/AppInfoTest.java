@@ -1,16 +1,11 @@
 package com.letscooee.device;
 
-import android.content.Context;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import androidx.test.core.app.ApplicationProvider;
-import androidx.test.ext.junit.runners.AndroidJUnit4;
+import android.os.Build;
 import com.letscooee.BaseTestCase;
-import junit.framework.TestCase;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -18,7 +13,8 @@ import java.util.Locale;
 
 import static com.google.common.truth.Truth.assertThat;
 
-@RunWith(AndroidJUnit4.class)
+@RunWith(RobolectricTestRunner.class)
+@Config(sdk = Build.VERSION_CODES.R)
 public class AppInfoTest extends BaseTestCase {
 
     @Test
@@ -32,14 +28,14 @@ public class AppInfoTest extends BaseTestCase {
     public void getAppVersion() {
         String appVersion = packageInfo.versionName + "+" + packageInfo.getLongVersionCode();
         String appVersionBySDK = appInfo.getVersion();
-        assertThat(appVersionBySDK).isEqualTo("1.3.5+10305");
+        assertThat(appVersionBySDK).isEqualTo(appVersion);
     }
 
     @Test
     public void getAppPackageName() {
         String packageName = packageInfo.packageName;
         String packageNameBySDK = appInfo.getPackageName();
-        assertThat(packageNameBySDK).isEqualTo("com.letscooee.tester");
+        assertThat(packageNameBySDK).isEqualTo(packageName);
     }
 
     @Test
