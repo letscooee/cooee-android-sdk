@@ -18,6 +18,8 @@ import com.letscooee.schedular.CooeeJobUtils;
 import com.letscooee.task.CooeeExecutors;
 import com.letscooee.utils.Constants;
 
+import static com.letscooee.utils.Constants.TAG;
+
 /**
  * A one time initializer class which initialises the Cooee SDK. This is used internally by the SDK
  * and should be quick.
@@ -92,12 +94,16 @@ public class CooeeBootstrap {
     }
 
     private void getAndUpdateFirebaseToken() {
-        FirebaseMessaging.getInstance().getToken().addOnSuccessListener(token -> {
-            if (BuildConfig.DEBUG) {
-                Log.d(Constants.TAG, "FCM token fetched- " + token);
-            }
+        try {
+            FirebaseMessaging.getInstance().getToken().addOnSuccessListener(token -> {
+                if (BuildConfig.DEBUG) {
+                    Log.d(TAG, "FCM token fetched- " + token);
+                }
 
-            PushProviderUtils.pushTokenRefresh(token);
-        });
+                PushProviderUtils.pushTokenRefresh(token);
+            });
+        }catch (IllegalStateException e){
+            Log.e(TAG, "Firebase App", e);
+        }
     }
 }
