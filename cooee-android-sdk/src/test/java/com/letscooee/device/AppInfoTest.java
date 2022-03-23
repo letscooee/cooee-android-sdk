@@ -48,7 +48,7 @@ public class AppInfoTest extends BaseTestCase {
     @Test
     public void testAppBuildDate() {
         String lastBuildDate = formatDateToString(packageInfo.lastUpdateTime);
-        String lastBuildDateBySDK = appInfo.getLasBuildTime();
+        String lastBuildDateBySDK = appInfo.getLastBuildTime();
         assertThat(lastBuildDateBySDK).isEqualTo(lastBuildDate);
     }
 
