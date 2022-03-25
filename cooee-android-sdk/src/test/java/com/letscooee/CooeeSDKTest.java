@@ -1,6 +1,7 @@
 package com.letscooee;
 
 import android.os.Build;
+import com.letscooee.utils.CooeeCTAListener;
 import com.letscooee.utils.PropertyNameException;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -112,10 +113,45 @@ public class CooeeSDKTest extends BaseTestCase {
     // endregion
 
     // region Screen Name
-    public void valid_screen_name(){
+    @Test
+    public void valid_screen_name() {
         doNothing().when(cooeeSDK).setCurrentScreen(anyString());
         cooeeSDK.setCurrentScreen("Main");
-        verify(cooeeSDK,times(1)).setCurrentScreen("Main");
+        verify(cooeeSDK, times(1)).setCurrentScreen("Main");
+    }
+
+    @Test
+    public void invalid_screen_name() {
+        doNothing().when(cooeeSDK).setCurrentScreen(isNull());
+        cooeeSDK.setCurrentScreen(null);
+        verify(cooeeSDK, times(1)).setCurrentScreen(null);
     }
     // endregion
+
+    // region CTA Listener
+    @Test
+    public void cta_valid_cta_listener() {
+        doNothing().when(cooeeSDK).setCTAListener(any(CooeeCTAListener.class));
+
+        CooeeCTAListener cooeeCTAListener = payload -> {
+            // Body not required as it is just a mock test to verify.
+        };
+        cooeeSDK.setCTAListener(cooeeCTAListener);
+
+        verify(cooeeSDK, times(1)).setCTAListener(cooeeCTAListener);
+    }
+
+    public void cta_invalid_cta_listener() {
+        doNothing().when(cooeeSDK).setCTAListener(isNull());
+        cooeeSDK.setCTAListener(null);
+
+        verify(cooeeSDK, times(1)).setCTAListener(null);
+    }
+    // endregion
+
+    public void check_debug_info_call(){
+        doNothing().when(cooeeSDK).showDebugInfo();
+        cooeeSDK.showDebugInfo();
+        verify(cooeeSDK,times(1)).showDebugInfo();
+    }
 }
