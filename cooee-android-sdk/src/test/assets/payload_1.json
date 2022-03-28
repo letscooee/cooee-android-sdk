@@ -1,0 +1,52 @@
+{
+    "id": "623c917b0fe4d42ab4be6753",
+    "type": 4,
+    "status": 2,
+    "ian": {
+        "elems": [
+            {
+                "bg": {},
+                "spc": {
+                    "p": 0,
+                    "pl": 0,
+                    "pr": 0,
+                    "pt": 0,
+                    "pb": 0
+                },
+                "trf": {},
+                "br": {
+                    "r": 0,
+                    "w": 0,
+                    "s": 1
+                },
+                "t": 1,
+                "w": 512,
+                "h": 512,
+                "x": 300,
+                "y": 284,
+                "src": "https://cdn.god-assets.letscooee.com/732a97e7-6a66-49da-9d7a-b113d6edc421.jpg",
+                "oh": 512,
+                "ow": 512
+            }
+        ],
+        "cont": {
+            "bg": {
+                "g": {
+                    "r": 25
+                }
+            },
+            "spc": {
+                "p": 0,
+                "pl": 0,
+                "pr": 0,
+                "pt": 0,
+                "pb": 0
+            },
+            "trf": {},
+            "o": 5,
+            "clc": {
+                "close": true
+            }
+        }
+    }
+}
