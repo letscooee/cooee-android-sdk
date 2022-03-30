@@ -52,7 +52,7 @@ public class BaseHTTPService extends ContextAware {
 
         Map<String, Object> responseData = (Map<String, Object>) response.body();
 
-        EngagementTriggerHelper.renderInAppTriggerFromResponse(context, responseData);
+        new EngagementTriggerHelper(context).renderInAppTriggerFromResponse(responseData);
 
         return responseData;
     }

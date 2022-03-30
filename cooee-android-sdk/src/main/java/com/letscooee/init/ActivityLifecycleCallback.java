@@ -46,7 +46,7 @@ public class ActivityLifecycleCallback implements Application.ActivityLifecycleC
     public void onActivityResumed(@NonNull Activity activity) {
         InAppTriggerActivity.captureWindowForBlurryEffect(activity);
 
-        EngagementTriggerHelper.renderInAppFromPushNotification(context, activity);
+        new EngagementTriggerHelper(context).renderInAppFromPushNotification(activity);
 
         if (activity instanceof CooeeEmptyActivity) {
             activity.finish();

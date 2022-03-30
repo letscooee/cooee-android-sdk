@@ -118,7 +118,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
 
             showNotification(triggerData);
         } else {
-            EngagementTriggerHelper.loadLazyData(context, triggerData);
+            new EngagementTriggerHelper(context).loadLazyData(triggerData);
         }
     }
 

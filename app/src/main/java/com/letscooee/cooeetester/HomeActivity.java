@@ -94,7 +94,7 @@ public class HomeActivity extends AppCompatActivity implements CooeeCTAListener 
         }
 
 
-        EngagementTriggerHelper.renderInAppTriggerFromJSONString(context, jsonString);
+        new EngagementTriggerHelper(this).renderInAppTriggerFromJSONString(jsonString);
     }
 
     @SuppressWarnings("ConstantConditions")
