@@ -17,6 +17,7 @@ import org.json.JSONObject;
 
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 
 public class HomeActivity extends AppCompatActivity implements CooeeCTAListener {
@@ -38,8 +39,24 @@ public class HomeActivity extends AppCompatActivity implements CooeeCTAListener 
 
         Log.d(TAG, "User ID " + cooeeSDK.getUserID());
 
+        Map<String, Object> eventProps = new HashMap<>();
+        Map<String, Object> item = new HashMap<>();
+        item.put("item_id", "item_id");
+        item.put("item_name", "item_name");
+        item.put("item_price", 100);
+
+        String[] item_ids = {"item_id_1", "item_id_2", "item_id_3"};
+
+        eventProps.put("item", item);
+        eventProps.put("items", item_ids);
+        eventProps.put("intValue", 1000);
+        eventProps.put("floatValue", 1000.001);
+        eventProps.put("booleanValue", true);
+        eventProps.put("stringValue", "Hello Cooee");
+
+
         binding.btnSendImageEvent.setOnClickListener(view -> {
-            cooeeSDK.sendEvent("Add To Cart", new HashMap<>());
+            cooeeSDK.sendEvent("Add To Cart", eventProps);
             cooeeSDK.sendEvent("Add To Cart");
         });
 
