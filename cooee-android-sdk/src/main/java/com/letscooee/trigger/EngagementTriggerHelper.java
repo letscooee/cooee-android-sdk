@@ -134,7 +134,6 @@ public class EngagementTriggerHelper {
      * @param data    Data received from the backend
      */
     public void renderInAppTriggerFromResponse(Map<String, Object> data) {
-        System.out.println("EngagementTriggerHelper.renderInAppTriggerFromResponse" + context + " " + data);
         if (data == null) {
             return;
         }
