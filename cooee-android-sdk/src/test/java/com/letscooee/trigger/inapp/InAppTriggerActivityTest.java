@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.room.Room;
 import com.letscooee.BaseTestCase;
@@ -13,8 +12,6 @@ import com.letscooee.models.trigger.TriggerData;
 import com.letscooee.room.CooeeDatabase;
 import com.letscooee.trigger.adapters.TriggerGsonDeserializer;
 import com.letscooee.utils.Constants;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -26,11 +23,6 @@ import org.robolectric.android.controller.ActivityController;
 import org.robolectric.annotation.Config;
 import org.robolectric.util.ReflectionHelpers;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Calendar;
-import java.util.Scanner;
-
 import static org.mockito.Mockito.*;
 
 @RunWith(RobolectricTestRunner.class)
@@ -40,9 +32,6 @@ public class InAppTriggerActivityTest extends BaseTestCase {
     enum PayloadProperty {
         BG, BR, SPC, CLC, SHD, TRF, GVT, ANIM, ELEMS, CONT, IAN
     }
-
-    String samplePayload;
-    TriggerData triggerData;
 
     Intent validIntent;
     Intent intentWithNoBundle;
@@ -57,15 +46,10 @@ public class InAppTriggerActivityTest extends BaseTestCase {
 
         context = RuntimeEnvironment.getApplication().getApplicationContext();
 
-        try {
-            InputStream inputStream = context.getAssets().open("payload_2.json");
-            samplePayload = new Scanner(inputStream).useDelimiter("\\A").next();
-        } catch (IOException e) {
-            Log.e(Constants.TAG, "Error: ", e);
-        }
+        loadPayload();
 
         makeActiveTrigger();
-        createActivity();
+        createIntent();
         Room.inMemoryDatabaseBuilder(context, CooeeDatabase.class).build();
 
         dummyActivity = Robolectric.buildActivity(TestCaseActivity.class).create().get();//.setupActivity(InAppTriggerActivity.class);
@@ -73,7 +57,7 @@ public class InAppTriggerActivityTest extends BaseTestCase {
     }
 
     @Ignore("Not a test case")
-    private void createActivity() {
+    private void createIntent() {
         intentWithNoBundle = new Intent(context, InAppTriggerActivity.class);
 
         Bundle bundle = new Bundle();
@@ -84,19 +68,6 @@ public class InAppTriggerActivityTest extends BaseTestCase {
         validIntent = new Intent(context, InAppTriggerActivity.class);
         bundle1.putParcelable(Constants.INTENT_TRIGGER_DATA_KEY, triggerData);
         validIntent.putExtra("bundle", bundle1);
-    }
-
-    @Ignore("Not a test case")
-    private void makeActiveTrigger() {
-        try {
-            JSONObject jsonObject = new JSONObject(samplePayload);
-            Calendar calendar = Calendar.getInstance();
-            calendar.add(Calendar.MINUTE, 5);
-            jsonObject.put("expireAt", calendar.getTimeInMillis());
-            triggerData = TriggerGsonDeserializer.getGson().fromJson(jsonObject.toString(), TriggerData.class);
-        } catch (JSONException e) {
-            Log.e(Constants.TAG, "Error: ", e);
-        }
     }
 
     @Ignore("Not a test case")
@@ -116,14 +87,24 @@ public class InAppTriggerActivityTest extends BaseTestCase {
         validIntent.putExtra("bundle", bundle);
     }
 
+    @Ignore("Not a test case")
+    private void commonTestCheck(ActivityController<InAppTriggerActivity> controller, InAppTriggerActivity spy, boolean isValid) {
+        doNothing().when(spy).sendTriggerDisplayedEvent();
+        controller.create();
+
+        if (isValid) {
+            verify(spy, times(1)).sendTriggerDisplayedEvent();
+        } else {
+            verify(spy, times(0)).sendTriggerDisplayedEvent();
+        }
+    }
+
     @Test
     public void on_create_with_valid_intent() {
         ActivityController<InAppTriggerActivity> controller = Robolectric.buildActivity(InAppTriggerActivity.class, validIntent);
         InAppTriggerActivity spy = getSpy(controller);
 
-        doNothing().when(spy).sendTriggerDisplayedEvent();
-        controller.create();
-        verify(spy, times(1)).sendTriggerDisplayedEvent();
+        commonTestCheck(controller, spy, true);
     }
 
     @Test
@@ -131,9 +112,7 @@ public class InAppTriggerActivityTest extends BaseTestCase {
         ActivityController<InAppTriggerActivity> controller = Robolectric.buildActivity(InAppTriggerActivity.class, intentWithNoTriggerData);
         InAppTriggerActivity spy = getSpy(controller);
 
-        doNothing().when(spy).sendTriggerDisplayedEvent();
-        controller.create();
-        verify(spy, never()).sendTriggerDisplayedEvent();
+        commonTestCheck(controller, spy, false);
     }
 
     @Test
@@ -141,9 +120,7 @@ public class InAppTriggerActivityTest extends BaseTestCase {
         ActivityController<InAppTriggerActivity> controller = Robolectric.buildActivity(InAppTriggerActivity.class, intentWithNoBundle);
         InAppTriggerActivity spy = getSpy(controller);
 
-        doNothing().when(spy).sendTriggerDisplayedEvent();
-        controller.create();
-        verify(spy, never()).sendTriggerDisplayedEvent();
+        commonTestCheck(controller, spy, false);
     }
 
     @Test
@@ -152,9 +129,7 @@ public class InAppTriggerActivityTest extends BaseTestCase {
         ActivityController<InAppTriggerActivity> controller = Robolectric.buildActivity(InAppTriggerActivity.class, validIntent);
         InAppTriggerActivity spy = getSpy(controller);
 
-        doNothing().when(spy).sendTriggerDisplayedEvent();
-        controller.create();
-        verify(spy, times(1)).sendTriggerDisplayedEvent();
+        commonTestCheck(controller, spy, true);
     }
 
     @Test
@@ -163,9 +138,7 @@ public class InAppTriggerActivityTest extends BaseTestCase {
         ActivityController<InAppTriggerActivity> controller = Robolectric.buildActivity(InAppTriggerActivity.class, validIntent);
         InAppTriggerActivity spy = getSpy(controller);
 
-        doNothing().when(spy).sendTriggerDisplayedEvent();
-        controller.create();
-        verify(spy, times(1)).sendTriggerDisplayedEvent();
+        commonTestCheck(controller, spy, true);
     }
 
     @Test
@@ -174,9 +147,7 @@ public class InAppTriggerActivityTest extends BaseTestCase {
         ActivityController<InAppTriggerActivity> controller = Robolectric.buildActivity(InAppTriggerActivity.class, validIntent);
         InAppTriggerActivity spy = getSpy(controller);
 
-        doNothing().when(spy).sendTriggerDisplayedEvent();
-        controller.create();
-        verify(spy, times(1)).sendTriggerDisplayedEvent();
+        commonTestCheck(controller, spy, true);
     }
 
     @Test
@@ -185,9 +156,7 @@ public class InAppTriggerActivityTest extends BaseTestCase {
         ActivityController<InAppTriggerActivity> controller = Robolectric.buildActivity(InAppTriggerActivity.class, validIntent);
         InAppTriggerActivity spy = getSpy(controller);
 
-        doNothing().when(spy).sendTriggerDisplayedEvent();
-        controller.create();
-        verify(spy, times(1)).sendTriggerDisplayedEvent();
+        commonTestCheck(controller, spy, true);
     }
 
     @Test
@@ -196,9 +165,7 @@ public class InAppTriggerActivityTest extends BaseTestCase {
         ActivityController<InAppTriggerActivity> controller = Robolectric.buildActivity(InAppTriggerActivity.class, validIntent);
         InAppTriggerActivity spy = getSpy(controller);
 
-        doNothing().when(spy).sendTriggerDisplayedEvent();
-        controller.create();
-        verify(spy, times(1)).sendTriggerDisplayedEvent();
+        commonTestCheck(controller, spy, true);
     }
 
     @Test
@@ -207,9 +174,7 @@ public class InAppTriggerActivityTest extends BaseTestCase {
         ActivityController<InAppTriggerActivity> controller = Robolectric.buildActivity(InAppTriggerActivity.class, validIntent);
         InAppTriggerActivity spy = getSpy(controller);
 
-        doNothing().when(spy).sendTriggerDisplayedEvent();
-        controller.create();
-        verify(spy, times(1)).sendTriggerDisplayedEvent();
+        commonTestCheck(controller, spy, true);
     }
 
     @Test
@@ -218,9 +183,7 @@ public class InAppTriggerActivityTest extends BaseTestCase {
         ActivityController<InAppTriggerActivity> controller = Robolectric.buildActivity(InAppTriggerActivity.class, validIntent);
         InAppTriggerActivity spy = getSpy(controller);
 
-        doNothing().when(spy).sendTriggerDisplayedEvent();
-        controller.create();
-        verify(spy, times(1)).sendTriggerDisplayedEvent();
+        commonTestCheck(controller, spy, true);
     }
 
     @Test
@@ -229,9 +192,7 @@ public class InAppTriggerActivityTest extends BaseTestCase {
         ActivityController<InAppTriggerActivity> controller = Robolectric.buildActivity(InAppTriggerActivity.class, validIntent);
         InAppTriggerActivity spy = getSpy(controller);
 
-        doNothing().when(spy).sendTriggerDisplayedEvent();
-        controller.create();
-        verify(spy, times(1)).sendTriggerDisplayedEvent();
+        commonTestCheck(controller, spy, true);
     }
 
     @Test
@@ -240,9 +201,7 @@ public class InAppTriggerActivityTest extends BaseTestCase {
         ActivityController<InAppTriggerActivity> controller = Robolectric.buildActivity(InAppTriggerActivity.class, validIntent);
         InAppTriggerActivity spy = getSpy(controller);
 
-        doNothing().when(spy).sendTriggerDisplayedEvent();
-        controller.create();
-        verify(spy, never()).sendTriggerDisplayedEvent();
+        commonTestCheck(controller, spy, false);
     }
 
     @Test
@@ -251,9 +210,7 @@ public class InAppTriggerActivityTest extends BaseTestCase {
         ActivityController<InAppTriggerActivity> controller = Robolectric.buildActivity(InAppTriggerActivity.class, validIntent);
         InAppTriggerActivity spy = getSpy(controller);
 
-        doNothing().when(spy).sendTriggerDisplayedEvent();
-        controller.create();
-        verify(spy, never()).sendTriggerDisplayedEvent();
+        commonTestCheck(controller, spy, false);
     }
 
     @Test
@@ -262,8 +219,6 @@ public class InAppTriggerActivityTest extends BaseTestCase {
         ActivityController<InAppTriggerActivity> controller = Robolectric.buildActivity(InAppTriggerActivity.class, validIntent);
         InAppTriggerActivity spy = getSpy(controller);
 
-        doNothing().when(spy).sendTriggerDisplayedEvent();
-        controller.create();
-        verify(spy, never()).sendTriggerDisplayedEvent();
+        commonTestCheck(controller, spy, false);
     }
 }
