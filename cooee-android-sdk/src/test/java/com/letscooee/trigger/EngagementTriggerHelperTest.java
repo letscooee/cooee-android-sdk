@@ -3,6 +3,7 @@ package com.letscooee.trigger;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import androidx.room.Room;
 import com.letscooee.BaseTestCase;
 import com.letscooee.models.trigger.EmbeddedTrigger;
@@ -60,8 +61,9 @@ public class EngagementTriggerHelperTest extends BaseTestCase {
             InputStream inputStream = context.getAssets().open("payload_2.json");
             samplePayload = new Scanner(inputStream).useDelimiter("\\A").next();
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e(Constants.TAG, "Error: ", e);
         }
+
         expiredTriggerData = TriggerGsonDeserializer.getGson().fromJson(samplePayload, TriggerData.class);
         makeActiveTrigger();
     }
@@ -90,7 +92,7 @@ public class EngagementTriggerHelperTest extends BaseTestCase {
             jsonObject.put("expireAt", calendar.getTimeInMillis());
             triggerData = TriggerGsonDeserializer.getGson().fromJson(jsonObject.toString(), TriggerData.class);
         } catch (JSONException e) {
-            e.printStackTrace();
+            Log.e(Constants.TAG, "Error: ", e);
         }
     }
 
@@ -103,9 +105,7 @@ public class EngagementTriggerHelperTest extends BaseTestCase {
         assertThat(payload.get("triggerData")).isNotNull();
 
         doNothing().when(engagementTriggerHelperMock).renderInAppTriggerFromJSONString(anyString());
-
         engagementTriggerHelperMock.renderInAppTriggerFromResponse(payload);
-
         verify(engagementTriggerHelperMock, times(1)).renderInAppTriggerFromJSONString(samplePayload);
     }
 
@@ -117,9 +117,7 @@ public class EngagementTriggerHelperTest extends BaseTestCase {
         assertThat(payload.get("triggerData")).isNull();
 
         doNothing().when(engagementTriggerHelperMock).renderInAppTriggerFromJSONString(anyString());
-
         engagementTriggerHelperMock.renderInAppTriggerFromResponse(payload);
-
         verify(engagementTriggerHelperMock, times(0)).renderInAppTriggerFromJSONString(samplePayload);
     }
 
@@ -128,9 +126,7 @@ public class EngagementTriggerHelperTest extends BaseTestCase {
         assertThat(samplePayload).isNotEmpty();
 
         doNothing().when(engagementTriggerHelperMock).renderInAppTrigger(any(TriggerData.class));
-
         engagementTriggerHelperMock.renderInAppTriggerFromJSONString(samplePayload);
-
         verify(engagementTriggerHelperMock, times(1)).renderInAppTrigger(any(TriggerData.class));
     }
 
@@ -141,9 +137,7 @@ public class EngagementTriggerHelperTest extends BaseTestCase {
         assertThat(samplePayload).isNull();
 
         doNothing().when(engagementTriggerHelperMock).renderInAppTrigger(any(TriggerData.class));
-
         engagementTriggerHelperMock.renderInAppTriggerFromJSONString(samplePayload);
-
         verify(engagementTriggerHelperMock, times(0)).renderInAppTrigger(triggerData);
     }
 
@@ -154,9 +148,7 @@ public class EngagementTriggerHelperTest extends BaseTestCase {
         assertThat(samplePayload).isNotNull();
 
         doNothing().when(engagementTriggerHelperMock).renderInAppTrigger(any(TriggerData.class));
-
         engagementTriggerHelperMock.renderInAppTriggerFromJSONString(samplePayload);
-
         verify(engagementTriggerHelperMock, times(0)).renderInAppTrigger(triggerData);
     }
 
@@ -166,9 +158,7 @@ public class EngagementTriggerHelperTest extends BaseTestCase {
         assertThat(activity).isNotNull();
 
         doNothing().when(engagementTriggerHelperMock).renderInAppFromPushNotification(any(TriggerData.class));
-
         engagementTriggerHelperMock.renderInAppFromPushNotification(activity);
-
         verify(engagementTriggerHelperMock, times(1)).renderInAppFromPushNotification(any(TriggerData.class));
     }
 
@@ -178,9 +168,7 @@ public class EngagementTriggerHelperTest extends BaseTestCase {
         assertThat(activityWithNoBundle).isNotNull();
 
         doNothing().when(engagementTriggerHelperMock).renderInAppFromPushNotification(any(TriggerData.class));
-
         engagementTriggerHelperMock.renderInAppFromPushNotification(activityWithNoBundle);
-
         verify(engagementTriggerHelperMock, times(0)).renderInAppFromPushNotification(any(TriggerData.class));
     }
 
@@ -190,9 +178,7 @@ public class EngagementTriggerHelperTest extends BaseTestCase {
         assertThat(activityWithNoBundle).isNotNull();
 
         doNothing().when(engagementTriggerHelperMock).renderInAppFromPushNotification(any(TriggerData.class));
-
         engagementTriggerHelperMock.renderInAppFromPushNotification(activityWithNoBundle);
-
         verify(engagementTriggerHelperMock, times(0)).renderInAppFromPushNotification(any(TriggerData.class));
     }
 
@@ -205,9 +191,7 @@ public class EngagementTriggerHelperTest extends BaseTestCase {
         assertThat(triggerData.getExpireAt()).isGreaterThan(0);
 
         doNothing().when(engagementTriggerHelperMock).loadLazyData(any(TriggerData.class));
-
         engagementTriggerHelperMock.renderInAppFromPushNotification(triggerData);
-
         verify(engagementTriggerHelperMock, times(1)).loadLazyData(any(TriggerData.class));
     }
 
@@ -219,7 +203,6 @@ public class EngagementTriggerHelperTest extends BaseTestCase {
         assertThat(triggerData.getExpireAt()).isGreaterThan(0);
 
         EngagementTriggerHelper.storeActiveTriggerDetails(context, triggerData);
-
         ArrayList<EmbeddedTrigger> embeddedTriggers = EngagementTriggerHelper.getActiveTriggers(context);
 
         assertThat(embeddedTriggers).isNotEmpty();
@@ -235,7 +218,6 @@ public class EngagementTriggerHelperTest extends BaseTestCase {
         assertThat(expiredTriggerData.getExpireAt()).isGreaterThan(0);
 
         EngagementTriggerHelper.storeActiveTriggerDetails(context, expiredTriggerData);
-
         ArrayList<EmbeddedTrigger> embeddedTriggers = EngagementTriggerHelper.getActiveTriggers(context);
 
         assertThat(embeddedTriggers).isEmpty();

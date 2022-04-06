@@ -1,11 +1,13 @@
 package com.letscooee.services;
 
 import android.os.Build;
+import android.util.Log;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.letscooee.BaseTestCase;
 import com.letscooee.models.trigger.TriggerData;
 import com.letscooee.trigger.EngagementTriggerHelper;
+import com.letscooee.utils.Constants;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,11 +46,12 @@ public class CooeeFirebaseMessagingServiceTest extends BaseTestCase {
     public void setUp() {
         super.setUp();
         MockitoAnnotations.openMocks(this);
+
         try {
             InputStream inputStream = context.getAssets().open("payload_2.json");
             samplePayload = new Scanner(inputStream).useDelimiter("\\A").next();
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e(Constants.TAG, "Error: ", e);
         }
 
         payloadMap = gson.fromJson(samplePayload, new TypeToken<HashMap<String, Object>>() {
@@ -62,8 +65,7 @@ public class CooeeFirebaseMessagingServiceTest extends BaseTestCase {
 
         doNothing().when(engagementTriggerHelper).loadLazyData(any(TriggerData.class));
         cooeeFirebaseMessagingService.handleTriggerData(samplePayload);
-        verify(engagementTriggerHelper,times(1)).loadLazyData(any(TriggerData.class));
-
+        verify(engagementTriggerHelper, times(1)).loadLazyData(any(TriggerData.class));
     }
 
     @Test
@@ -75,8 +77,7 @@ public class CooeeFirebaseMessagingServiceTest extends BaseTestCase {
 
         doNothing().when(engagementTriggerHelper).loadLazyData(any(TriggerData.class));
         cooeeFirebaseMessagingService.handleTriggerData(samplePayload);
-        verify(engagementTriggerHelper,never()).loadLazyData(any(TriggerData.class));
-
+        verify(engagementTriggerHelper, never()).loadLazyData(any(TriggerData.class));
     }
 
     @Test
@@ -88,8 +89,7 @@ public class CooeeFirebaseMessagingServiceTest extends BaseTestCase {
 
         doNothing().when(engagementTriggerHelper).loadLazyData(any(TriggerData.class));
         cooeeFirebaseMessagingService.handleTriggerData(samplePayload);
-        verify(engagementTriggerHelper,never()).loadLazyData(any(TriggerData.class));
-
+        verify(engagementTriggerHelper, never()).loadLazyData(any(TriggerData.class));
     }
 
     @Test
@@ -101,13 +101,12 @@ public class CooeeFirebaseMessagingServiceTest extends BaseTestCase {
 
         doNothing().when(engagementTriggerHelper).loadLazyData(any(TriggerData.class));
         cooeeFirebaseMessagingService.handleTriggerData(samplePayload);
-        verify(engagementTriggerHelper,never()).loadLazyData(any(TriggerData.class));
-
+        verify(engagementTriggerHelper, never()).loadLazyData(any(TriggerData.class));
     }
 
     @Test
     public void handle_trigger_data_with_null_trigger_id() {
-        payloadMap.put("id",null);
+        payloadMap.put("id", null);
         String updatedPayload = gson.toJson(payloadMap);
 
         cooeeFirebaseMessagingService.context = context;
@@ -115,13 +114,12 @@ public class CooeeFirebaseMessagingServiceTest extends BaseTestCase {
 
         doNothing().when(engagementTriggerHelper).loadLazyData(any(TriggerData.class));
         cooeeFirebaseMessagingService.handleTriggerData(updatedPayload);
-        verify(engagementTriggerHelper,never()).loadLazyData(any(TriggerData.class));
-
+        verify(engagementTriggerHelper, never()).loadLazyData(any(TriggerData.class));
     }
 
     @Test
     public void handle_trigger_data_with_null_payload_version() {
-        payloadMap.put("v",null);
+        payloadMap.put("v", null);
         String updatedPayload = gson.toJson(payloadMap);
 
         cooeeFirebaseMessagingService.context = context;
@@ -129,13 +127,12 @@ public class CooeeFirebaseMessagingServiceTest extends BaseTestCase {
 
         doNothing().when(engagementTriggerHelper).loadLazyData(any(TriggerData.class));
         cooeeFirebaseMessagingService.handleTriggerData(updatedPayload);
-        verify(engagementTriggerHelper,never()).loadLazyData(any(TriggerData.class));
-
+        verify(engagementTriggerHelper, never()).loadLazyData(any(TriggerData.class));
     }
 
     @Test
     public void handle_trigger_data_with_invalid_payload_version() {
-        payloadMap.put("v",1.01);
+        payloadMap.put("v", 1.01);
         String updatedPayload = gson.toJson(payloadMap);
 
         cooeeFirebaseMessagingService.context = context;
@@ -143,7 +140,6 @@ public class CooeeFirebaseMessagingServiceTest extends BaseTestCase {
 
         doNothing().when(engagementTriggerHelper).loadLazyData(any(TriggerData.class));
         cooeeFirebaseMessagingService.handleTriggerData(updatedPayload);
-        verify(engagementTriggerHelper,never()).loadLazyData(any(TriggerData.class));
-
+        verify(engagementTriggerHelper, never()).loadLazyData(any(TriggerData.class));
     }
 }

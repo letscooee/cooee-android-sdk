@@ -102,7 +102,7 @@ public class CooeeBootstrap {
 
                 PushProviderUtils.pushTokenRefresh(token);
             });
-        }catch (IllegalStateException e){
+        } catch (IllegalStateException e) {
             Log.e(TAG, "Fail to initialize FirebaseApp", e);
         }
     }

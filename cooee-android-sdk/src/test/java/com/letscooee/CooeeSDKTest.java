@@ -137,21 +137,19 @@ public class CooeeSDKTest extends BaseTestCase {
             // Body not required as it is just a mock test to verify.
         };
         cooeeSDK.setCTAListener(cooeeCTAListener);
-
         verify(cooeeSDK, times(1)).setCTAListener(cooeeCTAListener);
     }
 
     public void cta_invalid_cta_listener() {
         doNothing().when(cooeeSDK).setCTAListener(isNull());
         cooeeSDK.setCTAListener(null);
-
         verify(cooeeSDK, times(1)).setCTAListener(null);
     }
     // endregion
 
-    public void check_debug_info_call(){
+    public void check_debug_info_call() {
         doNothing().when(cooeeSDK).showDebugInfo();
         cooeeSDK.showDebugInfo();
-        verify(cooeeSDK,times(1)).showDebugInfo();
+        verify(cooeeSDK, times(1)).showDebugInfo();
     }
 }

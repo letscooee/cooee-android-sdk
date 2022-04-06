@@ -4,8 +4,10 @@ import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.util.Log;
 import androidx.test.core.app.ApplicationProvider;
 import com.letscooee.device.AppInfo;
+import com.letscooee.utils.Constants;
 import junit.framework.TestCase;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -25,10 +27,11 @@ public class BaseTestCase extends TestCase {
         applicationInfo = context.getApplicationInfo();
         packageManager = context.getPackageManager();
         appInfo = AppInfo.getInstance(context);
+
         try {
             packageInfo = packageManager.getPackageInfo(context.getPackageName(), 0);
         } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
+            Log.e(Constants.TAG, "Error: ", e);
         }
     }
 }

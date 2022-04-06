@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.room.Room;
 import com.letscooee.BaseTestCase;
@@ -55,11 +56,12 @@ public class InAppTriggerActivityTest extends BaseTestCase {
         super.setUp();
 
         context = RuntimeEnvironment.getApplication().getApplicationContext();
+
         try {
             InputStream inputStream = context.getAssets().open("payload_2.json");
             samplePayload = new Scanner(inputStream).useDelimiter("\\A").next();
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e(Constants.TAG, "Error: ", e);
         }
 
         makeActiveTrigger();
@@ -93,7 +95,7 @@ public class InAppTriggerActivityTest extends BaseTestCase {
             jsonObject.put("expireAt", calendar.getTimeInMillis());
             triggerData = TriggerGsonDeserializer.getGson().fromJson(jsonObject.toString(), TriggerData.class);
         } catch (JSONException e) {
-            e.printStackTrace();
+            Log.e(Constants.TAG, "Error: ", e);
         }
     }
 
@@ -120,7 +122,7 @@ public class InAppTriggerActivityTest extends BaseTestCase {
         InAppTriggerActivity spy = getSpy(controller);
 
         doNothing().when(spy).sendTriggerDisplayedEvent();
-        controller.create();//.postCreate(null).start().resume().pause().destroy();
+        controller.create();
         verify(spy, times(1)).sendTriggerDisplayedEvent();
     }
 
