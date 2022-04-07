@@ -18,35 +18,35 @@ import static com.google.common.truth.Truth.assertThat;
 public class AppInfoTest extends BaseTestCase {
 
     @Test
-    public void getAppName() {
+    public void testAppName() {
         String applicationName = applicationInfo.loadLabel(packageManager).toString();
         String appName = appInfo.getName();
         assertThat(appName).isEqualTo("com.letscooee.init.AppController");
     }
 
     @Test
-    public void getAppVersion() {
+    public void testAppVersion() {
         String appVersion = packageInfo.versionName + "+" + packageInfo.getLongVersionCode();
         String appVersionBySDK = appInfo.getVersion();
         assertThat(appVersionBySDK).isEqualTo(appVersion);
     }
 
     @Test
-    public void getAppPackageName() {
+    public void testAppPackageName() {
         String packageName = packageInfo.packageName;
         String packageNameBySDK = appInfo.getPackageName();
         assertThat(packageNameBySDK).isEqualTo(packageName);
     }
 
     @Test
-    public void getAppInstallDate() {
+    public void testAppInstallDate() {
         String installDate = formatDateToString(packageInfo.firstInstallTime);
         String installDateBySDK = appInfo.getFirstInstallTime();
         assertThat(installDateBySDK).isEqualTo(installDate);
     }
 
     @Test
-    public void getAppBuildDate() {
+    public void testAppBuildDate() {
         String lastBuildDate = formatDateToString(packageInfo.lastUpdateTime);
         String lastBuildDateBySDK = appInfo.getLasBuildTime();
         assertThat(lastBuildDateBySDK).isEqualTo(lastBuildDate);

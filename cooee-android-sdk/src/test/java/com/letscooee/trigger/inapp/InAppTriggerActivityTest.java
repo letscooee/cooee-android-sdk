@@ -52,7 +52,7 @@ public class InAppTriggerActivityTest extends BaseTestCase {
         createIntent();
         Room.inMemoryDatabaseBuilder(context, CooeeDatabase.class).build();
 
-        dummyActivity = Robolectric.buildActivity(TestCaseActivity.class).create().get();//.setupActivity(InAppTriggerActivity.class);
+        dummyActivity = Robolectric.buildActivity(TestCaseActivity.class).create().get();
         InAppTriggerActivity.captureWindowForBlurryEffect(dummyActivity);
     }
 
