@@ -1,5 +1,11 @@
 # Change Log
 
+## v1.3.6
+
+### Fixes
+
+1. Handle event data when app is minified.
+
 ## v1.3.5
 
 ### Fixes
