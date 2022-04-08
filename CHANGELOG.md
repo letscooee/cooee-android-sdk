@@ -1,6 +1,12 @@
 # Change Log
 
-## v1.3.7
+## v1.3.8 (2022-04-09)
+
+### Improvement
+
+1. Remove Google play service plugin from SDK.
+
+## v1.3.7 (Unreleased)
 
 ### Improvement
 
