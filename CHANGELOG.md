@@ -1,5 +1,11 @@
 # Change Log
 
+## v1.3.7
+
+### Improvement
+
+1. Remove Google service file from SDK.
+
 ## v1.3.6
 
 ### Fixes
