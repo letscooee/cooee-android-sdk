@@ -1,5 +1,11 @@
 # Change Log
 
+## v1.3.9 (2022-04-13)
+
+### Improvement
+
+1. Make `CooeeFirebaseMessagingService` publicly accessible.
+
 ## v1.3.8 (2022-04-09)
 
 ### Improvement
