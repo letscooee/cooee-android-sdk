@@ -40,10 +40,21 @@ import java.util.HashMap;
  * @author Ashish Gaikwad 12/07/21
  * @since 1.0.0
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
 
     Context context;
+
+    public CooeeFirebaseMessagingService() {
+    }
+
+    /**
+     * Initialise {@link CooeeFirebaseMessagingService} manually.
+     *
+     * @param context {@link Context}
+     */
+    public CooeeFirebaseMessagingService(Context context) {
+        this.context = context;
+    }
 
     @Override
     public void onNewToken(@NonNull String token) {
