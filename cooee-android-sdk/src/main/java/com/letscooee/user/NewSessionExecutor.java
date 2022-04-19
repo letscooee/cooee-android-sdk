@@ -15,7 +15,7 @@ import com.letscooee.models.Event;
 import com.letscooee.network.SafeHTTPService;
 import com.letscooee.permission.PermissionManager;
 import com.letscooee.utils.Constants;
-import com.letscooee.utils.DateUtil;
+import com.letscooee.utils.DateUtils;
 import com.letscooee.utils.LocalStorageHelper;
 
 import java.util.Date;
