@@ -66,7 +66,7 @@ public class DebugInfoCollector {
         deviceInformation.add(new DebugInformation("App Version", appInfo.getVersion()));
         deviceInformation.add(new DebugInformation("Bundle ID", appInfo.getPackageName()));
         deviceInformation.add(new DebugInformation("Install Date", appInfo.getFirstInstallTime()));
-        deviceInformation.add(new DebugInformation("Build Date", appInfo.getLasBuildTime()));
+        deviceInformation.add(new DebugInformation("Build Date", appInfo.getLastBuildTime()));
         deviceInformation.add(new DebugInformation("FB Token",
                 PushProviderUtils.getLastSentToken(), true));
         deviceInformation.add(new DebugInformation("Device ID", LocalStorageHelper.getString(context,

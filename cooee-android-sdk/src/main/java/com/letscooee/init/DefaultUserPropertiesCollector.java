@@ -368,7 +368,7 @@ public class DefaultUserPropertiesCollector {
         if (appInfo != null) {
             String appFile = appInfo.sourceDir;
             long installed = new File(appFile).lastModified();
-            return DateUtil.getSimpleDateFormatForUTC().format(new Date(installed));
+            return DateUtils.getStringDateFromMS(installed, Constants.DATE_FORMAT_UTC, true);
         }
         return "Unknown";
     }

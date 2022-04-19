@@ -81,7 +81,7 @@ public class NewSessionExecutor extends ContextAware {
      */
     private void sendFirstLaunchEvent() {
         Map<String, Object> deviceProperties = new HashMap<>();
-        deviceProperties.put("firstLaunch", DateUtil.getSimpleDateFormatForUTC().format(new Date()));
+        deviceProperties.put("firstLaunch", DateUtils.getStringDateFromDate(new Date(), Constants.DATE_FORMAT_UTC, true));
         deviceProperties.putAll(getImmutableDeviceProps());
         deviceProperties.putAll(getMutableDeviceProps());
 

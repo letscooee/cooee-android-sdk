@@ -117,9 +117,8 @@ public class AppInfo extends ContextAware {
      *
      * @return date in {@link String}
      */
-    public String getLasBuildTime() {
-        return DateUtil.getSimpleDateFormatForDebugInfo()
-                .format(new Date(this.cachedInfo.lastUpdateTime));
+    public String getLastBuildTime() {
+        return DateUtils.getStringDateFromMS(this.cachedInfo.lastUpdateTime, Constants.DATE_FORMAT_DEBUG);
     }
 
     /**
@@ -128,7 +127,6 @@ public class AppInfo extends ContextAware {
      * @return date in {@link String}
      */
     public String getFirstInstallTime() {
-        return DateUtil.getSimpleDateFormatForDebugInfo()
-                .format(new Date(this.cachedInfo.firstInstallTime));
+        return DateUtils.getStringDateFromMS(this.cachedInfo.firstInstallTime, Constants.DATE_FORMAT_DEBUG);
     }
 }

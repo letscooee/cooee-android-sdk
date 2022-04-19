@@ -17,21 +17,18 @@ import java.util.Date;
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class GsonDateAdapter implements JsonSerializer<Date>, JsonDeserializer<Date> {
 
-    private final DateFormat dateFormat;
-
     public GsonDateAdapter() {
-        dateFormat = DateUtil.getSimpleDateFormatForUTC();
     }
 
     @Override
     public synchronized JsonElement serialize(Date date, Type type, JsonSerializationContext jsonSerializationContext) {
-        return new JsonPrimitive(dateFormat.format(date));
+        return new JsonPrimitive(DateUtils.getStringDateFromDate(date, Constants.DATE_FORMAT_UTC, true));
     }
 
     @Override
     public synchronized Date deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) {
         try {
-            return dateFormat.parse(jsonElement.getAsString());
+            return DateUtils.getUTCDateFromString(jsonElement.getAsString(), Constants.DATE_FORMAT_UTC, true);
         } catch (ParseException e) {
             throw new JsonParseException(e);
         }
