@@ -113,15 +113,15 @@ public class ContainerRenderer extends AbstractInAppRenderer {
         double containerHeight = elementData.getHeight();
 
         double scalingFactor = 1;
-        if ( containerWidth < containerHeight) {
+        if (containerWidth < containerHeight) {
             scalingFactor = displayHeight / containerHeight;
         } else if (containerWidth > containerHeight) {
             scalingFactor = displayWidth / containerWidth;
         }
 
-        if ((containerWidth*scalingFactor) > displayWidth) {
+        if ((containerWidth * scalingFactor) > displayWidth) {
             scalingFactor = displayWidth / containerWidth;
-        }else if ((containerHeight*scalingFactor) > displayHeight) {
+        } else if ((containerHeight * scalingFactor) > displayHeight) {
             scalingFactor = displayHeight / containerHeight;
         }
 
