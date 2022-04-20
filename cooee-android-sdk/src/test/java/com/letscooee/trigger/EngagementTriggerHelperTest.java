@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Build;
 import androidx.room.Room;
+import com.google.gson.JsonSyntaxException;
 import com.letscooee.BaseTestCase;
 import com.letscooee.models.trigger.EmbeddedTrigger;
 import com.letscooee.models.trigger.TriggerData;
@@ -55,7 +56,7 @@ public class EngagementTriggerHelperTest extends BaseTestCase {
 
         doNothing().when(engagementTriggerHelperMock).renderInAppTriggerFromJSONString(anyString());
         engagementTriggerHelperMock.renderInAppTriggerFromResponse(payload);
-        verify(engagementTriggerHelperMock, times(1)).renderInAppTriggerFromJSONString(samplePayload);
+        verify(engagementTriggerHelperMock, times(1)).renderInAppTriggerFromJSONString(anyString());
     }
 
     @Test
@@ -69,11 +70,21 @@ public class EngagementTriggerHelperTest extends BaseTestCase {
         engagementTriggerHelperMock.renderInAppTriggerFromResponse(payload);
         verify(engagementTriggerHelperMock, times(0)).renderInAppTriggerFromJSONString(samplePayload);
     }
+    @Test
+    public void render_in_app_from_response_null_response() {
+        doNothing().when(engagementTriggerHelperMock).renderInAppTriggerFromJSONString(anyString());
+        engagementTriggerHelperMock.renderInAppTriggerFromResponse(null);
+        verify(engagementTriggerHelperMock, never()).renderInAppTriggerFromJSONString(samplePayload);
+    }
 
     private void commonRenderInAppTriggerFromJSONString(String payload, int times) {
         doNothing().when(engagementTriggerHelperMock).renderInAppTrigger(any(TriggerData.class));
         engagementTriggerHelperMock.renderInAppTriggerFromJSONString(payload);
-        verify(engagementTriggerHelperMock, times(times)).renderInAppTrigger(any(TriggerData.class));
+        if (times > 0) {
+            verify(engagementTriggerHelperMock, times(times)).renderInAppTrigger(any(TriggerData.class));
+        } else {
+            verify(engagementTriggerHelperMock, never()).renderInAppTrigger(any(TriggerData.class));
+        }
     }
 
     @Test
@@ -95,6 +106,44 @@ public class EngagementTriggerHelperTest extends BaseTestCase {
         assertThat(samplePayload).isNotNull();
 
         commonRenderInAppTriggerFromJSONString(samplePayload, 0);
+    }
+
+    /**
+     * This test reproduces bug and check that bug is handled correctly
+     */
+    @Test
+    public void render_in_app_from_json_string_invalid_json_string() {
+        assertThat(payloadMap).isNotNull();
+
+        try {
+            commonRenderInAppTriggerFromJSONString(payloadMap.toString(), 0);
+        } catch (Exception e) {
+            assertThat(e).isNotNull();
+            assertThat(e).isInstanceOf(JsonSyntaxException.class);
+        }
+    }
+
+    @Test
+    public void render_in_app_from_json_string_invalid_json_string_pass_two() {
+        samplePayload = "invalid json string";
+        assertThat(samplePayload).isNotNull();
+
+        try {
+            commonRenderInAppTriggerFromJSONString(samplePayload, 0);
+        } catch (Exception e) {
+            assertThat(e).isNotNull();
+            assertThat(e).isInstanceOf(JsonSyntaxException.class);
+        }
+    }
+
+    @Test
+    public void render_in_app_from_json_string_invalid_json_string_pass_three() {
+        try {
+            commonRenderInAppTriggerFromJSONString(new HashMap<String, Object>().toString(), 1);
+        } catch (Exception e) {
+            assertThat(e).isNotNull();
+            assertThat(e).isInstanceOf(JsonSyntaxException.class);
+        }
     }
 
     private void commonRenderInAppFromPushNotification(Activity activity, int times) {
