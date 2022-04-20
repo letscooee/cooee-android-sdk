@@ -45,7 +45,7 @@ public class ContainerRenderer extends AbstractInAppRenderer {
             processChildren();
         }
 
-        // For container it is necessary to be of size of device i.e. match_parent
+        // For container, it is necessary to be of size of device i.e. match_parent
         FrameLayout.LayoutParams frameLayoutParams = new FrameLayout.LayoutParams(MP, MP);
         baseFrameLayout.setLayoutParams(frameLayoutParams);
         newElement.setLayoutParams(frameLayoutParams);
@@ -112,13 +112,17 @@ public class ContainerRenderer extends AbstractInAppRenderer {
         double containerWidth = elementData.getWidth();
         double containerHeight = elementData.getHeight();
 
-        double scalingFactor;
-        if (isPortrait) {
-            double shortEdge = Math.min(containerWidth, containerHeight);
-            scalingFactor = displayWidth / shortEdge;
-        } else {
-            double longEdge = Math.max(containerWidth, containerHeight);
-            scalingFactor = displayHeight / longEdge;
+        double scalingFactor = 1;
+        if ( containerWidth < containerHeight) {
+            scalingFactor = displayHeight / containerHeight;
+        } else if (containerWidth > containerHeight) {
+            scalingFactor = displayWidth / containerWidth;
+        }
+
+        if ((containerWidth*scalingFactor) > displayWidth) {
+            scalingFactor = displayWidth / containerWidth;
+        }else if ((containerHeight*scalingFactor) > displayHeight) {
+            scalingFactor = displayHeight / containerHeight;
         }
 
         globalData.setScalingFactor(scalingFactor);
