@@ -7,8 +7,6 @@ import com.google.gson.*;
 import java.lang.reflect.Type;
 import java.text.*;
 import java.util.Date;
-import java.util.Locale;
-import java.util.TimeZone;
 
 /**
  * Adapter to proccess {@link Date} while serializing and deserializing {@link Date}.
@@ -19,22 +17,18 @@ import java.util.TimeZone;
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class GsonDateAdapter implements JsonSerializer<Date>, JsonDeserializer<Date> {
 
-    private final DateFormat dateFormat;
-
     public GsonDateAdapter() {
-        dateFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy", Locale.US);
-        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
 
     @Override
     public synchronized JsonElement serialize(Date date, Type type, JsonSerializationContext jsonSerializationContext) {
-        return new JsonPrimitive(dateFormat.format(date));
+        return new JsonPrimitive(DateUtils.getStringDateFromDate(date, Constants.DATE_FORMAT_UTC, true));
     }
 
     @Override
     public synchronized Date deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) {
         try {
-            return dateFormat.parse(jsonElement.getAsString());
+            return DateUtils.getUTCDateFromString(jsonElement.getAsString(), Constants.DATE_FORMAT_UTC, true);
         } catch (ParseException e) {
             throw new JsonParseException(e);
         }

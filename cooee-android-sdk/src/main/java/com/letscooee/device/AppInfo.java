@@ -8,10 +8,10 @@ import android.content.pm.PackageManager;
 import androidx.annotation.RestrictTo;
 
 import com.letscooee.ContextAware;
+import com.letscooee.utils.Constants;
+import com.letscooee.utils.DateUtils;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Locale;
 
 /**
  * A utility helper class to provide some common information about the installing/host app.
@@ -117,9 +117,8 @@ public class AppInfo extends ContextAware {
      *
      * @return date in {@link String}
      */
-    public String getLasBuildTime() {
-        return new SimpleDateFormat("dd-MMM-yyyy hh:mm a", Locale.ENGLISH)
-                .format(new Date(this.cachedInfo.lastUpdateTime));
+    public String getLastBuildTime() {
+        return DateUtils.getStringDateFromMS(this.cachedInfo.lastUpdateTime, Constants.DATE_FORMAT_DEBUG);
     }
 
     /**
@@ -128,7 +127,6 @@ public class AppInfo extends ContextAware {
      * @return date in {@link String}
      */
     public String getFirstInstallTime() {
-        return new SimpleDateFormat("dd-MMM-yyyy hh:mm a", Locale.ENGLISH)
-                .format(new Date(this.cachedInfo.firstInstallTime));
+        return DateUtils.getStringDateFromMS(this.cachedInfo.firstInstallTime, Constants.DATE_FORMAT_DEBUG);
     }
 }

@@ -15,6 +15,7 @@ import com.letscooee.models.Event;
 import com.letscooee.network.SafeHTTPService;
 import com.letscooee.permission.PermissionManager;
 import com.letscooee.utils.Constants;
+import com.letscooee.utils.DateUtils;
 import com.letscooee.utils.LocalStorageHelper;
 
 import java.util.Date;
@@ -80,7 +81,7 @@ public class NewSessionExecutor extends ContextAware {
      */
     private void sendFirstLaunchEvent() {
         Map<String, Object> deviceProperties = new HashMap<>();
-        deviceProperties.put("firstLaunch", new Date());
+        deviceProperties.put("firstLaunch", DateUtils.getStringDateFromDate(new Date(), Constants.DATE_FORMAT_UTC, true));
         deviceProperties.putAll(getImmutableDeviceProps());
         deviceProperties.putAll(getMutableDeviceProps());
 

@@ -25,6 +25,8 @@ import android.util.DisplayMetrics;
 import androidx.core.app.ActivityCompat;
 
 import com.letscooee.CooeeFactory;
+import com.letscooee.utils.Constants;
+import com.letscooee.utils.DateUtils;
 import com.letscooee.utils.SentryHelper;
 
 import java.io.File;
@@ -366,7 +368,7 @@ public class DefaultUserPropertiesCollector {
         if (appInfo != null) {
             String appFile = appInfo.sourceDir;
             long installed = new File(appFile).lastModified();
-            return new Date(installed).toString();
+            return DateUtils.getStringDateFromMS(installed, Constants.DATE_FORMAT_UTC, true);
         }
         return "Unknown";
     }

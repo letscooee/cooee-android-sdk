@@ -73,4 +73,9 @@ public class Constants {
     public static final String AR_DATA = "arData";
     public static final String AR_PACKAGE_NAME = "appPackage";
     // endregion
+
+    // region Date Formats
+    public static final String DATE_FORMAT_DEBUG = "dd-MMM-yyyy hh:mm a";
+    public static final String DATE_FORMAT_UTC = "EEE MMM dd HH:mm:ss zzz yyyy";
+    // endregion
 }
