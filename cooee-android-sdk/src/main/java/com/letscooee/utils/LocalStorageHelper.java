@@ -184,4 +184,28 @@ public final class LocalStorageHelper {
     public static long getLong(Context context, String key, long defaultValue) {
         return getPreferences(context).getLong(key, defaultValue);
     }
+
+    /**
+     * Stores a {@link Date} in the preferences.
+     *
+     * @param context The context to use.
+     * @param key     The key to store the date under.
+     * @param date    The date to store.
+     */
+    public static void putDate(Context context, String key, Date date) {
+        putLong(context, key, date.getTime());
+    }
+
+    /**
+     * Retrieves a {@link Date} from the preferences.
+     *
+     * @param context      The context to use.
+     * @param key          The key to retrieve the date from.
+     * @param defaultValue The default value to return if the key is not found.
+     * @return The stored {@link Date}, or the default value if the key is not found.
+     */
+    public static Date getDate(Context context, String key, Date defaultValue) {
+        long time = getLong(context, key, 0);
+        return time > 0 ? new Date(time) : defaultValue;
+    }
 }
