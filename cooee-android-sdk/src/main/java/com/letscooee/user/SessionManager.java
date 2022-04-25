@@ -68,9 +68,13 @@ public class SessionManager {
      * @return The current or new session id.
      */
     public String getCurrentSessionID(boolean createNew) {
+        currentSessionID = LocalStorageHelper.getString(context,Constants.STORAGE_ACTIVE_SESSION,null);
+
         if (TextUtils.isEmpty(currentSessionID) && createNew) {
             startNewSession();
         }
+
+        LocalStorageHelper.putDate(context, Constants.STORAGE_LAST_SESSION_USE_TIME, new Date());
 
         return currentSessionID;
     }
@@ -82,6 +86,7 @@ public class SessionManager {
 
         currentSessionStartTime = new Date();
         currentSessionID = new ObjectId().toHexString();
+        LocalStorageHelper.putString(context, Constants.STORAGE_ACTIVE_SESSION, currentSessionID);
 
         bumpSessionNumber();
     }
@@ -97,10 +102,11 @@ public class SessionManager {
 
         // TODO Confirm this when session is concluded after 30 min irrespective of app launch
         // Remove active trigger after session is concluded
-        LocalStorageHelper.remove(context, Constants.STORAGE_ACTIVE_TRIGGER);
+        LocalStorageHelper.remove(context, Constants.STORAGE_ACTIVE_SESSION);
+        LocalStorageHelper.remove(context, Constants.STORAGE_LAST_SESSION_USE_TIME);
 
-        CooeeFactory.getSafeHTTPService().sendSessionConcludedEvent(requestData);
         this.destroySession();
+        CooeeFactory.getSafeHTTPService().sendSessionConcludedEvent(requestData);
     }
 
     public Integer getCurrentSessionNumber() {
@@ -128,5 +134,25 @@ public class SessionManager {
         requestData.put("sessionID", this.getCurrentSessionID());
 
         CooeeFactory.getBaseHTTPService().keepAliveSession(requestData);
+    }
+
+    /**
+     * Calculate the time difference between the current time and last session used time.
+     * If last session used time is not available, then return 0.
+     *
+     * @return The time difference in seconds.
+     */
+    public long getLastSessionUsedDifferenceInSeconds() {
+        Date lastSessionUseTime = LocalStorageHelper.getDate(context, Constants.STORAGE_LAST_SESSION_USE_TIME, null);
+
+        return lastSessionUseTime != null ? (new Date().getTime() - lastSessionUseTime.getTime()) / 1000 : 0;
+    }
+
+    public boolean isSessionExpired() {
+        if (getLastSessionUsedDifferenceInSeconds() > Constants.IDLE_TIME_IN_SECONDS) {
+            conclude();
+            return true;
+        }
+        return false;
     }
 }
