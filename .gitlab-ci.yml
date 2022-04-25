@@ -19,9 +19,9 @@ Validate MR:
 Publish to JFrog:
     stage: deploy
     script:
-        - ./gradlew clean cooee-android-sdk:artifactoryPublish -PartifactoryUser=${ARTIFACTORY_USER} -PartifactoryPassword=${ARTIFACTORY_PASS}
+      - ./gradlew clean cooee-android-sdk:artifactoryPublish -PartifactoryUser=${ARTIFACTORY_USER} -PartifactoryPassword=${ARTIFACTORY_PASS}
     only:
-        - tags
+      - tags
     artifacts:
-        paths:
-            - cooee-android-sdk/build/outputs/aar
+      paths:
+        - cooee-android-sdk/build/outputs/aar

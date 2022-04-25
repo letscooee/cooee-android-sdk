@@ -34,7 +34,7 @@ public class ARHelper {
     private static TriggerData pendingTriggerData;
 
     /**
-     * Initialize {@link ArCoreApk.Availability} to check if device supports AR or not
+     * Initialize to check if device supports AR or not
      * It also send data to backend
      *
      * @param context will be instance if {@link Context}

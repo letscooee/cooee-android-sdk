@@ -16,8 +16,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Scanner;
+import java.util.*;
 
 public class HomeActivity extends AppCompatActivity implements CooeeCTAListener {
 
@@ -38,8 +37,27 @@ public class HomeActivity extends AppCompatActivity implements CooeeCTAListener 
 
         Log.d(TAG, "User ID " + cooeeSDK.getUserID());
 
+        Map<String, Object> eventProps = new HashMap<>();
+        Map<String, Object> item = new HashMap<>();
+        item.put("item_id", "item_123");
+        item.put("item_name", "shoes");
+        item.put("item_price", 100);
+
+        List<Map<String, Object>> items = new ArrayList<>();
+        items.add(item);
+        items.add(item);
+        items.add(item);
+
+        eventProps.put("item", item);
+        eventProps.put("items", items);
+        eventProps.put("intValue", 1000);
+        eventProps.put("floatValue", 1000.001);
+        eventProps.put("booleanValue", true);
+        eventProps.put("stringValue", "Hello Cooee");
+
+
         binding.btnSendImageEvent.setOnClickListener(view -> {
-            cooeeSDK.sendEvent("Add To Cart", new HashMap<>());
+            cooeeSDK.sendEvent("Add To Cart", eventProps);
             cooeeSDK.sendEvent("Add To Cart");
         });
 
@@ -94,7 +112,7 @@ public class HomeActivity extends AppCompatActivity implements CooeeCTAListener 
         }
 
 
-        EngagementTriggerHelper.renderInAppTriggerFromJSONString(context, jsonString);
+        new EngagementTriggerHelper(this).renderInAppTriggerFromJSONString(jsonString);
     }
 
     @SuppressWarnings("ConstantConditions")

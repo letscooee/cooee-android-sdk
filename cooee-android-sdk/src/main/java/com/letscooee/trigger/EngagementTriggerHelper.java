@@ -26,7 +26,7 @@ import com.letscooee.utils.*;
 import java.util.*;
 
 /**
- * A small helper class for any kind of engagement trigger like caching or retriving from local storage.
+ * A small helper class for any kind of engagement trigger like caching or retrieving from local storage.
  *
  * @author Shashank Agrawal
  * @version 0.3.0
@@ -35,6 +35,13 @@ import java.util.*;
 public class EngagementTriggerHelper {
 
     private static final long TIME_TO_WAIT_MILLIS = 6 * 1000;
+
+    private final Context context;
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public EngagementTriggerHelper(Context context) {
+        this.context = context;
+    }
 
     /**
      * Update previously stored map format to {@link EmbeddedTrigger}.
@@ -124,10 +131,9 @@ public class EngagementTriggerHelper {
     /**
      * Start rendering the in-app trigger from the the raw response received from the backend API.
      *
-     * @param context context of the application
      * @param data    Data received from the backend
      */
-    public static void renderInAppTriggerFromResponse(Context context, Map<String, Object> data) {
+    public void renderInAppTriggerFromResponse(Map<String, Object> data) {
         if (data == null) {
             return;
         }
@@ -137,11 +143,11 @@ public class EngagementTriggerHelper {
             return;
         }
 
-        renderInAppTriggerFromJSONString(context, triggerData.toString());
+        renderInAppTriggerFromJSONString(triggerData.toString());
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public static void renderInAppTriggerFromJSONString(Context context, String rawTriggerData) {
+    public void renderInAppTriggerFromJSONString(String rawTriggerData) {
         if (TextUtils.isEmpty(rawTriggerData)) {
             Log.i(Constants.TAG, "Empty/null trigger data received");
             return;
@@ -152,16 +158,15 @@ public class EngagementTriggerHelper {
         TriggerData triggerData = gson.fromJson(rawTriggerData, TriggerData.class);
 
         storeActiveTriggerDetails(context, triggerData);
-        renderInAppTrigger(context, triggerData);
+        renderInAppTrigger(triggerData);
     }
 
     /**
      * Start rendering the in-app trigger.
      *
-     * @param context     context of the application.
      * @param triggerData received and parsed trigger data.
      */
-    public static void renderInAppTrigger(Context context, TriggerData triggerData) {
+    public void renderInAppTrigger(TriggerData triggerData) {
         RuntimeData runtimeData = CooeeFactory.getRuntimeData();
         if (runtimeData.isInBackground()) {
             return;
@@ -182,7 +187,7 @@ public class EngagementTriggerHelper {
         }
     }
 
-    public static void renderInAppFromPushNotification(Context context, @NonNull Activity activity) {
+    public void renderInAppFromPushNotification(@NonNull Activity activity) {
         Bundle bundle = activity.getIntent().getBundleExtra(Constants.INTENT_BUNDLE_KEY);
         // Should not go ahead if bundle is null
         if (bundle == null) {
@@ -198,14 +203,14 @@ public class EngagementTriggerHelper {
         ClickAction pushClickAction = triggerData.getPn().getClickAction();
 
         if (pushClickAction == null) {
-            launchInApp(context, triggerData);
+            launchInApp(triggerData);
             return;
         }
 
         int launchFeature = pushClickAction.getLaunchFeature();
 
         if (launchFeature == 0 || launchFeature == 1) {
-            launchInApp(context, triggerData);
+            launchInApp(triggerData);
         } else {
             TriggerContext triggerContext = new TriggerContext();
             triggerContext.setTriggerData(triggerData);
@@ -214,44 +219,43 @@ public class EngagementTriggerHelper {
         }
     }
 
-    private static void launchInApp(Context context, TriggerData triggerData) {
+    private void launchInApp(TriggerData triggerData) {
         RuntimeData runtimeData = CooeeFactory.getRuntimeData();
         // If app is being launched from the "cold state"
         if (runtimeData.isFirstForeground()) {
             // Then wait for some time before showing the in-app
-            new Timer().schedule(() -> renderInAppFromPushNotification(context, triggerData), TIME_TO_WAIT_MILLIS);
+            new Timer().schedule(() -> renderInAppFromPushNotification(triggerData), TIME_TO_WAIT_MILLIS);
         } else {
             // Otherwise show it instantly
             // TODO Using 2 seconds delay as "App Foreground" is not called yet that means the below call be treated
             // as "App in Background" and it will now render the in-app. Need to use Database
-            new Timer().schedule(() -> renderInAppFromPushNotification(context, triggerData), 2 * 1000);
+            new Timer().schedule(() -> renderInAppFromPushNotification(triggerData), 2 * 1000);
         }
     }
 
     /**
      * Render the In-App trigger when a push notification was clicked.
      *
-     * @param context     The application's context.
      * @param triggerData Data to render in-app.
      */
-    public static void renderInAppFromPushNotification(Context context, TriggerData triggerData) {
+    public void renderInAppFromPushNotification(TriggerData triggerData) {
         storeActiveTriggerDetails(context, triggerData);
 
         Event event = new Event("CE Notification Clicked", triggerData);
         CooeeFactory.getSafeHTTPService().sendEvent(event);
 
-        loadLazyData(context, triggerData);
+        loadLazyData(triggerData);
     }
 
     /**
      * Fetch Trigger InApp data from server
      *
-     * @param context The application's context.
+     * @param triggerData Data to render in-app.
      */
-    public static void loadLazyData(Context context, TriggerData triggerData) {
+    public void loadLazyData(TriggerData triggerData) {
         InAppTriggerHelper.loadLazyData(triggerData, (InAppTrigger inAppTrigger) -> {
             triggerData.setInAppTrigger(inAppTrigger);
-            renderInAppTrigger(context, triggerData);
+            renderInAppTrigger(triggerData);
         });
     }
 

@@ -85,7 +85,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
         isSuccessfullyStarted = true;
     }
 
-    private void sendTriggerDisplayedEvent() {
+    public void sendTriggerDisplayedEvent() {
         if (!this.isFreshLaunch) {
             return;
         }

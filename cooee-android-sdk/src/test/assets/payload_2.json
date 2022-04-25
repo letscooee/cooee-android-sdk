@@ -1,0 +1,187 @@
+{
+    "id": "623d8f9143bb7d792a84af7b",
+    "ian": {
+        "anim": {
+            "en": 1,
+            "ex": "SLIDE_OUT_TOP_LEFT"
+        },
+        "elems": [
+            {
+                "bg": {
+                    "s": {
+                        "a": 100,
+                        "h": "#cf8c29"
+                    }
+                },
+                "spc": {
+                    "p": 0,
+                    "pl": 20,
+                    "pr": 20,
+                    "pt": 20,
+                    "pb": 20
+                },
+                "trf": {},
+                "br": {
+                    "r": 75,
+                    "w": 0,
+                    "s": 1
+                },
+                "t": 3,
+                "clc": {
+                    "ext": {
+                        "u": "https://www.organicamrit.com/products/fresh-organic-fruits"
+                    },
+                    "close": true
+                },
+                "w": 311,
+                "x": 389.21,
+                "y": 1315.16,
+                "c": {
+                    "a": 100,
+                    "h": "#ffffff"
+                },
+                "f": {
+                    "s": 57,
+                    "italic": false,
+                    "bold": false
+                },
+                "alg": 1,
+                "prs": [
+                    {
+                        "txt": "Buy Now",
+                        "b": true
+                    },
+                    {
+                        "txt": "\n"
+                    }
+                ]
+            },
+            {
+                "bg": {},
+                "spc": {
+                    "p": 0,
+                    "pl": 0,
+                    "pr": 0,
+                    "pt": 0,
+                    "pb": 0
+                },
+                "trf": {},
+                "br": {
+                    "r": 0,
+                    "w": 0,
+                    "s": 1
+                },
+                "t": 1,
+                "w": 80,
+                "h": 80,
+                "x": 997.91,
+                "y": 450.75,
+                "src": "https://cdn-icons-png.flaticon.com/512/1810/1810747.png",
+                "ow": 512,
+                "oh": 512
+            }
+        ],
+        "cont": {
+            "bg": {
+                "s": {
+                    "h": "#ffffff",
+                    "a": 100
+                },
+                "gx": {
+                    "r": 25
+                }
+            },
+            "spc": {
+                "p": 0,
+                "pl": 0,
+                "pr": 0,
+                "pt": 0,
+                "pb": 0
+            },
+            "trf": {},
+            "clc": {
+                "close": true
+            },
+            "o": 3
+        },
+        "w": 1080,
+        "h": 1920
+    },
+    "v": 4,
+    "expireAt": 1648216017183,
+    "engagementID": "6231c6030fe4d42ab4be21a7",
+    "pnx": {
+        "t": {
+            "bg": {},
+            "spc": {
+                "p": 0,
+                "pl": 20,
+                "pr": 20,
+                "pt": 0,
+                "pb": 0
+            },
+            "trf": {},
+            "br": {
+                "r": 0,
+                "w": 0,
+                "s": 1
+            },
+            "t": 2,
+            "w": 500,
+            "c": {
+                "a": 100,
+                "h": "#000000"
+            },
+            "f": {
+                "s": 60,
+                "ff": "Arial",
+                "lh": 1.2,
+                "italic": false,
+                "bold": false
+            },
+            "alg": 1,
+            "prs": [
+                {
+                    "txt": "A Mughlai Treat this Weekend!!\n"
+                }
+            ]
+        },
+        "b": {
+            "bg": {},
+            "spc": {
+                "p": 0,
+                "pl": 20,
+                "pr": 20,
+                "pt": 0,
+                "pb": 0
+            },
+            "trf": {},
+            "br": {
+                "r": 0,
+                "w": 0,
+                "s": 1
+            },
+            "t": 2,
+            "w": 500,
+            "c": {
+                "a": 100,
+                "h": "#000000"
+            },
+            "f": {
+                "s": 60,
+                "ff": "Arial",
+                "lh": 1.2,
+                "italic": false,
+                "bold": false
+            },
+            "alg": 1,
+            "prs": [
+                {
+                    "txt": "Book Now and get Flat 15% OFF on your Order!😍\n"
+                }
+            ]
+        },
+        "si": "https://cdn.god-assets.letscooee.com/dfc9e0e2-aa2c-4113-a7e2-73e4dd78be94.png",
+        "li": "https://cdn.god-assets.letscooee.com/dfc9e0e2-aa2c-4113-a7e2-73e4dd78be94.png"
+    }
+}
