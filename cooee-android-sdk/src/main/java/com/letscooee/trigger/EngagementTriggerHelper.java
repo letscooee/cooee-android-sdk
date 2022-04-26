@@ -143,7 +143,7 @@ public class EngagementTriggerHelper {
             return;
         }
 
-        renderInAppTriggerFromJSONString(triggerData.toString());
+        renderInAppTriggerFromJSONString(new Gson().toJson(triggerData));
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
