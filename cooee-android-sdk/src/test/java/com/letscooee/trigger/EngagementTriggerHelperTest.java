@@ -70,6 +70,7 @@ public class EngagementTriggerHelperTest extends BaseTestCase {
         engagementTriggerHelperMock.renderInAppTriggerFromResponse(payload);
         verify(engagementTriggerHelperMock, times(0)).renderInAppTriggerFromJSONString(samplePayload);
     }
+
     @Test
     public void render_in_app_from_response_null_response() {
         doNothing().when(engagementTriggerHelperMock).renderInAppTriggerFromJSONString(anyString());
@@ -80,6 +81,7 @@ public class EngagementTriggerHelperTest extends BaseTestCase {
     private void commonRenderInAppTriggerFromJSONString(String payload, int times) {
         doNothing().when(engagementTriggerHelperMock).renderInAppTrigger(any(TriggerData.class));
         engagementTriggerHelperMock.renderInAppTriggerFromJSONString(payload);
+
         if (times > 0) {
             verify(engagementTriggerHelperMock, times(times)).renderInAppTrigger(any(TriggerData.class));
         } else {
