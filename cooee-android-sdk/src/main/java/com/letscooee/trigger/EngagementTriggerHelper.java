@@ -9,6 +9,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.letscooee.BuildConfig;
 import com.letscooee.CooeeFactory;
 import com.letscooee.models.Event;
@@ -129,9 +130,9 @@ public class EngagementTriggerHelper {
     }
 
     /**
-     * Start rendering the in-app trigger from the the raw response received from the backend API.
+     * Start rendering the in-app trigger from the raw response received from the backend API.
      *
-     * @param data    Data received from the backend
+     * @param data Data received from the backend
      */
     public void renderInAppTriggerFromResponse(Map<String, Object> data) {
         if (data == null) {
@@ -155,7 +156,13 @@ public class EngagementTriggerHelper {
 
         Gson gson = TriggerGsonDeserializer.getGson();
 
-        TriggerData triggerData = gson.fromJson(rawTriggerData, TriggerData.class);
+        TriggerData triggerData;
+        try {
+            triggerData = gson.fromJson(rawTriggerData, TriggerData.class);
+        } catch (JsonSyntaxException e) {
+            CooeeFactory.getSentryHelper().captureException(e);
+            return;
+        }
 
         storeActiveTriggerDetails(context, triggerData);
         renderInAppTrigger(triggerData);
@@ -167,6 +174,10 @@ public class EngagementTriggerHelper {
      * @param triggerData received and parsed trigger data.
      */
     public void renderInAppTrigger(TriggerData triggerData) {
+        if (triggerData == null) {
+            return;
+        }
+
         RuntimeData runtimeData = CooeeFactory.getRuntimeData();
         if (runtimeData.isInBackground()) {
             return;
