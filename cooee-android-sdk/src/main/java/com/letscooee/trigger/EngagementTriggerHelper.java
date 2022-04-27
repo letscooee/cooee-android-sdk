@@ -174,7 +174,7 @@ public class EngagementTriggerHelper {
      * @param triggerData received and parsed trigger data.
      */
     public void renderInAppTrigger(TriggerData triggerData) {
-        if (triggerData == null) {
+        if (triggerData == null || TextUtils.isEmpty(triggerData.getId())) {
             return;
         }
 
