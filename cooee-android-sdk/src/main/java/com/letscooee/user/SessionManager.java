@@ -56,7 +56,7 @@ public class SessionManager {
      *
      * @return The current session id.
      */
-    public String getCurrentSessionID() {
+    public synchronized String getCurrentSessionID() {
         return this.getCurrentSessionID(true);
     }
 
@@ -67,10 +67,8 @@ public class SessionManager {
      *                  then create a new session.
      * @return The current or new session id.
      */
-    public String getCurrentSessionID(boolean createNew) {
-        currentSessionID = LocalStorageHelper.getString(context,Constants.STORAGE_ACTIVE_SESSION,null);
-
-        if (TextUtils.isEmpty(currentSessionID) && createNew) {
+    public synchronized String getCurrentSessionID(boolean createNew) {
+        if (createNew) {
             startNewSession();
         }
 
@@ -148,7 +146,7 @@ public class SessionManager {
         return lastSessionUseTime != null ? (new Date().getTime() - lastSessionUseTime.getTime()) / 1000 : 0;
     }
 
-    public boolean isSessionExpired() {
+    public boolean checkSessionExpiry() {
         if (getLastSessionUsedDifferenceInSeconds() > Constants.IDLE_TIME_IN_SECONDS) {
             conclude();
             return true;
