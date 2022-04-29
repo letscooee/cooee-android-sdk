@@ -40,6 +40,11 @@ class AppLifecycleCallback implements DefaultLifecycleObserver {
     }
 
     @Override
+    public void onCreate(@NonNull LifecycleOwner owner) {
+        sessionManager.checkSessionExpiry();
+    }
+
+    @Override
     public void onResume(@NonNull LifecycleOwner owner) {
         //Will set app is in foreground
         runtimeData.setInForeground();
