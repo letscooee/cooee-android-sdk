@@ -1,8 +1,6 @@
 package com.letscooee.init;
 
 import android.content.Context;
-import android.os.Handler;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.DefaultLifecycleObserver;
@@ -17,6 +15,7 @@ import com.letscooee.user.NewSessionExecutor;
 import com.letscooee.user.SessionManager;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.RuntimeData;
+import com.letscooee.utils.Timer;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -27,7 +26,7 @@ class AppLifecycleCallback implements DefaultLifecycleObserver {
     private final RuntimeData runtimeData;
     private final SessionManager sessionManager;
 
-    private Handler handler = new Handler();
+    private Timer timer = new Timer();
     private Runnable runnable;
     private final SafeHTTPService safeHTTPService;
     private final NewSessionExecutor sessionExecutor;
@@ -78,7 +77,7 @@ class AppLifecycleCallback implements DefaultLifecycleObserver {
         runtimeData.setInBackground();
 
         //stop sending check message of session alive on app background
-        handler.removeCallbacks(runnable);
+        timer.stop();
 
         if (context == null) {
             return;
@@ -100,12 +99,13 @@ class AppLifecycleCallback implements DefaultLifecycleObserver {
      */
     // TODO: 03/06/21 Move to SessionManager
     private void keepSessionAlive() {
-        //send server check message every 5 min that session is still alive
-        //TODO: 09/06/2021 To be change with Timer class
-        handler.postDelayed(runnable = () -> {
-            handler.postDelayed(runnable, Constants.KEEP_ALIVE_TIME_IN_MS);
-            this.sessionManager.pingServerToKeepAlive();
+        if (timer.isShutdown()) {
+            timer = new Timer();
+        }
 
+        timer.schedule(runnable = () -> {
+            timer.schedule(runnable, Constants.KEEP_ALIVE_TIME_IN_MS);
+            this.sessionManager.pingServerToKeepAlive();
         }, Constants.KEEP_ALIVE_TIME_IN_MS);
     }
 }
