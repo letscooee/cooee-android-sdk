@@ -84,6 +84,9 @@ public class SessionManager {
         return currentSessionID;
     }
 
+    /**
+     * Start a new session only if {@code currentSessionID} is empty.
+     */
     public void startNewSession() {
         if (!TextUtils.isEmpty(currentSessionID)) {
             return;
@@ -114,10 +117,18 @@ public class SessionManager {
         CooeeFactory.getSafeHTTPService().sendSessionConcludedEvent(requestData);
     }
 
+    /**
+     * Return the current session number.
+     *
+     * @return The current session number.
+     */
     public Integer getCurrentSessionNumber() {
         return this.currentSessionNumber;
     }
 
+    /**
+     * Bump the session number by 1.
+     */
     private void bumpSessionNumber() {
         currentSessionNumber = LocalStorageHelper.getInt(context, Constants.STORAGE_SESSION_NUMBER, 0);
         currentSessionNumber += 1;
@@ -125,6 +136,9 @@ public class SessionManager {
         LocalStorageHelper.putInt(context, Constants.STORAGE_SESSION_NUMBER, currentSessionNumber);
     }
 
+    /**
+     * Destroy the current session.
+     */
     public void destroySession() {
         this.currentSessionID = null;
         this.currentSessionNumber = null;
@@ -153,6 +167,12 @@ public class SessionManager {
         return lastSessionUseTime != null ? (new Date().getTime() - lastSessionUseTime.getTime()) / 1000 : 0;
     }
 
+    /**
+     * Checks if stored session is expired or not.
+     * if stored session is expired then conclude that session and return true.
+     *
+     * @return {@code true} if stored session is expired, Otherwise {@code false}.
+     */
     public boolean checkSessionExpiry() {
         if (getLastSessionUsedDifferenceInSeconds() > Constants.IDLE_TIME_IN_SECONDS) {
             conclude();
@@ -161,6 +181,9 @@ public class SessionManager {
         return false;
     }
 
+    /**
+     * Check if  {@code timer} was stopped previously and start keep alive loop.
+     */
     public void keepSessionAlive() {
         if (timer.isShutdown()) {
             timer = new Timer();
@@ -172,6 +195,9 @@ public class SessionManager {
         }, Constants.KEEP_ALIVE_TIME_IN_MS);
     }
 
+    /**
+     * Stop the timer.
+     */
     public void stopSessionAlive() {
         timer.stop();
     }
