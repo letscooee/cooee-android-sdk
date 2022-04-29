@@ -13,9 +13,7 @@ import com.letscooee.models.Event;
 import com.letscooee.network.SafeHTTPService;
 import com.letscooee.user.NewSessionExecutor;
 import com.letscooee.user.SessionManager;
-import com.letscooee.utils.Constants;
 import com.letscooee.utils.RuntimeData;
-import com.letscooee.utils.Timer;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -26,8 +24,6 @@ class AppLifecycleCallback implements DefaultLifecycleObserver {
     private final RuntimeData runtimeData;
     private final SessionManager sessionManager;
 
-    private Timer timer = new Timer();
-    private Runnable runnable;
     private final SafeHTTPService safeHTTPService;
     private final NewSessionExecutor sessionExecutor;
 
@@ -48,7 +44,7 @@ class AppLifecycleCallback implements DefaultLifecycleObserver {
     public void onResume(@NonNull LifecycleOwner owner) {
         //Will set app is in foreground
         runtimeData.setInForeground();
-        keepSessionAlive();
+        sessionManager.keepSessionAlive();
         sessionManager.checkSessionExpiry();
 
         if (runtimeData.isFirstForeground()) {
@@ -76,7 +72,7 @@ class AppLifecycleCallback implements DefaultLifecycleObserver {
         runtimeData.setInBackground();
 
         //stop sending check message of session alive on app background
-        timer.stop();
+        sessionManager.stopSessionAlive();
 
         if (context == null) {
             return;
@@ -91,20 +87,5 @@ class AppLifecycleCallback implements DefaultLifecycleObserver {
         event.setDeviceProps(sessionExecutor.getMutableDeviceProps());
 
         safeHTTPService.sendEvent(event);
-    }
-
-    /**
-     * Send server check message every 5 min that session is still alive
-     */
-    // TODO: 03/06/21 Move to SessionManager
-    private void keepSessionAlive() {
-        if (timer.isShutdown()) {
-            timer = new Timer();
-        }
-
-        timer.schedule(runnable = () -> {
-            timer.schedule(runnable, Constants.KEEP_ALIVE_TIME_IN_MS);
-            this.sessionManager.pingServerToKeepAlive();
-        }, Constants.KEEP_ALIVE_TIME_IN_MS);
     }
 }

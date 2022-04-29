@@ -10,6 +10,7 @@ import com.letscooee.utils.Constants;
 import com.letscooee.utils.LocalStorageHelper;
 import com.letscooee.utils.RuntimeData;
 
+import com.letscooee.utils.Timer;
 import org.bson.types.ObjectId;
 
 import java.util.Date;
@@ -33,6 +34,9 @@ public class SessionManager {
     private String currentSessionID;
     private Integer currentSessionNumber;
     private Date currentSessionStartTime;
+
+    private Timer timer = new Timer();
+    private Runnable runnable;
 
     private SessionManager(Context context) {
         this.context = context.getApplicationContext();
@@ -68,6 +72,9 @@ public class SessionManager {
      * @return The current or new session id.
      */
     public synchronized String getCurrentSessionID(boolean createNew) {
+        currentSessionID = LocalStorageHelper.getString(context, Constants.STORAGE_ACTIVE_SESSION, null);
+        currentSessionNumber = LocalStorageHelper.getInt(context, Constants.STORAGE_SESSION_NUMBER, 0);
+
         if (createNew) {
             startNewSession();
         }
@@ -152,5 +159,20 @@ public class SessionManager {
             return true;
         }
         return false;
+    }
+
+    public void keepSessionAlive() {
+        if (timer.isShutdown()) {
+            timer = new Timer();
+        }
+
+        timer.schedule(runnable = () -> {
+            timer.schedule(runnable, Constants.KEEP_ALIVE_TIME_IN_MS);
+            this.pingServerToKeepAlive();
+        }, Constants.KEEP_ALIVE_TIME_IN_MS);
+    }
+
+    public void stopSessionAlive() {
+        timer.stop();
     }
 }
