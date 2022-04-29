@@ -44,18 +44,13 @@ class AppLifecycleCallback implements DefaultLifecycleObserver {
         //Will set app is in foreground
         runtimeData.setInForeground();
         keepSessionAlive();
+        sessionManager.checkSessionExpiry();
 
         if (runtimeData.isFirstForeground()) {
-            new NewSessionExecutor(context).execute();
             return;
         }
 
         long backgroundDuration = runtimeData.getTimeInBackgroundInSeconds();
-        // TODO: 25/04/22 Check and update code.
-        /*if (sessionManager.isSessionExpired()) {
-
-            Log.d(Constants.TAG, "After 30 min of App Background " + "Session Concluded");
-        } else {*/
         Map<String, Object> eventProps = new HashMap<>();
         eventProps.put("iaDur", backgroundDuration);
 
@@ -63,7 +58,6 @@ class AppLifecycleCallback implements DefaultLifecycleObserver {
         event.setDeviceProps(sessionExecutor.getMutableDeviceProps());
 
         safeHTTPService.sendEvent(event);
-        /*}*/
 
         // Sent AR CTA once App is resumed
         ARActionPerformed.processLastARResponse(context);
