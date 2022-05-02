@@ -109,7 +109,8 @@ public class ContainerRenderer extends AbstractInAppRenderer {
         double displayHeight = deviceInfo.getRunTimeDisplayHeight();
         Log.d(TAG, "Display width: " + displayWidth + ", height: " + displayHeight);
 
-        WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        // Activity will not go directly to fullscreen mode. Hence, bifurcating task to different task.
+        /*WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
             Rect rect = wm.getCurrentWindowMetrics().getBounds();
@@ -125,7 +126,7 @@ public class ContainerRenderer extends AbstractInAppRenderer {
             displayHeight = point.y;
         }
 
-        Log.d(TAG, "Display width: " + displayWidth + ", height: " + displayHeight);
+        Log.d(TAG, "Display width: " + displayWidth + ", height: " + displayHeight);*/
 
         double containerWidth = elementData.getWidth();
         double containerHeight = elementData.getHeight();
