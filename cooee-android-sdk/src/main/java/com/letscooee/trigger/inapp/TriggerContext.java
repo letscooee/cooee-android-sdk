@@ -28,6 +28,7 @@ public class TriggerContext {
     private TriggerData triggerData;
     private RelativeLayout triggerParentLayout;
     private double scalingFactor;
+    private boolean makeInAppFullScreen;
 
     public Map<String, Object> getClosedEventProps() {
         return closedEventProps;
@@ -83,5 +84,13 @@ public class TriggerContext {
 
     public void setScalingFactor(double scalingFactor) {
         this.scalingFactor = Math.min(scalingFactor, 1);
+    }
+
+    public boolean isMakeInAppFullScreen() {
+        return makeInAppFullScreen;
+    }
+
+    public void setMakeInAppFullScreen(boolean makeInAppFullScreen) {
+        this.makeInAppFullScreen = makeInAppFullScreen;
     }
 }
