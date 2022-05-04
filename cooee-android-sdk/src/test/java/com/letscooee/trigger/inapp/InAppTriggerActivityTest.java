@@ -7,7 +7,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.room.Room;
 import com.letscooee.BaseTestCase;
-import com.letscooee.cooee.TestCaseActivity;
+import com.letscooee.TestCaseActivity;
 import com.letscooee.models.trigger.TriggerData;
 import com.letscooee.room.CooeeDatabase;
 import com.letscooee.trigger.adapters.TriggerGsonDeserializer;

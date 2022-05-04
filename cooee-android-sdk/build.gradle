@@ -113,19 +113,19 @@ android {
         versionName project.version.toString()
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
+
+        buildConfigField "long", "VERSION_CODE", "${defaultConfig.versionCode}"
+        buildConfigField "String", "VERSION_NAME", "\"${defaultConfig.versionName}\""
+        buildConfigField "java.util.concurrent.atomic.AtomicBoolean", "IS_TESTING", "new java.util.concurrent.atomic.AtomicBoolean(false)"
     }
     buildTypes {
         debug {
             buildConfigField "String", "SERVER_URL", '"https://api.sdk.letscooee.com"'
-            buildConfigField "long", "VERSION_CODE", "${defaultConfig.versionCode}"
-            buildConfigField "String", "VERSION_NAME", "\"${defaultConfig.versionName}\""
         }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             buildConfigField "String", "SERVER_URL", '"https://api.sdk.letscooee.com"'
-            buildConfigField "long", "VERSION_CODE", "${defaultConfig.versionCode}"
-            buildConfigField "String", "VERSION_NAME", "\"${defaultConfig.versionName}\""
         }
     }
     compileOptions {

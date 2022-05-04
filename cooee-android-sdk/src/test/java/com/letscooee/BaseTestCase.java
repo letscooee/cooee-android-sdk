@@ -33,6 +33,7 @@ import java.util.Scanner;
 
 @Ignore("It is a base class which do not contains any test")
 public class BaseTestCase extends TestCase {
+
     protected AppInfo appInfo;
     protected ApplicationInfo applicationInfo;
     protected PackageManager packageManager;
@@ -47,6 +48,10 @@ public class BaseTestCase extends TestCase {
     protected CooeeEmptyActivity activityWithNoBundle;
     protected CooeeEmptyActivity activityWithNoTriggerData;
     protected CooeeDatabase database;
+
+    static {
+        BuildConfig.IS_TESTING.set(true);
+    }
 
     @Before
     @Override

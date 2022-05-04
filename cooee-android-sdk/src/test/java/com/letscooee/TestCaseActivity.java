@@ -1,9 +1,8 @@
-package com.letscooee.cooee;
+package com.letscooee;
 
 import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import com.letscooee.R;
 
 public class TestCaseActivity extends AppCompatActivity {
 
