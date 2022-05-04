@@ -3,9 +3,11 @@ package com.letscooee.trigger;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Window;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import com.google.gson.Gson;
@@ -185,9 +187,11 @@ public class EngagementTriggerHelper {
         }
 
         try {
+            boolean isInFullscreenMode = !isStatusBarVisible();
             Intent intent = new Intent(context, InAppTriggerActivity.class);
             Bundle sendBundle = new Bundle();
             sendBundle.putParcelable(Constants.INTENT_TRIGGER_DATA_KEY, triggerData);
+            sendBundle.putBoolean(Constants.IN_APP_FULLSCREEN_FLAG_KEY, isInFullscreenMode);
             intent.putExtra("bundle", sendBundle);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(intent);
@@ -289,5 +293,22 @@ public class EngagementTriggerHelper {
      */
     public static void setCurrentActivity(Activity currentActivity) {
         EngagementTriggerHelper.currentActivity = currentActivity;
+    }
+
+    /**
+     * Check if status bar is visible or not for current {@link Activity}
+     *
+     * @return {@code true} if status bar is visible, {@code false} otherwise
+     */
+    private boolean isStatusBarVisible() {
+        if (currentActivity == null) {
+            return true;
+        }
+
+        Rect rectangle = new Rect();
+        Window window = currentActivity.getWindow();
+        window.getDecorView().getWindowVisibleDisplayFrame(rectangle);
+        int statusBarHeight = rectangle.top;
+        return statusBarHeight != 0;
     }
 }
