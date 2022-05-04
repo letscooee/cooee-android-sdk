@@ -38,6 +38,7 @@ public class EngagementTriggerHelper {
     private static final long TIME_TO_WAIT_MILLIS = 6 * 1000;
 
     private final Context context;
+    private static Activity currentActivity;
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public EngagementTriggerHelper(Context context) {
@@ -279,5 +280,14 @@ public class EngagementTriggerHelper {
     private static void setActiveTrigger(Context context, TriggerData triggerData) {
         LocalStorageHelper.putEmbeddedTriggerImmediately(context, Constants.STORAGE_ACTIVE_TRIGGER,
                 new EmbeddedTrigger(triggerData));
+    }
+
+    /**
+     * Keeps track of the currently active {@link Activity}.
+     *
+     * @param currentActivity The currently active {@link Activity}.
+     */
+    public static void setCurrentActivity(Activity currentActivity) {
+        EngagementTriggerHelper.currentActivity = currentActivity;
     }
 }
