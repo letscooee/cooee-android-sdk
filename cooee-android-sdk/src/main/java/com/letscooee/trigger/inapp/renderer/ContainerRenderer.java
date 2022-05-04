@@ -29,6 +29,8 @@ public class ContainerRenderer extends AbstractInAppRenderer {
 
     private final InAppTrigger inAppTrigger;
     private final DeviceInfo deviceInfo;
+    private double displayWidth;
+    private double displayHeight;
 
     public ContainerRenderer(Context context, ViewGroup parentView, BaseElement element, InAppTrigger inAppTrigger,
                              TriggerContext globalData) {
@@ -105,12 +107,34 @@ public class ContainerRenderer extends AbstractInAppRenderer {
      */
     private void updateScalingFactor() {
         boolean isPortrait = deviceInfo.getOrientation() == Configuration.ORIENTATION_PORTRAIT;
-        double displayWidth = deviceInfo.getRunTimeDisplayWidth();
-        double displayHeight = deviceInfo.getRunTimeDisplayHeight();
+        displayWidth = deviceInfo.getRunTimeDisplayWidth();
+        displayHeight = deviceInfo.getRunTimeDisplayHeight();
         Log.d(TAG, "Display width: " + displayWidth + ", height: " + displayHeight);
 
-        // Activity will not go directly to fullscreen mode. Hence, bifurcating task to different task.
-        /*WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        if (globalData.isMakeInAppFullScreen()) {
+            updateHeightAndWidth();
+            Log.d(TAG, "Updated Display width: " + displayWidth + ", height: " + displayHeight);
+        }
+
+        double containerWidth = elementData.getWidth();
+        double containerHeight = elementData.getHeight();
+
+        double scalingFactor;
+        if (displayWidth / displayHeight < containerWidth / containerHeight) {
+            scalingFactor = displayWidth / containerWidth;
+        } else {
+            scalingFactor = displayHeight / containerHeight;
+        }
+
+        globalData.setScalingFactor(scalingFactor);
+    }
+
+    /**
+     * Updates the height and width of the container. If the container is {@link TriggerContext#isMakeInAppFullScreen()}
+     * returns {@code true}.
+     */
+    private void updateHeightAndWidth() {
+        WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
             Rect rect = wm.getCurrentWindowMetrics().getBounds();
@@ -125,19 +149,5 @@ public class ContainerRenderer extends AbstractInAppRenderer {
             displayWidth = point.x;
             displayHeight = point.y;
         }
-
-        Log.d(TAG, "Display width: " + displayWidth + ", height: " + displayHeight);*/
-
-        double containerWidth = elementData.getWidth();
-        double containerHeight = elementData.getHeight();
-
-        double scalingFactor;
-        if (displayWidth / displayHeight < containerWidth / containerHeight) {
-            scalingFactor = displayWidth / containerWidth;
-        } else {
-            scalingFactor = displayHeight / containerHeight;
-        }
-
-        globalData.setScalingFactor(scalingFactor);
     }
 }
