@@ -4,12 +4,15 @@ import static com.letscooee.utils.Constants.TAG;
 
 import android.content.Context;
 import android.content.res.Configuration;
+import android.graphics.Point;
+import android.graphics.Rect;
 import android.util.Log;
+import android.view.Display;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.FrameLayout;
 
-import com.letscooee.BuildConfig;
 import com.letscooee.CooeeFactory;
 import com.letscooee.device.DeviceInfo;
 import com.letscooee.models.trigger.elements.*;
@@ -45,7 +48,7 @@ public class ContainerRenderer extends AbstractInAppRenderer {
             processChildren();
         }
 
-        // For container it is necessary to be of size of device i.e. match_parent
+        // For container, it is necessary to be of size of device i.e. match_parent
         FrameLayout.LayoutParams frameLayoutParams = new FrameLayout.LayoutParams(MP, MP);
         baseFrameLayout.setLayoutParams(frameLayoutParams);
         newElement.setLayoutParams(frameLayoutParams);
@@ -102,23 +105,37 @@ public class ContainerRenderer extends AbstractInAppRenderer {
      */
     private void updateScalingFactor() {
         boolean isPortrait = deviceInfo.getOrientation() == Configuration.ORIENTATION_PORTRAIT;
-        int displayWidth = deviceInfo.getRunTimeDisplayWidth();
-        int displayHeight = deviceInfo.getRunTimeDisplayHeight();
+        double displayWidth = deviceInfo.getRunTimeDisplayWidth();
+        double displayHeight = deviceInfo.getRunTimeDisplayHeight();
+        Log.d(TAG, "Display width: " + displayWidth + ", height: " + displayHeight);
 
-        if (BuildConfig.DEBUG) {
-            Log.d(TAG, "Display width: " + displayWidth + ", height: " + displayHeight);
+        // Activity will not go directly to fullscreen mode. Hence, bifurcating task to different task.
+        /*WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+            Rect rect = wm.getCurrentWindowMetrics().getBounds();
+            displayWidth = rect.width();
+            displayHeight = rect.height();
+        } else {
+            //noinspection deprecation
+            Display display = wm.getDefaultDisplay();
+            Point point = new Point();
+            //noinspection deprecation
+            display.getSize(point);
+            displayWidth = point.x;
+            displayHeight = point.y;
         }
+
+        Log.d(TAG, "Display width: " + displayWidth + ", height: " + displayHeight);*/
 
         double containerWidth = elementData.getWidth();
         double containerHeight = elementData.getHeight();
 
         double scalingFactor;
-        if (isPortrait) {
-            double shortEdge = Math.min(containerWidth, containerHeight);
-            scalingFactor = displayWidth / shortEdge;
+        if (displayWidth / displayHeight < containerWidth / containerHeight) {
+            scalingFactor = displayWidth / containerWidth;
         } else {
-            double longEdge = Math.max(containerWidth, containerHeight);
-            scalingFactor = displayHeight / longEdge;
+            scalingFactor = displayHeight / containerHeight;
         }
 
         globalData.setScalingFactor(scalingFactor);
