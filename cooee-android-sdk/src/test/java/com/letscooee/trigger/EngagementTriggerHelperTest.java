@@ -26,8 +26,6 @@ import java.util.Map;
 import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Mockito.*;
 
-@RunWith(RobolectricTestRunner.class)
-@Config(sdk = Build.VERSION_CODES.R)
 public class EngagementTriggerHelperTest extends BaseTestCase {
 
     EngagementTriggerHelper engagementTriggerHelperMock;
@@ -87,11 +85,7 @@ public class EngagementTriggerHelperTest extends BaseTestCase {
 
     @Test
     public void render_in_app_from_json_string_null_string() {
-        samplePayload = null;
-
-        assertThat(samplePayload).isNull();
-
-        commonRenderInAppTriggerFromJSONString(samplePayload, 0);
+        commonRenderInAppTriggerFromJSONString(null, 0);
     }
 
     @Test

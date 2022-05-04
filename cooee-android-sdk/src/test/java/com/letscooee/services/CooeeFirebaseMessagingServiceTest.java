@@ -1,25 +1,18 @@
 package com.letscooee.services;
 
-import android.os.Build;
 import com.letscooee.BaseTestCase;
 import com.letscooee.models.trigger.TriggerData;
 import com.letscooee.trigger.EngagementTriggerHelper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-
-@RunWith(RobolectricTestRunner.class)
-@Config(sdk = Build.VERSION_CODES.R)
 public class CooeeFirebaseMessagingServiceTest extends BaseTestCase {
 
     @Mock
@@ -101,6 +94,5 @@ public class CooeeFirebaseMessagingServiceTest extends BaseTestCase {
         String updatedPayload = gson.toJson(payloadMap);
 
         commonFailForUpdatedPayload(updatedPayload);
-        ;
     }
 }

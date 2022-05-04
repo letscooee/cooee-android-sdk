@@ -2,7 +2,6 @@ package com.letscooee.trigger.inapp;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.room.Room;
@@ -13,20 +12,14 @@ import com.letscooee.room.CooeeDatabase;
 import com.letscooee.trigger.adapters.TriggerGsonDeserializer;
 import com.letscooee.utils.Constants;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
-import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.android.controller.ActivityController;
-import org.robolectric.annotation.Config;
 import org.robolectric.util.ReflectionHelpers;
 
 import static org.mockito.Mockito.*;
 
-@RunWith(RobolectricTestRunner.class)
-@Config(sdk = Build.VERSION_CODES.R)
 public class InAppTriggerActivityTest extends BaseTestCase {
 
     enum PayloadProperty {
@@ -56,7 +49,6 @@ public class InAppTriggerActivityTest extends BaseTestCase {
         InAppTriggerActivity.captureWindowForBlurryEffect(dummyActivity);
     }
 
-    @Ignore("Not a test case")
     private void createIntent() {
         intentWithNoBundle = new Intent(context, InAppTriggerActivity.class);
 
@@ -70,15 +62,13 @@ public class InAppTriggerActivityTest extends BaseTestCase {
         validIntent.putExtra("bundle", bundle1);
     }
 
-    @Ignore("Not a test case")
-    public static <T extends Activity> T getSpy(ActivityController<T> activityController) {
+    private static <T extends Activity> T getSpy(ActivityController<T> activityController) {
         T spy = spy(activityController.get());
         ReflectionHelpers.setField(activityController, "component", spy);
         return spy;
     }
 
-    @Ignore("Not a test case")
-    public void updatePayloadAndIntent(@NonNull PayloadProperty property) {
+    private void updatePayloadAndIntent(@NonNull PayloadProperty property) {
         String updatedPayload = samplePayload.replace(property.name().toLowerCase(), property.name().toLowerCase() + "x");
 
         triggerData = TriggerGsonDeserializer.getGson().fromJson(updatedPayload, TriggerData.class);
@@ -87,7 +77,6 @@ public class InAppTriggerActivityTest extends BaseTestCase {
         validIntent.putExtra("bundle", bundle);
     }
 
-    @Ignore("Not a test case")
     private void commonTestCheck(ActivityController<InAppTriggerActivity> controller, InAppTriggerActivity spy, boolean isValid) {
         doNothing().when(spy).sendTriggerDisplayedEvent();
         controller.create();

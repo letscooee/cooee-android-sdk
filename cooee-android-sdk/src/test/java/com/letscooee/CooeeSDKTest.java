@@ -1,15 +1,10 @@
 package com.letscooee;
 
-import android.os.Build;
 import com.letscooee.utils.CooeeCTAListener;
 import com.letscooee.utils.PropertyNameException;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,8 +13,6 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
 
-@RunWith(RobolectricTestRunner.class)
-@Config(sdk = Build.VERSION_CODES.R)
 public class CooeeSDKTest extends BaseTestCase {
 
     @Mock
@@ -36,7 +29,6 @@ public class CooeeSDKTest extends BaseTestCase {
         prepareTestData();
     }
 
-    @Ignore("This method just prepare data for test cases")
     private void prepareTestData() {
         validProperty = new HashMap<>();
         validProperty.put("foo", "bar");

@@ -1,11 +1,7 @@
 package com.letscooee.device;
 
-import android.os.Build;
 import com.letscooee.BaseTestCase;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -13,13 +9,10 @@ import java.util.Locale;
 
 import static com.google.common.truth.Truth.assertThat;
 
-@RunWith(RobolectricTestRunner.class)
-@Config(sdk = Build.VERSION_CODES.R)
 public class AppInfoTest extends BaseTestCase {
 
     @Test
     public void testAppName() {
-        String applicationName = applicationInfo.loadLabel(packageManager).toString();
         String appName = appInfo.getName();
         assertThat(appName).isEqualTo("com.letscooee.init.AppController");
     }

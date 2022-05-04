@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import androidx.test.core.app.ApplicationProvider;
@@ -21,8 +22,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
+import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
+import org.robolectric.annotation.SQLiteMode;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,8 +35,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 
-@Ignore("It is a base class which do not contains any test")
-public class BaseTestCase extends TestCase {
+import static org.robolectric.annotation.SQLiteMode.Mode.NATIVE;
+
+@SQLiteMode(NATIVE)
+@Config(sdk = Build.VERSION_CODES.S)
+@RunWith(RobolectricTestRunner.class)
+public abstract class BaseTestCase extends TestCase {
 
     protected AppInfo appInfo;
     protected ApplicationInfo applicationInfo;

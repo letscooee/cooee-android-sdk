@@ -103,6 +103,7 @@ public class CooeeBootstrap {
                 PushProviderUtils.pushTokenRefresh(token);
             });
         } catch (IllegalStateException e) {
+            // Thrown when the firebase file is missing
             Log.e(TAG, "Fail to initialize FirebaseApp", e);
         }
     }

@@ -1,26 +1,20 @@
 package com.letscooee.utils;
 
-import android.os.Build;
 import com.letscooee.BaseTestCase;
 import com.letscooee.models.trigger.EmbeddedTrigger;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static com.google.common.truth.Truth.assertThat;
 
-@RunWith(RobolectricTestRunner.class)
-@Config(sdk = Build.VERSION_CODES.R)
 public class LocalStorageHelperTest extends BaseTestCase {
 
     private final String KEY = "TEST_KEY";
 
     @Test
-    public void putString() {
+    public void put_string() {
         String testString = "Local storage Test";
         LocalStorageHelper.putString(context, KEY, testString);
 
@@ -29,7 +23,7 @@ public class LocalStorageHelperTest extends BaseTestCase {
     }
 
     @Test
-    public void putStringImmediately() {
+    public void put_string_immediately() {
         String testString = "Local storage Test";
         boolean result = LocalStorageHelper.putStringImmediately(context, KEY, testString);
         assertThat(result).isTrue();
