@@ -10,6 +10,7 @@ import com.letscooee.utils.Constants;
 import com.letscooee.utils.LocalStorageHelper;
 import com.letscooee.utils.RuntimeData;
 
+import com.letscooee.utils.Timer;
 import org.bson.types.ObjectId;
 
 import java.util.Date;
@@ -34,6 +35,9 @@ public class SessionManager {
     private Integer currentSessionNumber;
     private Date currentSessionStartTime;
 
+    private Timer timer = new Timer();
+    private Runnable runnable;
+
     private SessionManager(Context context) {
         this.context = context.getApplicationContext();
         this.runtimeData = RuntimeData.getInstance(this.context);
@@ -56,7 +60,7 @@ public class SessionManager {
      *
      * @return The current session id.
      */
-    public String getCurrentSessionID() {
+    public synchronized String getCurrentSessionID() {
         return this.getCurrentSessionID(true);
     }
 
@@ -67,14 +71,22 @@ public class SessionManager {
      *                  then create a new session.
      * @return The current or new session id.
      */
-    public String getCurrentSessionID(boolean createNew) {
-        if (TextUtils.isEmpty(currentSessionID) && createNew) {
+    public synchronized String getCurrentSessionID(boolean createNew) {
+        currentSessionID = LocalStorageHelper.getString(context, Constants.STORAGE_ACTIVE_SESSION, null);
+        currentSessionNumber = LocalStorageHelper.getInt(context, Constants.STORAGE_SESSION_NUMBER, 0);
+
+        if (createNew) {
             startNewSession();
         }
+
+        LocalStorageHelper.putDate(context, Constants.STORAGE_LAST_SESSION_USE_TIME, new Date());
 
         return currentSessionID;
     }
 
+    /**
+     * Start a new session only if {@code currentSessionID} is empty.
+     */
     public void startNewSession() {
         if (!TextUtils.isEmpty(currentSessionID)) {
             return;
@@ -82,6 +94,7 @@ public class SessionManager {
 
         currentSessionStartTime = new Date();
         currentSessionID = new ObjectId().toHexString();
+        LocalStorageHelper.putString(context, Constants.STORAGE_ACTIVE_SESSION, currentSessionID);
 
         bumpSessionNumber();
     }
@@ -97,16 +110,25 @@ public class SessionManager {
 
         // TODO Confirm this when session is concluded after 30 min irrespective of app launch
         // Remove active trigger after session is concluded
-        LocalStorageHelper.remove(context, Constants.STORAGE_ACTIVE_TRIGGER);
+        LocalStorageHelper.remove(context, Constants.STORAGE_ACTIVE_SESSION);
+        LocalStorageHelper.remove(context, Constants.STORAGE_LAST_SESSION_USE_TIME);
 
-        CooeeFactory.getSafeHTTPService().sendSessionConcludedEvent(requestData);
         this.destroySession();
+        CooeeFactory.getSafeHTTPService().sendSessionConcludedEvent(requestData);
     }
 
+    /**
+     * Return the current session number.
+     *
+     * @return The current session number.
+     */
     public Integer getCurrentSessionNumber() {
         return this.currentSessionNumber;
     }
 
+    /**
+     * Bump the session number by 1.
+     */
     private void bumpSessionNumber() {
         currentSessionNumber = LocalStorageHelper.getInt(context, Constants.STORAGE_SESSION_NUMBER, 0);
         currentSessionNumber += 1;
@@ -114,6 +136,9 @@ public class SessionManager {
         LocalStorageHelper.putInt(context, Constants.STORAGE_SESSION_NUMBER, currentSessionNumber);
     }
 
+    /**
+     * Destroy the current session.
+     */
     public void destroySession() {
         this.currentSessionID = null;
         this.currentSessionNumber = null;
@@ -128,5 +153,52 @@ public class SessionManager {
         requestData.put("sessionID", this.getCurrentSessionID());
 
         CooeeFactory.getBaseHTTPService().keepAliveSession(requestData);
+    }
+
+    /**
+     * Calculate the time difference between the current time and last session used time.
+     * If last session used time is not available, then return 0.
+     *
+     * @return The time difference in seconds.
+     */
+    public long getLastSessionUsedDifferenceInSeconds() {
+        Date lastSessionUseTime = LocalStorageHelper.getDate(context, Constants.STORAGE_LAST_SESSION_USE_TIME, null);
+
+        return lastSessionUseTime != null ? (new Date().getTime() - lastSessionUseTime.getTime()) / 1000 : 0;
+    }
+
+    /**
+     * Checks if stored session is expired or not.
+     * if stored session is expired then conclude that session and return true.
+     *
+     * @return {@code true} if stored session is expired, Otherwise {@code false}.
+     */
+    public boolean checkSessionExpiry() {
+        if (getLastSessionUsedDifferenceInSeconds() > Constants.IDLE_TIME_IN_SECONDS) {
+            conclude();
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Check if  {@code timer} was stopped previously and start keep alive loop.
+     */
+    public void keepSessionAlive() {
+        if (timer.isShutdown()) {
+            timer = new Timer();
+        }
+
+        timer.schedule(runnable = () -> {
+            timer.schedule(runnable, Constants.KEEP_ALIVE_TIME_IN_MS);
+            this.pingServerToKeepAlive();
+        }, Constants.KEEP_ALIVE_TIME_IN_MS);
+    }
+
+    /**
+     * Stop the timer.
+     */
+    public void stopSessionAlive() {
+        timer.stop();
     }
 }
