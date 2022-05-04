@@ -3,14 +3,13 @@ apply plugin: 'com.google.gms.google-services'
 
 android {
     compileSdkVersion 30
-    buildToolsVersion "29.0.3"
 
     defaultConfig {
         applicationId "com.letscooee.tester"
         minSdkVersion 21
         targetSdkVersion 30
-        versionCode 16
-        versionName "0.0.16"
+        versionCode 20
+        versionName "0.0.20"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -38,13 +37,10 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
     implementation project(path: ':cooee-android-sdk')
-    implementation platform('com.google.firebase:firebase-bom:26.2.0')
-    implementation 'com.google.firebase:firebase-analytics'
-    implementation 'com.google.firebase:firebase-messaging'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
     implementation 'com.google.android.material:material:1.3.0'
-    implementation 'com.letscooee:otf-augmented-reality:0.0.2'
-
+    //implementation 'com.letscooee:otf-augmented-reality:0.0.2'
+    //androidTestImplementation project(path: ':cooee-android-sdk')
 }

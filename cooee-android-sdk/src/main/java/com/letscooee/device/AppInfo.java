@@ -57,8 +57,7 @@ public class AppInfo extends ContextAware {
 
         private String getAppName() {
             ApplicationInfo applicationInfo = context.getApplicationInfo();
-            int stringId = applicationInfo.labelRes;
-            return stringId == 0 ? applicationInfo.nonLocalizedLabel.toString() : context.getString(stringId);
+            return applicationInfo.loadLabel(context.getPackageManager()).toString();
         }
 
         private boolean isInDebugMode() {

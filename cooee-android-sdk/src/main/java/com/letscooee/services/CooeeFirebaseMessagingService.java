@@ -43,6 +43,7 @@ import java.util.HashMap;
 public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
 
     Context context;
+    EngagementTriggerHelper engagementTriggerHelper;
 
     public CooeeFirebaseMessagingService() {
     }
@@ -65,6 +66,8 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
     public void onMessageReceived(@NonNull RemoteMessage remoteMessage) {
         super.onMessageReceived(remoteMessage);
         this.context = getApplicationContext();
+        engagementTriggerHelper = new EngagementTriggerHelper(context);
+
         if (remoteMessage.getData().size() == 0) {
             return;
         }
@@ -129,7 +132,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
 
             showNotification(triggerData);
         } else {
-            EngagementTriggerHelper.loadLazyData(context, triggerData);
+            engagementTriggerHelper.loadLazyData(triggerData);
         }
     }
 

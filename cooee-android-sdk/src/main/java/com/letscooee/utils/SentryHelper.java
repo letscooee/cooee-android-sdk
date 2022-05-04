@@ -3,14 +3,11 @@ package com.letscooee.utils;
 import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
-
 import androidx.annotation.RestrictTo;
-
 import com.letscooee.BuildConfig;
 import com.letscooee.ContextAware;
 import com.letscooee.device.AppInfo;
 import com.letscooee.trigger.inapp.InAppTriggerActivity;
-
 import io.sentry.CustomSamplingContext;
 import io.sentry.Sentry;
 import io.sentry.SentryEvent;
@@ -96,7 +93,7 @@ public class SentryHelper extends ContextAware {
             }
 
             // Additional check to prevent sending events in the local debug mode of SDK
-            if (BuildConfig.DEBUG) {
+            if (BuildConfig.IS_TESTING.get()) {
                 return null;
             }
 
