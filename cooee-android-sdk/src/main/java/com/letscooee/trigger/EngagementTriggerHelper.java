@@ -21,8 +21,10 @@ import com.letscooee.trigger.action.ClickActionExecutor;
 import com.letscooee.trigger.adapters.TriggerGsonDeserializer;
 import com.letscooee.trigger.inapp.InAppTriggerActivity;
 import com.letscooee.trigger.inapp.TriggerContext;
+import com.letscooee.utils.Constants;
+import com.letscooee.utils.LocalStorageHelper;
+import com.letscooee.utils.RuntimeData;
 import com.letscooee.utils.Timer;
-import com.letscooee.utils.*;
 
 import java.util.*;
 
@@ -154,11 +156,9 @@ public class EngagementTriggerHelper {
             return;
         }
 
-        Gson gson = TriggerGsonDeserializer.getGson();
-
         TriggerData triggerData;
         try {
-            triggerData = gson.fromJson(rawTriggerData, TriggerData.class);
+            triggerData = TriggerGsonDeserializer.getGson().fromJson(rawTriggerData, TriggerData.class);
         } catch (JsonSyntaxException e) {
             CooeeFactory.getSentryHelper().captureException(e);
             return;
@@ -174,12 +174,13 @@ public class EngagementTriggerHelper {
      * @param triggerData received and parsed trigger data.
      */
     public void renderInAppTrigger(TriggerData triggerData) {
-        if (triggerData == null || TextUtils.isEmpty(triggerData.getId())) {
+        if (TextUtils.isEmpty(triggerData.getId())) {
             return;
         }
 
         RuntimeData runtimeData = CooeeFactory.getRuntimeData();
         if (runtimeData.isInBackground()) {
+            Log.i(Constants.TAG, "Won't render in-app. App is in background");
             return;
         }
 

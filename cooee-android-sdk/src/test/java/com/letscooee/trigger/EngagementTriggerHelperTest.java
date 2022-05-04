@@ -2,7 +2,6 @@ package com.letscooee.trigger;
 
 import android.app.Activity;
 import android.content.Context;
-import android.os.Build;
 import androidx.room.Room;
 import com.google.gson.JsonSyntaxException;
 import com.letscooee.BaseTestCase;
@@ -14,11 +13,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
-import org.robolectric.annotation.Config;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -103,15 +99,12 @@ public class EngagementTriggerHelperTest extends BaseTestCase {
 
     @Test
     public void render_in_app_from_json_string_empty_string() {
-        samplePayload = "";
-
-        assertThat(samplePayload).isNotNull();
-
-        commonRenderInAppTriggerFromJSONString(samplePayload, 0);
+        String emptyPayload = "";
+        commonRenderInAppTriggerFromJSONString(emptyPayload, 0);
     }
 
     /**
-     * This test reproduces bug and check that bug is handled correctly
+     * This test reproduces bug (COOEE-713) and check that bug is handled correctly.
      */
     @Test
     public void render_in_app_from_json_string_invalid_json_string() {
@@ -126,36 +119,14 @@ public class EngagementTriggerHelperTest extends BaseTestCase {
     }
 
     @Test
-    public void render_in_app_from_json_string_invalid_json_string_pass_two() {
-        samplePayload = "invalid json string";
-        assertThat(samplePayload).isNotNull();
-
-        try {
-            commonRenderInAppTriggerFromJSONString(samplePayload, 0);
-        } catch (Exception e) {
-            assertThat(e).isNotNull();
-            assertThat(e).isInstanceOf(JsonSyntaxException.class);
-        }
+    public void render_in_app_from_json_string_invalid_json_string_scenario_2() {
+        String invalidPayload = "invalid json string";
+        commonRenderInAppTriggerFromJSONString(invalidPayload, 0);
     }
 
     @Test
-    public void render_in_app_from_json_string_invalid_json_string_pass_three() {
-        try {
-            commonRenderInAppTriggerFromJSONString(new HashMap<String, Object>().toString(), 1);
-        } catch (Exception e) {
-            assertThat(e).isNotNull();
-            assertThat(e).isInstanceOf(JsonSyntaxException.class);
-        }
-    }
-
-    @Test
-    public void render_in_app_from_json_string_invalid_json_string_pass_four() {
-        try {
-            commonRenderInAppTriggerFromJSONString("{}", 1);
-        } catch (Exception e) {
-            assertThat(e).isNotNull();
-            assertThat(e).isInstanceOf(JsonSyntaxException.class);
-        }
+    public void render_in_app_from_json_string_invalid_json_string_scenario_3() {
+        commonRenderInAppTriggerFromJSONString("{}", 1);
     }
 
     private void commonRenderInAppFromPushNotification(Activity activity, int times) {
