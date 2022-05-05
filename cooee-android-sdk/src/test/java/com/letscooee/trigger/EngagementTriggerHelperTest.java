@@ -2,8 +2,8 @@ package com.letscooee.trigger;
 
 import android.app.Activity;
 import android.content.Context;
-import android.os.Build;
 import androidx.room.Room;
+import com.google.gson.JsonSyntaxException;
 import com.letscooee.BaseTestCase;
 import com.letscooee.models.trigger.EmbeddedTrigger;
 import com.letscooee.models.trigger.TriggerData;
@@ -13,11 +13,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
-import org.robolectric.annotation.Config;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -55,7 +52,7 @@ public class EngagementTriggerHelperTest extends BaseTestCase {
 
         doNothing().when(engagementTriggerHelperMock).renderInAppTriggerFromJSONString(anyString());
         engagementTriggerHelperMock.renderInAppTriggerFromResponse(payload);
-        verify(engagementTriggerHelperMock, times(1)).renderInAppTriggerFromJSONString(samplePayload);
+        verify(engagementTriggerHelperMock, times(1)).renderInAppTriggerFromJSONString(anyString());
     }
 
     @Test
@@ -70,10 +67,22 @@ public class EngagementTriggerHelperTest extends BaseTestCase {
         verify(engagementTriggerHelperMock, times(0)).renderInAppTriggerFromJSONString(samplePayload);
     }
 
+    @Test
+    public void render_in_app_from_response_null_response() {
+        doNothing().when(engagementTriggerHelperMock).renderInAppTriggerFromJSONString(anyString());
+        engagementTriggerHelperMock.renderInAppTriggerFromResponse(null);
+        verify(engagementTriggerHelperMock, never()).renderInAppTriggerFromJSONString(samplePayload);
+    }
+
     private void commonRenderInAppTriggerFromJSONString(String payload, int times) {
         doNothing().when(engagementTriggerHelperMock).renderInAppTrigger(any(TriggerData.class));
         engagementTriggerHelperMock.renderInAppTriggerFromJSONString(payload);
-        verify(engagementTriggerHelperMock, times(times)).renderInAppTrigger(any(TriggerData.class));
+
+        if (times > 0) {
+            verify(engagementTriggerHelperMock, times(times)).renderInAppTrigger(any(TriggerData.class));
+        } else {
+            verify(engagementTriggerHelperMock, never()).renderInAppTrigger(any(TriggerData.class));
+        }
     }
 
     @Test
@@ -90,11 +99,34 @@ public class EngagementTriggerHelperTest extends BaseTestCase {
 
     @Test
     public void render_in_app_from_json_string_empty_string() {
-        samplePayload = "";
+        String emptyPayload = "";
+        commonRenderInAppTriggerFromJSONString(emptyPayload, 0);
+    }
 
-        assertThat(samplePayload).isNotNull();
+    /**
+     * This test reproduces bug (COOEE-713) and check that bug is handled correctly.
+     */
+    @Test
+    public void render_in_app_from_json_string_invalid_json_string() {
+        assertThat(payloadMap).isNotNull();
 
-        commonRenderInAppTriggerFromJSONString(samplePayload, 0);
+        try {
+            commonRenderInAppTriggerFromJSONString(payloadMap.toString(), 0);
+        } catch (Exception e) {
+            assertThat(e).isNotNull();
+            assertThat(e).isInstanceOf(JsonSyntaxException.class);
+        }
+    }
+
+    @Test
+    public void render_in_app_from_json_string_invalid_json_string_scenario_2() {
+        String invalidPayload = "invalid json string";
+        commonRenderInAppTriggerFromJSONString(invalidPayload, 0);
+    }
+
+    @Test
+    public void render_in_app_from_json_string_invalid_json_string_scenario_3() {
+        commonRenderInAppTriggerFromJSONString("{}", 1);
     }
 
     private void commonRenderInAppFromPushNotification(Activity activity, int times) {

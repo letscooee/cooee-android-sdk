@@ -9,6 +9,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.letscooee.BuildConfig;
 import com.letscooee.CooeeFactory;
 import com.letscooee.models.Event;
@@ -20,8 +21,10 @@ import com.letscooee.trigger.action.ClickActionExecutor;
 import com.letscooee.trigger.adapters.TriggerGsonDeserializer;
 import com.letscooee.trigger.inapp.InAppTriggerActivity;
 import com.letscooee.trigger.inapp.TriggerContext;
+import com.letscooee.utils.Constants;
+import com.letscooee.utils.LocalStorageHelper;
+import com.letscooee.utils.RuntimeData;
 import com.letscooee.utils.Timer;
-import com.letscooee.utils.*;
 
 import java.util.*;
 
@@ -129,9 +132,9 @@ public class EngagementTriggerHelper {
     }
 
     /**
-     * Start rendering the in-app trigger from the the raw response received from the backend API.
+     * Start rendering the in-app trigger from the raw response received from the backend API.
      *
-     * @param data    Data received from the backend
+     * @param data Data received from the backend
      */
     public void renderInAppTriggerFromResponse(Map<String, Object> data) {
         if (data == null) {
@@ -143,7 +146,7 @@ public class EngagementTriggerHelper {
             return;
         }
 
-        renderInAppTriggerFromJSONString(triggerData.toString());
+        renderInAppTriggerFromJSONString(new Gson().toJson(triggerData));
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -153,9 +156,13 @@ public class EngagementTriggerHelper {
             return;
         }
 
-        Gson gson = TriggerGsonDeserializer.getGson();
-
-        TriggerData triggerData = gson.fromJson(rawTriggerData, TriggerData.class);
+        TriggerData triggerData;
+        try {
+            triggerData = TriggerGsonDeserializer.getGson().fromJson(rawTriggerData, TriggerData.class);
+        } catch (JsonSyntaxException e) {
+            CooeeFactory.getSentryHelper().captureException(e);
+            return;
+        }
 
         storeActiveTriggerDetails(context, triggerData);
         renderInAppTrigger(triggerData);
@@ -167,8 +174,13 @@ public class EngagementTriggerHelper {
      * @param triggerData received and parsed trigger data.
      */
     public void renderInAppTrigger(TriggerData triggerData) {
+        if (TextUtils.isEmpty(triggerData.getId())) {
+            return;
+        }
+
         RuntimeData runtimeData = CooeeFactory.getRuntimeData();
         if (runtimeData.isInBackground()) {
+            Log.i(Constants.TAG, "Won't render in-app. App is in background");
             return;
         }
 
