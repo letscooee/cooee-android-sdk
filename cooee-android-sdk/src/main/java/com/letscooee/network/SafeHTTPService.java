@@ -61,12 +61,12 @@ public class SafeHTTPService extends ContextAware {
         this.sendEvent(event, false);
     }
 
-    private void sendEvent(Event event, boolean createSession) {
-        String sessionID = sessionManager.getCurrentSessionID(createSession);
+    private void sendEvent(Event event, boolean withSession) {
+        String sessionID = sessionManager.getCurrentSessionID(withSession);
         EmbeddedTrigger trigger = LocalStorageHelper.getEmbeddedTrigger(context, Constants.STORAGE_ACTIVE_TRIGGER,
                 null);
 
-        if (!TextUtils.isEmpty(sessionID)) {
+        if (!TextUtils.isEmpty(sessionID) && withSession) {
             event.setSessionID(sessionID);
             event.setSessionNumber(sessionManager.getCurrentSessionNumber());
         }

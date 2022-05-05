@@ -54,7 +54,8 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
         super.onCreate(savedInstanceState);
         this.setContentView(R.layout.in_app_trigger_activity);
 
-        setFullscreen();
+        // Activity will not go directly to fullscreen mode. Hence, bifurcating task to different task.
+        //setFullscreen();
 
         this.isFreshLaunch = savedInstanceState == null;
 
