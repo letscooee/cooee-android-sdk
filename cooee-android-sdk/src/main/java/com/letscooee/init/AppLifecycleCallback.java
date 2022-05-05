@@ -38,6 +38,7 @@ class AppLifecycleCallback implements DefaultLifecycleObserver {
     @Override
     public void onCreate(@NonNull LifecycleOwner owner) {
         sessionManager.checkSessionExpiry();
+        new NewSessionExecutor(context).execute();
     }
 
     @Override
