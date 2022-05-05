@@ -129,21 +129,6 @@ public class EngagementTriggerHelperTest extends BaseTestCase {
         commonRenderInAppTriggerFromJSONString("{}", 1);
     }
 
-    /**
-     * This test reproduces bug and check that bug is handled correctly
-     */
-    @Test
-    public void render_in_app_from_json_string_invalid_json_string() {
-        assertThat(payloadMap).isNotNull();
-
-        try {
-            commonRenderInAppTriggerFromJSONString(payloadMap.toString(), 0);
-        } catch (Exception e) {
-            assertThat(e).isNotNull();
-            assertThat(e).isInstanceOf(JsonSyntaxException.class);
-        }
-    }
-
     @Test
     public void render_in_app_from_json_string_invalid_json_string_pass_two() {
         samplePayload = "invalid json string";
