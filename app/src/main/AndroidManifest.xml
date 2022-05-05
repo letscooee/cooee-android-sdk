@@ -16,7 +16,7 @@
         <activity android:name=".SignUpActivity" />
         <activity android:name=".ProfileActivity" />
         <activity android:name=".SplashActivity" />
-        <activity android:name=".HomeActivity">
+        <activity android:name=".HomeActivity" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -34,6 +34,8 @@
         <meta-data
             android:name="SHAKE_TO_DEBUG_COUNT"
             android:value="LOW" />
+
+        <meta-data android:name="com.google.ar.core" android:value="optional" />
 
     </application>
 </manifest>

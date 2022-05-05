@@ -10,7 +10,6 @@ import com.letscooee.models.Event;
 import com.letscooee.network.SafeHTTPService;
 import com.letscooee.retrofit.DeviceAuthService;
 import com.letscooee.task.CooeeExecutors;
-import com.letscooee.user.NewSessionExecutor;
 import com.letscooee.utils.CooeeCTAListener;
 import com.letscooee.utils.PropertyNameException;
 import com.letscooee.utils.RuntimeData;
@@ -51,11 +50,7 @@ public class CooeeSDK {
         this.safeHTTPService = CooeeFactory.getSafeHTTPService();
         this.deviceAuthService = CooeeFactory.getDeviceAuthService();
 
-        CooeeExecutors.getInstance().singleThreadExecutor().execute(() -> {
-            this.deviceAuthService.acquireSDKToken();
-
-            new NewSessionExecutor(this.context).execute();
-        });
+        CooeeExecutors.getInstance().singleThreadExecutor().execute(this.deviceAuthService::acquireSDKToken);
     }
 
     /**

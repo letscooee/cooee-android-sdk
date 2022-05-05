@@ -54,8 +54,6 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
         super.onCreate(savedInstanceState);
         this.setContentView(R.layout.in_app_trigger_activity);
 
-        setFullscreen();
-
         this.isFreshLaunch = savedInstanceState == null;
 
         try {

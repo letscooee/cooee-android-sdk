@@ -25,6 +25,8 @@ public class Constants {
     public static final String STORAGE_DEVICE_ID = "cooee_device_id";
     public static final String STORAGE_DEVICE_UUID = "cooee_device_uuid";
     public static final String STORAGE_SCREENSHOT_SYNC_TIME = "screenshot_sync_time";
+    public static final String STORAGE_LAST_SESSION_USE_TIME = "cooee_last_session_use_time";
+    public static final String STORAGE_ACTIVE_SESSION = "cooee_active_session";
     // endregion
 
     public static final String TAG = "CooeeSDK";

@@ -1,8 +1,6 @@
 package com.letscooee.network;
 
 import android.content.Context;
-import android.text.TextUtils;
-
 import com.letscooee.ContextAware;
 import com.letscooee.models.Event;
 import com.letscooee.models.trigger.EmbeddedTrigger;
@@ -16,7 +14,6 @@ import com.letscooee.utils.Constants;
 import com.letscooee.utils.LocalStorageHelper;
 import com.letscooee.utils.RuntimeData;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -57,16 +54,15 @@ public class SafeHTTPService extends ContextAware {
      *
      * @param event The new event to be posted to the server safely.
      */
-    public void sendEventWithoutNewSession(Event event) {
+    public void sendEventWithoutSession(Event event) {
         this.sendEvent(event, false);
     }
 
-    private void sendEvent(Event event, boolean createSession) {
-        String sessionID = sessionManager.getCurrentSessionID(createSession);
-        EmbeddedTrigger trigger = LocalStorageHelper.getEmbeddedTrigger(context, Constants.STORAGE_ACTIVE_TRIGGER,
-                null);
+    private void sendEvent(Event event, boolean useSession) {
+        String sessionID = sessionManager.getCurrentSessionID(useSession);
+        EmbeddedTrigger trigger = LocalStorageHelper.getEmbeddedTrigger(context, Constants.STORAGE_ACTIVE_TRIGGER, null);
 
-        if (!TextUtils.isEmpty(sessionID)) {
+        if (useSession) {
             event.setSessionID(sessionID);
             event.setSessionNumber(sessionManager.getCurrentSessionNumber());
         }

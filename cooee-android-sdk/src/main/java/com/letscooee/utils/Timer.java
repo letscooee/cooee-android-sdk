@@ -20,7 +20,29 @@ public class Timer {
         scheduledExecutor = Executors.newScheduledThreadPool(1);
     }
 
+    /**
+     * Schedules a one-shot action that becomes enabled after the given delay.
+     *
+     * @param runnable       the task to execute
+     * @param durationMillis the delay time in milliseconds
+     */
     public void schedule(@NonNull Runnable runnable, long durationMillis) {
         scheduledExecutor.schedule(runnable, durationMillis, TimeUnit.MILLISECONDS);
+    }
+
+    /**
+     * Stops all scheduled tasks and interrupts all threads.
+     */
+    public void stop() {
+        scheduledExecutor.shutdownNow();
+    }
+
+    /**
+     * Returns {@code true} if this executor has been shut down.
+     *
+     * @return {@code true} if this executor has been shut down
+     */
+    public boolean isShutdown() {
+        return scheduledExecutor.isShutdown();
     }
 }

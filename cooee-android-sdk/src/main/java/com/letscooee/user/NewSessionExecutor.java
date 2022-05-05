@@ -49,7 +49,6 @@ public class NewSessionExecutor extends ContextAware {
         this.sessionManager = SessionManager.getInstance(context);
         this.appInfo = CooeeFactory.getAppInfo();
         this.safeHTTPService = CooeeFactory.getSafeHTTPService();
-        this.sessionManager.startNewSession();
         this.permissionManager = new PermissionManager(context);
         this.deviceInfo = CooeeFactory.getDeviceInfo();
     }

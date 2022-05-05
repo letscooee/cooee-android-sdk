@@ -57,7 +57,7 @@ public class OnPushNotificationButtonClick extends BroadcastReceiver {
                 .getParcelable(Constants.INTENT_TRIGGER_DATA_KEY);
 
         Event event = new Event("CE PN Carousel Move", triggerData);
-        CooeeFactory.getSafeHTTPService().sendEventWithoutNewSession(event);
+        CooeeFactory.getSafeHTTPService().sendEventWithoutSession(event);
 
         //loadBitmapsForCarousel(triggerData.getCarouselData(), 0, triggerData, context, intent);
     }
