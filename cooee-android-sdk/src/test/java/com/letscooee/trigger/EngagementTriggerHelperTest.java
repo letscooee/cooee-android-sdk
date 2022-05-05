@@ -129,39 +129,6 @@ public class EngagementTriggerHelperTest extends BaseTestCase {
         commonRenderInAppTriggerFromJSONString("{}", 1);
     }
 
-    @Test
-    public void render_in_app_from_json_string_invalid_json_string_pass_two() {
-        samplePayload = "invalid json string";
-        assertThat(samplePayload).isNotNull();
-
-        try {
-            commonRenderInAppTriggerFromJSONString(samplePayload, 0);
-        } catch (Exception e) {
-            assertThat(e).isNotNull();
-            assertThat(e).isInstanceOf(JsonSyntaxException.class);
-        }
-    }
-
-    @Test
-    public void render_in_app_from_json_string_invalid_json_string_pass_three() {
-        try {
-            commonRenderInAppTriggerFromJSONString(new HashMap<String, Object>().toString(), 1);
-        } catch (Exception e) {
-            assertThat(e).isNotNull();
-            assertThat(e).isInstanceOf(JsonSyntaxException.class);
-        }
-    }
-
-    @Test
-    public void render_in_app_from_json_string_invalid_json_string_pass_four() {
-        try {
-            commonRenderInAppTriggerFromJSONString("{}", 1);
-        } catch (Exception e) {
-            assertThat(e).isNotNull();
-            assertThat(e).isInstanceOf(JsonSyntaxException.class);
-        }
-    }
-
     private void commonRenderInAppFromPushNotification(Activity activity, int times) {
         doNothing().when(engagementTriggerHelperMock).renderInAppFromPushNotification(any(TriggerData.class));
         engagementTriggerHelperMock.renderInAppFromPushNotification(activity);

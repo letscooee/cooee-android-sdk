@@ -2,14 +2,11 @@ package com.letscooee.user;
 
 import android.content.Context;
 import android.text.TextUtils;
-
 import androidx.annotation.RestrictTo;
-
 import com.letscooee.CooeeFactory;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.LocalStorageHelper;
 import com.letscooee.utils.RuntimeData;
-
 import com.letscooee.utils.Timer;
 import org.bson.types.ObjectId;
 
@@ -156,25 +153,28 @@ public class SessionManager {
     }
 
     /**
-     * Calculate the time difference between the current time and last session used time.
+     * Calculate the time difference between the current time and last session used time (i.e. idle time).
      * If last session used time is not available, then return 0.
      *
      * @return The time difference in seconds.
      */
-    public long getLastSessionUsedDifferenceInSeconds() {
+    public long getSessionIdleTimeInSeconds() {
         Date lastSessionUseTime = LocalStorageHelper.getDate(context, Constants.STORAGE_LAST_SESSION_USE_TIME, null);
+        if (lastSessionUseTime == null) {
+            return 0;
+        }
 
-        return lastSessionUseTime != null ? (new Date().getTime() - lastSessionUseTime.getTime()) / 1000 : 0;
+        return (new Date().getTime() - lastSessionUseTime.getTime()) / 1000;
     }
 
     /**
-     * Checks if stored session is expired or not.
+     * Checks if stored session is expired (idle time already passed) or not.
      * if stored session is expired then conclude that session and return true.
      *
      * @return {@code true} if stored session is expired, Otherwise {@code false}.
      */
     public boolean checkSessionExpiry() {
-        if (getLastSessionUsedDifferenceInSeconds() > Constants.IDLE_TIME_IN_SECONDS) {
+        if (getSessionIdleTimeInSeconds() > Constants.IDLE_TIME_IN_SECONDS) {
             conclude();
             return true;
         }

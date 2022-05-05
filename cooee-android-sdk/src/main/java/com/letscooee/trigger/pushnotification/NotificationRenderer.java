@@ -177,7 +177,7 @@ public abstract class NotificationRenderer {
 
             if (statusBarNotification.getId() == this.notificationID) {
                 Event event = new Event("CE Notification Viewed", triggerData);
-                this.safeHTTPService.sendEventWithoutNewSession(event);
+                this.safeHTTPService.sendEventWithoutSession(event);
             }
         }
     }

@@ -1,23 +1,17 @@
 package com.letscooee.trigger.inapp.renderer;
 
-import static com.letscooee.utils.Constants.TAG;
-
 import android.content.Context;
-import android.content.res.Configuration;
-import android.graphics.Point;
-import android.graphics.Rect;
 import android.util.Log;
-import android.view.Display;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.FrameLayout;
-
 import com.letscooee.CooeeFactory;
 import com.letscooee.device.DeviceInfo;
 import com.letscooee.models.trigger.elements.*;
 import com.letscooee.models.trigger.inapp.InAppTrigger;
 import com.letscooee.trigger.inapp.TriggerContext;
+
+import static com.letscooee.utils.Constants.TAG;
 
 /**
  * Renders the topmost container of the in-app.
@@ -104,7 +98,6 @@ public class ContainerRenderer extends AbstractInAppRenderer {
      * Calculates the scaling factor for the container and add it to {@link TriggerContext}.
      */
     private void updateScalingFactor() {
-        boolean isPortrait = deviceInfo.getOrientation() == Configuration.ORIENTATION_PORTRAIT;
         double displayWidth = deviceInfo.getRunTimeDisplayWidth();
         double displayHeight = deviceInfo.getRunTimeDisplayHeight();
         Log.d(TAG, "Display width: " + displayWidth + ", height: " + displayHeight);
