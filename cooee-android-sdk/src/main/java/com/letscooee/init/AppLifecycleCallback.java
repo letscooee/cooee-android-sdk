@@ -11,6 +11,7 @@ import com.letscooee.ar.ARHelper;
 import com.letscooee.broadcast.ARActionPerformed;
 import com.letscooee.models.Event;
 import com.letscooee.network.SafeHTTPService;
+import com.letscooee.task.CooeeExecutors;
 import com.letscooee.user.NewSessionExecutor;
 import com.letscooee.user.SessionManager;
 import com.letscooee.utils.RuntimeData;
@@ -38,7 +39,8 @@ class AppLifecycleCallback implements DefaultLifecycleObserver {
     @Override
     public void onCreate(@NonNull LifecycleOwner owner) {
         sessionManager.checkSessionExpiry();
-        new NewSessionExecutor(context).execute();
+        CooeeExecutors.getInstance().singleThreadExecutor().execute(() -> new NewSessionExecutor(context).execute());
+
     }
 
     @Override
@@ -52,14 +54,15 @@ class AppLifecycleCallback implements DefaultLifecycleObserver {
             return;
         }
 
-        long backgroundDuration = runtimeData.getTimeInBackgroundInSeconds();
-        Map<String, Object> eventProps = new HashMap<>();
-        eventProps.put("iaDur", backgroundDuration);
+        CooeeExecutors.getInstance().singleThreadExecutor().execute(() -> {
+            long backgroundDuration = runtimeData.getTimeInBackgroundInSeconds();
+            Map<String, Object> eventProps = new HashMap<>();
+            eventProps.put("iaDur", backgroundDuration);
 
-        Event event = new Event("CE App Foreground", eventProps);
-        event.setDeviceProps(sessionExecutor.getMutableDeviceProps());
-
-        safeHTTPService.sendEvent(event);
+            Event event = new Event("CE App Foreground", eventProps);
+            event.setDeviceProps(sessionExecutor.getMutableDeviceProps());
+            safeHTTPService.sendEvent(event);
+        });
 
         // Sent AR CTA once App is resumed
         ARActionPerformed.processLastARResponse(context);
@@ -79,14 +82,16 @@ class AppLifecycleCallback implements DefaultLifecycleObserver {
             return;
         }
 
-        long duration = runtimeData.getTimeInForegroundInSeconds();
+        CooeeExecutors.getInstance().singleThreadExecutor().execute(() -> {
+            long duration = runtimeData.getTimeInForegroundInSeconds();
 
-        Map<String, Object> eventProperties = new HashMap<>();
-        eventProperties.put("aDur", duration);
+            Map<String, Object> eventProperties = new HashMap<>();
+            eventProperties.put("aDur", duration);
 
-        Event event = new Event("CE App Background", eventProperties);
-        event.setDeviceProps(sessionExecutor.getMutableDeviceProps());
+            Event event = new Event("CE App Background", eventProperties);
+            event.setDeviceProps(sessionExecutor.getMutableDeviceProps());
 
-        safeHTTPService.sendEvent(event);
+            safeHTTPService.sendEvent(event);
+        });
     }
 }
