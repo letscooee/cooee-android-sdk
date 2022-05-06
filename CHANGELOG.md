@@ -1,5 +1,17 @@
 # Change Log
 
+## 1.3.10 (2022-05-06)
+
+### Improvements
+
+1. Improve InApp Rendering and orientation management.
+2. Improve session management.
+
+### Fixes
+
+1. Fix Event based InApp rendering.
+2. Fix data points sent in event.
+
 ## v1.3.9 (2022-04-13)
 
 ### Improvement
