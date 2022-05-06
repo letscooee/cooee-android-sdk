@@ -254,7 +254,7 @@ public class EngagementTriggerHelper {
         storeActiveTriggerDetails(context, triggerData);
 
         Event event = new Event("CE Notification Clicked", triggerData);
-        CooeeFactory.getSafeHTTPService().sendEvent(event);
+        CooeeFactory.getSafeHTTPService().sendEventWithoutSession(event);
 
         loadLazyData(triggerData);
     }
