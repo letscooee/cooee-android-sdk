@@ -98,9 +98,10 @@ public class CooeeSDK {
         }
 
         containsSystemDataPrefix(eventProperties);
-
-        Event event = new Event(eventName, eventProperties);
-        this.safeHTTPService.sendEvent(event);
+        CooeeExecutors.getInstance().singleThreadExecutor().execute(() -> {
+            Event event = new Event(eventName, eventProperties);
+            this.safeHTTPService.sendEvent(event);
+        });
     }
 
     /**
@@ -163,9 +164,10 @@ public class CooeeSDK {
         }
 
         containsSystemDataPrefix(userData);
-
-        this.sentryHelper.setUserInfo(userData);
-        this.safeHTTPService.updateUserProfile(userData);
+        CooeeExecutors.getInstance().singleThreadExecutor().execute(() -> {
+            this.sentryHelper.setUserInfo(userData);
+            this.safeHTTPService.updateUserProfile(userData);
+        });
     }
 
     /**
