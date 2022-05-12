@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 
 import com.letscooee.device.DebugInfoActivity;
 import com.letscooee.models.Event;
@@ -229,5 +230,16 @@ public class CooeeSDK {
                 throw new PropertyNameException();
             }
         }
+    }
+
+    /**
+     * Send wrapper information to the server.
+     *
+     * @param wrapperInformation wrapper information
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public void updateWrapper(Map<String, Object> wrapperInformation) {
+        CooeeExecutors.getInstance().singleThreadExecutor()
+                .execute(() -> safeHTTPService.updateDeviceProperty(wrapperInformation));
     }
 }
