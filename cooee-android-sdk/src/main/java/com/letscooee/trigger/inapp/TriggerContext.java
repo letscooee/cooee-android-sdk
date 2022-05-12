@@ -86,7 +86,7 @@ public class TriggerContext {
         this.scalingFactor = Math.min(scalingFactor, 1);
     }
 
-    public boolean isMakeInAppFullScreen() {
+    public boolean isCurrentActivityFullscreen() {
         return makeInAppFullScreen;
     }
 

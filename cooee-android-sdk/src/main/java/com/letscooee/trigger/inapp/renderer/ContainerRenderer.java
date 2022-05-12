@@ -3,7 +3,6 @@ package com.letscooee.trigger.inapp.renderer;
 import static com.letscooee.utils.Constants.TAG;
 
 import android.content.Context;
-import android.content.res.Configuration;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.util.Log;
@@ -18,8 +17,6 @@ import com.letscooee.device.DeviceInfo;
 import com.letscooee.models.trigger.elements.*;
 import com.letscooee.models.trigger.inapp.InAppTrigger;
 import com.letscooee.trigger.inapp.TriggerContext;
-
-import static com.letscooee.utils.Constants.TAG;
 
 /**
  * Renders the topmost container of the in-app.
@@ -112,7 +109,7 @@ public class ContainerRenderer extends AbstractInAppRenderer {
         displayHeight = deviceInfo.getRunTimeDisplayHeight();
         Log.d(TAG, "Display width: " + displayWidth + ", height: " + displayHeight);
 
-        if (globalData.isMakeInAppFullScreen()) {
+        if (globalData.isCurrentActivityFullscreen()) {
             updateHeightAndWidth();
             Log.d(TAG, "Updated Display width: " + displayWidth + ", height: " + displayHeight);
         }
@@ -131,7 +128,7 @@ public class ContainerRenderer extends AbstractInAppRenderer {
     }
 
     /**
-     * Updates the height and width of the container. If the container is {@link TriggerContext#isMakeInAppFullScreen()}
+     * Updates the height and width of the container. If the container is {@link TriggerContext#isCurrentActivityFullscreen()}
      * returns {@code true}.
      */
     private void updateHeightAndWidth() {
