@@ -3,9 +3,11 @@ package com.letscooee.trigger;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Window;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import com.google.gson.Gson;
@@ -40,6 +42,7 @@ public class EngagementTriggerHelper {
     private static final long TIME_TO_WAIT_MILLIS = 6 * 1000;
 
     private final Context context;
+    private static Activity currentActivity;
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public EngagementTriggerHelper(Context context) {
@@ -185,9 +188,11 @@ public class EngagementTriggerHelper {
         }
 
         try {
+            boolean isInFullscreenMode = !isStatusBarVisible();
             Intent intent = new Intent(context, InAppTriggerActivity.class);
             Bundle sendBundle = new Bundle();
             sendBundle.putParcelable(Constants.INTENT_TRIGGER_DATA_KEY, triggerData);
+            sendBundle.putBoolean(Constants.IN_APP_FULLSCREEN_FLAG_KEY, isInFullscreenMode);
             intent.putExtra("bundle", sendBundle);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(intent);
@@ -280,5 +285,31 @@ public class EngagementTriggerHelper {
     private static void setActiveTrigger(Context context, TriggerData triggerData) {
         LocalStorageHelper.putEmbeddedTriggerImmediately(context, Constants.STORAGE_ACTIVE_TRIGGER,
                 new EmbeddedTrigger(triggerData));
+    }
+
+    /**
+     * Keeps track of the currently active {@link Activity}.
+     *
+     * @param currentActivity The currently active {@link Activity}.
+     */
+    public static void setCurrentActivity(Activity currentActivity) {
+        EngagementTriggerHelper.currentActivity = currentActivity;
+    }
+
+    /**
+     * Check if status bar is visible or not for current {@link Activity}
+     *
+     * @return {@code true} if status bar is visible, {@code false} otherwise
+     */
+    private boolean isStatusBarVisible() {
+        if (currentActivity == null) {
+            return true;
+        }
+
+        Rect rectangle = new Rect();
+        Window window = currentActivity.getWindow();
+        window.getDecorView().getWindowVisibleDisplayFrame(rectangle);
+        int statusBarHeight = rectangle.top;
+        return statusBarHeight != 0;
     }
 }

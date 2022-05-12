@@ -1,10 +1,18 @@
 package com.letscooee.trigger.inapp.renderer;
 
+import static com.letscooee.utils.Constants.TAG;
+
 import android.content.Context;
+import android.content.res.Configuration;
+import android.graphics.Point;
+import android.graphics.Rect;
 import android.util.Log;
+import android.view.Display;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.FrameLayout;
+
 import com.letscooee.CooeeFactory;
 import com.letscooee.device.DeviceInfo;
 import com.letscooee.models.trigger.elements.*;
@@ -23,6 +31,8 @@ public class ContainerRenderer extends AbstractInAppRenderer {
 
     private final InAppTrigger inAppTrigger;
     private final DeviceInfo deviceInfo;
+    private double displayWidth;
+    private double displayHeight;
 
     public ContainerRenderer(Context context, ViewGroup parentView, BaseElement element, InAppTrigger inAppTrigger,
                              TriggerContext globalData) {
@@ -98,9 +108,14 @@ public class ContainerRenderer extends AbstractInAppRenderer {
      * Calculates the scaling factor for the container and add it to {@link TriggerContext}.
      */
     private void updateScalingFactor() {
-        double displayWidth = deviceInfo.getRunTimeDisplayWidth();
-        double displayHeight = deviceInfo.getRunTimeDisplayHeight();
+        displayWidth = deviceInfo.getRunTimeDisplayWidth();
+        displayHeight = deviceInfo.getRunTimeDisplayHeight();
         Log.d(TAG, "Display width: " + displayWidth + ", height: " + displayHeight);
+
+        if (globalData.isMakeInAppFullScreen()) {
+            updateHeightAndWidth();
+            Log.d(TAG, "Updated Display width: " + displayWidth + ", height: " + displayHeight);
+        }
 
         double containerWidth = elementData.getWidth();
         double containerHeight = elementData.getHeight();
@@ -113,5 +128,27 @@ public class ContainerRenderer extends AbstractInAppRenderer {
         }
 
         globalData.setScalingFactor(scalingFactor);
+    }
+
+    /**
+     * Updates the height and width of the container. If the container is {@link TriggerContext#isMakeInAppFullScreen()}
+     * returns {@code true}.
+     */
+    private void updateHeightAndWidth() {
+        WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+            Rect rect = wm.getCurrentWindowMetrics().getBounds();
+            displayWidth = rect.width();
+            displayHeight = rect.height();
+        } else {
+            //noinspection deprecation
+            Display display = wm.getDefaultDisplay();
+            Point point = new Point();
+            //noinspection deprecation
+            display.getSize(point);
+            displayWidth = point.x;
+            displayHeight = point.y;
+        }
     }
 }
