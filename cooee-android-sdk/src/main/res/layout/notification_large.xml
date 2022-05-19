@@ -12,22 +12,34 @@
         <TextView
             android:id="@+id/textViewTitle"
             style="@style/TextAppearance.Compat.Notification.Title"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:maxWidth="250dp"
+            android:ellipsize="end"
+            android:maxLines="2"
             android:text="Notification Sample App" />
 
         <TextView
-            android:id="@+id/textViewInfo"
+            android:id="@+id/textSmallViewInfo"
             style="@style/TextAppearance.Compat.Notification.Info"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="2"
             android:text="Expand me to see a detailed message!" />
+
+        <TextView
+            android:id="@+id/textLargeViewInfo"
+            style="@style/TextAppearance.Compat.Notification.Info"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Expand me to see a detailed message!"
+            android:visibility="gone" />
 
         <RelativeLayout
             android:id="@+id/icon_container"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:ellipsize="end">
 
             <ImageView
                 android:id="@+id/imageViewLarge"
