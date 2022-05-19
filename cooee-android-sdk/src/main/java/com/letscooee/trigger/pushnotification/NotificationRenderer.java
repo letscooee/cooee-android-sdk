@@ -5,6 +5,7 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Build;
 import android.service.notification.StatusBarNotification;
 import android.text.TextUtils;
@@ -192,6 +193,58 @@ public abstract class NotificationRenderer {
 
     public RemoteViews getBigContentView() {
         return this.bigContentViews;
+    }
+
+    /**
+     * Hide provided view from {@code smallContentViews}
+     *
+     * @param viewID The view ID to hide
+     */
+    public void hideSmallContentView(int viewID) {
+        if (smallContentViews != null) {
+            smallContentViews.setViewVisibility(viewID, View.GONE);
+        }
+    }
+
+    /**
+     * Hide provided view from {@code bigContentViews}
+     *
+     * @param viewID The view ID to hide
+     */
+    public void hideBigContentView(int viewID) {
+        if (bigContentViews != null) {
+            bigContentViews.setViewVisibility(viewID, View.GONE);
+        }
+    }
+
+    public void showBigContentView(int viewId) {
+        if (bigContentViews != null) {
+            bigContentViews.setViewVisibility(viewId, View.VISIBLE);
+        }
+    }
+
+    /**
+     * Add Image to provided ID in {@code smallContentViews}
+     *
+     * @param viewID The view ID to add the image to (e.g. R.id.imageView)
+     * @param bitmap The bitmap to add to the view
+     */
+    public void addSmallContentImage(int viewID, Bitmap bitmap) {
+        if (smallContentViews != null) {
+            smallContentViews.setImageViewBitmap(viewID, bitmap);
+        }
+    }
+
+    /**
+     * Add Image to provided ID in {@code largeContentViews}
+     *
+     * @param viewID The view ID to add the image to (e.g. R.id.imageView)
+     * @param bitmap The bitmap to add to the view
+     */
+    public void addBigContentImage(int viewID, Bitmap bitmap) {
+        if (bigContentViews != null) {
+            bigContentViews.setImageViewBitmap(viewID, bitmap);
+        }
     }
 
     /**
