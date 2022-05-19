@@ -43,8 +43,8 @@ public abstract class NotificationRenderer {
     protected final Context context;
     protected final TriggerData triggerData;
     protected final PushNotificationTrigger pushTrigger;
-    protected final RemoteViews smallContentViews;
-    protected final RemoteViews bigContentViews;
+    protected RemoteViews smallContentViews;
+    protected RemoteViews bigContentViews;
 
     protected final RemoteImageLoader imageLoader;
 
@@ -69,8 +69,16 @@ public abstract class NotificationRenderer {
         this.notificationBuilder = new NotificationCompat.Builder(this.context, this.notificationImportance.getChannelID());
         this.notificationSound = new NotificationSound(context, triggerData.getPn(), notificationBuilder);
 
-        this.smallContentViews = new RemoteViews(context.getPackageName(), R.layout.notification_small);
-        this.bigContentViews = new RemoteViews(context.getPackageName(), this.getBigViewLayout());
+        if (pushTrigger.getPushType() == 1) {
+            this.smallContentViews = new RemoteViews(context.getPackageName(), R.layout.notification_small);
+            this.bigContentViews = new RemoteViews(context.getPackageName(), this.getBigViewLayout());
+        } else if (pushTrigger.getPushType() == 2) {
+            this.smallContentViews = null;
+            this.bigContentViews = new RemoteViews(context.getPackageName(), this.getBigViewLayout());
+        } else if (pushTrigger.getPushType() == 20) {
+            this.smallContentViews = new RemoteViews(context.getPackageName(), R.layout.notification_small);
+            this.bigContentViews = null;
+        }
 
         this.createChannel();
         this.setBuilder();
@@ -95,23 +103,58 @@ public abstract class NotificationRenderer {
         if (this.triggerData.getPn().getBody() != null)
             body = getTextFromTextElement(this.triggerData.getPn().getBody());
 
+        if (smallContentViews != null) {
+            updateSmallViewContent(title, body);
+        }
+
+        if (bigContentViews != null) {
+            updateBigViewContent(title, body);
+        }
+    }
+
+    /**
+     * Add Big view contains only if {@code bigContentViews} is not null
+     *
+     * @param title title of notification
+     * @param body  body of notification
+     */
+    private void updateBigViewContent(String title, String body) {
+        if (!TextUtils.isEmpty(title)) {
+            this.notificationBuilder.setContentTitle(title);
+            this.bigContentViews.setTextViewText(R.id.textViewTitle, title);
+        } else {
+            hideBigContentView(R.id.textViewTitle);
+        }
+
+        if (!TextUtils.isEmpty(body)) {
+            this.notificationBuilder.setContentText(body);
+            this.bigContentViews.setTextViewText(R.id.textSmallViewInfo, body);
+            this.bigContentViews.setTextViewText(R.id.textLargeViewInfo, body);
+        } else {
+            hideBigContentView(R.id.textViewInfo);
+        }
+    }
+
+    /**
+     * Add Small view contains only if {@code smallContentViews} is not null
+     *
+     * @param title title of notification
+     * @param body  body of notification
+     */
+    private void updateSmallViewContent(String title, String body) {
+
         if (!TextUtils.isEmpty(title)) {
             this.notificationBuilder.setContentTitle(title);
             this.smallContentViews.setTextViewText(R.id.textViewTitle, title);
-            this.bigContentViews.setTextViewText(R.id.textViewTitle, title);
         } else {
-            this.smallContentViews.setViewVisibility(R.id.textViewTitle, View.INVISIBLE);
-            this.bigContentViews.setViewVisibility(R.id.textViewTitle, View.INVISIBLE);
-
+            hideSmallContentView(R.id.textViewTitle);
         }
 
         if (!TextUtils.isEmpty(body)) {
             this.notificationBuilder.setContentText(body);
             this.smallContentViews.setTextViewText(R.id.textViewInfo, body);
-            this.bigContentViews.setTextViewText(R.id.textViewInfo, body);
         } else {
-            this.smallContentViews.setViewVisibility(R.id.textViewInfo, View.INVISIBLE);
-            this.bigContentViews.setViewVisibility(R.id.textViewInfo, View.INVISIBLE);
+            hideSmallContentView(R.id.textViewInfo);
         }
     }
 
