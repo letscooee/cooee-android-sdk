@@ -24,12 +24,19 @@
             android:layout_height="wrap_content"
             android:text="Expand me to see a detailed message!" />
 
-        <ImageView
-            android:id="@+id/imageViewLarge"
+        <RelativeLayout
+            android:id="@+id/icon_container"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:scaleType="centerCrop" />
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/imageViewLarge"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:scaleType="centerCrop" />
+
+        </RelativeLayout>
 
     </LinearLayout>
 
