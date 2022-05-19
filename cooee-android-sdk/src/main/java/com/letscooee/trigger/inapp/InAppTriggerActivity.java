@@ -44,6 +44,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
     private Date startTime;
     private boolean isFreshLaunch;
     private boolean isSuccessfullyStarted;
+    private boolean makeInAppFullScreen;
 
     public InAppTriggerActivity() {
         sentryHelper = CooeeFactory.getSentryHelper();
@@ -60,6 +61,13 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
             triggerData = getIntent()
                     .getBundleExtra("bundle")
                     .getParcelable(Constants.INTENT_TRIGGER_DATA_KEY);
+            makeInAppFullScreen = getIntent()
+                    .getBundleExtra("bundle")
+                    .getBoolean(Constants.IN_APP_FULLSCREEN_FLAG_KEY);
+
+            if (makeInAppFullScreen) {
+                setFullscreen();
+            }
 
             if (triggerData == null || triggerData.getInAppTrigger() == null) {
                 throw new Exception("Couldn't render In-App because trigger data is null");
@@ -69,6 +77,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
             this.triggerContext.setViewGroupForBlurry((ViewGroup) lastActiveWindow.getDecorView());
             this.triggerContext.onExit(data -> this.finish());
             this.triggerContext.setTriggerData(triggerData);
+            this.triggerContext.setMakeInAppFullScreen(makeInAppFullScreen);
 
             setAnimations();
             renderInApp();
