@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
 import androidx.core.app.NotificationCompat;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
@@ -160,13 +159,35 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
         notificationBuilder.setContentIntent(appLaunchPendingIntent);
 
         String smallImage = triggerData.getPn().getSmallImage();
-        if (TextUtils.isEmpty(smallImage)) {
+        String largeImage = triggerData.getPn().getLargeImage();
+        if (TextUtils.isEmpty(smallImage) && TextUtils.isEmpty(largeImage)) {
+            // Hide Image container to increase text width on PN
+            renderer.hideSmallContentView(R.id.icon_container);
+            renderer.hideBigContentView(R.id.icon_container);
+            renderer.hideBigContentView(R.id.textSmallViewInfo);
+            renderer.showBigContentView(R.id.textLargeViewInfo);
             renderer.render();
-        } else {
-            this.imageLoader.load(triggerData.getPn().getSmallImage(), (Bitmap resource) -> {
-                renderer.getSmallContentView().setImageViewBitmap(R.id.imageViewLarge, resource);
-                renderer.getBigContentView().setImageViewBitmap(R.id.imageViewLarge, resource);
+        } else if (!TextUtils.isEmpty(smallImage) && TextUtils.isEmpty(largeImage)) {
+            this.imageLoader.load(smallImage, (Bitmap resource) -> {
+                renderer.addSmallContentImage(R.id.imageViewLarge, resource);
+                renderer.hideBigContentView(R.id.icon_container);
+                renderer.hideBigContentView(R.id.textSmallViewInfo);
+                renderer.showBigContentView(R.id.textLargeViewInfo);
                 renderer.render();
+            });
+        } else if (TextUtils.isEmpty(smallImage) && !TextUtils.isEmpty(largeImage)) {
+            this.imageLoader.load(largeImage, (Bitmap resource) -> {
+                renderer.hideSmallContentView(R.id.icon_container);
+                renderer.addBigContentImage(R.id.imageViewLarge, resource);
+                renderer.render();
+            });
+        } else {
+            this.imageLoader.load(smallImage, (Bitmap smallImageResource) -> {
+                renderer.addSmallContentImage(R.id.imageViewLarge, smallImageResource);
+                this.imageLoader.load(largeImage, (Bitmap largeImageResource) -> {
+                    renderer.addBigContentImage(R.id.imageViewLarge, largeImageResource);
+                    renderer.render();
+                });
             });
         }
     }
