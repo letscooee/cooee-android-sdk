@@ -38,6 +38,10 @@ public class PushNotificationTrigger implements Parcelable {
     @Expose
     private final ClickAction clickAction;
 
+    @SerializedName("pt")
+    @Expose
+    private final int pushType;
+
     private PushNotificationImportance importance;
     public final boolean vibrate = true;
     public final boolean sound = true;
@@ -57,6 +61,7 @@ public class PushNotificationTrigger implements Parcelable {
         largeImage = in.readString();
         buttons = in.createTypedArrayList(ButtonElement.CREATOR);
         clickAction = in.readParcelable(ClickAction.class.getClassLoader());
+        pushType = in.readInt();
     }
 
     public static final Creator<PushNotificationTrigger> CREATOR = new Creator<PushNotificationTrigger>() {
@@ -95,6 +100,10 @@ public class PushNotificationTrigger implements Parcelable {
         return clickAction;
     }
 
+    public int getPushType() {
+        return pushType == 0 ? 1 : pushType;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -108,5 +117,6 @@ public class PushNotificationTrigger implements Parcelable {
         dest.writeString(largeImage);
         dest.writeTypedList(buttons);
         dest.writeParcelable(clickAction, flags);
+        dest.writeInt(pushType == 0 ? 1 : pushType);
     }
 }
