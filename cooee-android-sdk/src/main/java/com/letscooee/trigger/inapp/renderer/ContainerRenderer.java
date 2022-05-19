@@ -105,14 +105,8 @@ public class ContainerRenderer extends AbstractInAppRenderer {
      * Calculates the scaling factor for the container and add it to {@link TriggerContext}.
      */
     private void updateScalingFactor() {
-        displayWidth = deviceInfo.getRunTimeDisplayWidth();
-        displayHeight = deviceInfo.getRunTimeDisplayHeight();
+        getDisplayHeightAndWidth();
         Log.d(TAG, "Display width: " + displayWidth + ", height: " + displayHeight);
-
-        if (globalData.isCurrentActivityFullscreen()) {
-            updateHeightAndWidth();
-            Log.d(TAG, "Updated Display width: " + displayWidth + ", height: " + displayHeight);
-        }
 
         double containerWidth = elementData.getWidth();
         double containerHeight = elementData.getHeight();
@@ -128,19 +122,27 @@ public class ContainerRenderer extends AbstractInAppRenderer {
     }
 
     /**
-     * Updates the height and width of the container. If the container is {@link TriggerContext#isCurrentActivityFullscreen()}
+     * Updates the height and width of the container. If the container is
+     * {@link TriggerContext#isCurrentActivityFullscreen()}
+     *
      * returns {@code true}.
      */
-    private void updateHeightAndWidth() {
-        WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+    private void getDisplayHeightAndWidth() {
+        if (!globalData.isCurrentActivityFullscreen()) {
+            displayWidth = deviceInfo.getRunTimeDisplayWidth();
+            displayHeight = deviceInfo.getRunTimeDisplayHeight();
+            return;
+        }
+
+        WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
-            Rect rect = wm.getCurrentWindowMetrics().getBounds();
+            Rect rect = windowManager.getCurrentWindowMetrics().getBounds();
             displayWidth = rect.width();
             displayHeight = rect.height();
         } else {
             //noinspection deprecation
-            Display display = wm.getDefaultDisplay();
+            Display display = windowManager.getDefaultDisplay();
             Point point = new Point();
             //noinspection deprecation
             display.getSize(point);
