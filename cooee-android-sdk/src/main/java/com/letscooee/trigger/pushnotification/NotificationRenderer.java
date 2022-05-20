@@ -124,7 +124,7 @@ public abstract class NotificationRenderer {
             this.notificationBuilder.setContentTitle(title);
             this.bigContentViews.setTextViewText(R.id.textViewTitle, title);
         } else {
-            hideBigContentView(R.id.textViewTitle);
+            hideViewInBigContentView(R.id.textViewTitle);
         }
 
         if (!TextUtils.isEmpty(body)) {
@@ -132,7 +132,7 @@ public abstract class NotificationRenderer {
             this.bigContentViews.setTextViewText(R.id.textViewSmallBody, body);
             this.bigContentViews.setTextViewText(R.id.textViewLargeBody, body);
         } else {
-            hideBigContentView(R.id.textViewBody);
+            hideViewInBigContentView(R.id.textViewBody);
         }
     }
 
@@ -148,14 +148,14 @@ public abstract class NotificationRenderer {
             this.notificationBuilder.setContentTitle(title);
             this.smallContentViews.setTextViewText(R.id.textViewTitle, title);
         } else {
-            hideSmallContentView(R.id.textViewTitle);
+            hideViewInSmallContentView(R.id.textViewTitle);
         }
 
         if (!TextUtils.isEmpty(body)) {
             this.notificationBuilder.setContentText(body);
             this.smallContentViews.setTextViewText(R.id.textViewBody, body);
         } else {
-            hideSmallContentView(R.id.textViewBody);
+            hideViewInSmallContentView(R.id.textViewBody);
         }
     }
 
@@ -244,7 +244,7 @@ public abstract class NotificationRenderer {
      *
      * @param viewID The view ID to hide
      */
-    public void hideSmallContentView(int viewID) {
+    public void hideViewInSmallContentView(int viewID) {
         if (smallContentViews != null) {
             smallContentViews.setViewVisibility(viewID, View.GONE);
         }
@@ -255,13 +255,13 @@ public abstract class NotificationRenderer {
      *
      * @param viewID The view ID to hide
      */
-    public void hideBigContentView(int viewID) {
+    public void hideViewInBigContentView(int viewID) {
         if (bigContentViews != null) {
             bigContentViews.setViewVisibility(viewID, View.GONE);
         }
     }
 
-    public void showBigContentView(int viewId) {
+    public void showViewInBigContentView(int viewId) {
         if (bigContentViews != null) {
             bigContentViews.setViewVisibility(viewId, View.VISIBLE);
         }

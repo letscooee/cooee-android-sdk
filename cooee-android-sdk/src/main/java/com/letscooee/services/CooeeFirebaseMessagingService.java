@@ -162,22 +162,22 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
         String largeImage = triggerData.getPn().getLargeImage();
         if (TextUtils.isEmpty(smallImage) && TextUtils.isEmpty(largeImage)) {
             // Hide Image container to increase text width on PN
-            renderer.hideSmallContentView(R.id.icon_container);
-            renderer.hideBigContentView(R.id.icon_container);
-            renderer.hideBigContentView(R.id.textViewSmallBody);
-            renderer.showBigContentView(R.id.textViewLargeBody);
+            renderer.hideViewInSmallContentView(R.id.icon_container);
+            renderer.hideViewInBigContentView(R.id.icon_container);
+            renderer.hideViewInBigContentView(R.id.textViewSmallBody);
+            renderer.showViewInBigContentView(R.id.textViewLargeBody);
             renderer.render();
         } else if (!TextUtils.isEmpty(smallImage) && TextUtils.isEmpty(largeImage)) {
             this.imageLoader.load(smallImage, (Bitmap resource) -> {
                 renderer.addSmallContentImage(R.id.imageViewLarge, resource);
-                renderer.hideBigContentView(R.id.icon_container);
-                renderer.hideBigContentView(R.id.textViewSmallBody);
-                renderer.showBigContentView(R.id.textViewLargeBody);
+                renderer.hideViewInBigContentView(R.id.icon_container);
+                renderer.hideViewInBigContentView(R.id.textViewSmallBody);
+                renderer.showViewInBigContentView(R.id.textViewLargeBody);
                 renderer.render();
             });
         } else if (TextUtils.isEmpty(smallImage) && !TextUtils.isEmpty(largeImage)) {
             this.imageLoader.load(largeImage, (Bitmap resource) -> {
-                renderer.hideSmallContentView(R.id.icon_container);
+                renderer.hideViewInSmallContentView(R.id.icon_container);
                 renderer.addBigContentImage(R.id.imageViewLarge, resource);
                 renderer.render();
             });
