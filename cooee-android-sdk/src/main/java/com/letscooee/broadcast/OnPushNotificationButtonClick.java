@@ -130,15 +130,15 @@ public class OnPushNotificationButtonClick extends BroadcastReceiver {
 
         RemoteViews smallNotification = new RemoteViews(context.getPackageName(), R.layout.notification_small);
         smallNotification.setTextViewText(R.id.textViewTitle, title);
-        smallNotification.setTextViewText(R.id.textViewInfo, body);
+        smallNotification.setTextViewText(R.id.textViewBody, body);
 
         RemoteViews largeNotification = new RemoteViews(context.getPackageName(), R.layout.notification_large);
         largeNotification.setTextViewText(R.id.textViewTitle, title);
-        largeNotification.setTextViewText(R.id.textViewInfo, body);
+        largeNotification.setTextViewText(R.id.textViewBody, body);
 
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.notification_carousel);
         views.setTextViewText(R.id.textViewTitle, title);
-        views.setTextViewText(R.id.textViewInfo, body);
+        views.setTextViewText(R.id.textViewBody, body);
 
         int carouselOffset = 0;//triggerData.getCarouselOffset();
         int totalImages = 0;//triggerData.getCarouselData().length;

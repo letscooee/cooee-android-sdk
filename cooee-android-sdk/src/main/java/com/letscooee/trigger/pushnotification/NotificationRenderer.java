@@ -129,10 +129,10 @@ public abstract class NotificationRenderer {
 
         if (!TextUtils.isEmpty(body)) {
             this.notificationBuilder.setContentText(body);
-            this.bigContentViews.setTextViewText(R.id.textSmallViewInfo, body);
-            this.bigContentViews.setTextViewText(R.id.textLargeViewInfo, body);
+            this.bigContentViews.setTextViewText(R.id.textViewSmallBody, body);
+            this.bigContentViews.setTextViewText(R.id.textViewLargeBody, body);
         } else {
-            hideBigContentView(R.id.textViewInfo);
+            hideBigContentView(R.id.textViewBody);
         }
     }
 
@@ -153,9 +153,9 @@ public abstract class NotificationRenderer {
 
         if (!TextUtils.isEmpty(body)) {
             this.notificationBuilder.setContentText(body);
-            this.smallContentViews.setTextViewText(R.id.textViewInfo, body);
+            this.smallContentViews.setTextViewText(R.id.textViewBody, body);
         } else {
-            hideSmallContentView(R.id.textViewInfo);
+            hideSmallContentView(R.id.textViewBody);
         }
     }
 

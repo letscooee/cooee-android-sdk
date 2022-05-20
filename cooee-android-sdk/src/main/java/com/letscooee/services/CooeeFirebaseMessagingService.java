@@ -164,15 +164,15 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
             // Hide Image container to increase text width on PN
             renderer.hideSmallContentView(R.id.icon_container);
             renderer.hideBigContentView(R.id.icon_container);
-            renderer.hideBigContentView(R.id.textSmallViewInfo);
-            renderer.showBigContentView(R.id.textLargeViewInfo);
+            renderer.hideBigContentView(R.id.textViewSmallBody);
+            renderer.showBigContentView(R.id.textViewLargeBody);
             renderer.render();
         } else if (!TextUtils.isEmpty(smallImage) && TextUtils.isEmpty(largeImage)) {
             this.imageLoader.load(smallImage, (Bitmap resource) -> {
                 renderer.addSmallContentImage(R.id.imageViewLarge, resource);
                 renderer.hideBigContentView(R.id.icon_container);
-                renderer.hideBigContentView(R.id.textSmallViewInfo);
-                renderer.showBigContentView(R.id.textLargeViewInfo);
+                renderer.hideBigContentView(R.id.textViewSmallBody);
+                renderer.showBigContentView(R.id.textViewLargeBody);
                 renderer.render();
             });
         } else if (TextUtils.isEmpty(smallImage) && !TextUtils.isEmpty(largeImage)) {

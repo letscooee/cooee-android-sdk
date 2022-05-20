@@ -22,7 +22,7 @@
             android:text="Notification Sample App" />
 
         <TextView
-            android:id="@+id/textViewInfo"
+            android:id="@+id/textViewBody"
             style="@style/TextAppearance.Compat.Notification.Info"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

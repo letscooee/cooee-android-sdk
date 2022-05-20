@@ -19,7 +19,7 @@
             android:text="Notification Sample App" />
 
         <TextView
-            android:id="@+id/textSmallViewInfo"
+            android:id="@+id/textViewSmallBody"
             style="@style/TextAppearance.Compat.Notification.Info"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -28,7 +28,7 @@
             android:text="Expand me to see a detailed message!" />
 
         <TextView
-            android:id="@+id/textLargeViewInfo"
+            android:id="@+id/textViewLargeBody"
             style="@style/TextAppearance.Compat.Notification.Info"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
