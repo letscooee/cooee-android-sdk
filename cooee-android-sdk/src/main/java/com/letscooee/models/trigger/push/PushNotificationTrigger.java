@@ -6,6 +6,7 @@ import android.os.Parcelable;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.letscooee.enums.trigger.PushNotificationImportance;
+import com.letscooee.enums.trigger.PushType;
 import com.letscooee.models.trigger.blocks.ClickAction;
 import com.letscooee.models.trigger.elements.ButtonElement;
 import com.letscooee.models.trigger.elements.TextElement;
@@ -40,7 +41,7 @@ public class PushNotificationTrigger implements Parcelable {
 
     @SerializedName("pt")
     @Expose
-    private final int pushType;
+    private final PushType type;
 
     private PushNotificationImportance importance;
     public final boolean vibrate = true;
@@ -61,7 +62,7 @@ public class PushNotificationTrigger implements Parcelable {
         largeImage = in.readString();
         buttons = in.createTypedArrayList(ButtonElement.CREATOR);
         clickAction = in.readParcelable(ClickAction.class.getClassLoader());
-        pushType = in.readInt();
+        type = (PushType) in.readSerializable();
     }
 
     public static final Creator<PushNotificationTrigger> CREATOR = new Creator<PushNotificationTrigger>() {
@@ -100,8 +101,8 @@ public class PushNotificationTrigger implements Parcelable {
         return clickAction;
     }
 
-    public int getPushType() {
-        return pushType == 0 ? 1 : pushType;
+    public PushType getType() {
+        return type == null ? PushType.NORMAL : type;
     }
 
     @Override
@@ -117,6 +118,6 @@ public class PushNotificationTrigger implements Parcelable {
         dest.writeString(largeImage);
         dest.writeTypedList(buttons);
         dest.writeParcelable(clickAction, flags);
-        dest.writeInt(pushType == 0 ? 1 : pushType);
+        dest.writeSerializable(type);
     }
 }

@@ -16,6 +16,7 @@ import androidx.core.app.NotificationCompat;
 
 import com.letscooee.CooeeFactory;
 import com.letscooee.R;
+import com.letscooee.enums.trigger.PushType;
 import com.letscooee.loader.http.RemoteImageLoader;
 import com.letscooee.models.Event;
 import com.letscooee.models.trigger.TriggerData;
@@ -69,13 +70,13 @@ public abstract class NotificationRenderer {
         this.notificationBuilder = new NotificationCompat.Builder(this.context, this.notificationImportance.getChannelID());
         this.notificationSound = new NotificationSound(context, triggerData.getPn(), notificationBuilder);
 
-        if (pushTrigger.getPushType() == 1) {
+        if (pushTrigger.getType() == PushType.NORMAL) {
             this.smallContentViews = new RemoteViews(context.getPackageName(), R.layout.notification_small);
             this.bigContentViews = new RemoteViews(context.getPackageName(), this.getBigViewLayout());
-        } else if (pushTrigger.getPushType() == 2) {
+        } else if (pushTrigger.getType() == PushType.LARGE) {
             this.smallContentViews = null;
             this.bigContentViews = new RemoteViews(context.getPackageName(), this.getBigViewLayout());
-        } else if (pushTrigger.getPushType() == 20) {
+        } else if (pushTrigger.getType() == PushType.SMALL) {
             this.smallContentViews = new RemoteViews(context.getPackageName(), R.layout.notification_small);
             this.bigContentViews = null;
         }
