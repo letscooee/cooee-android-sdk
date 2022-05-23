@@ -33,12 +33,12 @@ public class TextRenderer extends FontRenderer {
 
     @Override
     public View render() {
-        String textData = this.processParts();
+        String processedPartString = this.processParts();
 
         TextView textView = new TextView(context);
         textView.setGravity(Gravity.CENTER);
 
-        this.processTextData(textView, textData);
+        this.processTextData(textView, processedPartString);
         this.processFont();
         this.processFontBlock();
 
@@ -69,14 +69,14 @@ public class TextRenderer extends FontRenderer {
             return newElement;
         }
         int borderColor = border.getColor().getHexColor();
-        float dashWidth = calculatedBorder * 2;
+        float dashWidth = calculatedBorder * 2.0f;
 
         int w = getScaledPixelAsInt(elementData.getWidth());
         baseFrameLayout.setLayoutParams(new FrameLayout.LayoutParams(w, WC));
 
         GradientDrawable elementDrawable = new GradientDrawable();
         elementDrawable.setStroke(calculatedBorder, borderColor, dashWidth, calculatedBorder);
-        elementDrawable.setCornerRadius(getScaledPixelAsFloat(border.getRadius()) - (calculatedBorder / 2));
+        elementDrawable.setCornerRadius(getScaledPixelAsFloat(border.getRadius()) - (calculatedBorder / 2.0f));
         baseFrameLayout.setBackground(elementDrawable);
 
         return newElement;
@@ -120,7 +120,8 @@ public class TextRenderer extends FontRenderer {
             text = text.substring(0, text.length() - 1);
         }
 
-        return text.replaceAll("\n", "<br/>");
+        // Using String#replace instead of String#replaceAll https://stackoverflow.com/a/10827900/9256497
+        return text.replace("\n", "<br/>");
     }
 
     protected void processTextData(TextView textView, String text) {
