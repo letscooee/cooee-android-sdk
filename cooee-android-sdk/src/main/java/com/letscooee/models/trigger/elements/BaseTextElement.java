@@ -1,8 +1,7 @@
 package com.letscooee.models.trigger.elements;
 
-import android.graphics.Color;
+import android.os.Build;
 import android.os.Parcel;
-import android.text.TextUtils;
 import android.view.Gravity;
 
 import com.google.gson.annotations.Expose;
@@ -52,6 +51,8 @@ public abstract class BaseTextElement extends BaseElement {
                 return Gravity.CENTER;
             case 2:
                 return Gravity.END;
+            case 3:
+                return Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q ? -1 : Gravity.START;
             default:
                 return Gravity.START;
         }
