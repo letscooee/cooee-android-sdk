@@ -25,15 +25,14 @@ public class PushTypeDeserializer implements JsonDeserializer<PushType> {
         int pushType = json.getAsInt();
 
         switch (pushType) {
-            case 0:
-            case 1:
-                return PushType.NORMAL;
             case 2:
                 return PushType.LARGE;
             case 20:
                 return PushType.SMALL;
+            case 0:
+            case 1:
             default:
-                return null;
+                return PushType.BOTH;
         }
     }
 }

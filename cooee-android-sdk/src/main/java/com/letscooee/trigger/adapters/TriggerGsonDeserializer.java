@@ -14,7 +14,8 @@ import com.letscooee.utils.PermissionType;
  */
 public class TriggerGsonDeserializer {
 
-    private  TriggerGsonDeserializer(){}
+    private TriggerGsonDeserializer() {
+    }
 
     private static Gson gson;
 

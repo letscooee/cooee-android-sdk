@@ -12,7 +12,7 @@ import androidx.annotation.RestrictTo;
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public enum PushType {
 
-    NORMAL(1),
+    BOTH(1),
     LARGE(2),
     SMALL(20);
 

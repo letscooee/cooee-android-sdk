@@ -70,7 +70,7 @@ public abstract class NotificationRenderer {
         this.notificationBuilder = new NotificationCompat.Builder(this.context, this.notificationImportance.getChannelID());
         this.notificationSound = new NotificationSound(context, triggerData.getPn(), notificationBuilder);
 
-        if (pushTrigger.getType() == PushType.NORMAL) {
+        if (pushTrigger.getType() == PushType.BOTH) {
             this.smallContentViews = new RemoteViews(context.getPackageName(), R.layout.notification_small);
             this.bigContentViews = new RemoteViews(context.getPackageName(), this.getBigViewLayout());
         } else if (pushTrigger.getType() == PushType.LARGE) {

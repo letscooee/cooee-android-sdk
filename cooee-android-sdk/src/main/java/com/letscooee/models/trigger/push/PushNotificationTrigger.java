@@ -102,7 +102,7 @@ public class PushNotificationTrigger implements Parcelable {
     }
 
     public PushType getType() {
-        return type == null ? PushType.NORMAL : type;
+        return type == null ? PushType.BOTH : type;
     }
 
     @Override
