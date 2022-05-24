@@ -27,6 +27,7 @@ public class Constants {
     public static final String STORAGE_SCREENSHOT_SYNC_TIME = "screenshot_sync_time";
     public static final String STORAGE_LAST_SESSION_USE_TIME = "cooee_last_session_use_time";
     public static final String STORAGE_ACTIVE_SESSION = "cooee_active_session";
+    public static final String STORAGE_RAW_IN_APP_TRIGGER_KEY = "cooee_raw_in_app_trigger";
     // endregion
 
     public static final String TAG = "CooeeSDK";
