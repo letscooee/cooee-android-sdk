@@ -18,17 +18,19 @@ import com.letscooee.models.Event;
 import com.letscooee.models.trigger.EmbeddedTrigger;
 import com.letscooee.models.trigger.TriggerData;
 import com.letscooee.models.trigger.blocks.ClickAction;
-import com.letscooee.models.trigger.inapp.InAppTrigger;
 import com.letscooee.trigger.action.ClickActionExecutor;
-import com.letscooee.trigger.adapters.TriggerGsonDeserializer;
 import com.letscooee.trigger.inapp.InAppTriggerActivity;
 import com.letscooee.trigger.inapp.TriggerContext;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.LocalStorageHelper;
 import com.letscooee.utils.RuntimeData;
 import com.letscooee.utils.Timer;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * A small helper class for any kind of engagement trigger like caching or retrieving from local storage.
@@ -39,7 +41,7 @@ import java.util.*;
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class EngagementTriggerHelper {
 
-    private static final long TIME_TO_WAIT_MILLIS = 6 * 1000;
+    private static final long TIME_TO_WAIT_MILLIS = 6 * 1000L;
 
     private final Context context;
     private static Activity currentActivity;
@@ -60,7 +62,7 @@ public class EngagementTriggerHelper {
         List<HashMap<String, Object>> oldActiveTriggers = LocalStorageHelper.getList(context,
                 Constants.STORAGE_ACTIVE_TRIGGERS);
 
-        if (oldActiveTriggers.size() == 0) return;
+        if (oldActiveTriggers.isEmpty()) return;
 
         List<EmbeddedTrigger> activeTriggers = new ArrayList<>();
 
@@ -161,7 +163,7 @@ public class EngagementTriggerHelper {
 
         TriggerData triggerData;
         try {
-            triggerData = TriggerGsonDeserializer.getGson().fromJson(rawTriggerData, TriggerData.class);
+            triggerData = TriggerData.fromJson(rawTriggerData);
         } catch (JsonSyntaxException e) {
             CooeeFactory.getSentryHelper().captureException(e);
             return;
@@ -261,7 +263,37 @@ public class EngagementTriggerHelper {
         Event event = new Event("CE Notification Clicked", triggerData);
         CooeeFactory.getSafeHTTPService().sendEventWithoutSession(event);
 
-        loadLazyData(triggerData);
+        checkAndLoadInApp(triggerData);
+    }
+
+    /**
+     * Check if related InApp data is present at LocalStorage and load it.
+     * If not present, then load the InApp data from the server.
+     *
+     * @param triggerData Data to render in-app.
+     */
+    private void checkAndLoadInApp(TriggerData triggerData) {
+        if (triggerData == null) {
+            return;
+        }
+
+        Map<String, Object> storedTriggerMap = LocalStorageHelper.getMap(context, Constants.STORAGE_RAW_IN_APP_TRIGGER_KEY, new HashMap<>());
+
+        if (storedTriggerMap.isEmpty() || !storedTriggerMap.containsKey(triggerData.getId())) {
+            loadLazyData(triggerData);
+            return;
+        }
+
+        TriggerData storedTrigger = TriggerData.fromJson((String) Objects.requireNonNull(storedTriggerMap.get(triggerData.getId())));
+
+        if (storedTrigger == null) {
+            loadLazyData(triggerData);
+        } else {
+            storedTriggerMap.remove(triggerData.getId());
+            LocalStorageHelper.putMap(context, Constants.STORAGE_RAW_IN_APP_TRIGGER_KEY, storedTriggerMap);
+            triggerData.setInAppTrigger(storedTrigger.getInAppTrigger());
+            renderInAppTrigger(triggerData);
+        }
     }
 
     /**
