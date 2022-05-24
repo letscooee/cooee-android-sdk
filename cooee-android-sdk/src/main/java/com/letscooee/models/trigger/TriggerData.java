@@ -2,12 +2,13 @@ package com.letscooee.models.trigger;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-
+import androidx.annotation.NonNull;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.letscooee.models.trigger.inapp.InAppTrigger;
 import com.letscooee.models.trigger.push.PushNotificationTrigger;
-
+import com.letscooee.trigger.adapters.TriggerGsonDeserializer;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -125,5 +126,17 @@ public class TriggerData implements Parcelable {
         dest.writeMap(config);
         dest.writeLong(expireAt);
         dest.writeMap(selfARData);
+    }
+
+    /**
+     * Deserialize @{@link TriggerData} from JSON.
+     *
+     * @param jsonString JSON string to deserialize.
+     * @return @{@link TriggerData} object.
+     * @throws JsonSyntaxException if the JSON string is not valid.
+     */
+    @NonNull
+    public static TriggerData fromJson(@NonNull String jsonString) throws JsonSyntaxException {
+        return TriggerGsonDeserializer.getGson().fromJson(jsonString, TriggerData.class);
     }
 }
