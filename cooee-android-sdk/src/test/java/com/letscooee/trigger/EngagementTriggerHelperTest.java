@@ -1,5 +1,13 @@
 package com.letscooee.trigger;
 
+import static com.google.common.truth.Truth.assertThat;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import android.app.Activity;
 import android.content.Context;
 import androidx.room.Room;
@@ -8,20 +16,15 @@ import com.letscooee.BaseTestCase;
 import com.letscooee.models.trigger.EmbeddedTrigger;
 import com.letscooee.models.trigger.TriggerData;
 import com.letscooee.room.CooeeDatabase;
-import com.letscooee.trigger.adapters.TriggerGsonDeserializer;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.robolectric.RuntimeEnvironment;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-
-import static com.google.common.truth.Truth.assertThat;
-import static org.mockito.Mockito.*;
 
 public class EngagementTriggerHelperTest extends BaseTestCase {
 
@@ -38,7 +41,7 @@ public class EngagementTriggerHelperTest extends BaseTestCase {
         database = Room.inMemoryDatabaseBuilder(context, CooeeDatabase.class).build();
         engagementTriggerHelper = new EngagementTriggerHelper(context);
         engagementTriggerHelperMock = Mockito.spy(engagementTriggerHelper);
-        expiredTriggerData = TriggerGsonDeserializer.getGson().fromJson(samplePayload, TriggerData.class);
+        expiredTriggerData = TriggerData.fromJson(samplePayload);
         makeActiveTrigger();
     }
 
