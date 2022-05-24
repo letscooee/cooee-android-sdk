@@ -270,8 +270,9 @@ public class EngagementTriggerHelper {
      * @param triggerData Data to render in-app.
      */
     public void loadLazyData(TriggerData triggerData) {
-        InAppTriggerHelper.loadLazyData(triggerData, (InAppTrigger inAppTrigger) -> {
-            triggerData.setInAppTrigger(inAppTrigger);
+        new InAppTriggerHelper().loadLazyData(triggerData, (String rawInAppTrigger) -> {
+            TriggerData inAppTriggerData = TriggerData.fromJson(rawInAppTrigger);
+            triggerData.setInAppTrigger(inAppTriggerData.getInAppTrigger());
             renderInAppTrigger(triggerData);
         });
     }
