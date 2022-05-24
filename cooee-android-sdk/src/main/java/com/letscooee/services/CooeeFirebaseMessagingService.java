@@ -42,10 +42,11 @@ import java.util.Map;
  */
 public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
 
-    Context context;
-    EngagementTriggerHelper engagementTriggerHelper;
+    private Context context;
+    private EngagementTriggerHelper engagementTriggerHelper;
     private InAppTriggerHelper inAppTriggerHelper;
 
+    @SuppressWarnings("unused")
     public CooeeFirebaseMessagingService() {
     }
 
@@ -54,6 +55,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
      *
      * @param context {@link Context}
      */
+    @SuppressWarnings("unused")
     public CooeeFirebaseMessagingService(Context context) {
         this.context = context;
     }
@@ -67,7 +69,6 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
     public void onMessageReceived(@NonNull RemoteMessage remoteMessage) {
         super.onMessageReceived(remoteMessage);
         this.context = getApplicationContext();
-        engagementTriggerHelper = new EngagementTriggerHelper(context);
 
         if (remoteMessage.getData().size() == 0) {
             return;
@@ -90,6 +91,10 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
     private RemoteImageLoader imageLoader;
 
     public void handleTriggerData(String rawTriggerData) {
+        if (engagementTriggerHelper == null) {
+            engagementTriggerHelper = new EngagementTriggerHelper(context);
+        }
+
         if (TextUtils.isEmpty(rawTriggerData)) {
             Log.d(Constants.TAG, "No triggerData found on the notification payload");
             return;
@@ -115,8 +120,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
                 return;
             }
 
-            gson = TriggerGsonDeserializer.getGson();
-            triggerData = gson.fromJson(rawTriggerData, TriggerData.class);
+            triggerData = TriggerData.fromJson(rawTriggerData);
 
         } catch (JsonSyntaxException e) {
             CooeeFactory.getSentryHelper().captureException(e);
@@ -138,7 +142,6 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
     }
 
     private void showNotification(TriggerData triggerData) {
-        //Context context = getApplicationContext();
         NotificationRenderer renderer = new SimpleNotificationRenderer(context, triggerData);
         NotificationCompat.Builder notificationBuilder = renderer.getBuilder();
 
