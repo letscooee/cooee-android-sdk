@@ -23,7 +23,6 @@ import com.letscooee.models.trigger.push.PushNotificationTrigger;
 import com.letscooee.pushnotification.PushProviderUtils;
 import com.letscooee.trigger.EngagementTriggerHelper;
 import com.letscooee.trigger.InAppTriggerHelper;
-import com.letscooee.trigger.adapters.TriggerGsonDeserializer;
 import com.letscooee.trigger.pushnotification.SimpleNotificationRenderer;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.PendingIntentUtility;
@@ -38,8 +37,8 @@ import java.util.HashMap;
  */
 public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
 
-    Context context;
-    EngagementTriggerHelper engagementTriggerHelper;
+    private Context context;
+    private EngagementTriggerHelper engagementTriggerHelper;
     private InAppTriggerHelper inAppTriggerHelper;
 
     @SuppressWarnings("unused")
@@ -65,7 +64,6 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
     public void onMessageReceived(@NonNull RemoteMessage remoteMessage) {
         super.onMessageReceived(remoteMessage);
         this.context = getApplicationContext();
-        engagementTriggerHelper = new EngagementTriggerHelper(context);
 
         if (remoteMessage.getData().size() == 0) {
             return;
@@ -88,6 +86,10 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
     private RemoteImageLoader imageLoader;
 
     public void handleTriggerData(String rawTriggerData) {
+        if (engagementTriggerHelper == null) {
+            engagementTriggerHelper = new EngagementTriggerHelper(context);
+        }
+
         if (TextUtils.isEmpty(rawTriggerData)) {
             Log.d(Constants.TAG, "No triggerData found on the notification payload");
             return;
@@ -113,8 +115,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
                 return;
             }
 
-            gson = TriggerGsonDeserializer.getGson();
-            triggerData = gson.fromJson(rawTriggerData, TriggerData.class);
+            triggerData = TriggerData.fromJson(rawTriggerData);
 
         } catch (JsonSyntaxException e) {
             CooeeFactory.getSentryHelper().captureException(e);
