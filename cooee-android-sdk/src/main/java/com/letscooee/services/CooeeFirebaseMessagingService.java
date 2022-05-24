@@ -25,13 +25,14 @@ import com.letscooee.models.trigger.push.PushNotificationTrigger;
 import com.letscooee.pushnotification.PushProviderUtils;
 import com.letscooee.trigger.CooeeEmptyActivity;
 import com.letscooee.trigger.EngagementTriggerHelper;
+import com.letscooee.trigger.InAppTriggerHelper;
 import com.letscooee.trigger.pushnotification.NotificationRenderer;
 import com.letscooee.trigger.pushnotification.SimpleNotificationRenderer;
 import com.letscooee.utils.Constants;
-import com.letscooee.trigger.adapters.TriggerGsonDeserializer;
+import com.letscooee.utils.LocalStorageHelper;
 import com.letscooee.utils.PendingIntentUtility;
-
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Process received payload and work accordingly
@@ -43,6 +44,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
 
     Context context;
     EngagementTriggerHelper engagementTriggerHelper;
+    private InAppTriggerHelper inAppTriggerHelper;
 
     public CooeeFirebaseMessagingService() {
     }
@@ -190,6 +192,41 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
                 });
             });
         }
+
+        loadAndStoreInApp(triggerData);
+    }
+
+    /**
+     * Loads the in-app content and stores it in the database.
+     *
+     * @param triggerData The trigger data.
+     */
+    private void loadAndStoreInApp(TriggerData triggerData) {
+        if (inAppTriggerHelper == null) {
+            inAppTriggerHelper = new InAppTriggerHelper();
+        }
+
+        inAppTriggerHelper.loadLazyData(triggerData, (String rawInAppTrigger) -> {
+            if (rawInAppTrigger == null) {
+                return;
+            }
+
+            TriggerData inAppTriggerData = null;
+            try {
+                inAppTriggerData = TriggerData.fromJson(rawInAppTrigger);
+            } catch (JsonSyntaxException e) {
+                CooeeFactory.getSentryHelper().captureException("Fail to parse in-app trigger data", e);
+            }
+
+            if (inAppTriggerData == null || inAppTriggerData.getInAppTrigger() == null) {
+                return;
+            }
+
+            Map<String, Object> storedTrigger = LocalStorageHelper.getMap(context, Constants.STORAGE_RAW_IN_APP_TRIGGER_KEY, new HashMap<>());
+            storedTrigger.put(triggerData.getId(), rawInAppTrigger);
+
+            LocalStorageHelper.putMap(context, Constants.STORAGE_RAW_IN_APP_TRIGGER_KEY, storedTrigger);
+        });
     }
 
     private NotificationCompat.Action[] createActionButtons(PushNotificationTrigger triggerData, int notificationID) {
