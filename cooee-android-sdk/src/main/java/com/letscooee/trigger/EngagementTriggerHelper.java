@@ -1,5 +1,6 @@
 package com.letscooee.trigger;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -19,6 +20,7 @@ import com.letscooee.models.trigger.EmbeddedTrigger;
 import com.letscooee.models.trigger.TriggerData;
 import com.letscooee.models.trigger.blocks.ClickAction;
 import com.letscooee.trigger.action.ClickActionExecutor;
+import com.letscooee.trigger.cache.CacheTriggerContent;
 import com.letscooee.trigger.inapp.InAppTriggerActivity;
 import com.letscooee.trigger.inapp.TriggerContext;
 import com.letscooee.utils.Constants;
@@ -44,11 +46,14 @@ public class EngagementTriggerHelper {
     private static final long TIME_TO_WAIT_MILLIS = 6 * 1000L;
 
     private final Context context;
+    @SuppressLint("StaticFieldLeak")
     private static Activity currentActivity;
+    private final CacheTriggerContent cacheTriggerContent;
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public EngagementTriggerHelper(Context context) {
         this.context = context;
+        cacheTriggerContent = new CacheTriggerContent(context);
     }
 
     /**
@@ -115,7 +120,7 @@ public class EngagementTriggerHelper {
      *
      * @param context The application context.
      */
-    public static ArrayList<EmbeddedTrigger> getActiveTriggers(Context context) {
+    public static List<EmbeddedTrigger> getActiveTriggers(Context context) {
         updateMapToEmbeddedTrigger(context);
 
         ArrayList<EmbeddedTrigger> allTriggers = LocalStorageHelper.getEmbeddedTriggers(context,
@@ -170,7 +175,9 @@ public class EngagementTriggerHelper {
         }
 
         storeActiveTriggerDetails(context, triggerData);
-        renderInAppTrigger(triggerData);
+        cacheTriggerContent.setContentLoadedListener(() -> renderInAppTrigger(triggerData));
+        cacheTriggerContent.loadAndCacheIANContent(triggerData);
+
     }
 
     /**
@@ -286,14 +293,12 @@ public class EngagementTriggerHelper {
 
         TriggerData storedTrigger = TriggerData.fromJson((String) Objects.requireNonNull(storedTriggerMap.get(triggerData.getId())));
 
-        if (storedTrigger == null) {
-            loadLazyData(triggerData);
-        } else {
-            storedTriggerMap.remove(triggerData.getId());
-            LocalStorageHelper.putMap(context, Constants.STORAGE_RAW_IN_APP_TRIGGER_KEY, storedTriggerMap);
-            triggerData.setInAppTrigger(storedTrigger.getInAppTrigger());
-            renderInAppTrigger(triggerData);
-        }
+        storedTriggerMap.remove(triggerData.getId());
+        LocalStorageHelper.putMap(context, Constants.STORAGE_RAW_IN_APP_TRIGGER_KEY, storedTriggerMap);
+        triggerData.setInAppTrigger(storedTrigger.getInAppTrigger());
+        cacheTriggerContent.setContentLoadedListener(() -> renderInAppTrigger(triggerData));
+        cacheTriggerContent.loadAndCacheIANContent(triggerData);
+
     }
 
     /**
@@ -305,7 +310,8 @@ public class EngagementTriggerHelper {
         new InAppTriggerHelper().loadLazyData(triggerData, (String rawInAppTrigger) -> {
             TriggerData inAppTriggerData = TriggerData.fromJson(rawInAppTrigger);
             triggerData.setInAppTrigger(inAppTriggerData.getInAppTrigger());
-            renderInAppTrigger(triggerData);
+            cacheTriggerContent.setContentLoadedListener(() -> renderInAppTrigger(triggerData));
+            cacheTriggerContent.loadAndCacheIANContent(triggerData);
         });
     }
 

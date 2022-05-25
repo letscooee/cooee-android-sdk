@@ -14,6 +14,7 @@ import com.letscooee.utils.Constants;
 import com.letscooee.utils.LocalStorageHelper;
 import com.letscooee.utils.RuntimeData;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 /**
@@ -68,7 +69,7 @@ public class SafeHTTPService extends ContextAware {
         }
 
         event.setScreenName(runtimeData.getCurrentScreenName());
-        event.setActiveTriggers(EngagementTriggerHelper.getActiveTriggers(context));
+        event.setActiveTriggers((ArrayList<EmbeddedTrigger>) EngagementTriggerHelper.getActiveTriggers(context));
         event.setActiveTrigger(trigger);
 
         PendingTask pendingTask = pendingTaskService.newTask(event);
