@@ -22,7 +22,7 @@ import com.letscooee.models.trigger.elements.ButtonElement;
 import com.letscooee.models.trigger.push.PushNotificationTrigger;
 import com.letscooee.pushnotification.PushProviderUtils;
 import com.letscooee.trigger.EngagementTriggerHelper;
-import com.letscooee.trigger.InAppTriggerHelper;
+import com.letscooee.trigger.cache.CacheTriggerContent;
 import com.letscooee.trigger.pushnotification.SimpleNotificationRenderer;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.PendingIntentUtility;
@@ -39,7 +39,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
 
     private Context context;
     private EngagementTriggerHelper engagementTriggerHelper;
-    private InAppTriggerHelper inAppTriggerHelper;
+    private CacheTriggerContent cachePayloadContent;
 
     @SuppressWarnings("unused")
     public CooeeFirebaseMessagingService() {
@@ -141,6 +141,12 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
         renderer.setContentIntent();
         renderer.addActions(createActionButtons(triggerData.getPn(), renderer.getNotificationID()));
         renderer.render();
+
+        if (cachePayloadContent == null) {
+            cachePayloadContent = new CacheTriggerContent(context);
+        }
+
+        cachePayloadContent.storePayloadAndLoadResources(triggerData);
     }
 
     private NotificationCompat.Action[] createActionButtons(PushNotificationTrigger triggerData, int notificationID) {

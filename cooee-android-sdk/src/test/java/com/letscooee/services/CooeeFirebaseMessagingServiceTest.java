@@ -8,7 +8,7 @@ import static org.mockito.Mockito.verify;
 import com.letscooee.BaseTestCase;
 import com.letscooee.models.trigger.TriggerData;
 import com.letscooee.trigger.EngagementTriggerHelper;
-import com.letscooee.trigger.InAppTriggerHelper;
+import com.letscooee.trigger.cache.CacheTriggerContent;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,7 +23,7 @@ public class CooeeFirebaseMessagingServiceTest extends BaseTestCase {
     EngagementTriggerHelper engagementTriggerHelper;
 
     @Mock
-    InAppTriggerHelper inAppTriggerHelper;
+    CacheTriggerContent cachePayloadContent;
 
     @InjectMocks
     CooeeFirebaseMessagingService cooeeFirebaseMessagingService;
@@ -35,7 +35,7 @@ public class CooeeFirebaseMessagingServiceTest extends BaseTestCase {
         super.loadPayload();
 
         MockitoAnnotations.openMocks(this);
-        ReflectionHelpers.setField(cooeeFirebaseMessagingService, "inAppTriggerHelper", inAppTriggerHelper);
+        ReflectionHelpers.setField(cooeeFirebaseMessagingService, "cachePayloadContent", cachePayloadContent);
         ReflectionHelpers.setField(cooeeFirebaseMessagingService, "context", context);
         ReflectionHelpers.setField(cooeeFirebaseMessagingService, "engagementTriggerHelper", engagementTriggerHelper);
     }
@@ -110,9 +110,9 @@ public class CooeeFirebaseMessagingServiceTest extends BaseTestCase {
         payloadMap.put("ian", null);
         String updatedPayload = gson.toJson(payloadMap);
 
-        doNothing().when(inAppTriggerHelper).loadLazyData(any(TriggerData.class), any());
+        doNothing().when(cachePayloadContent).storePayloadAndLoadResources(any(TriggerData.class));
         cooeeFirebaseMessagingService.handleTriggerData(updatedPayload);
-        verify(inAppTriggerHelper, times(1)).loadLazyData(any(TriggerData.class), any());
+        verify(cachePayloadContent, times(1)).storePayloadAndLoadResources(any(TriggerData.class));
 
     }
 
@@ -122,9 +122,9 @@ public class CooeeFirebaseMessagingServiceTest extends BaseTestCase {
         payloadMap.put("id", "1234");
         String updatedPayload = gson.toJson(payloadMap);
 
-        doNothing().when(inAppTriggerHelper).loadLazyData(any(TriggerData.class), any());
+        doNothing().when(cachePayloadContent).storePayloadAndLoadResources(any(TriggerData.class));
         cooeeFirebaseMessagingService.handleTriggerData(updatedPayload);
-        verify(inAppTriggerHelper, times(1)).loadLazyData(any(TriggerData.class), any());
+        verify(cachePayloadContent, times(1)).storePayloadAndLoadResources(any(TriggerData.class));
 
     }
 }
