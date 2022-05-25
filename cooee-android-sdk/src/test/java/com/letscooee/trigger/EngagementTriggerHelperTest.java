@@ -16,20 +16,23 @@ import com.letscooee.BaseTestCase;
 import com.letscooee.models.trigger.EmbeddedTrigger;
 import com.letscooee.models.trigger.TriggerData;
 import com.letscooee.room.CooeeDatabase;
+import com.letscooee.trigger.cache.CacheTriggerContent;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.robolectric.RuntimeEnvironment;
-import java.util.ArrayList;
+import org.robolectric.util.ReflectionHelpers;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class EngagementTriggerHelperTest extends BaseTestCase {
 
     EngagementTriggerHelper engagementTriggerHelperMock;
     EngagementTriggerHelper engagementTriggerHelper;
+    CacheTriggerContent cacheTriggerContent;
 
     @Before
     @Override
@@ -41,8 +44,10 @@ public class EngagementTriggerHelperTest extends BaseTestCase {
         database = Room.inMemoryDatabaseBuilder(context, CooeeDatabase.class).build();
         engagementTriggerHelper = new EngagementTriggerHelper(context);
         engagementTriggerHelperMock = Mockito.spy(engagementTriggerHelper);
+        cacheTriggerContent = Mockito.mock(CacheTriggerContent.class);
         expiredTriggerData = TriggerData.fromJson(samplePayload);
         makeActiveTrigger();
+        ReflectionHelpers.setField(engagementTriggerHelperMock, "cacheTriggerContent", cacheTriggerContent);
     }
 
     @Test
@@ -77,7 +82,7 @@ public class EngagementTriggerHelperTest extends BaseTestCase {
         verify(engagementTriggerHelperMock, never()).renderInAppTriggerFromJSONString(samplePayload);
     }
 
-    private void commonRenderInAppTriggerFromJSONString(String payload, int times) {
+    private void commonRenderInAppTriggerFromJSONString(String payload, @SuppressWarnings("SameParameterValue") int times) {
         doNothing().when(engagementTriggerHelperMock).renderInAppTrigger(any(TriggerData.class));
         engagementTriggerHelperMock.renderInAppTriggerFromJSONString(payload);
 
@@ -92,7 +97,10 @@ public class EngagementTriggerHelperTest extends BaseTestCase {
     public void render_in_app_from_json_string() {
         assertThat(samplePayload).isNotEmpty();
 
-        commonRenderInAppTriggerFromJSONString(samplePayload, 1);
+        doNothing().when(cacheTriggerContent).loadAndCacheIANContent(any(TriggerData.class));
+        engagementTriggerHelperMock.renderInAppTriggerFromJSONString(samplePayload);
+
+        verify(cacheTriggerContent, times(1)).loadAndCacheIANContent(any(TriggerData.class));
     }
 
     @Test
@@ -129,7 +137,7 @@ public class EngagementTriggerHelperTest extends BaseTestCase {
 
     @Test
     public void render_in_app_from_json_string_invalid_json_string_scenario_3() {
-        commonRenderInAppTriggerFromJSONString("{}", 1);
+        commonRenderInAppTriggerFromJSONString("{}", 0);
     }
 
     private void commonRenderInAppFromPushNotification(Activity activity, int times) {
@@ -175,7 +183,7 @@ public class EngagementTriggerHelperTest extends BaseTestCase {
         verify(engagementTriggerHelperMock, times(1)).loadLazyData(any(TriggerData.class));
     }
 
-    private ArrayList<EmbeddedTrigger> saveAndGetActiveTriggers(Context context, TriggerData triggerData) {
+    private List<EmbeddedTrigger> saveAndGetActiveTriggers(Context context, TriggerData triggerData) {
         EngagementTriggerHelper.storeActiveTriggerDetails(context, triggerData);
         return EngagementTriggerHelper.getActiveTriggers(context);
     }
@@ -187,7 +195,7 @@ public class EngagementTriggerHelperTest extends BaseTestCase {
         assertThat(triggerData.getEngagementID()).isNotEmpty();
         assertThat(triggerData.getExpireAt()).isGreaterThan(0);
 
-        ArrayList<EmbeddedTrigger> embeddedTriggers = saveAndGetActiveTriggers(context, triggerData);
+        List<EmbeddedTrigger> embeddedTriggers = saveAndGetActiveTriggers(context, triggerData);
 
         assertThat(embeddedTriggers).isNotEmpty();
         assertThat(embeddedTriggers.size()).isEqualTo(1);
@@ -201,7 +209,7 @@ public class EngagementTriggerHelperTest extends BaseTestCase {
         assertThat(expiredTriggerData.getEngagementID()).isNotEmpty();
         assertThat(expiredTriggerData.getExpireAt()).isGreaterThan(0);
 
-        ArrayList<EmbeddedTrigger> embeddedTriggers = saveAndGetActiveTriggers(context, expiredTriggerData);
+        List<EmbeddedTrigger> embeddedTriggers = saveAndGetActiveTriggers(context, expiredTriggerData);
 
         assertThat(embeddedTriggers).isEmpty();
         assertThat(embeddedTriggers.size()).isEqualTo(0);
