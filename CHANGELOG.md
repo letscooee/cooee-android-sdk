@@ -1,5 +1,11 @@
 # Change Log
 
+## 1.3.11 (2022-05-26)
+
+### Improvements
+
+1. Remove unnecessary permissions from SDK Manifest.
+
 ## 1.3.10 (2022-05-06)
 
 ### Improvements
