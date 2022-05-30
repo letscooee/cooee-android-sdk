@@ -52,12 +52,12 @@ public class CacheTriggerContent {
      * @param triggerData the trigger data to be loaded and cached.
      */
     public void storePayloadAndLoadResources(TriggerData triggerData) {
-        if (inAppTriggerHelper == null) {
-            inAppTriggerHelper = new InAppTriggerHelper();
-        }
-
         if (triggerData == null || TextUtils.isEmpty(triggerData.getId())) {
             return;
+        }
+
+        if (inAppTriggerHelper == null) {
+            inAppTriggerHelper = new InAppTriggerHelper();
         }
 
         inAppTriggerHelper.loadLazyData(triggerData, (String rawInAppTrigger) -> {
@@ -65,14 +65,15 @@ public class CacheTriggerContent {
                 return;
             }
 
-            TriggerData inAppTriggerData = null;
+            TriggerData inAppTriggerData;
             try {
                 inAppTriggerData = TriggerData.fromJson(rawInAppTrigger);
             } catch (JsonSyntaxException e) {
                 CooeeFactory.getSentryHelper().captureException("Fail to parse in-app trigger data", e);
+                return;
             }
 
-            if (inAppTriggerData == null || inAppTriggerData.getInAppTrigger() == null) {
+            if (inAppTriggerData.getInAppTrigger() == null) {
                 return;
             }
 
