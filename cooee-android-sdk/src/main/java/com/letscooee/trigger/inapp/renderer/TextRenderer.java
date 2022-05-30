@@ -127,10 +127,12 @@ public class TextRenderer extends FontRenderer {
     protected void processTextData(TextView textView, String text) {
         textView.setText(HtmlCompat.fromHtml(text, 0));
 
-        // setBreakStrategy is exposed in Android API 23 and its parameters from LinearBreak
-        // are exposed in Android API 29, Hence we need to check the API level
-        // Textview.setBreakStrategy Ref.: https://developer.android.com/reference/android/widget/TextView#setBreakStrategy(int)
-        // LinearBreak.BREAK_STRATEGY_BALANCED: https://developer.android.com/reference/android/graphics/text/LineBreaker#constants_1
+        /*
+         setBreakStrategy is exposed in Android API 23 and its parameters from LinearBreak
+         are exposed in Android API 29, Hence we need to check the API level
+         Textview.setBreakStrategy Ref.: https://developer.android.com/reference/android/widget/TextView#setBreakStrategy(int)
+         LinearBreak.BREAK_STRATEGY_BALANCED: https://developer.android.com/reference/android/graphics/text/LineBreaker#constants_1
+        */
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             textView.setBreakStrategy(LineBreaker.BREAK_STRATEGY_BALANCED);
         }
@@ -147,11 +149,13 @@ public class TextRenderer extends FontRenderer {
     protected void processAlignmentBlock() {
         int gravity = textData.getAlignment();
 
-        // setJustificationMode is exposed in Android API 26, but required fags to make text justify
-        // are exposed in LinearBreaker class with Android API 29. Hence, applying Justify alignment on
-        // Android API 29 & onward
-        // LinearBreaker Ref.: https://developer.android.com/reference/android/graphics/text/LineBreaker#constants_1
-        // TextView.setJustificationMode() Ref.: https://developer.android.com/reference/android/widget/TextView#setJustificationMode(int)
+        /*
+         setJustificationMode is exposed in Android API 26, but required fags to make text justify
+         are exposed in LinearBreaker class with Android API 29. Hence, applying Justify alignment on
+         Android API 29 & onward
+         LinearBreaker Ref.: https://developer.android.com/reference/android/graphics/text/LineBreaker#constants_1
+         TextView.setJustificationMode() Ref.: https://developer.android.com/reference/android/widget/TextView#setJustificationMode(int)
+         */
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && gravity == -1) {
             ((TextView) newElement).setJustificationMode(LineBreaker.JUSTIFICATION_MODE_INTER_WORD);
         } else {
