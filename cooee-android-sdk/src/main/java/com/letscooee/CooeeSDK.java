@@ -2,10 +2,7 @@ package com.letscooee;
 
 import android.content.Context;
 import android.content.Intent;
-
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
-
 import com.letscooee.device.DebugInfoActivity;
 import com.letscooee.models.Event;
 import com.letscooee.network.SafeHTTPService;
@@ -15,7 +12,6 @@ import com.letscooee.utils.CooeeCTAListener;
 import com.letscooee.utils.PropertyNameException;
 import com.letscooee.utils.RuntimeData;
 import com.letscooee.utils.SentryHelper;
-
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Map;
@@ -232,16 +228,5 @@ public class CooeeSDK {
                 throw new PropertyNameException();
             }
         }
-    }
-
-    /**
-     * Send wrapper information to the server.
-     *
-     * @param wrapperInformation wrapper information
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public void updateWrapper(Map<String, Object> wrapperInformation) {
-        CooeeExecutors.getInstance().singleThreadExecutor()
-                .execute(() -> safeHTTPService.updateDeviceProperty(wrapperInformation));
     }
 }
