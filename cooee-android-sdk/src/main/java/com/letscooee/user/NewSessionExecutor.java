@@ -2,22 +2,21 @@ package com.letscooee.user;
 
 import android.content.Context;
 import android.os.Build;
-
+import android.text.TextUtils;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
-
 import com.letscooee.ContextAware;
 import com.letscooee.CooeeFactory;
-import com.letscooee.device.AppInfo;
 import com.letscooee.device.DeviceInfo;
+import com.letscooee.enums.WrapperType;
 import com.letscooee.init.DefaultUserPropertiesCollector;
 import com.letscooee.models.Event;
+import com.letscooee.models.WrapperDetails;
 import com.letscooee.network.SafeHTTPService;
 import com.letscooee.permission.PermissionManager;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.DateUtils;
 import com.letscooee.utils.LocalStorageHelper;
-
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -32,11 +31,10 @@ import java.util.Map;
 public class NewSessionExecutor extends ContextAware {
 
     private final DefaultUserPropertiesCollector defaultUserPropertiesCollector;
-    private final AppInfo appInfo;
-    private final SessionManager sessionManager;
     private final SafeHTTPService safeHTTPService;
     private final PermissionManager permissionManager;
     private final DeviceInfo deviceInfo;
+    private static WrapperDetails wrapper;
 
     /**
      * Public Constructor
@@ -46,8 +44,6 @@ public class NewSessionExecutor extends ContextAware {
     public NewSessionExecutor(@NonNull Context context) {
         super(context);
         this.defaultUserPropertiesCollector = new DefaultUserPropertiesCollector(context);
-        this.sessionManager = SessionManager.getInstance(context);
-        this.appInfo = CooeeFactory.getAppInfo();
         this.safeHTTPService = CooeeFactory.getSafeHTTPService();
         this.permissionManager = new PermissionManager(context);
         this.deviceInfo = CooeeFactory.getDeviceInfo();
@@ -59,6 +55,16 @@ public class NewSessionExecutor extends ContextAware {
         } else {
             sendSuccessiveLaunchEvent();
         }
+    }
+
+    @SuppressWarnings("unused")
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static void updateWrapperInformation(WrapperType wrapperType, int versionCode, String versionNumber) {
+        if (wrapperType == null || versionCode == 0 || TextUtils.isEmpty(versionNumber)) {
+            return;
+        }
+
+        wrapper = new WrapperDetails(versionCode, versionNumber, wrapperType);
     }
 
     /**
@@ -87,6 +93,24 @@ public class NewSessionExecutor extends ContextAware {
         Event event = new Event("CE App Installed");
         event.setDeviceProps(deviceProperties);
         safeHTTPService.sendEvent(event);
+
+        sendDefaultDeviceProperties(deviceProperties);
+    }
+
+    /**
+     * Update device props with default values
+     *
+     * @param deviceProperties device properties
+     */
+    private void sendDefaultDeviceProperties(Map<String, Object> deviceProperties) {
+        Map<String, Object> deviceProps = new HashMap<>();
+        deviceProps.put("props", deviceProperties);
+
+        if (wrapper != null) {
+            deviceProps.put("wrp", wrapper);
+        }
+
+        safeHTTPService.updateDeviceProperty(deviceProps);
     }
 
     /**
@@ -96,6 +120,7 @@ public class NewSessionExecutor extends ContextAware {
         Event event = new Event("CE App Launched");
         event.setDeviceProps(getMutableDeviceProps());
         safeHTTPService.sendEvent(event);
+        sendDefaultDeviceProperties(getMutableDeviceProps());
     }
 
     /**
