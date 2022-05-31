@@ -18,6 +18,7 @@ import com.letscooee.models.trigger.elements.BaseElement;
 import com.letscooee.models.trigger.elements.PartElement;
 import com.letscooee.models.trigger.elements.TextElement;
 import com.letscooee.trigger.inapp.TriggerContext;
+import com.letscooee.utils.Constants;
 
 /**
  * @author shashank
@@ -156,7 +157,7 @@ public class TextRenderer extends FontRenderer {
          LinearBreaker Ref.: https://developer.android.com/reference/android/graphics/text/LineBreaker#constants_1
          TextView.setJustificationMode() Ref.: https://developer.android.com/reference/android/widget/TextView#setJustificationMode(int)
          */
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && gravity == -1) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && gravity == Constants.JUSTIFY_TEXT_ALIGNMENT) {
             ((TextView) newElement).setJustificationMode(LineBreaker.JUSTIFICATION_MODE_INTER_WORD);
         } else {
             ((TextView) newElement).setGravity(gravity);
