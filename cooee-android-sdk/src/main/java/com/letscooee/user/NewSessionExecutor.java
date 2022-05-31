@@ -57,6 +57,13 @@ public class NewSessionExecutor extends ContextAware {
         }
     }
 
+    /**
+     * Generate instance of {@link WrapperDetails} with the provided values
+     *
+     * @param wrapperType   wrapper type
+     * @param versionCode   wrapper version code
+     * @param versionNumber wrapper version number
+     */
     @SuppressWarnings("unused")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static void updateWrapperInformation(WrapperType wrapperType, int versionCode, String versionNumber) {

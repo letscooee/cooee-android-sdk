@@ -1,6 +1,7 @@
 package com.letscooee.models;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.letscooee.enums.WrapperType;
@@ -11,6 +12,7 @@ import com.letscooee.enums.WrapperType;
  * @author Ashish Gaikwad 31/05/22
  * @since 1.3.12
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class WrapperDetails {
 
     @SerializedName("code")
