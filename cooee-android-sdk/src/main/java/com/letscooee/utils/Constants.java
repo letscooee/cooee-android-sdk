@@ -8,6 +8,9 @@ package com.letscooee.utils;
  */
 public class Constants {
 
+    private Constants() {
+    }
+
     public static final int PERMISSION_REQUEST_CODE = 1;
 
     // region All Shared Preference related keys
@@ -21,7 +24,6 @@ public class Constants {
     public static final String STORAGE_LAST_TOKEN_ATTEMPT = "last_token_check_attempt";
     public static final String STORAGE_LAST_FONT_ATTEMPT = "last_font_check_attempt";
     public static final String STORAGE_CACHED_FONTS = "cached_fonts";
-    public static final String STORAGE_FB_TOKEN = "fb_token";
     public static final String STORAGE_DEVICE_ID = "cooee_device_id";
     public static final String STORAGE_DEVICE_UUID = "cooee_device_uuid";
     public static final String STORAGE_SCREENSHOT_SYNC_TIME = "screenshot_sync_time";
@@ -54,9 +56,6 @@ public class Constants {
 
     // region Units
     public static final String UNIT_PIXEL = "px";
-    public static final String UNIT_PERCENT = "%";
-    public static final String UNIT_VIEWPORT_HEIGHT = "vh";
-    public static final String UNIT_VIEWPORT_WIDTH = "vw";
     // endregion
 
     public static final int FONT_REFRESH_INTERVAL_DAYS = 7;
@@ -67,6 +66,7 @@ public class Constants {
     public static final String PLAY_STORE_LINK = "https://play.google.com/store/apps/details?id=";
     public static final int DEFAULT_CONTAINER_WIDTH = 1080;
     public static final int DEFAULT_CONTAINER_HEIGHT = 1920;
+    public static final int JUSTIFY_TEXT_ALIGNMENT = -1;
 
     // region AR
     public static final String AR_INTENT = "com.letscooee.launchCooeeAR";

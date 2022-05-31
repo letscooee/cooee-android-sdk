@@ -7,6 +7,7 @@ import android.view.Gravity;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.letscooee.models.trigger.blocks.*;
+import com.letscooee.utils.Constants;
 
 public abstract class BaseTextElement extends BaseElement {
 
@@ -52,7 +53,7 @@ public abstract class BaseTextElement extends BaseElement {
             case 2:
                 return Gravity.END;
             case 3:
-                return Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q ? -1 : Gravity.START;
+                return Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q ? Constants.JUSTIFY_TEXT_ALIGNMENT : Gravity.START;
             default:
                 return Gravity.START;
         }
