@@ -21,9 +21,7 @@ public enum PushType {
         this.value = value;
     }
 
-    @NonNull
-    @Override
-    public String toString() {
-        return value + "";
+    public int getValue() {
+        return value;
     }
 }
