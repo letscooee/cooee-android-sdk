@@ -1,6 +1,7 @@
 package com.letscooee.trigger.pushnotification;
 
 import android.content.Context;
+import androidx.annotation.RestrictTo;
 import com.letscooee.R;
 import com.letscooee.models.trigger.TriggerData;
 
@@ -10,6 +11,8 @@ import com.letscooee.models.trigger.TriggerData;
  * @author Shashank Agrawal
  * @since 0.3.0
  */
+@SuppressWarnings("unused")
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class CarouselNotificationRenderer extends NotificationRenderer {
 
     public CarouselNotificationRenderer(Context context, TriggerData triggerData) {
@@ -20,11 +23,23 @@ public class CarouselNotificationRenderer extends NotificationRenderer {
         return R.layout.notification_carousel;
     }
 
-    void updateSmallContentView() {
-        // TODO: 11/06/21 implement me
+    @Override
+    int getSmallViewLayout() {
+        return R.layout.notification_small;
     }
 
-    void updateBigContentView() {
-        // TODO: 11/06/21 implement me
+    @Override
+    public boolean hasLargeImage() {
+        return false;
+    }
+
+    @Override
+    public boolean hasSmallImage() {
+        return false;
+    }
+
+    @Override
+    boolean cancelPushOnClick() {
+        return false;
     }
 }
