@@ -11,16 +11,14 @@ import android.service.notification.StatusBarNotification;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.RemoteViews;
-
+import androidx.annotation.RestrictTo;
 import androidx.core.app.NotificationCompat;
-
 import com.letscooee.CooeeFactory;
 import com.letscooee.R;
-import com.letscooee.enums.trigger.PushType;
+import com.letscooee.enums.trigger.PushNotificationImportance;
 import com.letscooee.loader.http.RemoteImageLoader;
 import com.letscooee.models.Event;
 import com.letscooee.models.trigger.TriggerData;
-import com.letscooee.enums.trigger.PushNotificationImportance;
 import com.letscooee.models.trigger.elements.PartElement;
 import com.letscooee.models.trigger.elements.TextElement;
 import com.letscooee.models.trigger.push.PushNotificationTrigger;
@@ -28,7 +26,6 @@ import com.letscooee.network.SafeHTTPService;
 import com.letscooee.services.PushNotificationIntentService;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.PendingIntentUtility;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -39,6 +36,7 @@ import java.util.List;
  * @author Shashank Agrawal
  * @since 0.3.0
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public abstract class NotificationRenderer {
 
     protected final Context context;
@@ -50,6 +48,7 @@ public abstract class NotificationRenderer {
     protected final RemoteImageLoader imageLoader;
 
     private final SafeHTTPService safeHTTPService;
+    @SuppressWarnings({"FieldCanBeLocal", "unused"})
     private final NotificationSound notificationSound;
     private final NotificationManager notificationManager;
     private final NotificationCompat.Builder notificationBuilder;
@@ -70,16 +69,8 @@ public abstract class NotificationRenderer {
         this.notificationBuilder = new NotificationCompat.Builder(this.context, this.notificationImportance.getChannelID());
         this.notificationSound = new NotificationSound(context, triggerData.getPn(), notificationBuilder);
 
-        if (pushTrigger.getType() == PushType.BOTH) {
-            this.smallContentViews = new RemoteViews(context.getPackageName(), R.layout.notification_small);
-            this.bigContentViews = new RemoteViews(context.getPackageName(), this.getBigViewLayout());
-        } else if (pushTrigger.getType() == PushType.LARGE) {
-            this.smallContentViews = null;
-            this.bigContentViews = new RemoteViews(context.getPackageName(), this.getBigViewLayout());
-        } else if (pushTrigger.getType() == PushType.SMALL) {
-            this.smallContentViews = new RemoteViews(context.getPackageName(), R.layout.notification_small);
-            this.bigContentViews = null;
-        }
+        this.smallContentViews = new RemoteViews(context.getPackageName(), this.getSmallViewLayout());
+        this.bigContentViews = new RemoteViews(context.getPackageName(), this.getBigViewLayout());
 
         this.createChannel();
         this.setBuilder();
@@ -87,89 +78,69 @@ public abstract class NotificationRenderer {
 
     abstract int getBigViewLayout();
 
-    abstract void updateSmallContentView();
+    abstract int getSmallViewLayout();
 
-    abstract void updateBigContentView();
+    public abstract boolean hasLargeImage();
+
+    public abstract boolean hasSmallImage();
+
+    abstract boolean cancelPushOnClick();
 
     public NotificationCompat.Builder getBuilder() {
         return notificationBuilder;
     }
 
     protected void setTitleAndBody() {
-        String title = null;
-        String body = null;
-        if (this.triggerData.getPn().getTitle() != null)
-            title = getTextFromTextElement(this.triggerData.getPn().getTitle());
-
-        if (this.triggerData.getPn().getBody() != null)
-            body = getTextFromTextElement(this.triggerData.getPn().getBody());
-
-        if (smallContentViews != null) {
-            updateSmallViewContent(title, body);
-        }
-
-        if (bigContentViews != null) {
-            updateBigViewContent(title, body);
-        }
+        updateSmallViewContentText();
+        updateBigViewContentText();
     }
 
     /**
      * Add Big view contains only if {@code bigContentViews} is not null
-     *
-     * @param title title of notification
-     * @param body  body of notification
      */
-    private void updateBigViewContent(String title, String body) {
-        if (!TextUtils.isEmpty(title)) {
-            this.notificationBuilder.setContentTitle(title);
-            this.bigContentViews.setTextViewText(R.id.textViewTitle, title);
-        } else {
-            hideViewInBigContentView(R.id.textViewTitle);
+    private void updateBigViewContentText() {
+        if (hasTitle()) {
+            this.notificationBuilder.setContentTitle(getTitle());
+            this.bigContentViews.setTextViewText(R.id.textViewTitle, getTitle());
+            showViewInBigContentView(R.id.textViewTitle);
         }
 
-        if (!TextUtils.isEmpty(body)) {
-            this.notificationBuilder.setContentText(body);
-            this.bigContentViews.setTextViewText(R.id.textViewSmallBody, body);
-            this.bigContentViews.setTextViewText(R.id.textViewLargeBody, body);
-        } else {
-            hideViewInBigContentView(R.id.textViewBody);
+        if (hasBody()) {
+            this.notificationBuilder.setContentText(getBody());
+            this.bigContentViews.setTextViewText(R.id.textViewSmallBody, getBody());
+            this.bigContentViews.setTextViewText(R.id.textViewLargeBody, getBody());
+            showViewInBigContentView(R.id.textViewLargeBody);
         }
     }
 
     /**
      * Add Small view contains only if {@code smallContentViews} is not null
-     *
-     * @param title title of notification
-     * @param body  body of notification
      */
-    private void updateSmallViewContent(String title, String body) {
+    private void updateSmallViewContentText() {
 
-        if (!TextUtils.isEmpty(title)) {
-            this.notificationBuilder.setContentTitle(title);
-            this.smallContentViews.setTextViewText(R.id.textViewTitle, title);
-        } else {
-            hideViewInSmallContentView(R.id.textViewTitle);
+        if (hasTitle()) {
+            this.notificationBuilder.setContentTitle(getTitle());
+            this.smallContentViews.setTextViewText(R.id.textViewTitle, getTitle());
+            showViewInSmallContentView(R.id.textViewTitle);
         }
 
-        if (!TextUtils.isEmpty(body)) {
-            this.notificationBuilder.setContentText(body);
-            this.smallContentViews.setTextViewText(R.id.textViewBody, body);
-        } else {
-            hideViewInSmallContentView(R.id.textViewBody);
+        if (hasBody()) {
+            this.notificationBuilder.setContentText(getBody());
+            this.smallContentViews.setTextViewText(R.id.textViewBody, getBody());
+            showViewInSmallContentView(R.id.textViewBody);
         }
     }
 
     private void setBuilder() {
         this.notificationBuilder
-                // TODO: 11/06/21 Test this for carousel based notifications as it was false there
-                .setAutoCancel(true)
-                // TODO: 11/06/21 It should be the date of engagement trigger planned
+                .setAutoCancel(cancelPushOnClick())
                 .setWhen(System.currentTimeMillis())
                 .setSmallIcon(context.getApplicationInfo().icon)
                 .setCustomContentView(smallContentViews)
                 .setCustomBigContentView(bigContentViews)
                 .setPriority(this.notificationImportance.getPriority())
-                .setStyle(new NotificationCompat.DecoratedCustomViewStyle());
+                .setStyle(new NotificationCompat.DecoratedCustomViewStyle())
+                .setShowWhen(true);
 
         int defaults = 0;
         if (this.pushTrigger.lights) defaults |= NotificationCompat.DEFAULT_LIGHTS;
@@ -231,12 +202,54 @@ public abstract class NotificationRenderer {
         return this.notificationID;
     }
 
+    @SuppressWarnings("unused")
     public RemoteViews getSmallContentView() {
         return this.smallContentViews;
     }
 
+    /**
+     *
+     * @return
+     */
+    @SuppressWarnings("unused")
     public RemoteViews getBigContentView() {
         return this.bigContentViews;
+    }
+
+    /**
+     * Return if the notification has title
+     *
+     * @return true if the notification has title
+     */
+    protected boolean hasTitle() {
+        return pushTrigger.getTitle() != null && !TextUtils.isEmpty(getTitle());
+    }
+
+    /**
+     * Returns if the notification has a body
+     *
+     * @return true if the notification has a body
+     */
+    protected boolean hasBody() {
+        return pushTrigger.getBody() != null && !TextUtils.isEmpty(getBody());
+    }
+
+    /**
+     * Provide the title of the notification.
+     *
+     * @return The title of the notification.
+     */
+    protected String getTitle() {
+        return getTextFromTextElement(pushTrigger.getTitle());
+    }
+
+    /**
+     * Provide body text for the notification.
+     *
+     * @return Body text for the notification.
+     */
+    protected String getBody() {
+        return getTextFromTextElement(pushTrigger.getBody());
     }
 
     /**
@@ -244,10 +257,9 @@ public abstract class NotificationRenderer {
      *
      * @param viewID The view ID to hide
      */
-    public void hideViewInSmallContentView(int viewID) {
-        if (smallContentViews != null) {
-            smallContentViews.setViewVisibility(viewID, View.GONE);
-        }
+    @SuppressWarnings("unused")
+    protected void hideViewInSmallContentView(int viewID) {
+        smallContentViews.setViewVisibility(viewID, View.GONE);
     }
 
     /**
@@ -255,16 +267,26 @@ public abstract class NotificationRenderer {
      *
      * @param viewID The view ID to hide
      */
-    public void hideViewInBigContentView(int viewID) {
-        if (bigContentViews != null) {
-            bigContentViews.setViewVisibility(viewID, View.GONE);
-        }
+    protected void hideViewInBigContentView(int viewID) {
+        bigContentViews.setViewVisibility(viewID, View.GONE);
     }
 
-    public void showViewInBigContentView(int viewId) {
-        if (bigContentViews != null) {
-            bigContentViews.setViewVisibility(viewId, View.VISIBLE);
-        }
+    /**
+     * Show provided view in {@code largeContentViews}
+     *
+     * @param viewId The view ID to show
+     */
+    protected void showViewInBigContentView(int viewId) {
+        bigContentViews.setViewVisibility(viewId, View.VISIBLE);
+    }
+
+    /**
+     * Show provided view in {@code smallContentViews}
+     *
+     * @param viewId The view ID to show
+     */
+    protected void showViewInSmallContentView(int viewId) {
+        smallContentViews.setViewVisibility(viewId, View.VISIBLE);
     }
 
     /**
@@ -274,9 +296,8 @@ public abstract class NotificationRenderer {
      * @param bitmap The bitmap to add to the view
      */
     public void addSmallContentImage(int viewID, Bitmap bitmap) {
-        if (smallContentViews != null) {
-            smallContentViews.setImageViewBitmap(viewID, bitmap);
-        }
+        showViewInSmallContentView(R.id.image_container);
+        smallContentViews.setImageViewBitmap(viewID, bitmap);
     }
 
     /**
@@ -286,9 +307,8 @@ public abstract class NotificationRenderer {
      * @param bitmap The bitmap to add to the view
      */
     public void addBigContentImage(int viewID, Bitmap bitmap) {
-        if (bigContentViews != null) {
-            bigContentViews.setImageViewBitmap(viewID, bitmap);
-        }
+        showViewInBigContentView(R.id.image_container);
+        bigContentViews.setImageViewBitmap(viewID, bitmap);
     }
 
     /**
