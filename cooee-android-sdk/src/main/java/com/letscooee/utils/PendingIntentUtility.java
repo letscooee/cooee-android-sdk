@@ -13,6 +13,8 @@ import android.os.Build;
  */
 public class PendingIntentUtility {
 
+    private PendingIntentUtility(){}
+
     /**
      * Android 12 added more security with the PendingIntents. Now we need to tell that if PendingIntent
      * can be mutated or not.
@@ -41,6 +43,19 @@ public class PendingIntentUtility {
      */
     public static PendingIntent getService(Context context, int requestCode, Intent intent) {
         int flags = getMutability();
+        return getService(context, requestCode, intent, flags);
+    }
+
+    /**
+     * Creates a PendingIntent for {@link android.app.Service} with given context.
+     *
+     * @param context     The context.
+     * @param requestCode The request code.
+     * @param intent      The intent.
+     * @param flags       The flags.
+     * @return The PendingIntent.
+     */
+    public static PendingIntent getService(Context context, int requestCode, Intent intent, int flags) {
         return PendingIntent.getService(context, requestCode, intent, flags);
     }
 
