@@ -288,17 +288,34 @@ public class EngagementTriggerHelper {
 
         if (storedTriggerMap.isEmpty() || !storedTriggerMap.containsKey(triggerData.getId())) {
             loadLazyData(triggerData);
+            updateStack(storedTriggerMap, triggerData.getId());
             return;
         }
 
-        TriggerData storedTrigger = TriggerData.fromJson((String) Objects.requireNonNull(storedTriggerMap.get(triggerData.getId())));
+        Object rawPayload = storedTriggerMap.get(triggerData.getId());
 
-        storedTriggerMap.remove(triggerData.getId());
-        LocalStorageHelper.putMap(context, Constants.STORAGE_RAW_IN_APP_TRIGGER_KEY, storedTriggerMap);
+        if (rawPayload == null) {
+            loadLazyData(triggerData);
+            updateStack(storedTriggerMap, triggerData.getId());
+            return;
+        }
+
+        TriggerData storedTrigger = TriggerData.fromJson((String) rawPayload);
         triggerData.setInAppTrigger(storedTrigger.getInAppTrigger());
         cacheTriggerContent.setContentLoadedListener(() -> renderInAppTrigger(triggerData));
         cacheTriggerContent.loadAndCacheIANContent(triggerData);
+        updateStack(storedTriggerMap, triggerData.getId());
+    }
 
+    /**
+     * Update the stack of InApp trigger data.
+     *
+     * @param storedTriggerMap Map of InApp trigger data.
+     * @param triggerID        Trigger ID to be updated.
+     */
+    private void updateStack(Map<String, Object> storedTriggerMap, String triggerID) {
+        storedTriggerMap.remove(triggerID);
+        LocalStorageHelper.putMap(context, Constants.STORAGE_RAW_IN_APP_TRIGGER_KEY, storedTriggerMap);
     }
 
     /**
