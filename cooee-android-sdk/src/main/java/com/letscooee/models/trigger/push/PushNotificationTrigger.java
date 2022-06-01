@@ -119,6 +119,6 @@ public class PushNotificationTrigger implements Parcelable {
         dest.writeString(largeImage);
         dest.writeTypedList(buttons);
         dest.writeParcelable(clickAction, flags);
-        dest.writeSerializable(type);
+        dest.writeSerializable(type == null ? PushType.SIMPLE : type);
     }
 }
