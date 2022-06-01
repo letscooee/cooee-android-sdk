@@ -27,7 +27,6 @@ import com.letscooee.network.SafeHTTPService;
 import com.letscooee.services.PushNotificationIntentService;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.PendingIntentUtility;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
