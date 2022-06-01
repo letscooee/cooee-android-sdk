@@ -3,8 +3,6 @@ package com.letscooee.services;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import androidx.annotation.NonNull;
@@ -23,14 +21,11 @@ import com.letscooee.models.trigger.TriggerData;
 import com.letscooee.models.trigger.elements.ButtonElement;
 import com.letscooee.models.trigger.push.PushNotificationTrigger;
 import com.letscooee.pushnotification.PushProviderUtils;
-import com.letscooee.trigger.CooeeEmptyActivity;
 import com.letscooee.trigger.EngagementTriggerHelper;
-import com.letscooee.trigger.pushnotification.NotificationRenderer;
+import com.letscooee.trigger.adapters.TriggerGsonDeserializer;
 import com.letscooee.trigger.pushnotification.SimpleNotificationRenderer;
 import com.letscooee.utils.Constants;
-import com.letscooee.trigger.adapters.TriggerGsonDeserializer;
 import com.letscooee.utils.PendingIntentUtility;
-
 import java.util.HashMap;
 
 /**
@@ -44,6 +39,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
     Context context;
     EngagementTriggerHelper engagementTriggerHelper;
 
+    @SuppressWarnings("unused")
     public CooeeFirebaseMessagingService() {
     }
 
@@ -52,6 +48,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
      *
      * @param context {@link Context}
      */
+    @SuppressWarnings("unused")
     public CooeeFirebaseMessagingService(Context context) {
         this.context = context;
     }
@@ -136,60 +133,10 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
     }
 
     private void showNotification(TriggerData triggerData) {
-        //Context context = getApplicationContext();
-        NotificationRenderer renderer = new SimpleNotificationRenderer(context, triggerData);
-        NotificationCompat.Builder notificationBuilder = renderer.getBuilder();
-
-        Intent appLaunchIntent = new Intent(context, CooeeEmptyActivity.class);
-
-        Bundle bundle = new Bundle();
-        bundle.putParcelable(Constants.INTENT_TRIGGER_DATA_KEY, triggerData);
-
-        appLaunchIntent.putExtra(Constants.INTENT_BUNDLE_KEY, bundle);
-        appLaunchIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-
-        PendingIntent appLaunchPendingIntent = PendingIntentUtility.getActivity(
-                context,
-                triggerData.getId().hashCode(),
-                appLaunchIntent
-        );
-
+        SimpleNotificationRenderer renderer = new SimpleNotificationRenderer(context, triggerData);
+        renderer.setContentIntent();
         renderer.addActions(createActionButtons(triggerData.getPn(), renderer.getNotificationID()));
-
-        notificationBuilder.setContentIntent(appLaunchPendingIntent);
-
-        String smallImage = triggerData.getPn().getSmallImage();
-        String largeImage = triggerData.getPn().getLargeImage();
-        if (TextUtils.isEmpty(smallImage) && TextUtils.isEmpty(largeImage)) {
-            // Hide Image container to increase text width on PN
-            renderer.hideViewInSmallContentView(R.id.icon_container);
-            renderer.hideViewInBigContentView(R.id.icon_container);
-            renderer.hideViewInBigContentView(R.id.textViewSmallBody);
-            renderer.showViewInBigContentView(R.id.textViewLargeBody);
-            renderer.render();
-        } else if (!TextUtils.isEmpty(smallImage) && TextUtils.isEmpty(largeImage)) {
-            this.imageLoader.load(smallImage, (Bitmap resource) -> {
-                renderer.addSmallContentImage(R.id.imageViewLarge, resource);
-                renderer.hideViewInBigContentView(R.id.icon_container);
-                renderer.hideViewInBigContentView(R.id.textViewSmallBody);
-                renderer.showViewInBigContentView(R.id.textViewLargeBody);
-                renderer.render();
-            });
-        } else if (TextUtils.isEmpty(smallImage) && !TextUtils.isEmpty(largeImage)) {
-            this.imageLoader.load(largeImage, (Bitmap resource) -> {
-                renderer.hideViewInSmallContentView(R.id.icon_container);
-                renderer.addBigContentImage(R.id.imageViewLarge, resource);
-                renderer.render();
-            });
-        } else {
-            this.imageLoader.load(smallImage, (Bitmap smallImageResource) -> {
-                renderer.addSmallContentImage(R.id.imageViewLarge, smallImageResource);
-                this.imageLoader.load(largeImage, (Bitmap largeImageResource) -> {
-                    renderer.addBigContentImage(R.id.imageViewLarge, largeImageResource);
-                    renderer.render();
-                });
-            });
-        }
+        renderer.render();
     }
 
     private NotificationCompat.Action[] createActionButtons(PushNotificationTrigger triggerData, int notificationID) {
