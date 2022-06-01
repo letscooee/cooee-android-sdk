@@ -3,6 +3,7 @@ package com.letscooee.trigger.pushnotification;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -180,7 +181,15 @@ public abstract class NotificationRenderer {
         Intent deleteIntent = new Intent(this.context, PushNotificationIntentService.class);
         deleteIntent.putExtra(Constants.INTENT_TRIGGER_DATA_KEY, triggerData);
         deleteIntent.setAction(Constants.ACTION_DELETE_NOTIFICATION);
-        notification.deleteIntent = PendingIntentUtility.getService(context, 0, deleteIntent);
+        notification.deleteIntent = PendingIntentUtility.getService(context, notificationID, deleteIntent, getNotificationCancelFlag());
+    }
+
+    private int getNotificationCancelFlag() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            return PendingIntent.FLAG_MUTABLE;
+        } else {
+            return PendingIntent.FLAG_ONE_SHOT;
+        }
     }
 
     private void checkForNotificationViewed() {
@@ -208,8 +217,9 @@ public abstract class NotificationRenderer {
     }
 
     /**
+     * Return bigContentView
      *
-     * @return
+     * @return bigContentView
      */
     @SuppressWarnings("unused")
     public RemoteViews getBigContentView() {
