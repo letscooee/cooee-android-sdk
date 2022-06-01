@@ -14,6 +14,7 @@
             style="@style/TextAppearance.Compat.Notification.Title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:visibility="gone"
             android:ellipsize="end"
             android:maxLines="2"
             android:text="Notification Sample App" />
@@ -22,6 +23,7 @@
             android:id="@+id/textViewSmallBody"
             style="@style/TextAppearance.Compat.Notification.Info"
             android:layout_width="match_parent"
+            android:visibility="gone"
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:maxLines="2"
@@ -36,7 +38,7 @@
             android:visibility="gone" />
 
         <RelativeLayout
-            android:id="@+id/icon_container"
+            android:id="@+id/image_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
