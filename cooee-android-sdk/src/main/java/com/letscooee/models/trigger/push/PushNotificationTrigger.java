@@ -45,6 +45,7 @@ public class PushNotificationTrigger implements Parcelable {
 
     private PushNotificationImportance importance;
     public final boolean vibrate = true;
+    @SuppressWarnings("unused")
     public final boolean sound = true;
     public final boolean lights = true;
 
@@ -102,7 +103,7 @@ public class PushNotificationTrigger implements Parcelable {
     }
 
     public PushType getType() {
-        return type == null ? PushType.BOTH : type;
+        return type == null ? PushType.SIMPLE : type;
     }
 
     @Override

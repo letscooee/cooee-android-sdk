@@ -7,14 +7,13 @@ import androidx.annotation.RestrictTo;
  * Defines Push notification types.
  *
  * @author Ashish Gaikwad 20/05/22
- * @since 1.3.11
+ * @since 1.3.12
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public enum PushType {
 
-    BOTH(1),
-    LARGE(2),
-    SMALL(20);
+    SIMPLE(1),
+    CAROUSEL(2);
 
     private final int value;
 
@@ -25,8 +24,6 @@ public enum PushType {
     @NonNull
     @Override
     public String toString() {
-        return "PushType{" +
-                "value=" + value +
-                '}';
+        return value + "";
     }
 }
