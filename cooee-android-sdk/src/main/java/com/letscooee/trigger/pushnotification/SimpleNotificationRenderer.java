@@ -68,4 +68,50 @@ public class SimpleNotificationRenderer extends NotificationRenderer {
 
         super.addBigContentImage(viewID, bitmap);
     }
+
+    public void setContentIntent() {
+        Intent appLaunchIntent = new Intent(context, CooeeEmptyActivity.class);
+
+        Bundle bundle = new Bundle();
+        bundle.putParcelable(Constants.INTENT_TRIGGER_DATA_KEY, triggerData);
+
+        appLaunchIntent.putExtra(Constants.INTENT_BUNDLE_KEY, bundle);
+        appLaunchIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+
+        PendingIntent appLaunchPendingIntent = PendingIntentUtility.getActivity(
+                context,
+                triggerData.getId().hashCode(),
+                appLaunchIntent
+        );
+        getBuilder().setContentIntent(appLaunchPendingIntent);
+    }
+
+    @Override
+    public void render() {
+        boolean hasSmallImage = hasSmallImage();
+        boolean hasLargeImage = hasLargeImage();
+
+        if (hasSmallImage && hasLargeImage) {
+            this.imageLoader.load(getSmallImageUrl(), (Bitmap smallImageResource) -> {
+                addSmallContentImage(R.id.imageViewLarge, smallImageResource);
+
+                this.imageLoader.load(getLargeImageUrl(), (Bitmap largeImageResource) -> {
+                    addBigContentImage(R.id.imageViewLarge, largeImageResource);
+                    super.render();
+                });
+            });
+        } else if (hasSmallImage) {
+            this.imageLoader.load(getSmallImageUrl(), (Bitmap smallImageResource) -> {
+                addSmallContentImage(R.id.imageViewLarge, smallImageResource);
+                super.render();
+            });
+        } else if (hasLargeImage) {
+            this.imageLoader.load(getLargeImageUrl(), (Bitmap largeImageResource) -> {
+                addBigContentImage(R.id.imageViewLarge, largeImageResource);
+                super.render();
+            });
+        } else {
+            super.render();
+        }
+    }
 }
