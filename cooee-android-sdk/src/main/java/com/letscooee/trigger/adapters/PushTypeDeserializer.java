@@ -16,7 +16,7 @@ import java.lang.reflect.Type;
  * * based on {@link PushType}.
  *
  * @author Ashish Gaikwad 20/05/22
- * @since 1.3.11
+ * @since 1.3.12
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class PushTypeDeserializer implements JsonDeserializer<PushType> {
@@ -26,13 +26,11 @@ public class PushTypeDeserializer implements JsonDeserializer<PushType> {
 
         switch (pushType) {
             case 2:
-                return PushType.LARGE;
-            case 20:
-                return PushType.SMALL;
+                return PushType.CAROUSEL;
             case 0:
             case 1:
             default:
-                return PushType.BOTH;
+                return PushType.SIMPLE;
         }
     }
 }
