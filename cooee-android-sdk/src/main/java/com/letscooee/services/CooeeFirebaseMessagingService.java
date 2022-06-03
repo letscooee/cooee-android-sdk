@@ -22,9 +22,7 @@ import com.letscooee.models.trigger.elements.ButtonElement;
 import com.letscooee.models.trigger.push.PushNotificationTrigger;
 import com.letscooee.pushnotification.PushProviderUtils;
 import com.letscooee.trigger.EngagementTriggerHelper;
-import com.letscooee.trigger.InAppTriggerHelper;
 import com.letscooee.trigger.cache.CacheTriggerContent;
-import com.letscooee.trigger.pushnotification.NotificationRenderer;
 import com.letscooee.trigger.pushnotification.SimpleNotificationRenderer;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.PendingIntentUtility;
@@ -87,13 +85,17 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
     private RemoteImageLoader imageLoader;
 
     public void handleTriggerData(String rawTriggerData) {
+        if (TextUtils.isEmpty(rawTriggerData)) {
+            Log.d(Constants.TAG, "No triggerData found on the notification payload");
+            return;
+        }
+
         if (engagementTriggerHelper == null) {
             engagementTriggerHelper = new EngagementTriggerHelper(context);
         }
 
-        if (TextUtils.isEmpty(rawTriggerData)) {
-            Log.d(Constants.TAG, "No triggerData found on the notification payload");
-            return;
+        if (cachePayloadContent == null) {
+            cachePayloadContent = new CacheTriggerContent(context);
         }
 
         if (imageLoader == null) {
