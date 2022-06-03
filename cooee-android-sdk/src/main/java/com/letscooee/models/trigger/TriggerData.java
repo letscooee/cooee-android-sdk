@@ -120,6 +120,10 @@ public class TriggerData implements Parcelable {
         return sentAt;
     }
 
+    public Map<String, Object> getARData() {
+        return selfARData;
+    }
+
     @Override
     public int describeContents() {
         return 0;
