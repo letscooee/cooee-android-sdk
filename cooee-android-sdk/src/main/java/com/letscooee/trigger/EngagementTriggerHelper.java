@@ -176,7 +176,7 @@ public class EngagementTriggerHelper {
 
         storeActiveTriggerDetails(context, triggerData);
         cacheTriggerContent.setContentLoadedListener(() -> renderInAppTrigger(triggerData));
-        cacheTriggerContent.loadAndCacheIANContent(triggerData);
+        cacheTriggerContent.loadAndCacheInAppContent(triggerData);
 
     }
 
@@ -303,7 +303,7 @@ public class EngagementTriggerHelper {
         TriggerData storedTrigger = TriggerData.fromJson((String) rawPayload);
         triggerData.setInAppTrigger(storedTrigger.getInAppTrigger());
         cacheTriggerContent.setContentLoadedListener(() -> renderInAppTrigger(triggerData));
-        cacheTriggerContent.loadAndCacheIANContent(triggerData);
+        cacheTriggerContent.loadAndCacheInAppContent(triggerData);
         updateStack(storedTriggerMap, triggerData.getId());
     }
 
@@ -328,7 +328,7 @@ public class EngagementTriggerHelper {
             TriggerData inAppTriggerData = TriggerData.fromJson(rawInAppTrigger);
             triggerData.setInAppTrigger(inAppTriggerData.getInAppTrigger());
             cacheTriggerContent.setContentLoadedListener(() -> renderInAppTrigger(triggerData));
-            cacheTriggerContent.loadAndCacheIANContent(triggerData);
+            cacheTriggerContent.loadAndCacheInAppContent(triggerData);
         });
     }
 
