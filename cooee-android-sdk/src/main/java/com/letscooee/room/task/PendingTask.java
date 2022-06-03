@@ -34,6 +34,9 @@ public class PendingTask {
     @TypeConverters(PendingTaskTypeConverter.class)
     public PendingTaskType type;
 
+    @ColumnInfo(name = "sdk_code")
+    public long sdkCode;
+
     @NonNull
     @Override
     public String toString() {

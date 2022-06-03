@@ -21,6 +21,9 @@ import com.letscooee.models.trigger.TriggerData;
 import com.letscooee.models.trigger.elements.ButtonElement;
 import com.letscooee.models.trigger.push.PushNotificationTrigger;
 import com.letscooee.pushnotification.PushProviderUtils;
+import com.letscooee.room.CooeeDatabase;
+import com.letscooee.room.trigger.PendingTrigger;
+import com.letscooee.trigger.CooeeEmptyActivity;
 import com.letscooee.trigger.EngagementTriggerHelper;
 import com.letscooee.trigger.cache.CacheTriggerContent;
 import com.letscooee.trigger.pushnotification.SimpleNotificationRenderer;
@@ -39,6 +42,8 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
     private Context context;
     private EngagementTriggerHelper engagementTriggerHelper;
     private CacheTriggerContent cachePayloadContent;
+    private CooeeDatabase cooeeDatabase;
+    private PendingTrigger pendingTrigger;
 
     @SuppressWarnings("unused")
     public CooeeFirebaseMessagingService() {
@@ -94,12 +99,16 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
             engagementTriggerHelper = new EngagementTriggerHelper(context);
         }
 
-        if (cachePayloadContent == null) {
-            cachePayloadContent = new CacheTriggerContent(context);
+        if (cooeeDatabase == null) {
+            cooeeDatabase = CooeeDatabase.getInstance(context);
         }
 
         if (imageLoader == null) {
             imageLoader = new RemoteImageLoader(context);
+        }
+
+        if (cachePayloadContent == null) {
+            cachePayloadContent = new CacheTriggerContent(context);
         }
 
         TriggerData triggerData;
@@ -130,6 +139,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
         }
 
         if (triggerData.getPn() != null) {
+            pendingTrigger = cachePayloadContent.newTrigger(triggerData);
             Event event = new Event("CE Notification Received", triggerData);
             CooeeFactory.getSafeHTTPService().sendEventWithoutSession(event);
 
@@ -145,7 +155,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
         renderer.addActions(createActionButtons(triggerData.getPn(), renderer.getNotificationID()));
         renderer.render();
 
-        cachePayloadContent.storePayloadAndLoadResources(triggerData);
+        cachePayloadContent.loadAndSaveTriggerData(pendingTrigger, triggerData);
     }
 
     private NotificationCompat.Action[] createActionButtons(PushNotificationTrigger triggerData, int notificationID) {
