@@ -1,5 +1,6 @@
 package com.letscooee.init;
 
+import static android.content.Context.ACTIVITY_SERVICE;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
@@ -45,6 +46,7 @@ public class DefaultUserPropertiesCollector {
 
     private final Context context;
     private final SentryHelper sentryHelper;
+    private final String unknown = "Unknown";
 
     public DefaultUserPropertiesCollector(Context context) {
         this.context = context;
@@ -82,6 +84,7 @@ public class DefaultUserPropertiesCollector {
         return new double[]{bestLastLocation.getLatitude(), bestLastLocation.getLongitude()};
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     private boolean isPermissionGranted(String perm) {
         return ActivityCompat.checkSelfPermission(this.context, perm) == PackageManager.PERMISSION_GRANTED;
     }
@@ -98,11 +101,11 @@ public class DefaultUserPropertiesCollector {
         assert manager != null;
 
         if (!isPermissionGranted(Manifest.permission.READ_PHONE_STATE)) {
-            networkData[0] = !manager.getNetworkOperatorName().isEmpty() ? manager.getNetworkOperatorName() : "Unknown";
+            networkData[0] = !manager.getNetworkOperatorName().isEmpty() ? manager.getNetworkOperatorName() : unknown;
             networkData[1] = "PNGRNT";
         } else {
             int networkType = manager.getNetworkType();
-            networkData[0] = !manager.getNetworkOperatorName().isEmpty() ? manager.getNetworkOperatorName() : "Unknown";
+            networkData[0] = !manager.getNetworkOperatorName().isEmpty() ? manager.getNetworkOperatorName() : unknown;
             networkData[1] = getNetworkName(networkType);
         }
         return networkData;
@@ -143,7 +146,7 @@ public class DefaultUserPropertiesCollector {
             case TelephonyManager.NETWORK_TYPE_NR:
                 return "5G";
             default:
-                return "Unknown";
+                return unknown;
         }
     }
 
@@ -218,8 +221,7 @@ public class DefaultUserPropertiesCollector {
         ActivityManager activityManager = (ActivityManager) context.getSystemService(ACTIVITY_SERVICE);
         assert activityManager != null;
         activityManager.getMemoryInfo(mi);
-        double availableMegs = (double) mi.totalMem / 0x100000L;
-        return availableMegs;
+        return (double) mi.totalMem / 0x100000L;
     }
 
     /**
@@ -232,8 +234,7 @@ public class DefaultUserPropertiesCollector {
         ActivityManager activityManager = (ActivityManager) context.getSystemService(ACTIVITY_SERVICE);
         assert activityManager != null;
         activityManager.getMemoryInfo(mi);
-        double availableMegs = (double) mi.availMem / 0x100000L;
-        return availableMegs;
+        return (double) mi.availMem / 0x100000L;
     }
 
     /**
@@ -241,12 +242,13 @@ public class DefaultUserPropertiesCollector {
      *
      * @return CPU info
      */
+    @SuppressWarnings("unused")
     public String getCPUInfo() {
         StringBuilder output = new StringBuilder();
 
         try {
-            String[] DATA = {"top -m 5 -d 1"};
-            ProcessBuilder processBuilder = new ProcessBuilder(DATA);
+            String[] data = {"top -m 5 -d 1"};
+            ProcessBuilder processBuilder = new ProcessBuilder(data);
             Process process = processBuilder.start();
             InputStream inputStream = process.getInputStream();
             byte[] byteArray = new byte[1024];
@@ -278,7 +280,7 @@ public class DefaultUserPropertiesCollector {
      *
      * @return map battery info
      */
-    public Map getBatteryInfo() {
+    public Map<String, Object> getBatteryInfo() {
         Map<String, Object> battery = new HashMap<>();
 
         // https://developer.android.com/training/monitoring-device-state/battery-monitoring#DetermineChargeState
@@ -299,6 +301,7 @@ public class DefaultUserPropertiesCollector {
      *
      * @return screen resolution(eg - 1080X720)
      */
+    @SuppressWarnings("unused")
     public String getScreenResolution() {
         DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
         int h = displayMetrics.heightPixels;
@@ -311,6 +314,7 @@ public class DefaultUserPropertiesCollector {
      *
      * @return dpi (eg - 300dpi)
      */
+    @SuppressWarnings("unused")
     public String getDpi() {
         DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
         int densityPixel = displayMetrics.densityDpi;
@@ -322,9 +326,10 @@ public class DefaultUserPropertiesCollector {
      *
      * @return list of installed applications
      */
+    @SuppressWarnings("unused")
     public List<String> getInstalledApps() {
         List<String> installedApps = new ArrayList<>();
-        List<PackageInfo> packs = context.getPackageManager().getInstalledPackages(0);
+        @SuppressLint("QueryPermissionsNeeded") List<PackageInfo> packs = context.getPackageManager().getInstalledPackages(0);
         for (PackageInfo packageInfo : packs) {
             String app = packageInfo.applicationInfo.loadLabel(context.getPackageManager()).toString();
             installedApps.add(app);
@@ -378,6 +383,6 @@ public class DefaultUserPropertiesCollector {
             long installed = new File(appFile).lastModified();
             return DateUtils.getStringDateFromMS(installed, Constants.DATE_FORMAT_UTC, true);
         }
-        return "Unknown";
+        return unknown;
     }
 }
