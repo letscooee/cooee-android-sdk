@@ -109,7 +109,7 @@ public class CacheTriggerContent {
      *
      * @param inAppTriggerData the trigger data to be loaded and cached.
      */
-    public void loadAndCacheIANContent(TriggerData inAppTriggerData) {
+    public void loadAndCacheInAppContent(TriggerData inAppTriggerData) {
         if (inAppTriggerData == null || inAppTriggerData.getInAppTrigger() == null) {
             return;
         }
