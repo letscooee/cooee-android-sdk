@@ -36,7 +36,7 @@ public class CacheTriggerContentTest extends BaseTestCase {
 
     private void commonTriggerLoading(TriggerData triggerData, int times) {
         doNothing().when(inAppTriggerHelper).loadLazyData(any(TriggerData.class), any());
-        cacheTriggerContent.storePayloadAndLoadResources(triggerData);
+        //cacheTriggerContent.loadAndSaveTriggerData(pendingTrigger, triggerData);
         if (times == 0) {
             verify(inAppTriggerHelper, never()).loadLazyData(any(TriggerData.class), any());
         } else {
@@ -61,7 +61,7 @@ public class CacheTriggerContentTest extends BaseTestCase {
 
     private void commonContentDownloadDownload(TriggerData triggerData, int times) {
         doNothing().when(cacheTriggerContent).loadImage(anyString(), anyInt());
-        cacheTriggerContent.loadAndCacheIANContent(triggerData);
+        cacheTriggerContent.loadAndCacheInAppContent(triggerData);
         if (times == 0) {
             verify(cacheTriggerContent, never()).loadImage(anyString(), anyInt());
         } else {
