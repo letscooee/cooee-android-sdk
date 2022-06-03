@@ -4,6 +4,7 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -21,24 +22,19 @@ import android.os.Environment;
 import android.os.StatFs;
 import android.telephony.TelephonyManager;
 import android.util.DisplayMetrics;
-
+import android.util.Log;
 import androidx.core.app.ActivityCompat;
-
 import com.letscooee.CooeeFactory;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.DateUtils;
 import com.letscooee.utils.SentryHelper;
-
 import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-
-import static android.content.Context.ACTIVITY_SERVICE;
 
 /**
  * DefaultUserPropertiesCollector collects various mobile properties/parameters
@@ -152,11 +148,23 @@ public class DefaultUserPropertiesCollector {
     }
 
     /**
-     * @return "Y" when the bluetooth is on, otherwise "N".
+     * @return {@code true} when the bluetooth is on, otherwise {@code false}.
      */
     public boolean isBluetoothOn() {
-        BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        return mBluetoothAdapter != null && mBluetoothAdapter.isEnabled();
+        BluetoothManager bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
+
+        if (bluetoothManager == null) {
+            return false;
+        }
+
+        BluetoothAdapter mBluetoothAdapter = bluetoothManager.getAdapter();
+
+        try {
+            return mBluetoothAdapter != null && mBluetoothAdapter.getState() == BluetoothAdapter.STATE_ON;
+        } catch (Exception e) {
+            Log.i(Constants.TAG, "android.permission.BLUETOOTH permission is missing from AndroidManifest.xml");
+            return false;
+        }
     }
 
     /**
