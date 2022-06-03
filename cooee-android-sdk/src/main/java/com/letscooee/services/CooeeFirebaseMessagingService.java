@@ -23,15 +23,11 @@ import com.letscooee.models.trigger.push.PushNotificationTrigger;
 import com.letscooee.pushnotification.PushProviderUtils;
 import com.letscooee.trigger.EngagementTriggerHelper;
 import com.letscooee.trigger.InAppTriggerHelper;
-import com.letscooee.trigger.pushnotification.NotificationRenderer;
-import com.letscooee.trigger.adapters.TriggerGsonDeserializer;
 import com.letscooee.trigger.pushnotification.SimpleNotificationRenderer;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.LocalStorageHelper;
-import com.letscooee.utils.LocalStorageHelper;
 import com.letscooee.utils.PendingIntentUtility;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Map;
 
 /**
