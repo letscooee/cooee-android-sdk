@@ -3,6 +3,8 @@ package com.letscooee.trigger.cache;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.text.TextUtils;
+import android.util.Log;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import com.bumptech.glide.Glide;
@@ -12,18 +14,23 @@ import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.Target;
+import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
+import com.google.gson.reflect.TypeToken;
+import com.letscooee.BuildConfig;
 import com.letscooee.CooeeFactory;
 import com.letscooee.models.trigger.TriggerData;
 import com.letscooee.models.trigger.blocks.Background;
 import com.letscooee.models.trigger.elements.BaseElement;
 import com.letscooee.models.trigger.elements.ImageElement;
 import com.letscooee.models.trigger.inapp.InAppTrigger;
+import com.letscooee.room.CooeeDatabase;
+import com.letscooee.room.trigger.PendingTrigger;
 import com.letscooee.trigger.InAppTriggerHelper;
 import com.letscooee.utils.Constants;
-import com.letscooee.utils.LocalStorageHelper;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -41,17 +48,24 @@ public class CacheTriggerContent {
     private OnInAppContentLoadedListener contentLoadedListener;
     private List<String> imageList;
     private List<String> loadedImageList;
+    private final Gson gson = new Gson();
+    private final CooeeDatabase cooeeDatabase;
+    private final Type gsonMapType = new TypeToken<Map<String, Object>>() {
+    }.getType();
+
 
     public CacheTriggerContent(Context context) {
         this.context = context;
+        cooeeDatabase = CooeeDatabase.getInstance(context);
     }
 
     /**
-     * Loads <code>ian</code> for the {@code triggerData} and stores it in the local storage.
+     * Loads engagement data for the {@code triggerData} and stores it in the local storage.
      *
-     * @param triggerData the trigger data to be loaded and cached.
+     * @param pendingTrigger {@link PendingTrigger} object whose data need to be updated.
+     * @param triggerData    the trigger data to be loaded and cached.
      */
-    public void storePayloadAndLoadResources(TriggerData triggerData) {
+    public void loadAndSaveTriggerData(PendingTrigger pendingTrigger, TriggerData triggerData) {
         if (triggerData == null || TextUtils.isEmpty(triggerData.getId())) {
             return;
         }
@@ -65,23 +79,25 @@ public class CacheTriggerContent {
                 return;
             }
 
-            TriggerData inAppTriggerData;
+            Map<String, Object> responseMap;
             try {
-                inAppTriggerData = TriggerData.fromJson(rawInAppTrigger);
+                responseMap = gson.fromJson(rawInAppTrigger, gsonMapType);
             } catch (JsonSyntaxException e) {
                 CooeeFactory.getSentryHelper().captureException("Fail to parse in-app trigger data", e);
                 return;
             }
 
-            if (inAppTriggerData.getInAppTrigger() == null) {
+            if (responseMap == null || responseMap.isEmpty()) {
                 return;
             }
 
-            Map<String, Object> storedTrigger = LocalStorageHelper.getMap(context,
-                    Constants.STORAGE_RAW_IN_APP_TRIGGER_KEY, new HashMap<>());
-            storedTrigger.put(triggerData.getId(), rawInAppTrigger);
+            Map<String, Object> triggerDataMap = gson.fromJson(pendingTrigger.triggerData, gsonMapType);
+            triggerDataMap.putAll(responseMap);
 
-            LocalStorageHelper.putMap(context, Constants.STORAGE_RAW_IN_APP_TRIGGER_KEY, storedTrigger);
+            pendingTrigger.triggerData = gson.toJson(triggerDataMap);
+            pendingTrigger.loadedLazyData = true;
+            this.cooeeDatabase.pendingTriggerDAO().updatePendingTrigger(pendingTrigger);
+            Log.d(Constants.TAG, "Updated " + pendingTrigger);
         });
     }
 
@@ -183,5 +199,24 @@ public class CacheTriggerContent {
      */
     public void setContentLoadedListener(OnInAppContentLoadedListener contentLoadedListener) {
         this.contentLoadedListener = contentLoadedListener;
+    }
+
+    /**
+     * Add new {@link PendingTrigger} to the database.
+     *
+     * @param triggerData {@link TriggerData} to be added.
+     * @return {@link PendingTrigger} added. null if failed.
+     */
+    public PendingTrigger newTrigger(@NonNull TriggerData triggerData) {
+        PendingTrigger pendingTrigger = new PendingTrigger();
+        pendingTrigger.triggerTime = new Date().getTime();
+        pendingTrigger.triggerId = triggerData.getId();
+        pendingTrigger.loadedLazyData = false;
+        pendingTrigger.triggerData = gson.toJson(triggerData);
+        pendingTrigger.scheduleAt = 0;
+        pendingTrigger.sdkCode = BuildConfig.VERSION_CODE;
+        pendingTrigger.id = this.cooeeDatabase.pendingTriggerDAO().insertPendingTrigger(pendingTrigger);
+        Log.d(Constants.TAG, "Created " + pendingTrigger);
+        return pendingTrigger;
     }
 }
