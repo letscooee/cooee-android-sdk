@@ -97,10 +97,10 @@ public class EngagementTriggerHelperTest extends BaseTestCase {
     public void render_in_app_from_json_string() {
         assertThat(samplePayload).isNotEmpty();
 
-        doNothing().when(cacheTriggerContent).loadAndCacheIANContent(any(TriggerData.class));
+        doNothing().when(cacheTriggerContent).loadAndCacheInAppContent(any(TriggerData.class));
         engagementTriggerHelperMock.renderInAppTriggerFromJSONString(samplePayload);
 
-        verify(cacheTriggerContent, times(1)).loadAndCacheIANContent(any(TriggerData.class));
+        verify(cacheTriggerContent, times(1)).loadAndCacheInAppContent(any(TriggerData.class));
     }
 
     @Test
