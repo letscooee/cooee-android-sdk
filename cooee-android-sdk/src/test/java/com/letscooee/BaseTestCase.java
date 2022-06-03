@@ -1,5 +1,6 @@
 package com.letscooee;
 
+import static org.robolectric.annotation.SQLiteMode.Mode.NATIVE;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
@@ -15,7 +16,6 @@ import com.letscooee.device.AppInfo;
 import com.letscooee.models.trigger.TriggerData;
 import com.letscooee.room.CooeeDatabase;
 import com.letscooee.trigger.CooeeEmptyActivity;
-import com.letscooee.trigger.adapters.TriggerGsonDeserializer;
 import com.letscooee.utils.Constants;
 import junit.framework.TestCase;
 import org.json.JSONException;
@@ -27,15 +27,12 @@ import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.SQLiteMode;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
-
-import static org.robolectric.annotation.SQLiteMode.Mode.NATIVE;
 
 @SQLiteMode(NATIVE)
 @Config(sdk = Build.VERSION_CODES.S)
@@ -127,7 +124,7 @@ public abstract class BaseTestCase extends TestCase {
             Calendar calendar = Calendar.getInstance();
             calendar.add(Calendar.MINUTE, 5);
             jsonObject.put("expireAt", calendar.getTimeInMillis());
-            triggerData = TriggerGsonDeserializer.getGson().fromJson(jsonObject.toString(), TriggerData.class);
+            triggerData = TriggerData.fromJson(jsonObject.toString());
         } catch (JSONException e) {
             Log.e(Constants.TAG, "Error: ", e);
         }

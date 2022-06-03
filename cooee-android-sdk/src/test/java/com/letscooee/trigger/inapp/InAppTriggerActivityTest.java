@@ -1,5 +1,9 @@
 package com.letscooee.trigger.inapp;
 
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -9,7 +13,6 @@ import com.letscooee.BaseTestCase;
 import com.letscooee.TestCaseActivity;
 import com.letscooee.models.trigger.TriggerData;
 import com.letscooee.room.CooeeDatabase;
-import com.letscooee.trigger.adapters.TriggerGsonDeserializer;
 import com.letscooee.utils.Constants;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,8 +20,6 @@ import org.robolectric.Robolectric;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.android.controller.ActivityController;
 import org.robolectric.util.ReflectionHelpers;
-
-import static org.mockito.Mockito.*;
 
 public class InAppTriggerActivityTest extends BaseTestCase {
 
@@ -71,7 +72,7 @@ public class InAppTriggerActivityTest extends BaseTestCase {
     private void updatePayloadAndIntent(@NonNull PayloadProperty property) {
         String updatedPayload = samplePayload.replace(property.name().toLowerCase(), property.name().toLowerCase() + "x");
 
-        triggerData = TriggerGsonDeserializer.getGson().fromJson(updatedPayload, TriggerData.class);
+        triggerData = TriggerData.fromJson(updatedPayload);
         Bundle bundle = new Bundle();
         bundle.putParcelable(Constants.INTENT_TRIGGER_DATA_KEY, triggerData);
         validIntent.putExtra("bundle", bundle);

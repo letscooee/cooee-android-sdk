@@ -1,22 +1,29 @@
 package com.letscooee.services;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import com.letscooee.BaseTestCase;
 import com.letscooee.models.trigger.TriggerData;
 import com.letscooee.trigger.EngagementTriggerHelper;
+import com.letscooee.trigger.InAppTriggerHelper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import org.robolectric.util.ReflectionHelpers;
 
 public class CooeeFirebaseMessagingServiceTest extends BaseTestCase {
 
     @Mock
     EngagementTriggerHelper engagementTriggerHelper;
+
+    @Mock
+    InAppTriggerHelper inAppTriggerHelper;
 
     @InjectMocks
     CooeeFirebaseMessagingService cooeeFirebaseMessagingService;
@@ -28,8 +35,9 @@ public class CooeeFirebaseMessagingServiceTest extends BaseTestCase {
         super.loadPayload();
 
         MockitoAnnotations.openMocks(this);
-        cooeeFirebaseMessagingService.context = context;
-        cooeeFirebaseMessagingService.engagementTriggerHelper = engagementTriggerHelper;
+        ReflectionHelpers.setField(cooeeFirebaseMessagingService, "inAppTriggerHelper", inAppTriggerHelper);
+        ReflectionHelpers.setField(cooeeFirebaseMessagingService, "context", context);
+        ReflectionHelpers.setField(cooeeFirebaseMessagingService, "engagementTriggerHelper", engagementTriggerHelper);
     }
 
     @After
@@ -48,8 +56,9 @@ public class CooeeFirebaseMessagingServiceTest extends BaseTestCase {
 
     @Test
     public void handle_trigger_data_with_valid_data() {
+        payloadMap.remove("pn");
         doNothing().when(engagementTriggerHelper).loadLazyData(any(TriggerData.class));
-        cooeeFirebaseMessagingService.handleTriggerData(samplePayload);
+        cooeeFirebaseMessagingService.handleTriggerData(gson.toJson(payloadMap));
         verify(engagementTriggerHelper, times(1)).loadLazyData(any(TriggerData.class));
     }
 
@@ -94,5 +103,28 @@ public class CooeeFirebaseMessagingServiceTest extends BaseTestCase {
         String updatedPayload = gson.toJson(payloadMap);
 
         commonFailForUpdatedPayload(updatedPayload);
+    }
+
+    @Test
+    public void ian_loading_once_pn_rendered() {
+        payloadMap.put("ian", null);
+        String updatedPayload = gson.toJson(payloadMap);
+
+        doNothing().when(inAppTriggerHelper).loadLazyData(any(TriggerData.class), any());
+        cooeeFirebaseMessagingService.handleTriggerData(updatedPayload);
+        verify(inAppTriggerHelper, times(1)).loadLazyData(any(TriggerData.class), any());
+
+    }
+
+    @Test
+    public void ian_loading_once_pn_rendered_with_invalid_id() {
+        payloadMap.put("ian", null);
+        payloadMap.put("id", "1234");
+        String updatedPayload = gson.toJson(payloadMap);
+
+        doNothing().when(inAppTriggerHelper).loadLazyData(any(TriggerData.class), any());
+        cooeeFirebaseMessagingService.handleTriggerData(updatedPayload);
+        verify(inAppTriggerHelper, times(1)).loadLazyData(any(TriggerData.class), any());
+
     }
 }
