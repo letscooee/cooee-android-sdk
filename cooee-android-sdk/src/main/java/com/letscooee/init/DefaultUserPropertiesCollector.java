@@ -1,6 +1,7 @@
 package com.letscooee.init;
 
 import static android.content.Context.ACTIVITY_SERVICE;
+import static androidx.core.content.ContextCompat.checkSelfPermission;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
@@ -84,9 +85,8 @@ public class DefaultUserPropertiesCollector {
         return new double[]{bestLastLocation.getLatitude(), bestLastLocation.getLongitude()};
     }
 
-    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     private boolean isPermissionGranted(String perm) {
-        return ActivityCompat.checkSelfPermission(this.context, perm) == PackageManager.PERMISSION_GRANTED;
+        return checkSelfPermission(this.context, perm) == PackageManager.PERMISSION_GRANTED;
     }
 
     /**
@@ -162,12 +162,11 @@ public class DefaultUserPropertiesCollector {
 
         BluetoothAdapter mBluetoothAdapter = bluetoothManager.getAdapter();
 
-        try {
-            return mBluetoothAdapter != null && mBluetoothAdapter.getState() == BluetoothAdapter.STATE_ON;
-        } catch (Exception e) {
-            Log.i(Constants.TAG, "android.permission.BLUETOOTH permission is missing from AndroidManifest.xml");
+        if (isPermissionGranted(Manifest.permission.BLUETOOTH)) {
             return false;
         }
+
+        return mBluetoothAdapter != null && mBluetoothAdapter.getState() == BluetoothAdapter.STATE_ON;
     }
 
     /**
