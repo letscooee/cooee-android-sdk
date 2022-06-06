@@ -160,7 +160,7 @@ public class DefaultUserPropertiesCollector {
 
         BluetoothAdapter mBluetoothAdapter = bluetoothManager.getAdapter();
 
-        if (isPermissionGranted(Manifest.permission.BLUETOOTH)) {
+        if (!isPermissionGranted(Manifest.permission.BLUETOOTH)) {
             return false;
         }
 
