@@ -24,8 +24,6 @@ import android.os.Environment;
 import android.os.StatFs;
 import android.telephony.TelephonyManager;
 import android.util.DisplayMetrics;
-import android.util.Log;
-import androidx.core.app.ActivityCompat;
 import com.letscooee.CooeeFactory;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.DateUtils;
@@ -47,7 +45,7 @@ public class DefaultUserPropertiesCollector {
 
     private final Context context;
     private final SentryHelper sentryHelper;
-    private final String unknown = "Unknown";
+    private static final String UNKNOWN = "Unknown";
 
     public DefaultUserPropertiesCollector(Context context) {
         this.context = context;
@@ -101,11 +99,11 @@ public class DefaultUserPropertiesCollector {
         assert manager != null;
 
         if (!isPermissionGranted(Manifest.permission.READ_PHONE_STATE)) {
-            networkData[0] = !manager.getNetworkOperatorName().isEmpty() ? manager.getNetworkOperatorName() : unknown;
+            networkData[0] = !manager.getNetworkOperatorName().isEmpty() ? manager.getNetworkOperatorName() : UNKNOWN;
             networkData[1] = "PNGRNT";
         } else {
             int networkType = manager.getNetworkType();
-            networkData[0] = !manager.getNetworkOperatorName().isEmpty() ? manager.getNetworkOperatorName() : unknown;
+            networkData[0] = !manager.getNetworkOperatorName().isEmpty() ? manager.getNetworkOperatorName() : UNKNOWN;
             networkData[1] = getNetworkName(networkType);
         }
         return networkData;
@@ -146,7 +144,7 @@ public class DefaultUserPropertiesCollector {
             case TelephonyManager.NETWORK_TYPE_NR:
                 return "5G";
             default:
-                return unknown;
+                return UNKNOWN;
         }
     }
 
@@ -382,6 +380,6 @@ public class DefaultUserPropertiesCollector {
             long installed = new File(appFile).lastModified();
             return DateUtils.getStringDateFromMS(installed, Constants.DATE_FORMAT_UTC, true);
         }
-        return unknown;
+        return UNKNOWN;
     }
 }
