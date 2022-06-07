@@ -49,8 +49,11 @@ public class Constants {
     public static final String ACTION_DELETE_NOTIFICATION = "pnDelete";
     // endregion
 
+    // region Intent extras key
     public static final String INTENT_BUNDLE_KEY = "cooeeIntentBundle";
     public static final String INTENT_TRIGGER_DATA_KEY = "cooeeTriggerData";
+    public static final String INTENT_SDK_VERSION_CODE_KEY = "cooeeDdkVersionCode";
+    // endregion
 
     public static final int PENDING_TASK_JOB_ID = 2663;
     public static final String IN_APP_FULLSCREEN_FLAG_KEY = "make_in_app_fullscreen";
