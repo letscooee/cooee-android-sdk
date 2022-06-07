@@ -17,7 +17,7 @@ import java.util.List;
 @Dao
 public interface PendingTriggerDAO {
     @Query("SELECT * FROM PendingTrigger where trigger_id = :triggerId")
-    PendingTrigger getPendingTriggerWithTriggerId(int triggerId);
+    PendingTrigger getPendingTriggerWithTriggerId(String triggerId);
 
     @Query("SELECT * FROM PendingTrigger order by trigger_time desc")
     List<PendingTrigger> getAllPendingTriggers();
@@ -30,4 +30,10 @@ public interface PendingTriggerDAO {
 
     @Update(onConflict = OnConflictStrategy.REPLACE)
     void updatePendingTrigger(PendingTrigger pendingTrigger);
+
+    @Query("DELETE FROM PendingTrigger where trigger_id = :triggerId")
+    void deletePendingTriggerWithTriggerId(String triggerId);
+
+    @Query("DELETE FROM PendingTrigger")
+    void deleteAllPendingTriggers();
 }
