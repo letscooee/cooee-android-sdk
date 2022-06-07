@@ -1,6 +1,7 @@
 package com.letscooee.trigger;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.doNothing;
@@ -141,9 +142,9 @@ public class EngagementTriggerHelperTest extends BaseTestCase {
     }
 
     private void commonRenderInAppFromPushNotification(Activity activity, int times) {
-        doNothing().when(engagementTriggerHelperMock).renderInAppFromPushNotification(any(TriggerData.class));
+        doNothing().when(engagementTriggerHelperMock).renderInAppFromPushNotification(any(TriggerData.class), anyInt());
         engagementTriggerHelperMock.renderInAppFromPushNotification(activity);
-        verify(engagementTriggerHelperMock, times(times)).renderInAppFromPushNotification(any(TriggerData.class));
+        verify(engagementTriggerHelperMock, times(times)).renderInAppFromPushNotification(any(TriggerData.class),anyInt());
     }
 
     @Ignore("Failing due to overloaded methods")
@@ -179,7 +180,7 @@ public class EngagementTriggerHelperTest extends BaseTestCase {
         assertThat(triggerData.getExpireAt()).isGreaterThan(0);
 
         doNothing().when(engagementTriggerHelperMock).loadLazyData(any(TriggerData.class));
-        engagementTriggerHelperMock.renderInAppFromPushNotification(triggerData);
+        engagementTriggerHelperMock.renderInAppFromPushNotification(triggerData,1);
         verify(engagementTriggerHelperMock, times(1)).loadLazyData(any(TriggerData.class));
     }
 
