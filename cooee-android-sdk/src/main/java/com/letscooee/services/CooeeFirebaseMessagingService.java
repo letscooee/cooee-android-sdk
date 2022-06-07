@@ -194,7 +194,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
         renderer.addActions(createActionButtons(triggerData.getPn(), renderer.getNotificationID()));
         renderer.render();
 
-
+        pendingTrigger.notificationId = renderer.getNotificationID();
         cachePayloadContent.loadAndSaveTriggerData(pendingTrigger, triggerData);
     }
 
