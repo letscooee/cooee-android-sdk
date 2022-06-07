@@ -1,8 +1,16 @@
 package com.letscooee.enums.trigger;
 
+import androidx.annotation.RestrictTo;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Multiple actions can be performed on a pending trigger table.
+ *
+ * @author Ashish Gaikwad 07/06/22
+ * @since 1.3.12
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public enum PendingTriggerAction {
     // delete all PendingTrigger
     DELETE_ALL("da"),
@@ -31,6 +39,12 @@ public enum PendingTriggerAction {
         }
     }
 
+    /**
+     * Get PendingTriggerAction from action.
+     *
+     * @param action action to get PendingTriggerAction from.
+     * @return PendingTriggerAction from action.
+     */
     public static PendingTriggerAction getPendingTriggerAction(String action) {
         return PENDING_TRIGGER_ACTION_HASH_MAP.get(action);
     }
