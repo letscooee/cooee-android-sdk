@@ -101,7 +101,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
             this.cachePayloadContent = new CacheTriggerContent(context);
         }
 
-        PendingTriggerAction pendingTriggerAction = PendingTriggerAction.valueOf(pendingTriggerMap.get("a"));
+        PendingTriggerAction pendingTriggerAction = PendingTriggerAction.getPendingTriggerAction(pendingTriggerMap.get("a"));
         String triggerId = pendingTriggerMap.get("ti");
 
         cachePayloadContent.updatePendingTriggerAction(pendingTriggerAction, triggerId);
