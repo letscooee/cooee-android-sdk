@@ -19,6 +19,7 @@ import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import com.letscooee.BuildConfig;
 import com.letscooee.CooeeFactory;
+import com.letscooee.enums.trigger.PendingTriggerAction;
 import com.letscooee.models.trigger.TriggerData;
 import com.letscooee.models.trigger.blocks.Background;
 import com.letscooee.models.trigger.elements.BaseElement;
@@ -228,5 +229,43 @@ public class CacheTriggerContent {
         }
 
         return pendingTriggerList.get(0);
+    }
+
+    /**
+     * Remove the {@link PendingTrigger} from the database. If the trigger is not found, it will do nothing.
+     *
+     * @param pendingTriggerAction {@link PendingTriggerAction} to be perform.
+     * @param triggerID            the trigger id to be removed.
+     */
+    public void updatePendingTriggerAction(PendingTriggerAction pendingTriggerAction, String triggerID) {
+        List<PendingTrigger> pendingTriggerList = this.cooeeDatabase.pendingTriggerDAO().getAllPendingTriggers();
+
+        if (pendingTriggerList == null || pendingTriggerList.isEmpty()) {
+            return;
+        }
+
+        if (pendingTriggerAction == PendingTriggerAction.DELETE_FIRST) {
+            // delete latest trigger
+            this.cooeeDatabase.pendingTriggerDAO().deletePendingTrigger(pendingTriggerList.get(0));
+        } else if (pendingTriggerAction == PendingTriggerAction.DELETE_ALL) {
+            // delete all trigger
+            this.cooeeDatabase.pendingTriggerDAO().deleteAllPendingTriggers();
+        } else if (pendingTriggerAction == PendingTriggerAction.DELETE_LAST) {
+            // delete oldest trigger
+            this.cooeeDatabase.pendingTriggerDAO().deletePendingTrigger(pendingTriggerList.get(pendingTriggerList.size() - 1));
+        } else if (pendingTriggerAction == PendingTriggerAction.DELETE_ALL_EXCEPT_FIRST) {
+            // delete all loaded trigger
+            for (int i = 1; i < pendingTriggerList.size(); i++) {
+                this.cooeeDatabase.pendingTriggerDAO().deletePendingTrigger(pendingTriggerList.get(i));
+            }
+        } else if (pendingTriggerAction == PendingTriggerAction.DELETE_ALL_EXCEPT_LAST) {
+            // delete all loaded trigger
+            for (int i = 0; i < pendingTriggerList.size() - 2; i++) {
+                this.cooeeDatabase.pendingTriggerDAO().deletePendingTrigger(pendingTriggerList.get(i));
+            }
+        } else if (pendingTriggerAction == PendingTriggerAction.DELETE_ID && !TextUtils.isEmpty(triggerID)) {
+            // delete all loaded trigger
+            this.cooeeDatabase.pendingTriggerDAO().deletePendingTriggerWithTriggerId(triggerID);
+        }
     }
 }
