@@ -52,6 +52,7 @@ public class SentryHelper extends ContextAware {
             return;
         }
 
+        updateSentryUser();
         Sentry.setUser(sentryUser);
 
         SentryAndroid.init(context, options -> {
@@ -77,6 +78,16 @@ public class SentryHelper extends ContextAware {
         });
 
         this.setupGlobalTags();
+    }
+
+    /**
+     * This method will update the user ID in Sentry.
+     */
+    private void updateSentryUser() {
+        String userID = LocalStorageHelper.getString(context, Constants.STORAGE_USER_ID, null);
+        if (!TextUtils.isEmpty(userID)) {
+            sentryUser.setId(userID);
+        }
     }
 
     /**
