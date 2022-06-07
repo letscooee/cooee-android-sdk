@@ -45,7 +45,7 @@ public abstract class CooeeDatabase extends RoomDatabase {
                         public void migrate(@NonNull SupportSQLiteDatabase database) {
                             database.execSQL("CREATE TABLE PendingTrigger(id INTEGER NOT NULL, trigger_id TEXT, " +
                                     "trigger_time INTEGER NOT NULL, trigger_data TEXT, loaded_lazy_data INTEGER NOT NULL," +
-                                    " schedule_at INTEGER NOT NULL, sdk_code INTEGER NOT NULL, PRIMARY KEY(id))");
+                                    " schedule_at INTEGER NOT NULL, sdk_code INTEGER NOT NULL, notification_id INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(id))");
                             database.execSQL("ALTER TABLE PendingTask ADD COLUMN sdk_code INTEGER NOT NULL DEFAULT 0");
                         }
                     })

@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.Window;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.core.app.NotificationManagerCompat;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.letscooee.BuildConfig;
@@ -219,8 +220,15 @@ public class EngagementTriggerHelper {
             return;
         }
 
+        PendingTrigger pendingTrigger = cooeeDatabase.pendingTriggerDAO().getPendingTriggerWithTriggerId(triggerData.getId());
+
+        if (pendingTrigger == null) {
+            return;
+        }
+
+        NotificationManagerCompat.from(context).cancel((int) pendingTrigger.notificationId);
         Log.v(Constants.TAG, "Deleting PendingTrigger( triggerId=" + triggerData.getId() + ")");
-        cooeeDatabase.pendingTriggerDAO().deletePendingTriggerWithTriggerId(triggerData.getId());
+        cooeeDatabase.pendingTriggerDAO().deletePendingTrigger(pendingTrigger);
     }
 
     public void renderInAppFromPushNotification(@NonNull Activity activity) {

@@ -35,6 +35,9 @@ public class PendingTrigger {
     @ColumnInfo(name = "sdk_code")
     public long sdkCode;
 
+    @ColumnInfo(name = "notification_id")
+    public long notificationId;
+
     @NonNull
     @Override
     public String toString() {
