@@ -16,7 +16,7 @@ import java.util.List;
  */
 @Dao
 public interface PendingTriggerDAO {
-    @Query("SELECT * FROM PendingTrigger where trigger_id = :triggerId")
+    @Query("SELECT * FROM PendingTrigger where trigger_id = :triggerId limit 1")
     PendingTrigger getPendingTriggerWithTriggerId(String triggerId);
 
     @Query("SELECT * FROM PendingTrigger order by trigger_time desc")
