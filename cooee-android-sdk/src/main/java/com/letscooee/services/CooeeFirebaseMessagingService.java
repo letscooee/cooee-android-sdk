@@ -14,6 +14,7 @@ import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import com.letscooee.CooeeFactory;
 import com.letscooee.R;
+import com.letscooee.enums.trigger.PendingTriggerAction;
 import com.letscooee.font.FontProcessor;
 import com.letscooee.loader.http.RemoteImageLoader;
 import com.letscooee.models.Event;
@@ -30,6 +31,7 @@ import com.letscooee.utils.Constants;
 import com.letscooee.utils.PendingIntentUtility;
 
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Process received payload and work accordingly
@@ -75,6 +77,35 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
 
         FontProcessor.downloadFonts(context, remoteMessage.getData().get("fonts"));
         this.handleTriggerData(remoteMessage.getData().get("triggerData"));
+        this.handlePendingTrigger(remoteMessage.getData().get("pendingTrigger"));
+    }
+
+    /**
+     * Perform operations inf Pending trigger directly from the received payload.
+     *
+     * @param rawPendingTriggerAction {@link PendingTrigger}
+     */
+    private void handlePendingTrigger(String rawPendingTriggerAction) {
+        if (TextUtils.isEmpty(rawPendingTriggerAction)) {
+            return;
+        }
+        Map<String, String> pendingTriggerMap;
+        try {
+            pendingTriggerMap = new Gson().fromJson(rawPendingTriggerAction, new TypeToken<HashMap<String, String>>() {
+            }.getType());
+        } catch (JsonSyntaxException e) {
+            Log.v(Constants.TAG, "Fail to parse pending trigger data: " + e.getMessage());
+            return;
+        }
+
+        if (this.cachePayloadContent == null) {
+            this.cachePayloadContent = new CacheTriggerContent(context);
+        }
+
+        PendingTriggerAction pendingTriggerAction = PendingTriggerAction.valueOf(pendingTriggerMap.get("a"));
+        String triggerId = pendingTriggerMap.get("ti");
+
+        cachePayloadContent.updatePendingTriggerAction(pendingTriggerAction, triggerId);
     }
 
     /**
