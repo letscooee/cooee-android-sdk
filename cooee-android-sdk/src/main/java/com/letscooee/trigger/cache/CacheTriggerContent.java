@@ -67,6 +67,9 @@ public class CacheTriggerContent {
      * @param triggerData    the trigger data to be loaded and cached.
      */
     public void loadAndSaveTriggerData(PendingTrigger pendingTrigger, TriggerData triggerData) {
+        // Saves notification id to pending trigger.
+        cooeeDatabase.pendingTriggerDAO().updatePendingTrigger(pendingTrigger);
+
         if (triggerData == null || TextUtils.isEmpty(triggerData.getId())) {
             return;
         }
