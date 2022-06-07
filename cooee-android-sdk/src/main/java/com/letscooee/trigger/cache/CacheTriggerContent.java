@@ -68,6 +68,10 @@ public class CacheTriggerContent {
      */
     public void loadAndSaveTriggerData(PendingTrigger pendingTrigger, TriggerData triggerData) {
         // Saves notification id to pending trigger.
+        if (pendingTrigger == null) {
+            return;
+        }
+
         cooeeDatabase.pendingTriggerDAO().updatePendingTrigger(pendingTrigger);
 
         if (triggerData == null || TextUtils.isEmpty(triggerData.getId())) {
@@ -211,7 +215,11 @@ public class CacheTriggerContent {
      * @param triggerData {@link TriggerData} to be added.
      * @return {@link PendingTrigger} added. null if failed.
      */
-    public PendingTrigger newTrigger(@NonNull TriggerData triggerData) {
+    public PendingTrigger newTrigger(TriggerData triggerData) {
+        if (triggerData == null || TextUtils.isEmpty(triggerData.getId())) {
+            return null;
+        }
+
         PendingTrigger pendingTrigger = new PendingTrigger();
         pendingTrigger.triggerTime = new Date().getTime();
         pendingTrigger.triggerId = triggerData.getId();
@@ -263,7 +271,7 @@ public class CacheTriggerContent {
             }
         } else if (pendingTriggerAction == PendingTriggerAction.DELETE_ALL_EXCEPT_LAST) {
             // delete all loaded trigger
-            for (int i = 0; i < pendingTriggerList.size() - 2; i++) {
+            for (int i = 0; i < pendingTriggerList.size() - 1; i++) {
                 this.cooeeDatabase.pendingTriggerDAO().deletePendingTrigger(pendingTriggerList.get(i));
             }
         } else if (pendingTriggerAction == PendingTriggerAction.DELETE_ID && !TextUtils.isEmpty(triggerID)) {
