@@ -19,9 +19,12 @@ import com.letscooee.models.Event;
 import com.letscooee.models.trigger.EmbeddedTrigger;
 import com.letscooee.models.trigger.TriggerData;
 import com.letscooee.models.trigger.blocks.ClickAction;
+import com.letscooee.room.CooeeDatabase;
+import com.letscooee.room.trigger.PendingTrigger;
 import com.letscooee.trigger.action.ClickActionExecutor;
 import com.letscooee.trigger.cache.CacheTriggerContent;
 import com.letscooee.trigger.inapp.InAppTriggerActivity;
+import com.letscooee.trigger.inapp.PreventBlurActivity;
 import com.letscooee.trigger.inapp.TriggerContext;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.LocalStorageHelper;
@@ -44,16 +47,19 @@ import java.util.Objects;
 public class EngagementTriggerHelper {
 
     private static final long TIME_TO_WAIT_MILLIS = 6 * 1000L;
+    private static boolean shouldRenderOrganicInApp = true;
 
     private final Context context;
     @SuppressLint("StaticFieldLeak")
     private static Activity currentActivity;
     private final CacheTriggerContent cacheTriggerContent;
+    private final CooeeDatabase cooeeDatabase;
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public EngagementTriggerHelper(Context context) {
         this.context = context;
         cacheTriggerContent = new CacheTriggerContent(context);
+        cooeeDatabase = CooeeDatabase.getInstance(context);
     }
 
     /**
@@ -210,13 +216,18 @@ public class EngagementTriggerHelper {
             setActiveTrigger(context, triggerData);
         } catch (Exception ex) {
             CooeeFactory.getSentryHelper().captureException("Couldn't show Engagement Trigger", ex);
+            return;
         }
+
+        Log.v(Constants.TAG, "Deleting PendingTrigger( triggerId=" + triggerData.getId() + ")");
+        cooeeDatabase.pendingTriggerDAO().deletePendingTriggerWithTriggerId(triggerData.getId());
     }
 
     public void renderInAppFromPushNotification(@NonNull Activity activity) {
         Bundle bundle = activity.getIntent().getBundleExtra(Constants.INTENT_BUNDLE_KEY);
         // Should not go ahead if bundle is null
         if (bundle == null) {
+            handleOrganicLaunch(activity);
             return;
         }
 
@@ -245,6 +256,12 @@ public class EngagementTriggerHelper {
             new ClickActionExecutor(context, pushClickAction, triggerContext).execute();
         }
     }
+
+    /**
+     * Will render InApp on organic App Launch.
+     *
+     * @param activity {@link Activity} instance.
+     */
     private void handleOrganicLaunch(Activity activity) {
         // Can not use runtimeData.isFirstForeground() because it's not updated till first background
         // event, And this method is called  every activity resume event because we need instance
@@ -339,38 +356,21 @@ public class EngagementTriggerHelper {
             return;
         }
 
-        Map<String, Object> storedTriggerMap = LocalStorageHelper.getMap(context, Constants.STORAGE_RAW_IN_APP_TRIGGER_KEY, new HashMap<>());
+        PendingTrigger pendingTrigger = cooeeDatabase.pendingTriggerDAO().getPendingTriggerWithTriggerId(triggerData.getId());
 
-        if (storedTriggerMap.isEmpty() || !storedTriggerMap.containsKey(triggerData.getId())) {
-            loadLazyData(triggerData);
-            updateStack(storedTriggerMap, triggerData.getId());
+        if (pendingTrigger == null) {
+            Log.v(Constants.TAG, "Trigger with ID " + triggerData.getId() + " is already displayed");
             return;
         }
 
-        Object rawPayload = storedTriggerMap.get(triggerData.getId());
-
-        if (rawPayload == null) {
+        if (!pendingTrigger.loadedLazyData) {
             loadLazyData(triggerData);
-            updateStack(storedTriggerMap, triggerData.getId());
             return;
         }
 
-        TriggerData storedTrigger = TriggerData.fromJson((String) rawPayload);
-        triggerData.setInAppTrigger(storedTrigger.getInAppTrigger());
-        cacheTriggerContent.setContentLoadedListener(() -> renderInAppTrigger(triggerData));
-        cacheTriggerContent.loadAndCacheInAppContent(triggerData);
-        updateStack(storedTriggerMap, triggerData.getId());
-    }
-
-    /**
-     * Update the stack of InApp trigger data.
-     *
-     * @param storedTriggerMap Map of InApp trigger data.
-     * @param triggerID        Trigger ID to be updated.
-     */
-    private void updateStack(Map<String, Object> storedTriggerMap, String triggerID) {
-        storedTriggerMap.remove(triggerID);
-        LocalStorageHelper.putMap(context, Constants.STORAGE_RAW_IN_APP_TRIGGER_KEY, storedTriggerMap);
+        TriggerData storedTrigger = TriggerData.fromJson((String) pendingTrigger.triggerData);
+        cacheTriggerContent.setContentLoadedListener(() -> renderInAppTrigger(storedTrigger));
+        cacheTriggerContent.loadAndCacheInAppContent(storedTrigger);
     }
 
     /**
