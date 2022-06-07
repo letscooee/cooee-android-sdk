@@ -97,7 +97,7 @@ public class CacheTriggerContent {
             pendingTrigger.triggerData = gson.toJson(triggerDataMap);
             pendingTrigger.loadedLazyData = true;
             this.cooeeDatabase.pendingTriggerDAO().updatePendingTrigger(pendingTrigger);
-            Log.d(Constants.TAG, "Updated " + pendingTrigger);
+            Log.v(Constants.TAG, "Updated " + pendingTrigger);
         });
     }
 
@@ -216,7 +216,17 @@ public class CacheTriggerContent {
         pendingTrigger.scheduleAt = 0;
         pendingTrigger.sdkCode = BuildConfig.VERSION_CODE;
         pendingTrigger.id = this.cooeeDatabase.pendingTriggerDAO().insertPendingTrigger(pendingTrigger);
-        Log.d(Constants.TAG, "Created " + pendingTrigger);
+        Log.v(Constants.TAG, "Created " + pendingTrigger);
         return pendingTrigger;
+    }
+
+    public PendingTrigger getPendingTrigger() {
+        List<PendingTrigger> pendingTriggerList = this.cooeeDatabase.pendingTriggerDAO().getAllPendingTriggers();
+
+        if (pendingTriggerList == null || pendingTriggerList.isEmpty()) {
+            return null;
+        }
+
+        return pendingTriggerList.get(0);
     }
 }
