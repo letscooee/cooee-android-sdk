@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.text.TextUtils;
 import android.util.Log;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import com.bumptech.glide.Glide;
@@ -39,7 +38,7 @@ import java.util.Map;
  * Store the payload and cache all the content of InApp to local cache.
  *
  * @author Ashish Gaikwad 25/05/22
- * @since 1.3.11
+ * @since 1.3.12
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class CacheTriggerContent {
