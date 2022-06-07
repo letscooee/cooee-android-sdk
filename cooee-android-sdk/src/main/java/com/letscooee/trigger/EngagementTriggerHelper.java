@@ -221,6 +221,7 @@ public class EngagementTriggerHelper {
         }
 
         TriggerData triggerData = bundle.getParcelable(Constants.INTENT_TRIGGER_DATA_KEY);
+        int sdkVersionCode = bundle.getInt(Constants.INTENT_SDK_VERSION_CODE_KEY, 0);
         // Should not go ahead if triggerData is null or triggerData's id is null
         if (triggerData == null || triggerData.getId() == null) {
             return;
@@ -229,14 +230,14 @@ public class EngagementTriggerHelper {
         ClickAction pushClickAction = triggerData.getPn().getClickAction();
 
         if (pushClickAction == null) {
-            launchInApp(triggerData);
+            launchInApp(triggerData, sdkVersionCode);
             return;
         }
 
         int launchFeature = pushClickAction.getLaunchFeature();
 
         if (launchFeature == 0 || launchFeature == 1) {
-            launchInApp(triggerData);
+            launchInApp(triggerData, sdkVersionCode);
         } else {
             TriggerContext triggerContext = new TriggerContext();
             triggerContext.setTriggerData(triggerData);
@@ -244,18 +245,58 @@ public class EngagementTriggerHelper {
             new ClickActionExecutor(context, pushClickAction, triggerContext).execute();
         }
     }
+    private void handleOrganicLaunch(Activity activity) {
+        // Can not use runtimeData.isFirstForeground() because it's not updated till first background
+        // event, And this method is called  every activity resume event because we need instance
+        // of activity for glassmorphism.
+        if (!shouldRenderOrganicInApp) {
+            return;
+        }
 
-    private void launchInApp(TriggerData triggerData) {
+        shouldRenderOrganicInApp = false;
+
+        if (activity == null || activity instanceof PreventBlurActivity) {
+            return;
+        }
+
+        PendingTrigger pendingTrigger = cacheTriggerContent.getPendingTrigger();
+
+        if (pendingTrigger == null) {
+            return;
+        }
+
+        TriggerData triggerData;
+        try {
+            triggerData = TriggerData.fromJson(pendingTrigger.triggerData);
+        } catch (JsonSyntaxException e) {
+            CooeeFactory.getSentryHelper().captureException(e);
+            return;
+        }
+
+        if (TextUtils.isEmpty(triggerData.getId())) {
+            return;
+        }
+
+        if (!pendingTrigger.loadedLazyData) {
+            loadLazyData(TriggerData.fromJson(pendingTrigger.triggerData));
+            return;
+        }
+        cacheTriggerContent.setContentLoadedListener(() -> renderInAppTrigger(triggerData));
+        cacheTriggerContent.loadAndCacheInAppContent(triggerData);
+    }
+
+
+    private void launchInApp(TriggerData triggerData, int sdkVersionCode) {
         RuntimeData runtimeData = CooeeFactory.getRuntimeData();
         // If app is being launched from the "cold state"
         if (runtimeData.isFirstForeground()) {
             // Then wait for some time before showing the in-app
-            new Timer().schedule(() -> renderInAppFromPushNotification(triggerData), TIME_TO_WAIT_MILLIS);
+            new Timer().schedule(() -> renderInAppFromPushNotification(triggerData, sdkVersionCode), TIME_TO_WAIT_MILLIS);
         } else {
             // Otherwise show it instantly
-            // TODO Using 2 seconds delay as "App Foreground" is not called yet that means the below call be treated
+            // Using 2 seconds delay as "App Foreground" is not called yet that means the below call be treated
             // as "App in Background" and it will now render the in-app. Need to use Database
-            new Timer().schedule(() -> renderInAppFromPushNotification(triggerData), 2 * 1000);
+            new Timer().schedule(() -> renderInAppFromPushNotification(triggerData, sdkVersionCode), 2 * 1000);
         }
     }
 
@@ -264,13 +305,27 @@ public class EngagementTriggerHelper {
      *
      * @param triggerData Data to render in-app.
      */
-    public void renderInAppFromPushNotification(TriggerData triggerData) {
+    public void renderInAppFromPushNotification(TriggerData triggerData, int sdkVersionCode) {
         storeActiveTriggerDetails(context, triggerData);
 
         Event event = new Event("CE Notification Clicked", triggerData);
         CooeeFactory.getSafeHTTPService().sendEventWithoutSession(event);
 
-        checkAndLoadInApp(triggerData);
+        /*
+         * If the SDK version is less than 10312 i.e v1.3.12, then we will render InApp with old way.
+         * Else we will render InApp with new way i.e With PendingTrigger helpers.
+         *
+         * This sdkVersionCode comes from Push Notification click intent after version v1.3.12.
+         * If the SDK version is less than 10312, then this sdkVersionCode will be 0.
+         *
+         * This sdkVersionCode will also help us to determine whether clicked push notification was
+         * rendered via which sdk version.
+         */
+        if (sdkVersionCode < 10312) {
+            loadLazyData(triggerData);
+        } else {
+            checkAndLoadInApp(triggerData);
+        }
     }
 
     /**
