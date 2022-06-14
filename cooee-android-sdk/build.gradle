@@ -183,7 +183,6 @@ dependencies {
     api 'jp.wasabeef:blurry:4.0.0'
     api 'io.sentry:sentry-android:4.3.0'
     api 'org.mongodb:bson:4.2.3'
-    implementation 'com.google.ar:core:1.31.0'
     // endregion
 
     annotationProcessor "androidx.room:room-compiler:2.4.2"
