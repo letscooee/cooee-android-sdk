@@ -18,7 +18,6 @@ import com.letscooee.models.trigger.blocks.ClickAction;
 import com.letscooee.trigger.inapp.TriggerContext;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.CooeeCTAListener;
-
 import java.util.HashMap;
 import java.util.Objects;
 
@@ -104,7 +103,7 @@ public class ClickActionExecutor {
 
     /**
      * Check and process <code>appAR</code> and give control to
-     * {@link ARHelper#checkForARAndLaunch(Activity, AppAR, TriggerData)} to launch AR
+     * {@link ARHelper#launchARViaUnity(Context, AppAR, TriggerData)} to launch AR
      */
     private void loadAR() {
         int launchFeature = action.getLaunchFeature();
@@ -121,7 +120,7 @@ public class ClickActionExecutor {
             return;
         }
 
-        ARHelper.checkForARAndLaunch((Activity) context, action.getAR(), globalData.getTriggerData());
+        ARHelper.launchARViaUnity(context, action.getAR(), globalData.getTriggerData());
     }
 
     /**
