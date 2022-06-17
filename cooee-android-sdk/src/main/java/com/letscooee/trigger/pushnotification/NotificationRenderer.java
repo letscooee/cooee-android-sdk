@@ -341,11 +341,13 @@ public abstract class NotificationRenderer {
 
         this.notificationManager.notify(this.notificationID, notification);
 
-        // Will wait for 2 seconds before checking if the notification has been viewed
-        // This will let notification manager to display or do whatever with notification
-        // before we check if it has been viewed
-        // If notification is not displayed it will get removed from the notification manager
-        // and we will get the actual event of notification view.
+         /*
+         Will wait for 2 seconds before checking if the notification has been viewed
+         This will let notification manager to display or do whatever with notification
+         before we check if it has been viewed
+         If notification is not displayed it will get removed from the notification manager
+         and we will get the actual event of notification view.
+         */
         new Timer().schedule(this::checkForNotificationViewed, 2000);
     }
 
