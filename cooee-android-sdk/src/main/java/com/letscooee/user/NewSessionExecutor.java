@@ -17,6 +17,7 @@ import com.letscooee.permission.PermissionManager;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.DateUtils;
 import com.letscooee.utils.LocalStorageHelper;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -55,6 +56,8 @@ public class NewSessionExecutor extends ContextAware {
         } else {
             sendSuccessiveLaunchEvent();
         }
+
+        updateWrapperInformation();
     }
 
     /**
@@ -92,32 +95,23 @@ public class NewSessionExecutor extends ContextAware {
      * Runs when app is opened for the first time after sdkToken is received from server asynchronously
      */
     private void sendFirstLaunchEvent() {
-        Map<String, Object> deviceProperties = new HashMap<>();
-        deviceProperties.put("firstLaunch", DateUtils.getStringDateFromDate(new Date(), Constants.DATE_FORMAT_UTC, true));
-        deviceProperties.putAll(getImmutableDeviceProps());
-        deviceProperties.putAll(getMutableDeviceProps());
-
         Event event = new Event("CE App Installed");
-        event.setDeviceProps(deviceProperties);
+        event.setDeviceProps(getMutableDeviceProps());
         safeHTTPService.sendEvent(event);
-
-        sendDefaultDeviceProperties(deviceProperties);
     }
 
     /**
      * Update device props with default values
-     *
-     * @param deviceProperties device properties
      */
-    private void sendDefaultDeviceProperties(Map<String, Object> deviceProperties) {
-        Map<String, Object> deviceProps = new HashMap<>();
-        deviceProps.put("props", deviceProperties);
-
-        if (wrapper != null) {
-            deviceProps.put("wrp", wrapper);
+    private void updateWrapperInformation() {
+        if (wrapper == null) {
+            return;
         }
 
-        safeHTTPService.updateDeviceProperty(deviceProps);
+        Map<String, Object> requestData = new HashMap<>();
+        requestData.put("wrp", wrapper);
+
+        safeHTTPService.updateDeviceProperty(requestData);
     }
 
     /**
@@ -127,7 +121,6 @@ public class NewSessionExecutor extends ContextAware {
         Event event = new Event("CE App Launched");
         event.setDeviceProps(getMutableDeviceProps());
         safeHTTPService.sendEvent(event);
-        sendDefaultDeviceProperties(getMutableDeviceProps());
     }
 
     /**
@@ -149,7 +142,8 @@ public class NewSessionExecutor extends ContextAware {
         device.put("vendor", Build.MANUFACTURER);
         deviceProperties.put("device", device);
 
-        deviceProperties.put("installedTime", defaultUserPropertiesCollector.getInstalledTime());
+        deviceProperties.put("iTime", defaultUserPropertiesCollector.getInstalledTime());
+        deviceProperties.put("flTime", DateUtils.getStringDateFromDate(new Date(), Constants.DATE_FORMAT_UTC, true));
 
         return deviceProperties;
     }
