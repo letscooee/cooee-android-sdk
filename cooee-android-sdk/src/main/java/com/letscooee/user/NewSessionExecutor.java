@@ -175,7 +175,7 @@ public class NewSessionExecutor extends ContextAware {
         deviceProperties.put("locale", defaultUserPropertiesCollector.getLocale());
         deviceProperties.put("bt", defaultUserPropertiesCollector.isBluetoothOn());
         deviceProperties.put("wifi", defaultUserPropertiesCollector.isConnectedToWifi());
-        deviceProperties.put("orientation", defaultUserPropertiesCollector.getDeviceOrientation());
+        deviceProperties.put("ori", defaultUserPropertiesCollector.getDeviceOrientation());
 
         deviceProperties.putAll(permissionManager.getPermissionInformation());
 
