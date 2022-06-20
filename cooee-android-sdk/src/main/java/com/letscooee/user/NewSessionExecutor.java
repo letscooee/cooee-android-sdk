@@ -2,16 +2,16 @@ package com.letscooee.user;
 
 import android.content.Context;
 import android.os.Build;
-
+import android.text.TextUtils;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
-
 import com.letscooee.ContextAware;
 import com.letscooee.CooeeFactory;
-import com.letscooee.device.AppInfo;
 import com.letscooee.device.DeviceInfo;
+import com.letscooee.enums.WrapperType;
 import com.letscooee.init.DefaultUserPropertiesCollector;
 import com.letscooee.models.Event;
+import com.letscooee.models.WrapperDetails;
 import com.letscooee.network.SafeHTTPService;
 import com.letscooee.permission.PermissionManager;
 import com.letscooee.utils.Constants;
@@ -32,11 +32,10 @@ import java.util.Map;
 public class NewSessionExecutor extends ContextAware {
 
     private final DefaultUserPropertiesCollector defaultUserPropertiesCollector;
-    private final AppInfo appInfo;
-    private final SessionManager sessionManager;
     private final SafeHTTPService safeHTTPService;
     private final PermissionManager permissionManager;
     private final DeviceInfo deviceInfo;
+    private static WrapperDetails wrapper;
 
     /**
      * Public Constructor
@@ -46,8 +45,6 @@ public class NewSessionExecutor extends ContextAware {
     public NewSessionExecutor(@NonNull Context context) {
         super(context);
         this.defaultUserPropertiesCollector = new DefaultUserPropertiesCollector(context);
-        this.sessionManager = SessionManager.getInstance(context);
-        this.appInfo = CooeeFactory.getAppInfo();
         this.safeHTTPService = CooeeFactory.getSafeHTTPService();
         this.permissionManager = new PermissionManager(context);
         this.deviceInfo = CooeeFactory.getDeviceInfo();
@@ -59,6 +56,25 @@ public class NewSessionExecutor extends ContextAware {
         } else {
             sendSuccessiveLaunchEvent();
         }
+
+        updateWrapperInformation();
+    }
+
+    /**
+     * Generate instance of {@link WrapperDetails} with the provided values
+     *
+     * @param wrapperType   wrapper type
+     * @param versionCode   wrapper version code
+     * @param versionNumber wrapper version number
+     */
+    @SuppressWarnings("unused")
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static void updateWrapperInformation(WrapperType wrapperType, int versionCode, String versionNumber) {
+        if (wrapperType == null || versionCode == 0 || TextUtils.isEmpty(versionNumber)) {
+            return;
+        }
+
+        wrapper = new WrapperDetails(versionCode, versionNumber, wrapperType);
     }
 
     /**
@@ -79,14 +95,23 @@ public class NewSessionExecutor extends ContextAware {
      * Runs when app is opened for the first time after sdkToken is received from server asynchronously
      */
     private void sendFirstLaunchEvent() {
-        Map<String, Object> deviceProperties = new HashMap<>();
-        deviceProperties.put("firstLaunch", DateUtils.getStringDateFromDate(new Date(), Constants.DATE_FORMAT_UTC, true));
-        deviceProperties.putAll(getImmutableDeviceProps());
-        deviceProperties.putAll(getMutableDeviceProps());
-
         Event event = new Event("CE App Installed");
-        event.setDeviceProps(deviceProperties);
+        event.setDeviceProps(getMutableDeviceProps());
         safeHTTPService.sendEvent(event);
+    }
+
+    /**
+     * Update device props with default values
+     */
+    private void updateWrapperInformation() {
+        if (wrapper == null) {
+            return;
+        }
+
+        Map<String, Object> requestData = new HashMap<>();
+        requestData.put("wrp", wrapper);
+
+        safeHTTPService.updateDeviceProperty(requestData);
     }
 
     /**
@@ -117,7 +142,8 @@ public class NewSessionExecutor extends ContextAware {
         device.put("vendor", Build.MANUFACTURER);
         deviceProperties.put("device", device);
 
-        deviceProperties.put("installedTime", defaultUserPropertiesCollector.getInstalledTime());
+        deviceProperties.put("iTime", defaultUserPropertiesCollector.getInstalledTime());
+        deviceProperties.put("flTime", DateUtils.getStringDateFromDate(new Date(), Constants.DATE_FORMAT_UTC, true));
 
         return deviceProperties;
     }
@@ -149,7 +175,7 @@ public class NewSessionExecutor extends ContextAware {
         deviceProperties.put("locale", defaultUserPropertiesCollector.getLocale());
         deviceProperties.put("bt", defaultUserPropertiesCollector.isBluetoothOn());
         deviceProperties.put("wifi", defaultUserPropertiesCollector.isConnectedToWifi());
-        deviceProperties.put("orientation", defaultUserPropertiesCollector.getDeviceOrientation());
+        deviceProperties.put("ori", defaultUserPropertiesCollector.getDeviceOrientation());
 
         deviceProperties.putAll(permissionManager.getPermissionInformation());
 

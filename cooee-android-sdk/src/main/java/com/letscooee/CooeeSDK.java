@@ -2,9 +2,7 @@ package com.letscooee;
 
 import android.content.Context;
 import android.content.Intent;
-
 import androidx.annotation.NonNull;
-
 import com.letscooee.device.DebugInfoActivity;
 import com.letscooee.models.Event;
 import com.letscooee.network.SafeHTTPService;
@@ -14,7 +12,6 @@ import com.letscooee.utils.CooeeCTAListener;
 import com.letscooee.utils.PropertyNameException;
 import com.letscooee.utils.RuntimeData;
 import com.letscooee.utils.SentryHelper;
-
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Map;
@@ -97,9 +94,10 @@ public class CooeeSDK {
         }
 
         containsSystemDataPrefix(eventProperties);
-
-        Event event = new Event(eventName, eventProperties);
-        this.safeHTTPService.sendEvent(event);
+        CooeeExecutors.getInstance().singleThreadExecutor().execute(() -> {
+            Event event = new Event(eventName, eventProperties);
+            this.safeHTTPService.sendEvent(event);
+        });
     }
 
     /**
@@ -162,9 +160,10 @@ public class CooeeSDK {
         }
 
         containsSystemDataPrefix(userData);
-
-        this.sentryHelper.setUserInfo(userData);
-        this.safeHTTPService.updateUserProfile(userData);
+        CooeeExecutors.getInstance().singleThreadExecutor().execute(() -> {
+            this.sentryHelper.setUserInfo(userData);
+            this.safeHTTPService.updateUserProfile(userData);
+        });
     }
 
     /**

@@ -10,7 +10,6 @@ import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.content.res.Configuration;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
@@ -21,9 +20,7 @@ import android.os.Environment;
 import android.os.StatFs;
 import android.telephony.TelephonyManager;
 import android.util.DisplayMetrics;
-
 import androidx.core.app.ActivityCompat;
-
 import com.letscooee.CooeeFactory;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.DateUtils;
@@ -31,12 +28,7 @@ import com.letscooee.utils.SentryHelper;
 
 import java.io.File;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 import static android.content.Context.ACTIVITY_SERVICE;
 
@@ -260,9 +252,8 @@ public class DefaultUserPropertiesCollector {
      *
      * @return "Landscape"/"Portrait"
      */
-    public String getDeviceOrientation() {
-        int orientation = context.getResources().getConfiguration().orientation;
-        return orientation == Configuration.ORIENTATION_LANDSCAPE ? "Landscape" : "Portrait";
+    public int getDeviceOrientation() {
+        return context.getResources().getConfiguration().orientation;
     }
 
     /**
