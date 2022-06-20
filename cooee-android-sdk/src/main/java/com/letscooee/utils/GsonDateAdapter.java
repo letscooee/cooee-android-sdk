@@ -9,7 +9,7 @@ import java.text.*;
 import java.util.Date;
 
 /**
- * Adapter to proccess {@link Date} while serializing and deserializing {@link Date}.
+ * Adapter to process {@link Date} while serializing and deserializing {@link Date}.
  * It Converts {@link Date} in UTC date format.
  *
  * @author Ashish Gaikwad on 09/06/21

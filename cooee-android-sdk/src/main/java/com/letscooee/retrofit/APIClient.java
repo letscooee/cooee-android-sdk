@@ -2,15 +2,12 @@ package com.letscooee.retrofit;
 
 import android.text.TextUtils;
 import android.util.Log;
-
 import androidx.annotation.RestrictTo;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.letscooee.BuildConfig;
 import com.letscooee.CooeeFactory;
 import com.letscooee.utils.GsonDateAdapter;
-
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import retrofit2.Retrofit;
@@ -37,8 +34,7 @@ public class APIClient {
     private static String apiToken;
     private static String userId = "";
     private static String appVersion = "";
-    private static String wrapperName = "";
-    private static Gson gson = new GsonBuilder().registerTypeAdapter(Date.class, new GsonDateAdapter()).create();
+    private static final Gson gson = new GsonBuilder().registerTypeAdapter(Date.class, new GsonDateAdapter()).create();
 
     public static APIService getAPIService() {
         Retrofit retrofit = getClient();
@@ -80,12 +76,9 @@ public class APIClient {
                     requestBuilder.addHeader("sdk-version-code", String.valueOf(BuildConfig.VERSION_CODE));
                     requestBuilder.addHeader("app-version", appVersion);
 
-                    if (!TextUtils.isEmpty(wrapperName)) {
-                        requestBuilder.addHeader("sdk-wrapper", wrapperName);
-                    }
-
-                    Log.d(TAG, "Request: " + requestBuilder.build().toString());
-                    return chain.proceed(requestBuilder.build());
+                    Request request = requestBuilder.build();
+                    Log.d(TAG, "Request: " + request);
+                    return chain.proceed(request);
                 })
                 .build();
 
