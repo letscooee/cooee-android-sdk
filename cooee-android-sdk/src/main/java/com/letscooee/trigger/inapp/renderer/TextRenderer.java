@@ -18,6 +18,7 @@ import com.letscooee.models.trigger.elements.BaseElement;
 import com.letscooee.models.trigger.elements.PartElement;
 import com.letscooee.models.trigger.elements.TextElement;
 import com.letscooee.trigger.inapp.TriggerContext;
+import com.letscooee.utils.Constants;
 
 /**
  * @author shashank
@@ -33,12 +34,12 @@ public class TextRenderer extends FontRenderer {
 
     @Override
     public View render() {
-        String textData = this.processParts();
+        String processedPartString = this.processParts();
 
         TextView textView = new TextView(context);
         textView.setGravity(Gravity.CENTER);
 
-        this.processTextData(textView, textData);
+        this.processTextData(textView, processedPartString);
         this.processFont();
         this.processFontBlock();
 
@@ -69,14 +70,14 @@ public class TextRenderer extends FontRenderer {
             return newElement;
         }
         int borderColor = border.getColor().getHexColor();
-        float dashWidth = calculatedBorder * 2;
+        float dashWidth = calculatedBorder * 2.0f;
 
         int w = getScaledPixelAsInt(elementData.getWidth());
         baseFrameLayout.setLayoutParams(new FrameLayout.LayoutParams(w, WC));
 
         GradientDrawable elementDrawable = new GradientDrawable();
         elementDrawable.setStroke(calculatedBorder, borderColor, dashWidth, calculatedBorder);
-        elementDrawable.setCornerRadius(getScaledPixelAsFloat(border.getRadius()) - (calculatedBorder / 2));
+        elementDrawable.setCornerRadius(getScaledPixelAsFloat(border.getRadius()) - (calculatedBorder / 2.0f));
         baseFrameLayout.setBackground(elementDrawable);
 
         return newElement;
@@ -120,13 +121,20 @@ public class TextRenderer extends FontRenderer {
             text = text.substring(0, text.length() - 1);
         }
 
-        return text.replaceAll("\n", "<br/>");
+        // Using String#replace instead of String#replaceAll https://stackoverflow.com/a/10827900/9256497
+        return text.replace("\n", "<br/>");
     }
 
     protected void processTextData(TextView textView, String text) {
         textView.setText(HtmlCompat.fromHtml(text, 0));
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        /*
+         setBreakStrategy is exposed in Android API 23 and its parameters from LinearBreak
+         are exposed in Android API 29, Hence we need to check the API level
+         Textview.setBreakStrategy Ref.: https://developer.android.com/reference/android/widget/TextView#setBreakStrategy(int)
+         LinearBreak.BREAK_STRATEGY_BALANCED: https://developer.android.com/reference/android/graphics/text/LineBreaker#constants_1
+        */
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             textView.setBreakStrategy(LineBreaker.BREAK_STRATEGY_BALANCED);
         }
 
@@ -140,7 +148,20 @@ public class TextRenderer extends FontRenderer {
     }
 
     protected void processAlignmentBlock() {
-        ((TextView) newElement).setGravity((textData).getAlignment());
+        int gravity = textData.getAlignment();
+
+        /*
+         setJustificationMode is exposed in Android API 26, but required fags to make text justify
+         are exposed in LinearBreaker class with Android API 29. Hence, applying Justify alignment on
+         Android API 29 & onward
+         LinearBreaker Ref.: https://developer.android.com/reference/android/graphics/text/LineBreaker#constants_1
+         TextView.setJustificationMode() Ref.: https://developer.android.com/reference/android/widget/TextView#setJustificationMode(int)
+         */
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && gravity == Constants.JUSTIFY_TEXT_ALIGNMENT) {
+            ((TextView) newElement).setJustificationMode(LineBreaker.JUSTIFICATION_MODE_INTER_WORD);
+        } else {
+            ((TextView) newElement).setGravity(gravity);
+        }
     }
 
     protected void processColourBlock() {
