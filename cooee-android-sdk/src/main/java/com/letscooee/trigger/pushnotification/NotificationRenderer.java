@@ -27,6 +27,7 @@ import com.letscooee.network.SafeHTTPService;
 import com.letscooee.services.PushNotificationIntentService;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.PendingIntentUtility;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -135,6 +136,7 @@ public abstract class NotificationRenderer {
     private void setBuilder() {
         this.notificationBuilder
                 .setAutoCancel(cancelPushOnClick())
+                // TODO: 11/06/21 It should be the date of engagement trigger planned
                 .setWhen(System.currentTimeMillis())
                 .setSmallIcon(context.getApplicationInfo().icon)
                 .setCustomContentView(smallContentViews)
@@ -186,6 +188,7 @@ public abstract class NotificationRenderer {
 
     private int getNotificationCancelFlag() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            // TODO 20/06/22 It is giving other notification pending intent. Why not to use FLAG_IMMUTABLE
             return PendingIntent.FLAG_MUTABLE;
         } else {
             return PendingIntent.FLAG_ONE_SHOT;
@@ -352,27 +355,15 @@ public abstract class NotificationRenderer {
      */
     private String getTextFromTextElement(TextElement textElement) {
         List<PartElement> partElements = textElement.getParts();
-        List<String> partTextList = new ArrayList<>();
 
         if (partElements == null || partElements.isEmpty()) {
             return "";
         }
 
+        List<String> partTextList = new ArrayList<>();
         for (PartElement partElement : partElements) {
-            String partText = partElement.getText();
-
-            if (TextUtils.isEmpty(partText.replace("\n", "").trim())) {
-                // Skip part text if its only \n (New Line character)
-                continue;
-            }
-
-            String replacedLastNewLineCharacter = partText;
-
-            if (partText.endsWith("\n")) {
-                replacedLastNewLineCharacter = partText.substring(0, partText.length() - 1);
-            }
-
-            partTextList.add(replacedLastNewLineCharacter.replace("\n", " "));
+            String partText = partElement.getText().replace("\n", " ").trim();
+            partTextList.add(partText);
         }
 
         return TextUtils.join(" ", partTextList);
