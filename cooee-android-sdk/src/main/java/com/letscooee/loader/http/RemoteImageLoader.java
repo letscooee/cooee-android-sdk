@@ -27,7 +27,24 @@ public class RemoteImageLoader implements HttpResourceLoader<Bitmap> {
         this.requestBuilder = Glide.with(context).asBitmap();
     }
 
+    /**
+     * Loads the image from the given URL.
+     *
+     * @param url      The URL of the image to load.
+     * @param callback The callback to be invoked when the image is loaded.
+     */
     public void load(@NonNull String url, @NonNull Closure<Bitmap> callback) {
+        this.load(url, callback, callback);
+    }
+
+    /**
+     * Loads the image from the given URL and invokes the given callbacks on success and failure.
+     *
+     * @param url           The URL of the image to load.
+     * @param callback      The callback to invoke on success.
+     * @param errorCallback The callback to invoke on failure.
+     */
+    public void load(@NonNull String url, @NonNull Closure<Bitmap> callback, @NonNull Closure<Bitmap> errorCallback) {
         this.requestBuilder
                 .load(url)
                 .into(new CustomTarget<Bitmap>() {
@@ -38,7 +55,12 @@ public class RemoteImageLoader implements HttpResourceLoader<Bitmap> {
 
                     @Override
                     public void onLoadCleared(@Nullable Drawable placeholder) {
-                        // no-op
+                        // No need to do anything here.
+                    }
+
+                    @Override
+                    public void onLoadFailed(@Nullable Drawable errorDrawable) {
+                        errorCallback.call(null);
                     }
                 });
     }
