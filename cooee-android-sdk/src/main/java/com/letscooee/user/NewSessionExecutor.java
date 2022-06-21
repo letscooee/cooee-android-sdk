@@ -56,8 +56,6 @@ public class NewSessionExecutor extends ContextAware {
         } else {
             sendSuccessiveLaunchEvent();
         }
-
-        updateWrapperInformation();
     }
 
     /**
@@ -95,31 +93,29 @@ public class NewSessionExecutor extends ContextAware {
      * Runs when app is opened for the first time after sdkToken is received from server asynchronously
      */
     private void sendFirstLaunchEvent() {
-        Event event = new Event("CE App Installed");
-        event.setDeviceProps(getMutableDeviceProps());
-        safeHTTPService.sendEvent(event);
-    }
+        Map<String, Object> mutableDeviceProps = getMutableDeviceProps();
 
-    /**
-     * Update device props with default values
-     */
-    private void updateWrapperInformation() {
-        if (wrapper == null) {
-            return;
+        if (wrapper != null) {
+            mutableDeviceProps.put("wrp", wrapper);
         }
 
-        Map<String, Object> requestData = new HashMap<>();
-        requestData.put("wrp", wrapper);
-
-        safeHTTPService.updateDeviceProperty(requestData);
+        Event event = new Event("CE App Installed");
+        event.setDeviceProps(mutableDeviceProps);
+        safeHTTPService.sendEvent(event);
     }
 
     /**
      * Runs every time when app is opened for a new session
      */
     private void sendSuccessiveLaunchEvent() {
+        Map<String, Object> mutableDeviceProps = getMutableDeviceProps();
+
+        if (wrapper != null) {
+            mutableDeviceProps.put("wrp", wrapper);
+        }
+
         Event event = new Event("CE App Launched");
-        event.setDeviceProps(getMutableDeviceProps());
+        event.setDeviceProps(mutableDeviceProps);
         safeHTTPService.sendEvent(event);
     }
 
