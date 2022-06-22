@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.text.TextUtils;
 import android.util.Log;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import com.bumptech.glide.Glide;
@@ -71,11 +72,16 @@ public class CacheTriggerContent {
             return;
         }
 
-        cooeeDatabase.pendingTriggerDAO().updatePendingTrigger(pendingTrigger);
-
         if (triggerData == null || TextUtils.isEmpty(triggerData.getId())) {
             return;
         }
+
+        if (!fetchInApp(triggerData)) {
+            removePendingTrigger(triggerData);
+            return;
+        }
+
+        cooeeDatabase.pendingTriggerDAO().updatePendingTrigger(pendingTrigger);
 
         if (inAppTriggerHelper == null) {
             inAppTriggerHelper = new InAppTriggerHelper();
@@ -106,6 +112,34 @@ public class CacheTriggerContent {
             this.cooeeDatabase.pendingTriggerDAO().updatePendingTrigger(pendingTrigger);
             Log.v(Constants.TAG, "Updated " + pendingTrigger);
         });
+    }
+
+    /**
+     * Checks if feature is present or not.
+     * <ul>
+     *     <li>If its null, will allow to load InApp from server</li>
+     *     <li>If its empty, will allow to load InApp from server</li>
+     *     <li>If its present, Will loop and check if there is any feature except PN is present or not.</li>
+     *     <ol>
+     *         <li>If present, Will allow loading data from server</li>
+     *     </ol>
+     * </ul>
+     *
+     * @param triggerData {@link TriggerData} object to be checked.
+     * @return true if InApp/AR is present, false otherwise.
+     */
+    private boolean fetchInApp(@NonNull TriggerData triggerData) {
+        if (triggerData.getFeatures() == null || triggerData.getFeatures().isEmpty()) {
+            return true;
+        }
+
+        for (Integer feature : triggerData.getFeatures()) {
+            if (feature != null && (feature == 2 || feature == 3)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
