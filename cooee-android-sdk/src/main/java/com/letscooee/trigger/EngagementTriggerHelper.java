@@ -463,5 +463,6 @@ public class EngagementTriggerHelper {
      */
     public static void allowPendingInAppRendering() {
         EngagementTriggerHelper.shouldRenderOrganicInApp = true;
+        new EngagementTriggerHelper(currentActivity).handleOrganicLaunch(currentActivity);
     }
 }

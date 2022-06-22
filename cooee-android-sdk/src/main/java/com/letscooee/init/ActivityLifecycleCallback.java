@@ -5,10 +5,8 @@ import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-
 import com.letscooee.CooeeFactory;
 import com.letscooee.device.DebugInfoActivity;
 import com.letscooee.gesture.ShakeDetector;
@@ -36,10 +34,12 @@ public class ActivityLifecycleCallback implements Application.ActivityLifecycleC
 
     @Override
     public void onActivityCreated(@NonNull Activity activity, @Nullable Bundle savedInstanceState) {
+        // Activity created
     }
 
     @Override
     public void onActivityStarted(@NonNull Activity activity) {
+        // Activity started
     }
 
     @Override
@@ -88,13 +88,16 @@ public class ActivityLifecycleCallback implements Application.ActivityLifecycleC
 
     @Override
     public void onActivityStopped(@NonNull Activity activity) {
+        // Activity Stopped
     }
 
     @Override
     public void onActivitySaveInstanceState(@NonNull Activity activity, @NonNull Bundle outState) {
+        // Activity saved instance state
     }
 
     @Override
     public void onActivityDestroyed(@NonNull Activity activity) {
+        // Activity distroyed
     }
 }
