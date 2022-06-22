@@ -278,4 +278,13 @@ public class CacheTriggerContent {
             this.cooeeDatabase.pendingTriggerDAO().deletePendingTriggerWithTriggerId(triggerID);
         }
     }
+
+    /**
+     * Removes {@link PendingTrigger} related {@link TriggerData}
+     *
+     * @param triggerData {@link TriggerData} whose pending trigger need to be removed
+     */
+    public void removePendingTrigger(TriggerData triggerData) {
+        this.cooeeDatabase.pendingTriggerDAO().deletePendingTriggerWithTriggerId(triggerData.getId());
+    }
 }
