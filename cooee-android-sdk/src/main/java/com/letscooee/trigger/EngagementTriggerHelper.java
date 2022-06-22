@@ -431,4 +431,11 @@ public class EngagementTriggerHelper {
         int statusBarHeight = rectangle.top;
         return statusBarHeight != 0;
     }
+
+    /**
+     * Change {@code shouldRenderOrganicInApp} to {@code true} so pending InApp logic start working
+     */
+    public static void allowPendingInAppRendering() {
+        EngagementTriggerHelper.shouldRenderOrganicInApp = true;
+    }
 }
