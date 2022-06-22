@@ -61,6 +61,10 @@ public class SimpleNotificationRenderer extends NotificationRenderer {
 
     @Override
     public void addBigContentImage(int viewID, Bitmap bitmap) {
+        if (bitmap == null) {
+            return;
+        }
+
         if (hasBody()) {
             hideViewInBigContentView(R.id.textViewLargeBody);
             showViewInBigContentView(R.id.textViewSmallBody);

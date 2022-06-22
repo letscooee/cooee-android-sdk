@@ -309,6 +309,10 @@ public abstract class NotificationRenderer {
      * @param bitmap The bitmap to add to the view
      */
     public void addSmallContentImage(int viewID, Bitmap bitmap) {
+        if (bitmap == null) {
+            return;
+        }
+
         showViewInSmallContentView(R.id.image_container);
         smallContentViews.setImageViewBitmap(viewID, bitmap);
     }
