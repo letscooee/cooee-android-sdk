@@ -226,9 +226,35 @@ public class EngagementTriggerHelper {
             return;
         }
 
-        NotificationManagerCompat.from(context).cancel((int) pendingTrigger.notificationId);
+        Map<String, Object> triggerConfig = triggerData.getConfig();
+        if (removePN(triggerConfig)) {
+            NotificationManagerCompat.from(context).cancel((int) pendingTrigger.notificationId);
+        }
+
         Log.v(Constants.TAG, "Deleting PendingTrigger( triggerId=" + triggerData.getId() + ")");
         cooeeDatabase.pendingTriggerDAO().deletePendingTrigger(pendingTrigger);
+    }
+
+    /**
+     * Check for the {@code rmPN} key in given map to manage notification in the notification tray.
+     * <br><br>
+     * {@code rmPN} basically stands for <b>Remove Push Notification</b> from tray. It will be {@code true}
+     * to remove PN from tray other wise {@code false}.
+     * <b>By default if value is absent it will be {@code true}</b>.
+     * <ul>
+     * <li>If given <code>map</code> is <code>null</code> it will return <code>true</code>
+     *     (As default value to close PN is true).</li>
+     * <li>If given <code>map.get("rmPN")</code> is <code>null</code> it will return
+     *     <code>true</code> (As default value to close PN is true).</li>
+     * <li>If map.get("rmPN") is present it it will provide its value.</li>
+     * </ul>
+     *
+     * @param triggerConfig Configuration to remove push notification from tray
+     * @return Returns true to remove PN from tray other wise false
+     */
+    private boolean removePN(Map<String, Object> triggerConfig) {
+        //noinspection ConstantConditions
+        return triggerConfig == null || triggerConfig.get("rmPN") == null || ((boolean) triggerConfig.get("rmPN"));
     }
 
     public void renderInAppFromPushNotification(@NonNull Activity activity) {
