@@ -10,6 +10,7 @@ import com.letscooee.models.trigger.inapp.InAppTrigger;
 import com.letscooee.models.trigger.push.PushNotificationTrigger;
 import com.letscooee.trigger.adapters.TriggerGsonDeserializer;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -36,6 +37,10 @@ public class TriggerData implements Parcelable {
     @Expose
     private final Map<String, Object> selfARData = new HashMap<>();
 
+    @SerializedName("features")
+    @Expose
+    private final ArrayList<Integer> features;
+
     /**
      * No longer used and is replaced by {@link #expireAt}. This was used to append time after notification was
      * received.
@@ -61,6 +66,7 @@ public class TriggerData implements Parcelable {
         expireAt = in.readLong();
         in.readMap(selfARData, Object.class.getClassLoader());
         sentAt = (Date) in.readSerializable();
+        features = in.readArrayList(Integer.class.getClassLoader());
     }
 
     public static final Creator<TriggerData> CREATOR = new Creator<TriggerData>() {
@@ -124,6 +130,10 @@ public class TriggerData implements Parcelable {
         return selfARData;
     }
 
+    public ArrayList<Integer> getFeatures() {
+        return features;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -142,6 +152,7 @@ public class TriggerData implements Parcelable {
         dest.writeLong(expireAt);
         dest.writeMap(selfARData);
         dest.writeSerializable(sentAt);
+        dest.writeList(features);
     }
 
     /**
