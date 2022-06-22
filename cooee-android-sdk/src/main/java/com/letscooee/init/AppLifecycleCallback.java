@@ -12,6 +12,7 @@ import com.letscooee.broadcast.ARActionPerformed;
 import com.letscooee.models.Event;
 import com.letscooee.network.SafeHTTPService;
 import com.letscooee.task.CooeeExecutors;
+import com.letscooee.trigger.EngagementTriggerHelper;
 import com.letscooee.user.NewSessionExecutor;
 import com.letscooee.user.SessionManager;
 import com.letscooee.utils.RuntimeData;
@@ -48,7 +49,11 @@ class AppLifecycleCallback implements DefaultLifecycleObserver {
         //Will set app is in foreground
         runtimeData.setInForeground();
         sessionManager.keepSessionAlive();
-        sessionManager.checkSessionExpiry();
+        boolean willCreateNewSession = sessionManager.checkSessionExpiry();
+
+        if (willCreateNewSession) {
+            EngagementTriggerHelper.allowPendingInAppRendering();
+        }
 
         if (runtimeData.isFirstForeground()) {
             return;
