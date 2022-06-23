@@ -94,6 +94,7 @@ public class SimpleNotificationRenderer extends NotificationRenderer {
 
     @Override
     public void render() {
+        this.setContentIntent();
         boolean hasSmallImage = hasSmallImage();
         boolean hasLargeImage = hasLargeImage();
 

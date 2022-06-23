@@ -57,7 +57,7 @@ public class BaseHTTPService extends ContextAware {
         return responseData;
     }
 
-    public Map<String, Object> getIANTrigger(String triggerId) throws HttpRequestFailedException {
+    public Map<String, Object> getLazyData(String triggerId) throws HttpRequestFailedException {
         Call<Map<String, Object>> call = apiService.loadTriggerDetails(triggerId);
         Response<?> response = this.executeHTTPCall(call, "Get trigger In-App data");
 

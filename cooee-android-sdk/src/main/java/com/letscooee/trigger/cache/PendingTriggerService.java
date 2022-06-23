@@ -76,7 +76,7 @@ public class PendingTriggerService extends ContextAware {
             return;
         }
 
-        if (!fetchInApp(triggerData)) {
+        if (!shouldFetchInApp(triggerData)) {
             delete(triggerData);
             return;
         }
@@ -128,7 +128,7 @@ public class PendingTriggerService extends ContextAware {
      * @param triggerData {@link TriggerData} object to be checked.
      * @return true if InApp/AR is present, false otherwise.
      */
-    private boolean fetchInApp(@NonNull TriggerData triggerData) {
+    private boolean shouldFetchInApp(@NonNull TriggerData triggerData) {
         if (triggerData.getFeatures() == null || triggerData.getFeatures().isEmpty()) {
             return true;
         }

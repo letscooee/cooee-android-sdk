@@ -1,11 +1,9 @@
 package com.letscooee.trigger;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
 import com.letscooee.CooeeFactory;
 import com.letscooee.exceptions.HttpRequestFailedException;
 import com.letscooee.models.trigger.TriggerData;
-import com.letscooee.models.trigger.inapp.InAppTrigger;
 import com.letscooee.task.CooeeExecutors;
 import com.letscooee.utils.Closure;
 
@@ -27,15 +25,13 @@ public class InAppTriggerHelper {
      */
     public void loadLazyData(TriggerData triggerData, Closure<String> callback) {
         CooeeExecutors.getInstance().singleThreadExecutor().execute(() -> {
-
-            String rawInAppTrigger = gson.toJson(doHTTPForIAN(triggerData.getId()));
+            String rawInAppTrigger = gson.toJson(doHTTPForLazyData(triggerData.getId()));
 
             if (rawInAppTrigger == null) {
                 return;
             }
 
             callback.call(rawInAppTrigger);
-
         });
     }
 
@@ -45,9 +41,9 @@ public class InAppTriggerHelper {
      * @param id trigger id received from FCM
      * @return response data from server
      */
-    private Object doHTTPForIAN(String id) {
+    private Object doHTTPForLazyData(String id) {
         try {
-            return CooeeFactory.getBaseHTTPService().getIANTrigger(id);
+            return CooeeFactory.getBaseHTTPService().getLazyData(id);
         } catch (HttpRequestFailedException e) {
             CooeeFactory.getSentryHelper().captureException(e);
         }

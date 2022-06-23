@@ -32,8 +32,6 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
     private final EngagementTriggerHelper engagementTriggerHelper;
     private final PendingTriggerService pendingTriggerService;
 
-    private PendingTrigger pendingTrigger;
-
     @SuppressWarnings("unused")
     public CooeeFirebaseMessagingService() {
         this(null);
@@ -115,19 +113,19 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
         }
 
         if (triggerData.getPn() != null) {
-            pendingTrigger = pendingTriggerService.newTrigger(triggerData);
             Event event = new Event("CE Notification Received", triggerData);
             CooeeFactory.getSafeHTTPService().sendEventWithoutSession(event);
 
             showNotification(triggerData);
         } else {
+            // This is just for testing locally when sending in-app only previews
             engagementTriggerHelper.loadLazyData(triggerData);
         }
     }
 
     private void showNotification(TriggerData triggerData) {
+        PendingTrigger pendingTrigger = pendingTriggerService.newTrigger(triggerData);
         SimpleNotificationRenderer renderer = new SimpleNotificationRenderer(context, triggerData);
-        renderer.setContentIntent();
         renderer.render();
 
         pendingTrigger.notificationId = renderer.getNotificationID();
