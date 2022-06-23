@@ -3,32 +3,28 @@ package com.letscooee.services;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.text.TextUtils;
 import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
-import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
-import com.google.gson.reflect.TypeToken;
 import com.letscooee.CooeeFactory;
 import com.letscooee.R;
 import com.letscooee.enums.trigger.PendingTriggerAction;
 import com.letscooee.font.FontProcessor;
-import com.letscooee.loader.http.RemoteImageLoader;
 import com.letscooee.models.Event;
 import com.letscooee.models.trigger.TriggerData;
 import com.letscooee.models.trigger.elements.ButtonElement;
 import com.letscooee.models.trigger.push.PushNotificationTrigger;
 import com.letscooee.pushnotification.PushProviderUtils;
-import com.letscooee.room.CooeeDatabase;
 import com.letscooee.room.trigger.PendingTrigger;
 import com.letscooee.trigger.EngagementTriggerHelper;
 import com.letscooee.trigger.cache.PendingTriggerService;
 import com.letscooee.trigger.pushnotification.SimpleNotificationRenderer;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.PendingIntentUtility;
+import com.letscooee.utils.trigger.TriggerDataUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -41,14 +37,15 @@ import java.util.Map;
  */
 public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
 
-    private Context context;
-    private EngagementTriggerHelper engagementTriggerHelper;
-    private PendingTriggerService pendingTriggerService;
-    private CooeeDatabase cooeeDatabase;
+    private final Context context;
+    private final EngagementTriggerHelper engagementTriggerHelper;
+    private final PendingTriggerService pendingTriggerService;
+
     private PendingTrigger pendingTrigger;
 
     @SuppressWarnings("unused")
     public CooeeFirebaseMessagingService() {
+        this(null);
     }
 
     /**
@@ -56,9 +53,10 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
      *
      * @param context {@link Context}
      */
-    @SuppressWarnings("unused")
     public CooeeFirebaseMessagingService(Context context) {
-        this.context = context;
+        this.context = context != null ? context : getApplicationContext();
+        this.engagementTriggerHelper = new EngagementTriggerHelper(context);
+        this.pendingTriggerService = new PendingTriggerService(context);
     }
 
     @Override
@@ -69,43 +67,32 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
     @Override
     public void onMessageReceived(@NonNull RemoteMessage remoteMessage) {
         super.onMessageReceived(remoteMessage);
-        this.context = getApplicationContext();
 
-        if (remoteMessage.getData().size() == 0) {
+        Map<String, String> payload = remoteMessage.getData();
+        if (payload.size() == 0) {
             return;
         }
 
-        FontProcessor.downloadFonts(context, remoteMessage.getData().get("fonts"));
-        this.handleTriggerData(remoteMessage.getData().get("triggerData"));
-        this.handlePendingTriggerDeletion(remoteMessage.getData().get("pendingTrigger"));
+        FontProcessor.downloadFonts(context, payload.get("fonts"));
+        this.handleTriggerData(payload.get("triggerData"));
+        this.handlePendingTriggerDeletion(payload.get("pendingTrigger"));
     }
 
     /**
      * Perform delete operations in Pending trigger directly from the received payload.
      *
-     * @param rawPendingTriggerAction {@link PendingTrigger}
+     * @param rawData {@link PendingTrigger}
      */
-    private void handlePendingTriggerDeletion(String rawPendingTriggerAction) {
-        if (TextUtils.isEmpty(rawPendingTriggerAction)) {
-            return;
-        }
-        Map<String, String> pendingTriggerMap;
-        try {
-            pendingTriggerMap = new Gson().fromJson(rawPendingTriggerAction, new TypeToken<HashMap<String, String>>() {
-            }.getType());
-        } catch (JsonSyntaxException e) {
-            Log.v(Constants.TAG, "Fail to parse pending trigger data: " + e.getMessage());
+    private void handlePendingTriggerDeletion(String rawData) {
+        Map<String, String> deletionAction = PendingTriggerAction.parseRawData(rawData);
+        if (deletionAction == null) {
             return;
         }
 
-        if (this.pendingTriggerService == null) {
-            this.pendingTriggerService = new PendingTriggerService(context);
-        }
+        PendingTriggerAction action = PendingTriggerAction.fromValue(deletionAction.get("a"));
+        String triggerID = deletionAction.get("ti");
 
-        PendingTriggerAction pendingTriggerAction = PendingTriggerAction.fromValue(pendingTriggerMap.get("a"));
-        String triggerId = pendingTriggerMap.get("ti");
-
-        pendingTriggerService.delete(pendingTriggerAction, triggerId);
+        pendingTriggerService.delete(action, triggerID);
     }
 
     /**
@@ -118,39 +105,14 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
         PushProviderUtils.pushTokenRefresh(token);
     }
 
-    private RemoteImageLoader imageLoader;
-
     public void handleTriggerData(String rawTriggerData) {
-        if (TextUtils.isEmpty(rawTriggerData)) {
-            Log.d(Constants.TAG, "No triggerData found on the notification payload");
-            return;
-        }
-
-        if (engagementTriggerHelper == null) {
-            engagementTriggerHelper = new EngagementTriggerHelper(context);
-        }
-
-        if (pendingTriggerService == null) {
-            pendingTriggerService = new PendingTriggerService(context);
-        }
-
-        if (cooeeDatabase == null) {
-            cooeeDatabase = CooeeDatabase.getInstance(context);
-        }
-
-        if (imageLoader == null) {
-            imageLoader = new RemoteImageLoader(context);
-        }
-
         TriggerData triggerData;
 
         try {
-            Gson gson = new Gson();
-
-            HashMap<String, Object> baseTriggerData = gson.fromJson(rawTriggerData, new TypeToken<HashMap<String, Object>>() {
-            }.getType());
-
-            assert baseTriggerData != null;
+            HashMap<String, Object> baseTriggerData = TriggerDataUtils.parse(rawTriggerData);
+            if (baseTriggerData == null) {
+                return;
+            }
 
             Double version = (Double) baseTriggerData.get("v");
             if (version == null || version >= 5 || version < 4) {

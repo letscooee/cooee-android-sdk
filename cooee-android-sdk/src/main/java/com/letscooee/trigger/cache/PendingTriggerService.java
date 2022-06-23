@@ -266,7 +266,7 @@ public class PendingTriggerService extends ContextAware {
     }
 
     /**
-     * Pull the latest pending trigger from the DB.
+     * Pull the latest pending trigger from the DB but do not delete it.
      *
      * @return The last stored PendingTrigger.
      */
@@ -281,9 +281,7 @@ public class PendingTriggerService extends ContextAware {
      * @param triggerID the trigger id to be removed.
      */
     public void delete(PendingTriggerAction action, String triggerID) {
-        List<PendingTrigger> pendingTriggerList = this.cooeeDatabase.pendingTriggerDAO().getAll();
-
-        if (pendingTriggerList == null || pendingTriggerList.isEmpty()) {
+        if (action == null) {
             return;
         }
 

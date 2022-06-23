@@ -11,7 +11,7 @@ import com.letscooee.models.trigger.blocks.Animation;
 import com.letscooee.models.trigger.blocks.Background;
 import com.letscooee.models.trigger.blocks.ClickAction;
 import com.letscooee.models.trigger.elements.BaseElement;
-import com.letscooee.trigger.adapters.TriggerGsonDeserializer;
+import com.letscooee.utils.trigger.TriggerDataUtils;
 import java.util.ArrayList;
 
 public class InAppTrigger extends BaseElement {
@@ -135,6 +135,6 @@ public class InAppTrigger extends BaseElement {
      */
     @NonNull
     public static InAppTrigger fromJson(@NonNull String jsonString) throws JsonSyntaxException {
-        return TriggerGsonDeserializer.getGson().fromJson(jsonString, InAppTrigger.class);
+        return TriggerDataUtils.getGson().fromJson(jsonString, InAppTrigger.class);
     }
 }

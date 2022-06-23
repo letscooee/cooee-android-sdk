@@ -1,6 +1,12 @@
 package com.letscooee.enums.trigger;
 
+import android.text.TextUtils;
+import android.util.Log;
 import androidx.annotation.RestrictTo;
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
+import com.google.gson.reflect.TypeToken;
+import com.letscooee.utils.Constants;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -42,6 +48,20 @@ public enum PendingTriggerAction {
      */
     public static PendingTriggerAction fromValue(String action) {
         return STRING_TO_ENUM_MAPPING.get(action);
+    }
+
+    public static Map<String, String> parseRawData(String rawData) {
+        if (TextUtils.isEmpty(rawData)) {
+            return null;
+        }
+
+        try {
+            return new Gson().fromJson(rawData, new TypeToken<HashMap<String, String>>() {
+            }.getType());
+        } catch (JsonSyntaxException e) {
+            Log.e(Constants.TAG, "Fail to parse pending trigger data: ", e);
+            return null;
+        }
     }
 
 }
