@@ -80,5 +80,6 @@ public class Constants {
     // region Date Formats
     public static final String DATE_FORMAT_DEBUG = "dd-MMM-yyyy hh:mm a";
     public static final String DATE_FORMAT_UTC = "EEE MMM dd HH:mm:ss zzz yyyy";
+    public static final String ISO_DATE_FORMAT_UTC = "yyyy-MM-dd'T'HH:mm:ssZ";
     // endregion
 }

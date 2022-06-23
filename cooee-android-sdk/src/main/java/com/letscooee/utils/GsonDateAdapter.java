@@ -1,11 +1,15 @@
 package com.letscooee.utils;
 
 import androidx.annotation.RestrictTo;
-
-import com.google.gson.*;
-
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
 import java.lang.reflect.Type;
-import java.text.*;
+import java.text.ParseException;
 import java.util.Date;
 
 /**
@@ -18,6 +22,7 @@ import java.util.Date;
 public class GsonDateAdapter implements JsonSerializer<Date>, JsonDeserializer<Date> {
 
     public GsonDateAdapter() {
+        // No body
     }
 
     @Override
@@ -28,7 +33,7 @@ public class GsonDateAdapter implements JsonSerializer<Date>, JsonDeserializer<D
     @Override
     public synchronized Date deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) {
         try {
-            return DateUtils.getUTCDateFromString(jsonElement.getAsString(), Constants.DATE_FORMAT_UTC, true);
+            return DateUtils.getUTCDateFromString(jsonElement.getAsString(), Constants.ISO_DATE_FORMAT_UTC, true);
         } catch (ParseException e) {
             throw new JsonParseException(e);
         }

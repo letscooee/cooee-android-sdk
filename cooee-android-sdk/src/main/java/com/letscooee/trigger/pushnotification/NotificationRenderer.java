@@ -134,10 +134,11 @@ public abstract class NotificationRenderer {
     }
 
     private void setBuilder() {
+        Date sentAt = triggerData.getSentAt() == null ? new Date() : triggerData.getSentAt();
+
         this.notificationBuilder
                 .setAutoCancel(cancelPushOnClick())
-                // TODO: 11/06/21 It should be the date of engagement trigger planned
-                .setWhen(System.currentTimeMillis())
+                .setWhen(sentAt.getTime())
                 .setSmallIcon(context.getApplicationInfo().icon)
                 .setCustomContentView(smallContentViews)
                 .setCustomBigContentView(bigContentViews)
@@ -309,6 +310,10 @@ public abstract class NotificationRenderer {
      * @param bitmap The bitmap to add to the view
      */
     public void addSmallContentImage(int viewID, Bitmap bitmap) {
+        if (bitmap == null) {
+            return;
+        }
+
         showViewInSmallContentView(R.id.image_container);
         smallContentViews.setImageViewBitmap(viewID, bitmap);
     }

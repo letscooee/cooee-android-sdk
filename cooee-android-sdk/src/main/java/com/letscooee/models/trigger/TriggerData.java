@@ -8,6 +8,7 @@ import com.google.gson.annotations.SerializedName;
 import com.letscooee.models.trigger.inapp.InAppTrigger;
 import com.letscooee.models.trigger.push.PushNotificationTrigger;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,6 +25,10 @@ public class TriggerData implements Parcelable {
     private final boolean internal;
     private final Map<String, Object> config = new HashMap<>();
     private final long expireAt;
+
+    @SerializedName("sentAt")
+    @Expose
+    private final Date sentAt;
 
     @SerializedName("ar")
     @Expose
@@ -53,6 +58,7 @@ public class TriggerData implements Parcelable {
         in.readMap(config, Object.class.getClassLoader());
         expireAt = in.readLong();
         in.readMap(selfARData, Object.class.getClassLoader());
+        sentAt = (Date) in.readSerializable();
     }
 
     public static final Creator<TriggerData> CREATOR = new Creator<TriggerData>() {
@@ -108,6 +114,10 @@ public class TriggerData implements Parcelable {
         return expireAt;
     }
 
+    public Date getSentAt() {
+        return sentAt;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -125,5 +135,6 @@ public class TriggerData implements Parcelable {
         dest.writeMap(config);
         dest.writeLong(expireAt);
         dest.writeMap(selfARData);
+        dest.writeSerializable(sentAt);
     }
 }
