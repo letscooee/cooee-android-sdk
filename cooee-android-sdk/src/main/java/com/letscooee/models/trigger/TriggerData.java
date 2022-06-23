@@ -9,6 +9,7 @@ import com.google.gson.annotations.SerializedName;
 import com.letscooee.models.trigger.inapp.InAppTrigger;
 import com.letscooee.models.trigger.push.PushNotificationTrigger;
 import com.letscooee.utils.trigger.TriggerDataUtils;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -165,4 +166,9 @@ public class TriggerData implements Parcelable {
     public static TriggerData fromJson(@NonNull String jsonString) throws JsonSyntaxException {
         return TriggerDataUtils.getGson().fromJson(jsonString, TriggerData.class);
     }
+
+    public boolean isCurrentlySupported() {
+        return version >= 4 && version < 5;
+    }
+
 }

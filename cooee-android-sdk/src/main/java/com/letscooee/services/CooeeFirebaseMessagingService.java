@@ -24,9 +24,7 @@ import com.letscooee.trigger.cache.PendingTriggerService;
 import com.letscooee.trigger.pushnotification.SimpleNotificationRenderer;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.PendingIntentUtility;
-import com.letscooee.utils.trigger.TriggerDataUtils;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -109,19 +107,11 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
         TriggerData triggerData;
 
         try {
-            HashMap<String, Object> baseTriggerData = TriggerDataUtils.parse(rawTriggerData);
-            if (baseTriggerData == null) {
-                return;
-            }
-
-            Double version = (Double) baseTriggerData.get("v");
-            if (version == null || version >= 5 || version < 4) {
-                Log.d(Constants.TAG, "Unsupported payload version received " + version);
-                return;
-            }
-
             triggerData = TriggerData.fromJson(rawTriggerData);
-
+            if (triggerData.isCurrentlySupported()) {
+                Log.d(Constants.TAG, "Unsupported payload version received " + triggerData.getVersion());
+                return;
+            }
         } catch (JsonSyntaxException e) {
             CooeeFactory.getSentryHelper().captureException(e);
             return;
