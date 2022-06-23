@@ -18,6 +18,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import com.letscooee.BuildConfig;
+import com.letscooee.ContextAware;
 import com.letscooee.CooeeFactory;
 import com.letscooee.enums.trigger.PendingTriggerAction;
 import com.letscooee.models.trigger.TriggerData;
@@ -29,6 +30,7 @@ import com.letscooee.room.CooeeDatabase;
 import com.letscooee.room.trigger.PendingTrigger;
 import com.letscooee.trigger.InAppTriggerHelper;
 import com.letscooee.utils.Constants;
+
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Date;
@@ -42,9 +44,8 @@ import java.util.Map;
  * @since 1.3.12
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public class CacheTriggerContent {
+public class PendingTriggerService extends ContextAware {
 
-    private final Context context;
     private InAppTriggerHelper inAppTriggerHelper;
     private OnInAppContentLoadedListener contentLoadedListener;
     private List<String> imageList;
@@ -54,9 +55,8 @@ public class CacheTriggerContent {
     private final Type gsonMapType = new TypeToken<Map<String, Object>>() {
     }.getType();
 
-
-    public CacheTriggerContent(Context context) {
-        this.context = context;
+    public PendingTriggerService(Context context) {
+        super(context);
         cooeeDatabase = CooeeDatabase.getInstance(context);
     }
 
@@ -77,11 +77,11 @@ public class CacheTriggerContent {
         }
 
         if (!fetchInApp(triggerData)) {
-            removePendingTrigger(triggerData);
+            delete(triggerData);
             return;
         }
 
-        cooeeDatabase.pendingTriggerDAO().updatePendingTrigger(pendingTrigger);
+        cooeeDatabase.pendingTriggerDAO().update(pendingTrigger);
 
         if (inAppTriggerHelper == null) {
             inAppTriggerHelper = new InAppTriggerHelper();
@@ -104,12 +104,12 @@ public class CacheTriggerContent {
                 return;
             }
 
-            Map<String, Object> triggerDataMap = gson.fromJson(pendingTrigger.triggerData, gsonMapType);
+            Map<String, Object> triggerDataMap = gson.fromJson(pendingTrigger.data, gsonMapType);
             triggerDataMap.putAll(responseMap);
 
-            pendingTrigger.triggerData = gson.toJson(triggerDataMap);
+            pendingTrigger.data = gson.toJson(triggerDataMap);
             pendingTrigger.loadedLazyData = true;
-            this.cooeeDatabase.pendingTriggerDAO().updatePendingTrigger(pendingTrigger);
+            this.cooeeDatabase.pendingTriggerDAO().update(pendingTrigger);
             Log.v(Constants.TAG, "Updated " + pendingTrigger);
         });
     }
@@ -254,62 +254,45 @@ public class CacheTriggerContent {
         }
 
         PendingTrigger pendingTrigger = new PendingTrigger();
-        pendingTrigger.triggerTime = new Date().getTime();
+        pendingTrigger.dateCreated = new Date().getTime();
         pendingTrigger.triggerId = triggerData.getId();
         pendingTrigger.loadedLazyData = false;
-        pendingTrigger.triggerData = gson.toJson(triggerData);
+        pendingTrigger.data = gson.toJson(triggerData);
         pendingTrigger.scheduleAt = 0;
         pendingTrigger.sdkCode = BuildConfig.VERSION_CODE;
-        pendingTrigger.id = this.cooeeDatabase.pendingTriggerDAO().insertPendingTrigger(pendingTrigger);
+        pendingTrigger.id = this.cooeeDatabase.pendingTriggerDAO().insert(pendingTrigger);
         Log.v(Constants.TAG, "Created " + pendingTrigger);
         return pendingTrigger;
     }
 
-    public PendingTrigger getPendingTrigger() {
-        List<PendingTrigger> pendingTriggerList = this.cooeeDatabase.pendingTriggerDAO().getAllPendingTriggers();
-
-        if (pendingTriggerList == null || pendingTriggerList.isEmpty()) {
-            return null;
-        }
-
-        return pendingTriggerList.get(0);
+    /**
+     * Pull the latest pending trigger from the DB.
+     *
+     * @return The last stored PendingTrigger.
+     */
+    public PendingTrigger peep() {
+        return this.cooeeDatabase.pendingTriggerDAO().getFirst();
     }
 
     /**
      * Remove the {@link PendingTrigger} from the database. If the trigger is not found, it will do nothing.
      *
-     * @param pendingTriggerAction {@link PendingTriggerAction} to be perform.
-     * @param triggerID            the trigger id to be removed.
+     * @param action    {@link PendingTriggerAction} to be perform.
+     * @param triggerID the trigger id to be removed.
      */
-    public void updatePendingTriggerAction(PendingTriggerAction pendingTriggerAction, String triggerID) {
-        List<PendingTrigger> pendingTriggerList = this.cooeeDatabase.pendingTriggerDAO().getAllPendingTriggers();
+    public void delete(PendingTriggerAction action, String triggerID) {
+        List<PendingTrigger> pendingTriggerList = this.cooeeDatabase.pendingTriggerDAO().getAll();
 
         if (pendingTriggerList == null || pendingTriggerList.isEmpty()) {
             return;
         }
 
-        if (pendingTriggerAction == PendingTriggerAction.DELETE_FIRST) {
-            // delete latest trigger
-            this.cooeeDatabase.pendingTriggerDAO().deletePendingTrigger(pendingTriggerList.get(0));
-        } else if (pendingTriggerAction == PendingTriggerAction.DELETE_ALL) {
+        if (action == PendingTriggerAction.DELETE_ALL) {
             // delete all trigger
-            this.cooeeDatabase.pendingTriggerDAO().deleteAllPendingTriggers();
-        } else if (pendingTriggerAction == PendingTriggerAction.DELETE_LAST) {
-            // delete oldest trigger
-            this.cooeeDatabase.pendingTriggerDAO().deletePendingTrigger(pendingTriggerList.get(pendingTriggerList.size() - 1));
-        } else if (pendingTriggerAction == PendingTriggerAction.DELETE_ALL_EXCEPT_FIRST) {
+            this.cooeeDatabase.pendingTriggerDAO().deleteAll();
+        } else if (action == PendingTriggerAction.DELETE_ID && !TextUtils.isEmpty(triggerID)) {
             // delete all loaded trigger
-            for (int i = 1; i < pendingTriggerList.size(); i++) {
-                this.cooeeDatabase.pendingTriggerDAO().deletePendingTrigger(pendingTriggerList.get(i));
-            }
-        } else if (pendingTriggerAction == PendingTriggerAction.DELETE_ALL_EXCEPT_LAST) {
-            // delete all loaded trigger
-            for (int i = 0; i < pendingTriggerList.size() - 1; i++) {
-                this.cooeeDatabase.pendingTriggerDAO().deletePendingTrigger(pendingTriggerList.get(i));
-            }
-        } else if (pendingTriggerAction == PendingTriggerAction.DELETE_ID && !TextUtils.isEmpty(triggerID)) {
-            // delete all loaded trigger
-            this.cooeeDatabase.pendingTriggerDAO().deletePendingTriggerWithTriggerId(triggerID);
+            this.cooeeDatabase.pendingTriggerDAO().deleteByID(triggerID);
         }
     }
 
@@ -318,7 +301,7 @@ public class CacheTriggerContent {
      *
      * @param triggerData {@link TriggerData} whose pending trigger need to be removed
      */
-    public void removePendingTrigger(TriggerData triggerData) {
-        this.cooeeDatabase.pendingTriggerDAO().deletePendingTriggerWithTriggerId(triggerData.getId());
+    public void delete(TriggerData triggerData) {
+        this.delete(PendingTriggerAction.DELETE_ID, triggerData.getId());
     }
 }

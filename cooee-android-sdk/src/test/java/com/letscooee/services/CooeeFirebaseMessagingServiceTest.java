@@ -12,7 +12,7 @@ import com.letscooee.models.trigger.TriggerData;
 import com.letscooee.room.CooeeDatabase;
 import com.letscooee.room.trigger.PendingTrigger;
 import com.letscooee.trigger.EngagementTriggerHelper;
-import com.letscooee.trigger.cache.CacheTriggerContent;
+import com.letscooee.trigger.cache.PendingTriggerService;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,7 +27,7 @@ public class CooeeFirebaseMessagingServiceTest extends BaseTestCase {
     @Mock
     EngagementTriggerHelper engagementTriggerHelper;
 
-    CacheTriggerContent cachePayloadContent;
+    PendingTriggerService cachePayloadContent;
 
     @InjectMocks
     CooeeFirebaseMessagingService cooeeFirebaseMessagingService;
@@ -41,7 +41,7 @@ public class CooeeFirebaseMessagingServiceTest extends BaseTestCase {
         super.loadPayload();
 
         MockitoAnnotations.openMocks(this);
-        cachePayloadContent = spy(new CacheTriggerContent(context));
+        cachePayloadContent = spy(new PendingTriggerService(context));
         ReflectionHelpers.setField(cooeeFirebaseMessagingService, "cachePayloadContent", cachePayloadContent);
         ReflectionHelpers.setField(cooeeFirebaseMessagingService, "context", context);
         ReflectionHelpers.setField(cooeeFirebaseMessagingService, "engagementTriggerHelper", engagementTriggerHelper);
@@ -121,7 +121,7 @@ public class CooeeFirebaseMessagingServiceTest extends BaseTestCase {
         doNothing().when(cachePayloadContent).loadAndSaveTriggerData(any(PendingTrigger.class), any(TriggerData.class));
         cooeeFirebaseMessagingService.handleTriggerData(updatedPayload);
         verify(cachePayloadContent, times(1)).loadAndSaveTriggerData(any(PendingTrigger.class), any(TriggerData.class));
-        List<PendingTrigger> pendingTriggers = cooeeDatabase.pendingTriggerDAO().getAllPendingTriggers();
+        List<PendingTrigger> pendingTriggers = cooeeDatabase.pendingTriggerDAO().getAll();
         assertThat(pendingTriggers.size()).isGreaterThan(0);
         assertEquals(pendingTriggers.get(0).triggerId, payloadMap.get("id"));
     }
@@ -135,7 +135,7 @@ public class CooeeFirebaseMessagingServiceTest extends BaseTestCase {
         doNothing().when(cachePayloadContent).loadAndSaveTriggerData(any(PendingTrigger.class), any(TriggerData.class));
         cooeeFirebaseMessagingService.handleTriggerData(updatedPayload);
         verify(cachePayloadContent, times(1)).loadAndSaveTriggerData(any(PendingTrigger.class), any(TriggerData.class));
-        List<PendingTrigger> pendingTriggers = cooeeDatabase.pendingTriggerDAO().getAllPendingTriggers();
+        List<PendingTrigger> pendingTriggers = cooeeDatabase.pendingTriggerDAO().getAll();
         assertThat(pendingTriggers.size()).isGreaterThan(0);
         assertEquals(pendingTriggers.get(0).triggerId, payloadMap.get("id"));
     }
@@ -149,7 +149,7 @@ public class CooeeFirebaseMessagingServiceTest extends BaseTestCase {
         cooeeFirebaseMessagingService.handleTriggerData(updatedPayload);
         cooeeFirebaseMessagingService.handleTriggerData(updatedPayload);
         verify(cachePayloadContent, times(2)).loadAndSaveTriggerData(any(PendingTrigger.class), any(TriggerData.class));
-        List<PendingTrigger> pendingTriggers = cooeeDatabase.pendingTriggerDAO().getAllPendingTriggers();
+        List<PendingTrigger> pendingTriggers = cooeeDatabase.pendingTriggerDAO().getAll();
         assertThat(pendingTriggers.size()).isGreaterThan(0);
         assertEquals(pendingTriggers.get(0).triggerId, payloadMap.get("id"));
     }

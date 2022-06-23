@@ -13,7 +13,7 @@ import androidx.annotation.RestrictTo;
 import com.letscooee.CooeeFactory;
 import com.letscooee.models.Event;
 import com.letscooee.models.trigger.TriggerData;
-import com.letscooee.trigger.cache.CacheTriggerContent;
+import com.letscooee.trigger.cache.PendingTriggerService;
 import com.letscooee.utils.Constants;
 
 /**
@@ -80,6 +80,6 @@ public class PushNotificationIntentService extends IntentService {
 
         Event event = new Event("CE Notification Cancelled", triggerData);
         CooeeFactory.getSafeHTTPService().sendEventWithoutSession(event);
-        new CacheTriggerContent(getApplicationContext()).removePendingTrigger(triggerData);
+        new PendingTriggerService(getApplicationContext()).delete(triggerData);
     }
 }

@@ -1,11 +1,7 @@
 package com.letscooee.room.trigger;
 
-import androidx.room.Dao;
-import androidx.room.Delete;
-import androidx.room.Insert;
-import androidx.room.OnConflictStrategy;
-import androidx.room.Query;
-import androidx.room.Update;
+import androidx.room.*;
+
 import java.util.List;
 
 /**
@@ -16,24 +12,29 @@ import java.util.List;
  */
 @Dao
 public interface PendingTriggerDAO {
-    @Query("SELECT * FROM PendingTrigger where trigger_id = :triggerId limit 1")
-    PendingTrigger getPendingTriggerWithTriggerId(String triggerId);
 
-    @Query("SELECT * FROM PendingTrigger order by trigger_time desc")
-    List<PendingTrigger> getAllPendingTriggers();
+    @Query("SELECT * FROM PendingTrigger where trigger_id = :triggerId limit 1")
+    PendingTrigger getByID(String triggerId);
+
+    @Query("SELECT * FROM PendingTrigger order by date_created desc")
+    List<PendingTrigger> getAll();
+
+    @Query("SELECT * FROM PendingTrigger order by date_created desc limit 1")
+    PendingTrigger getFirst();
 
     @Insert
-    long insertPendingTrigger(PendingTrigger pendingTrigger);
+    long insert(PendingTrigger pendingTrigger);
 
     @Delete
-    void deletePendingTrigger(PendingTrigger pendingTrigger);
+    void delete(PendingTrigger pendingTrigger);
 
     @Update(onConflict = OnConflictStrategy.REPLACE)
-    void updatePendingTrigger(PendingTrigger pendingTrigger);
+    void update(PendingTrigger pendingTrigger);
 
     @Query("DELETE FROM PendingTrigger where trigger_id = :triggerId")
-    void deletePendingTriggerWithTriggerId(String triggerId);
+    void deleteByID(String triggerId);
 
     @Query("DELETE FROM PendingTrigger")
-    void deleteAllPendingTriggers();
+    void deleteAll();
+
 }

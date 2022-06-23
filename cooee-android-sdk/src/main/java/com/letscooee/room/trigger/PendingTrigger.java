@@ -17,14 +17,17 @@ public class PendingTrigger {
     @PrimaryKey(autoGenerate = true)
     public long id;
 
+    /**
+     * This is the trigger id of Cooee's Trigger.
+     */
     @ColumnInfo(name = "trigger_id")
     public String triggerId;
 
-    @ColumnInfo(name = "trigger_time")
-    public long triggerTime;
+    @ColumnInfo(name = "date_created")
+    public long dateCreated;
 
-    @ColumnInfo(name = "trigger_data")
-    public String triggerData;
+    @ColumnInfo(name = "data")
+    public String data;
 
     @ColumnInfo(name = "loaded_lazy_data")
     public boolean loadedLazyData;
@@ -35,6 +38,9 @@ public class PendingTrigger {
     @ColumnInfo(name = "sdk_code")
     public long sdkCode;
 
+    /**
+     * The unique id assigned to the {@link android.app.Notification};
+     */
     @ColumnInfo(name = "notification_id")
     public long notificationId;
 

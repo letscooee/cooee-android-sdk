@@ -17,7 +17,7 @@ import com.letscooee.BaseTestCase;
 import com.letscooee.models.trigger.EmbeddedTrigger;
 import com.letscooee.models.trigger.TriggerData;
 import com.letscooee.room.CooeeDatabase;
-import com.letscooee.trigger.cache.CacheTriggerContent;
+import com.letscooee.trigger.cache.PendingTriggerService;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -33,7 +33,7 @@ public class EngagementTriggerHelperTest extends BaseTestCase {
 
     EngagementTriggerHelper engagementTriggerHelperMock;
     EngagementTriggerHelper engagementTriggerHelper;
-    CacheTriggerContent cacheTriggerContent;
+    PendingTriggerService pendingTriggerService;
 
     @Before
     @Override
@@ -45,10 +45,10 @@ public class EngagementTriggerHelperTest extends BaseTestCase {
         database = Room.inMemoryDatabaseBuilder(context, CooeeDatabase.class).build();
         engagementTriggerHelper = new EngagementTriggerHelper(context);
         engagementTriggerHelperMock = Mockito.spy(engagementTriggerHelper);
-        cacheTriggerContent = Mockito.mock(CacheTriggerContent.class);
+        pendingTriggerService = Mockito.mock(PendingTriggerService.class);
         expiredTriggerData = TriggerData.fromJson(samplePayload);
         makeActiveTrigger();
-        ReflectionHelpers.setField(engagementTriggerHelperMock, "cacheTriggerContent", cacheTriggerContent);
+        ReflectionHelpers.setField(engagementTriggerHelperMock, "cacheTriggerContent", pendingTriggerService);
     }
 
     @Test
@@ -98,10 +98,10 @@ public class EngagementTriggerHelperTest extends BaseTestCase {
     public void render_in_app_from_json_string() {
         assertThat(samplePayload).isNotEmpty();
 
-        doNothing().when(cacheTriggerContent).loadAndCacheInAppContent(any(TriggerData.class));
+        doNothing().when(pendingTriggerService).loadAndCacheInAppContent(any(TriggerData.class));
         engagementTriggerHelperMock.renderInAppTriggerFromJSONString(samplePayload);
 
-        verify(cacheTriggerContent, times(1)).loadAndCacheInAppContent(any(TriggerData.class));
+        verify(pendingTriggerService, times(1)).loadAndCacheInAppContent(any(TriggerData.class));
     }
 
     @Test

@@ -8,6 +8,7 @@ import com.letscooee.network.BaseHTTPService;
 import com.letscooee.network.SafeHTTPService;
 import com.letscooee.retrofit.DeviceAuthService;
 import com.letscooee.room.task.PendingTaskService;
+import com.letscooee.trigger.cache.PendingTriggerService;
 import com.letscooee.user.SessionManager;
 import com.letscooee.utils.ManifestReader;
 import com.letscooee.utils.RuntimeData;
@@ -35,6 +36,7 @@ public class CooeeFactory {
     private static SafeHTTPService safeHTTPService;
     private static DeviceAuthService deviceAuthService;
     private static PendingTaskService pendingTaskService;
+    private static PendingTriggerService pendingTriggerService;
 
     private CooeeFactory() {
     }
@@ -60,6 +62,7 @@ public class CooeeFactory {
         deviceAuthService.populateUserDataFromStorage();
 
         pendingTaskService = new PendingTaskService(context, sentryHelper);
+        pendingTriggerService = new PendingTriggerService(context);
         runtimeData = RuntimeData.getInstance(context);
         sessionManager = SessionManager.getInstance(context);
         safeHTTPService = new SafeHTTPService(context, pendingTaskService, sessionManager, runtimeData);
@@ -108,4 +111,9 @@ public class CooeeFactory {
     public static PendingTaskService getPendingTaskService() {
         return pendingTaskService;
     }
+
+    public static PendingTriggerService getPendingTriggerService() {
+        return pendingTriggerService;
+    }
+
 }

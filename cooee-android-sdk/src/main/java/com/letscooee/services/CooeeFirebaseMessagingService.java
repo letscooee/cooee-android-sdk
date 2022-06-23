@@ -25,7 +25,7 @@ import com.letscooee.pushnotification.PushProviderUtils;
 import com.letscooee.room.CooeeDatabase;
 import com.letscooee.room.trigger.PendingTrigger;
 import com.letscooee.trigger.EngagementTriggerHelper;
-import com.letscooee.trigger.cache.CacheTriggerContent;
+import com.letscooee.trigger.cache.PendingTriggerService;
 import com.letscooee.trigger.pushnotification.SimpleNotificationRenderer;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.PendingIntentUtility;
@@ -43,7 +43,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
 
     private Context context;
     private EngagementTriggerHelper engagementTriggerHelper;
-    private CacheTriggerContent cachePayloadContent;
+    private PendingTriggerService pendingTriggerService;
     private CooeeDatabase cooeeDatabase;
     private PendingTrigger pendingTrigger;
 
@@ -77,15 +77,15 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
 
         FontProcessor.downloadFonts(context, remoteMessage.getData().get("fonts"));
         this.handleTriggerData(remoteMessage.getData().get("triggerData"));
-        this.handlePendingTrigger(remoteMessage.getData().get("pendingTrigger"));
+        this.handlePendingTriggerDeletion(remoteMessage.getData().get("pendingTrigger"));
     }
 
     /**
-     * Perform operations inf Pending trigger directly from the received payload.
+     * Perform delete operations in Pending trigger directly from the received payload.
      *
      * @param rawPendingTriggerAction {@link PendingTrigger}
      */
-    private void handlePendingTrigger(String rawPendingTriggerAction) {
+    private void handlePendingTriggerDeletion(String rawPendingTriggerAction) {
         if (TextUtils.isEmpty(rawPendingTriggerAction)) {
             return;
         }
@@ -98,14 +98,14 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
             return;
         }
 
-        if (this.cachePayloadContent == null) {
-            this.cachePayloadContent = new CacheTriggerContent(context);
+        if (this.pendingTriggerService == null) {
+            this.pendingTriggerService = new PendingTriggerService(context);
         }
 
-        PendingTriggerAction pendingTriggerAction = PendingTriggerAction.getPendingTriggerAction(pendingTriggerMap.get("a"));
+        PendingTriggerAction pendingTriggerAction = PendingTriggerAction.fromValue(pendingTriggerMap.get("a"));
         String triggerId = pendingTriggerMap.get("ti");
 
-        cachePayloadContent.updatePendingTriggerAction(pendingTriggerAction, triggerId);
+        pendingTriggerService.delete(pendingTriggerAction, triggerId);
     }
 
     /**
@@ -130,12 +130,8 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
             engagementTriggerHelper = new EngagementTriggerHelper(context);
         }
 
-        if (cachePayloadContent == null) {
-            cachePayloadContent = new CacheTriggerContent(context);
-        }
-
-        if (engagementTriggerHelper == null) {
-            engagementTriggerHelper = new EngagementTriggerHelper(context);
+        if (pendingTriggerService == null) {
+            pendingTriggerService = new PendingTriggerService(context);
         }
 
         if (cooeeDatabase == null) {
@@ -144,10 +140,6 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
 
         if (imageLoader == null) {
             imageLoader = new RemoteImageLoader(context);
-        }
-
-        if (cachePayloadContent == null) {
-            cachePayloadContent = new CacheTriggerContent(context);
         }
 
         TriggerData triggerData;
@@ -178,7 +170,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
         }
 
         if (triggerData.getPn() != null) {
-            pendingTrigger = cachePayloadContent.newTrigger(triggerData);
+            pendingTrigger = pendingTriggerService.newTrigger(triggerData);
             Event event = new Event("CE Notification Received", triggerData);
             CooeeFactory.getSafeHTTPService().sendEventWithoutSession(event);
 
@@ -195,7 +187,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
         renderer.render();
 
         pendingTrigger.notificationId = renderer.getNotificationID();
-        cachePayloadContent.loadAndSaveTriggerData(pendingTrigger, triggerData);
+        pendingTriggerService.loadAndSaveTriggerData(pendingTrigger, triggerData);
     }
 
     private NotificationCompat.Action[] createActionButtons(PushNotificationTrigger triggerData, int notificationID) {

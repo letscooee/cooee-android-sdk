@@ -23,7 +23,7 @@ import com.letscooee.models.trigger.blocks.ClickAction;
 import com.letscooee.room.CooeeDatabase;
 import com.letscooee.room.trigger.PendingTrigger;
 import com.letscooee.trigger.action.ClickActionExecutor;
-import com.letscooee.trigger.cache.CacheTriggerContent;
+import com.letscooee.trigger.cache.PendingTriggerService;
 import com.letscooee.trigger.inapp.InAppTriggerActivity;
 import com.letscooee.trigger.inapp.PreventBlurActivity;
 import com.letscooee.trigger.inapp.TriggerContext;
@@ -53,13 +53,13 @@ public class EngagementTriggerHelper {
     private final Context context;
     @SuppressLint("StaticFieldLeak")
     private static Activity currentActivity;
-    private final CacheTriggerContent cacheTriggerContent;
+    private final PendingTriggerService pendingTriggerService;
     private final CooeeDatabase cooeeDatabase;
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public EngagementTriggerHelper(Context context) {
         this.context = context;
-        cacheTriggerContent = new CacheTriggerContent(context);
+        pendingTriggerService = new PendingTriggerService(context);
         cooeeDatabase = CooeeDatabase.getInstance(context);
     }
 
@@ -182,8 +182,8 @@ public class EngagementTriggerHelper {
         }
 
         storeActiveTriggerDetails(context, triggerData);
-        cacheTriggerContent.setContentLoadedListener(() -> renderInAppTrigger(triggerData));
-        cacheTriggerContent.loadAndCacheInAppContent(triggerData);
+        pendingTriggerService.setContentLoadedListener(() -> renderInAppTrigger(triggerData));
+        pendingTriggerService.loadAndCacheInAppContent(triggerData);
 
     }
 
@@ -220,7 +220,7 @@ public class EngagementTriggerHelper {
             return;
         }
 
-        PendingTrigger pendingTrigger = cooeeDatabase.pendingTriggerDAO().getPendingTriggerWithTriggerId(triggerData.getId());
+        PendingTrigger pendingTrigger = cooeeDatabase.pendingTriggerDAO().getByID(triggerData.getId());
 
         if (pendingTrigger == null) {
             return;
@@ -232,7 +232,7 @@ public class EngagementTriggerHelper {
         }
 
         Log.v(Constants.TAG, "Deleting PendingTrigger( triggerId=" + triggerData.getId() + ")");
-        cooeeDatabase.pendingTriggerDAO().deletePendingTrigger(pendingTrigger);
+        cooeeDatabase.pendingTriggerDAO().delete(pendingTrigger);
     }
 
     /**
@@ -310,7 +310,7 @@ public class EngagementTriggerHelper {
             return;
         }
 
-        PendingTrigger pendingTrigger = cacheTriggerContent.getPendingTrigger();
+        PendingTrigger pendingTrigger = pendingTriggerService.peep();
 
         if (pendingTrigger == null) {
             return;
@@ -318,7 +318,7 @@ public class EngagementTriggerHelper {
 
         TriggerData triggerData;
         try {
-            triggerData = TriggerData.fromJson(pendingTrigger.triggerData);
+            triggerData = TriggerData.fromJson(pendingTrigger.data);
         } catch (JsonSyntaxException e) {
             CooeeFactory.getSentryHelper().captureException(e);
             return;
@@ -329,11 +329,11 @@ public class EngagementTriggerHelper {
         }
 
         if (!pendingTrigger.loadedLazyData) {
-            loadLazyData(TriggerData.fromJson(pendingTrigger.triggerData));
+            loadLazyData(TriggerData.fromJson(pendingTrigger.data));
             return;
         }
-        cacheTriggerContent.setContentLoadedListener(() -> renderInAppTrigger(triggerData));
-        cacheTriggerContent.loadAndCacheInAppContent(triggerData);
+        pendingTriggerService.setContentLoadedListener(() -> renderInAppTrigger(triggerData));
+        pendingTriggerService.loadAndCacheInAppContent(triggerData);
     }
 
 
@@ -390,7 +390,7 @@ public class EngagementTriggerHelper {
             return;
         }
 
-        PendingTrigger pendingTrigger = cooeeDatabase.pendingTriggerDAO().getPendingTriggerWithTriggerId(triggerData.getId());
+        PendingTrigger pendingTrigger = cooeeDatabase.pendingTriggerDAO().getByID(triggerData.getId());
 
         if (pendingTrigger == null) {
             Log.v(Constants.TAG, "Trigger with ID " + triggerData.getId() + " is already displayed");
@@ -402,9 +402,9 @@ public class EngagementTriggerHelper {
             return;
         }
 
-        TriggerData storedTrigger = TriggerData.fromJson((String) pendingTrigger.triggerData);
-        cacheTriggerContent.setContentLoadedListener(() -> renderInAppTrigger(storedTrigger));
-        cacheTriggerContent.loadAndCacheInAppContent(storedTrigger);
+        TriggerData storedTrigger = TriggerData.fromJson((String) pendingTrigger.data);
+        pendingTriggerService.setContentLoadedListener(() -> renderInAppTrigger(storedTrigger));
+        pendingTriggerService.loadAndCacheInAppContent(storedTrigger);
     }
 
     /**
@@ -416,8 +416,8 @@ public class EngagementTriggerHelper {
         new InAppTriggerHelper().loadLazyData(triggerData, (String rawInAppTrigger) -> {
             TriggerData inAppTriggerData = TriggerData.fromJson(rawInAppTrigger);
             triggerData.setInAppTrigger(inAppTriggerData.getInAppTrigger());
-            cacheTriggerContent.setContentLoadedListener(() -> renderInAppTrigger(triggerData));
-            cacheTriggerContent.loadAndCacheInAppContent(triggerData);
+            pendingTriggerService.setContentLoadedListener(() -> renderInAppTrigger(triggerData));
+            pendingTriggerService.loadAndCacheInAppContent(triggerData);
         });
     }
 
