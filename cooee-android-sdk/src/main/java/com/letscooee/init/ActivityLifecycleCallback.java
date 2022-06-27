@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.letscooee.CooeeFactory;
 import com.letscooee.device.DebugInfoActivity;
+import com.letscooee.enums.LaunchType;
 import com.letscooee.gesture.ShakeDetector;
 import com.letscooee.screenshot.ScreenshotHelper;
 import com.letscooee.screenshot.ScreenshotUtility;
@@ -16,6 +17,7 @@ import com.letscooee.trigger.CooeeEmptyActivity;
 import com.letscooee.trigger.EngagementTriggerHelper;
 import com.letscooee.trigger.inapp.InAppTriggerActivity;
 import com.letscooee.trigger.inapp.PreventBlurActivity;
+import com.letscooee.utils.RuntimeData;
 
 /**
  * Register callbacks of different lifecycle of all the activities.
@@ -26,10 +28,12 @@ import com.letscooee.trigger.inapp.PreventBlurActivity;
 public class ActivityLifecycleCallback implements Application.ActivityLifecycleCallbacks {
 
     private final Context context;
+    private final RuntimeData runtimeData;
     private ShakeDetector shakeDetector;
 
     ActivityLifecycleCallback(Context context) {
         this.context = context;
+        this.runtimeData = CooeeFactory.getRuntimeData();
     }
 
     @Override
@@ -47,10 +51,12 @@ public class ActivityLifecycleCallback implements Application.ActivityLifecycleC
         InAppTriggerActivity.captureWindowForBlurryEffect(activity);
         EngagementTriggerHelper.setCurrentActivity(activity);
 
-        new EngagementTriggerHelper(context).renderInAppFromPushNotification(activity);
-
         if (activity instanceof CooeeEmptyActivity) {
+            this.runtimeData.setLaunchType(LaunchType.PUSH_CLICK);
+            new EngagementTriggerHelper(context).renderInAppFromPushNotification(activity);
             activity.finish();
+        } else {
+            this.runtimeData.setLaunchType(LaunchType.ORGANIC);
         }
 
         registerShakeDetector(activity);

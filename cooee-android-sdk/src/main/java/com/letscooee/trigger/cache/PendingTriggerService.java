@@ -5,25 +5,17 @@ import android.text.TextUtils;
 import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.gson.Gson;
 import com.letscooee.BuildConfig;
 import com.letscooee.ContextAware;
 import com.letscooee.enums.trigger.PendingTriggerAction;
-import com.letscooee.loader.http.RemoteImageLoader;
 import com.letscooee.models.trigger.TriggerData;
-import com.letscooee.models.trigger.blocks.Background;
-import com.letscooee.models.trigger.elements.ImageElement;
-import com.letscooee.models.trigger.inapp.InAppTrigger;
 import com.letscooee.room.CooeeDatabase;
 import com.letscooee.room.trigger.PendingTrigger;
 import com.letscooee.trigger.InAppTriggerHelper;
-import java9.util.concurrent.CompletableFuture;
 import java9.util.stream.StreamSupport;
 
 import java.util.Date;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import static com.letscooee.utils.Constants.TAG;
@@ -62,7 +54,7 @@ public class PendingTriggerService extends ContextAware {
         }
 
         try {
-            new InAppTriggerHelper().loadLazyData(triggerData);
+            new InAppTriggerHelper(context, triggerData).loadLazyData();
         } catch (ExecutionException | InterruptedException e) {
             return;
         }
@@ -72,6 +64,10 @@ public class PendingTriggerService extends ContextAware {
 
         this.cooeeDatabase.pendingTriggerDAO().update(pendingTrigger);
         Log.v(TAG, "Updated " + pendingTrigger);
+    }
+
+    public PendingTrigger findForTrigger(TriggerData triggerData) {
+        return cooeeDatabase.pendingTriggerDAO().getByID(triggerData.getId());
     }
 
     /**
@@ -92,26 +88,6 @@ public class PendingTriggerService extends ContextAware {
         return StreamSupport.stream(triggerData.getFeatures())
                 .filter(feature -> feature != null && (feature == 2 || feature == 3))
                 .findFirst() != null;
-    }
-
-    /**
-     * Loops {@link InAppTrigger#getElements()} to loads the
-     * {@link Background#getImage()} and {@link ImageElement#getSrc()} and stores it in the cache.
-     * <p>
-     * It used {@link Glide}'s {@link DiskCacheStrategy#ALL} to cache the images.
-     *
-     * @param triggerData the trigger data to be loaded and cached.
-     */
-    public void loadAndCacheInAppContent(TriggerData triggerData) throws ExecutionException, InterruptedException {
-        if (triggerData == null || triggerData.getInAppTrigger() == null) {
-            return;
-        }
-
-        List<String> imageList = triggerData.getInAppTrigger().getImageURLs();
-        RemoteImageLoader loader = new RemoteImageLoader(this.context);
-        CompletableFuture<Void> future = loader.cacheAll(imageList);
-
-        future.get();
     }
 
     /**
@@ -175,4 +151,13 @@ public class PendingTriggerService extends ContextAware {
     public void delete(TriggerData triggerData) {
         this.delete(PendingTriggerAction.DELETE_ID, triggerData.getId());
     }
+
+    /**
+     * Removes {@link PendingTrigger}.
+     */
+    public void delete(PendingTrigger pendingTrigger) {
+        Log.v(TAG, "Deleting PendingTrigger");
+        this.cooeeDatabase.pendingTriggerDAO().delete(pendingTrigger);
+    }
+
 }

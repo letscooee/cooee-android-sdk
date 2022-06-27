@@ -11,7 +11,6 @@ import android.util.Log;
 import android.view.Window;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
-import androidx.core.app.NotificationManagerCompat;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.letscooee.BuildConfig;
@@ -20,7 +19,6 @@ import com.letscooee.models.Event;
 import com.letscooee.models.trigger.EmbeddedTrigger;
 import com.letscooee.models.trigger.TriggerData;
 import com.letscooee.models.trigger.blocks.ClickAction;
-import com.letscooee.room.CooeeDatabase;
 import com.letscooee.room.trigger.PendingTrigger;
 import com.letscooee.trigger.action.ClickActionExecutor;
 import com.letscooee.trigger.cache.PendingTriggerService;
@@ -33,7 +31,6 @@ import com.letscooee.utils.RuntimeData;
 import com.letscooee.utils.Timer;
 
 import java.util.*;
-import java.util.concurrent.ExecutionException;
 
 /**
  * A small helper class for any kind of engagement trigger like caching or retrieving from local storage.
@@ -45,19 +42,16 @@ import java.util.concurrent.ExecutionException;
 public class EngagementTriggerHelper {
 
     private static final long TIME_TO_WAIT_MILLIS = 6 * 1000L;
-    private static boolean shouldRenderOrganicInApp = true;
 
     @SuppressLint("StaticFieldLeak")
     private static Activity currentActivity;
 
     private final Context context;
     private final PendingTriggerService pendingTriggerService;
-    private final CooeeDatabase cooeeDatabase;
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public EngagementTriggerHelper(Context context) {
         this.context = context;
-        this.cooeeDatabase = CooeeDatabase.getInstance(context);
         this.pendingTriggerService = CooeeFactory.getPendingTriggerService();
     }
 
@@ -180,7 +174,7 @@ public class EngagementTriggerHelper {
         }
 
         storeActiveTriggerDetails(context, triggerData);
-        cacheAndRenderInApp(triggerData);
+        new InAppTriggerHelper(context, triggerData).precacheImagesAndRender();
     }
 
     /**
@@ -216,58 +210,13 @@ public class EngagementTriggerHelper {
             return;
         }
 
-        PendingTrigger pendingTrigger = cooeeDatabase.pendingTriggerDAO().getByID(triggerData.getId());
-
-        if (pendingTrigger == null) {
-            return;
-        }
-
-        Map<String, Object> triggerConfig = triggerData.getConfig();
-        if (removePN(triggerConfig)) {
-            NotificationManagerCompat.from(context).cancel((int) pendingTrigger.notificationId);
-        }
-
-        Log.v(Constants.TAG, "Deleting PendingTrigger( triggerId=" + triggerData.getId() + ")");
-        cooeeDatabase.pendingTriggerDAO().delete(pendingTrigger);
-    }
-
-    public void cacheAndRenderInApp(TriggerData triggerData) {
-        try {
-            pendingTriggerService.loadAndCacheInAppContent(triggerData);
-        } catch (ExecutionException | InterruptedException e) {
-            return;
-        }
-
-        renderInAppTrigger(triggerData);
-    }
-
-    /**
-     * Check for the {@code rmPN} key in given map to manage notification in the notification tray.
-     * <br><br>
-     * {@code rmPN} basically stands for <b>Remove Push Notification</b> from tray. It will be {@code true}
-     * to remove PN from tray other wise {@code false}.
-     * <b>By default if value is absent it will be {@code true}</b>.
-     * <ul>
-     * <li>If given <code>map</code> is <code>null</code> it will return <code>true</code>
-     *     (As default value to close PN is true).</li>
-     * <li>If given <code>map.get("rmPN")</code> is <code>null</code> it will return
-     *     <code>true</code> (As default value to close PN is true).</li>
-     * <li>If map.get("rmPN") is present it it will provide its value.</li>
-     * </ul>
-     *
-     * @param triggerConfig Configuration to remove push notification from tray
-     * @return Returns true to remove PN from tray other wise false
-     */
-    private boolean removePN(Map<String, Object> triggerConfig) {
-        //noinspection ConstantConditions
-        return triggerConfig == null || triggerConfig.get("rmPN") == null || ((boolean) triggerConfig.get("rmPN"));
+        new PushTriggerHelper(context, triggerData).removePushFromTray();
     }
 
     public void renderInAppFromPushNotification(@NonNull Activity activity) {
         Bundle bundle = activity.getIntent().getBundleExtra(Constants.INTENT_BUNDLE_KEY);
         // Should not go ahead if bundle is null
         if (bundle == null) {
-            handleOrganicLaunch(activity);
             return;
         }
 
@@ -302,22 +251,12 @@ public class EngagementTriggerHelper {
      *
      * @param activity {@link Activity} instance.
      */
-    private void handleOrganicLaunch(Activity activity) {
-        // Can not use runtimeData.isFirstForeground() because it's not updated till first background
-        // event, And this method is called  every activity resume event because we need instance
-        // of activity for glassmorphism.
-        if (!shouldRenderOrganicInApp) {
-            return;
-        }
-
-        shouldRenderOrganicInApp = false;
-
+    public void handleOrganicLaunch(Activity activity) {
         if (activity == null || activity instanceof PreventBlurActivity) {
             return;
         }
 
         PendingTrigger pendingTrigger = pendingTriggerService.peep();
-
         if (pendingTrigger == null) {
             return;
         }
@@ -339,7 +278,7 @@ public class EngagementTriggerHelper {
             return;
         }
 
-        cacheAndRenderInApp(triggerData);
+        new InAppTriggerHelper(context, triggerData).precacheImagesAndRender();
     }
 
     private void launchInApp(TriggerData triggerData, int sdkVersionCode) {
@@ -395,8 +334,7 @@ public class EngagementTriggerHelper {
             return;
         }
 
-        PendingTrigger pendingTrigger = cooeeDatabase.pendingTriggerDAO().getByID(triggerData.getId());
-
+        PendingTrigger pendingTrigger = this.pendingTriggerService.findForTrigger(triggerData);
         if (pendingTrigger == null) {
             Log.v(Constants.TAG, "Trigger with ID " + triggerData.getId() + " is already displayed");
             return;
@@ -408,7 +346,7 @@ public class EngagementTriggerHelper {
         }
 
         TriggerData storedTrigger = TriggerData.fromJson((String) pendingTrigger.data);
-        cacheAndRenderInApp(storedTrigger);
+        new InAppTriggerHelper(context, storedTrigger).render();
     }
 
     /**
@@ -416,15 +354,10 @@ public class EngagementTriggerHelper {
      *
      * @param triggerData Data to render in-app.
      */
+    @Deprecated
     public void lazyLoadAndDisplay(TriggerData triggerData) {
-        try {
-            new InAppTriggerHelper().loadLazyData(triggerData);
-        } catch (ExecutionException | InterruptedException e) {
-            // Error handled
-            return;
-        }
-
-        cacheAndRenderInApp(triggerData);
+        InAppTriggerHelper helper = new InAppTriggerHelper(context, triggerData);
+        helper.render();
     }
 
     /**
@@ -467,8 +400,7 @@ public class EngagementTriggerHelper {
     /**
      * Change {@code shouldRenderOrganicInApp} to {@code true} so pending InApp logic start working
      */
-    public static void allowPendingInAppRendering() {
-        EngagementTriggerHelper.shouldRenderOrganicInApp = true;
-        new EngagementTriggerHelper(currentActivity).handleOrganicLaunch(currentActivity);
+    public static void handleOrganicLaunch() {
+        new EngagementTriggerHelper(currentActivity.getApplicationContext()).handleOrganicLaunch(currentActivity);
     }
 }

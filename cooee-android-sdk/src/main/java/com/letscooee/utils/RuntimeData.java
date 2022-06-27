@@ -2,9 +2,9 @@ package com.letscooee.utils;
 
 import android.content.Context;
 import android.util.Log;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import com.letscooee.enums.LaunchType;
 
 import java.util.Date;
 
@@ -23,6 +23,7 @@ public class RuntimeData {
     private Date lastEnterForeground;
     private Date lastEnterBackground;
 
+    private LaunchType launchType;
     private String currentScreenName;
 
     public static RuntimeData getInstance(Context context) {
@@ -50,6 +51,7 @@ public class RuntimeData {
         Log.d(Constants.TAG, "App went to background");
         this.inBackground = true;
         this.lastEnterBackground = new Date();
+        this.launchType = null;
     }
 
     public void setInForeground() {
@@ -94,5 +96,16 @@ public class RuntimeData {
     public void setCurrentScreenName(String name) {
         Log.d(Constants.TAG, "Updated screen: " + name);
         this.currentScreenName = name;
+    }
+
+    public LaunchType getLaunchType() {
+        return launchType;
+    }
+
+    public void setLaunchType(LaunchType launchType) {
+        if (this.launchType != null) {
+            return;
+        }
+        this.launchType = launchType;
     }
 }
