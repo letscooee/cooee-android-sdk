@@ -2,13 +2,13 @@ package com.letscooee.models.trigger.elements;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
+import android.text.TextUtils;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.letscooee.models.trigger.blocks.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public abstract class BaseElement implements Parcelable {
 
@@ -128,4 +128,23 @@ public abstract class BaseElement implements Parcelable {
     public double getHeight() {
         return height;
     }
+
+    public String getBgImage() {
+        if (this.bg == null || this.bg.getImage() == null || TextUtils.isEmpty(this.bg.getImage().getSrc())) {
+            return null;
+        }
+
+        return this.bg.getImage().getSrc();
+    }
+
+    public List<String> getImageURLs() {
+        ArrayList<String> urls = new ArrayList<>();
+        String bgImage = this.getBgImage();
+        if (bgImage != null) {
+            urls.add(bgImage);
+        }
+
+        return urls;
+    }
+
 }

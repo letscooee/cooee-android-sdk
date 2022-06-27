@@ -119,7 +119,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
             showNotification(triggerData);
         } else {
             // This is just for testing locally when sending in-app only previews
-            engagementTriggerHelper.loadLazyData(triggerData);
+            engagementTriggerHelper.lazyLoadAndDisplay(triggerData);
         }
     }
 
@@ -128,8 +128,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
         SimpleNotificationRenderer renderer = new SimpleNotificationRenderer(context, triggerData);
         renderer.render();
 
-        pendingTrigger.notificationId = renderer.getNotificationID();
-        pendingTriggerService.loadAndSaveTriggerData(pendingTrigger, triggerData);
+        pendingTriggerService.lazyLoadAndUpdate(pendingTrigger, triggerData);
     }
 
 }

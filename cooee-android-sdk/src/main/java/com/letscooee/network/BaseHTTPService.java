@@ -143,8 +143,8 @@ public class BaseHTTPService extends ContextAware {
             throw new HttpRequestFailedException("Error on " + message, response.code(), response.body());
 
         } catch (IOException e) {
-            Log.e(Constants.TAG, "Exception in HTTP " + message, e);
-            throw new HttpRequestFailedException("Exception in HTTP " + message, e);
+            Log.e(Constants.TAG, "Exception in HTTP: " + message, e);
+            throw new HttpRequestFailedException("Exception in HTTP: " + message, e);
         }
     }
 }

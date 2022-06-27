@@ -159,7 +159,6 @@ dependencies {
     // region Retrofit dependencies
     api 'com.squareup.retrofit2:retrofit:2.9.0'
     api 'com.squareup.retrofit2:converter-gson:2.9.0'
-    api "com.squareup.retrofit2:adapter-rxjava2:2.4.0"
     // endregion
 
     // region Google Firebase dependencies
@@ -170,8 +169,7 @@ dependencies {
     // endregion
 
     // region RxJava dependencies
-    api 'io.reactivex.rxjava3:rxandroid:3.0.0'
-    api 'io.reactivex.rxjava3:rxjava:3.0.12'
+    api 'net.sourceforge.streamsupport:android-retrofuture:1.7.4'
     // endregion
 
     // region Google's additional dependencies

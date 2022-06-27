@@ -49,6 +49,8 @@ public class TriggerData implements Parcelable {
     @Deprecated
     private final long duration;
 
+    private final long pushNotificationID = new Date().getTime();
+
     protected TriggerData(Parcel in) {
         id = in.readString();
         version = in.readDouble();
@@ -87,6 +89,10 @@ public class TriggerData implements Parcelable {
 
     public String getId() {
         return id;
+    }
+
+    public long getNotificationID() {
+        return this.pushNotificationID;
     }
 
     public double getVersion() {
@@ -130,8 +136,9 @@ public class TriggerData implements Parcelable {
         return selfARData;
     }
 
+    @NonNull
     public ArrayList<Integer> getFeatures() {
-        return features;
+        return features == null ? new ArrayList<>() : features;
     }
 
     @Override

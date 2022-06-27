@@ -12,7 +12,11 @@ import com.letscooee.models.trigger.blocks.Background;
 import com.letscooee.models.trigger.blocks.ClickAction;
 import com.letscooee.models.trigger.elements.BaseElement;
 import com.letscooee.utils.trigger.TriggerDataUtils;
+import java9.util.stream.Collectors;
+import java9.util.stream.StreamSupport;
+
 import java.util.ArrayList;
+import java.util.List;
 
 public class InAppTrigger extends BaseElement {
 
@@ -56,8 +60,9 @@ public class InAppTrigger extends BaseElement {
         return container;
     }
 
+    @NonNull
     public ArrayList<BaseElement> getElements() {
-        return elements;
+        return elements != null ? elements : new ArrayList<>();
     }
 
     @Override
@@ -124,6 +129,13 @@ public class InAppTrigger extends BaseElement {
      */
     public Animation getAnimation() {
         return animation;
+    }
+
+    public List<String> getImageURLs() {
+        return StreamSupport.stream(elements)
+                .map(BaseElement::getImageURLs)
+                .flatMap(StreamSupport::stream)
+                .collect(Collectors.toList());
     }
 
     /**

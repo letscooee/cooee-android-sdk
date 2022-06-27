@@ -1,6 +1,10 @@
 package com.letscooee.models.trigger.elements;
 
 import android.os.Parcel;
+import android.text.TextUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ImageElement extends BaseElement {
 
@@ -32,4 +36,14 @@ public class ImageElement extends BaseElement {
     public String getSrc() {
         return src;
     }
+
+    public List<String> getImageURLs() {
+        List<String> urls = super.getImageURLs();
+        if (!TextUtils.isEmpty(src)) {
+            urls.add(src);
+        }
+
+        return urls;
+    }
+
 }

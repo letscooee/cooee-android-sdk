@@ -5,7 +5,10 @@ import com.letscooee.CooeeFactory;
 import com.letscooee.exceptions.HttpRequestFailedException;
 import com.letscooee.models.trigger.TriggerData;
 import com.letscooee.task.CooeeExecutors;
-import com.letscooee.utils.Closure;
+import java9.util.concurrent.CompletableFuture;
+
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 /**
  * A small helper class for in-app trigger for fetching data from server.
@@ -21,32 +24,35 @@ public class InAppTriggerHelper {
      * Load in-app data on a separate thread through a http call to server.
      *
      * @param triggerData engagement trigger {@link TriggerData}
-     * @param callback    callback on complete
      */
-    public void loadLazyData(TriggerData triggerData, Closure<String> callback) {
-        CooeeExecutors.getInstance().singleThreadExecutor().execute(() -> {
-            String rawInAppTrigger = gson.toJson(doHTTPForLazyData(triggerData.getId()));
+    public void loadLazyData(TriggerData triggerData) throws ExecutionException, InterruptedException {
+        CompletableFuture<Void> completableFuture = new CompletableFuture<>();
 
-            if (rawInAppTrigger == null) {
+        CooeeExecutors.getInstance().singleThreadExecutor().execute(() -> {
+            String triggerID = triggerData.getId();
+            Map<String, Object> response;
+
+            try {
+                response = CooeeFactory.getBaseHTTPService().getLazyData(triggerID);
+            } catch (HttpRequestFailedException e) {
+                CooeeFactory.getSentryHelper().captureException(e);
+                completableFuture.cancel(false);
                 return;
             }
 
-            callback.call(rawInAppTrigger);
+            String rawInAppTrigger = gson.toJson(response);
+
+            if (rawInAppTrigger == null) {
+                completableFuture.complete(null);
+                return;
+            }
+
+            TriggerData partialData = TriggerData.fromJson(rawInAppTrigger);
+            triggerData.setInAppTrigger(partialData.getInAppTrigger());
+            completableFuture.complete(null);
         });
+
+        completableFuture.get();
     }
 
-    /**
-     * Perform HTTP call to get IAN(In-App Notification Data) from server.
-     *
-     * @param id trigger id received from FCM
-     * @return response data from server
-     */
-    private Object doHTTPForLazyData(String id) {
-        try {
-            return CooeeFactory.getBaseHTTPService().getLazyData(id);
-        } catch (HttpRequestFailedException e) {
-            CooeeFactory.getSentryHelper().captureException(e);
-        }
-        return null;
-    }
 }

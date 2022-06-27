@@ -187,6 +187,10 @@ public class SentryHelper extends ContextAware {
         Log.d(Constants.TAG, "Sentry id of the exception: " + id);
     }
 
+    public void addBreadcrumb(String message) {
+        Sentry.addBreadcrumb(message);
+    }
+
     /**
      * Set Cooee's User id to Sentry's {@link User} so that this information can be shown in
      * the Sentry dashboard as well.

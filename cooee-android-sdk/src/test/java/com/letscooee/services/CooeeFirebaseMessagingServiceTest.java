@@ -57,17 +57,17 @@ public class CooeeFirebaseMessagingServiceTest extends BaseTestCase {
     }
 
     private void commonFailForUpdatedPayload(String payload) {
-        doNothing().when(engagementTriggerHelper).loadLazyData(any(TriggerData.class));
+        doNothing().when(engagementTriggerHelper).lazyLoadAndDisplay(any(TriggerData.class));
         cooeeFirebaseMessagingService.handleTriggerData(payload);
-        verify(engagementTriggerHelper, never()).loadLazyData(any(TriggerData.class));
+        verify(engagementTriggerHelper, never()).lazyLoadAndDisplay(any(TriggerData.class));
     }
 
     @Test
     public void handle_trigger_data_with_valid_data() {
         payloadMap.remove("pn");
-        doNothing().when(engagementTriggerHelper).loadLazyData(any(TriggerData.class));
+        doNothing().when(engagementTriggerHelper).lazyLoadAndDisplay(any(TriggerData.class));
         cooeeFirebaseMessagingService.handleTriggerData(gson.toJson(payloadMap));
-        verify(engagementTriggerHelper, times(1)).loadLazyData(any(TriggerData.class));
+        verify(engagementTriggerHelper, times(1)).lazyLoadAndDisplay(any(TriggerData.class));
     }
 
     @Test
@@ -118,9 +118,9 @@ public class CooeeFirebaseMessagingServiceTest extends BaseTestCase {
         payloadMap.put("ian", null);
         String updatedPayload = gson.toJson(payloadMap);
 
-        doNothing().when(cachePayloadContent).loadAndSaveTriggerData(any(PendingTrigger.class), any(TriggerData.class));
+        doNothing().when(cachePayloadContent).lazyLoadAndUpdate(any(PendingTrigger.class), any(TriggerData.class));
         cooeeFirebaseMessagingService.handleTriggerData(updatedPayload);
-        verify(cachePayloadContent, times(1)).loadAndSaveTriggerData(any(PendingTrigger.class), any(TriggerData.class));
+        verify(cachePayloadContent, times(1)).lazyLoadAndUpdate(any(PendingTrigger.class), any(TriggerData.class));
         List<PendingTrigger> pendingTriggers = cooeeDatabase.pendingTriggerDAO().getAll();
         assertThat(pendingTriggers.size()).isGreaterThan(0);
         assertEquals(pendingTriggers.get(0).triggerId, payloadMap.get("id"));
@@ -132,9 +132,9 @@ public class CooeeFirebaseMessagingServiceTest extends BaseTestCase {
         payloadMap.put("id", "1234");
         String updatedPayload = gson.toJson(payloadMap);
 
-        doNothing().when(cachePayloadContent).loadAndSaveTriggerData(any(PendingTrigger.class), any(TriggerData.class));
+        doNothing().when(cachePayloadContent).lazyLoadAndUpdate(any(PendingTrigger.class), any(TriggerData.class));
         cooeeFirebaseMessagingService.handleTriggerData(updatedPayload);
-        verify(cachePayloadContent, times(1)).loadAndSaveTriggerData(any(PendingTrigger.class), any(TriggerData.class));
+        verify(cachePayloadContent, times(1)).lazyLoadAndUpdate(any(PendingTrigger.class), any(TriggerData.class));
         List<PendingTrigger> pendingTriggers = cooeeDatabase.pendingTriggerDAO().getAll();
         assertThat(pendingTriggers.size()).isGreaterThan(0);
         assertEquals(pendingTriggers.get(0).triggerId, payloadMap.get("id"));
@@ -145,10 +145,10 @@ public class CooeeFirebaseMessagingServiceTest extends BaseTestCase {
         payloadMap.put("ian", null);
         String updatedPayload = gson.toJson(payloadMap);
 
-        doNothing().when(cachePayloadContent).loadAndSaveTriggerData(any(PendingTrigger.class), any(TriggerData.class));
+        doNothing().when(cachePayloadContent).lazyLoadAndUpdate(any(PendingTrigger.class), any(TriggerData.class));
         cooeeFirebaseMessagingService.handleTriggerData(updatedPayload);
         cooeeFirebaseMessagingService.handleTriggerData(updatedPayload);
-        verify(cachePayloadContent, times(2)).loadAndSaveTriggerData(any(PendingTrigger.class), any(TriggerData.class));
+        verify(cachePayloadContent, times(2)).lazyLoadAndUpdate(any(PendingTrigger.class), any(TriggerData.class));
         List<PendingTrigger> pendingTriggers = cooeeDatabase.pendingTriggerDAO().getAll();
         assertThat(pendingTriggers.size()).isGreaterThan(0);
         assertEquals(pendingTriggers.get(0).triggerId, payloadMap.get("id"));

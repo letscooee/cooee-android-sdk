@@ -1,41 +1,32 @@
 package com.letscooee.trigger.cache;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.text.TextUtils;
 import android.util.Log;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.load.engine.GlideException;
-import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.RequestOptions;
-import com.bumptech.glide.request.target.Target;
 import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
-import com.google.gson.reflect.TypeToken;
 import com.letscooee.BuildConfig;
 import com.letscooee.ContextAware;
-import com.letscooee.CooeeFactory;
 import com.letscooee.enums.trigger.PendingTriggerAction;
+import com.letscooee.loader.http.RemoteImageLoader;
 import com.letscooee.models.trigger.TriggerData;
 import com.letscooee.models.trigger.blocks.Background;
-import com.letscooee.models.trigger.elements.BaseElement;
 import com.letscooee.models.trigger.elements.ImageElement;
 import com.letscooee.models.trigger.inapp.InAppTrigger;
 import com.letscooee.room.CooeeDatabase;
 import com.letscooee.room.trigger.PendingTrigger;
 import com.letscooee.trigger.InAppTriggerHelper;
-import com.letscooee.utils.Constants;
+import java9.util.concurrent.CompletableFuture;
+import java9.util.stream.StreamSupport;
 
-import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
+import java.util.concurrent.ExecutionException;
+
+import static com.letscooee.utils.Constants.TAG;
 
 /**
  * Store the payload and cache all the content of InApp to local cache.
@@ -46,14 +37,8 @@ import java.util.Map;
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class PendingTriggerService extends ContextAware {
 
-    private InAppTriggerHelper inAppTriggerHelper;
-    private OnInAppContentLoadedListener contentLoadedListener;
-    private List<String> imageList;
-    private List<String> loadedImageList;
     private final Gson gson = new Gson();
     private final CooeeDatabase cooeeDatabase;
-    private final Type gsonMapType = new TypeToken<Map<String, Object>>() {
-    }.getType();
 
     public PendingTriggerService(Context context) {
         super(context);
@@ -61,57 +46,32 @@ public class PendingTriggerService extends ContextAware {
     }
 
     /**
-     * Loads engagement data for the {@code triggerData} and stores it in the local storage.
+     * Loads lazy data for the {@code triggerData} and update it in the local storage.
      *
      * @param pendingTrigger {@link PendingTrigger} object whose data need to be updated.
      * @param triggerData    the trigger data to be loaded and cached.
      */
-    public void loadAndSaveTriggerData(PendingTrigger pendingTrigger, TriggerData triggerData) {
-        // Saves notification id to pending trigger.
-        if (pendingTrigger == null) {
+    public void lazyLoadAndUpdate(PendingTrigger pendingTrigger, TriggerData triggerData) {
+        if (pendingTrigger == null || triggerData == null || TextUtils.isEmpty(triggerData.getId())) {
             return;
         }
 
-        if (triggerData == null || TextUtils.isEmpty(triggerData.getId())) {
-            return;
-        }
-
-        if (!shouldFetchInApp(triggerData)) {
+        if (!shouldLazyLoad(triggerData)) {
             delete(triggerData);
             return;
         }
 
-        cooeeDatabase.pendingTriggerDAO().update(pendingTrigger);
-
-        if (inAppTriggerHelper == null) {
-            inAppTriggerHelper = new InAppTriggerHelper();
+        try {
+            new InAppTriggerHelper().loadLazyData(triggerData);
+        } catch (ExecutionException | InterruptedException e) {
+            return;
         }
 
-        inAppTriggerHelper.loadLazyData(triggerData, (String rawInAppTrigger) -> {
-            if (rawInAppTrigger == null) {
-                return;
-            }
+        pendingTrigger.data = gson.toJson(triggerData);
+        pendingTrigger.loadedLazyData = true;
 
-            Map<String, Object> responseMap;
-            try {
-                responseMap = gson.fromJson(rawInAppTrigger, gsonMapType);
-            } catch (JsonSyntaxException e) {
-                CooeeFactory.getSentryHelper().captureException("Fail to parse in-app trigger data", e);
-                return;
-            }
-
-            if (responseMap == null || responseMap.isEmpty()) {
-                return;
-            }
-
-            Map<String, Object> triggerDataMap = gson.fromJson(pendingTrigger.data, gsonMapType);
-            triggerDataMap.putAll(responseMap);
-
-            pendingTrigger.data = gson.toJson(triggerDataMap);
-            pendingTrigger.loadedLazyData = true;
-            this.cooeeDatabase.pendingTriggerDAO().update(pendingTrigger);
-            Log.v(Constants.TAG, "Updated " + pendingTrigger);
-        });
+        this.cooeeDatabase.pendingTriggerDAO().update(pendingTrigger);
+        Log.v(TAG, "Updated " + pendingTrigger);
     }
 
     /**
@@ -128,18 +88,10 @@ public class PendingTriggerService extends ContextAware {
      * @param triggerData {@link TriggerData} object to be checked.
      * @return true if InApp/AR is present, false otherwise.
      */
-    private boolean shouldFetchInApp(@NonNull TriggerData triggerData) {
-        if (triggerData.getFeatures() == null || triggerData.getFeatures().isEmpty()) {
-            return true;
-        }
-
-        for (Integer feature : triggerData.getFeatures()) {
-            if (feature != null && (feature == 2 || feature == 3)) {
-                return true;
-            }
-        }
-
-        return false;
+    private boolean shouldLazyLoad(@NonNull TriggerData triggerData) {
+        return StreamSupport.stream(triggerData.getFeatures())
+                .filter(feature -> feature != null && (feature == 2 || feature == 3))
+                .findFirst() != null;
     }
 
     /**
@@ -148,98 +100,18 @@ public class PendingTriggerService extends ContextAware {
      * <p>
      * It used {@link Glide}'s {@link DiskCacheStrategy#ALL} to cache the images.
      *
-     * @param inAppTriggerData the trigger data to be loaded and cached.
+     * @param triggerData the trigger data to be loaded and cached.
      */
-    public void loadAndCacheInAppContent(TriggerData inAppTriggerData) {
-        if (inAppTriggerData == null || inAppTriggerData.getInAppTrigger() == null) {
+    public void loadAndCacheInAppContent(TriggerData triggerData) throws ExecutionException, InterruptedException {
+        if (triggerData == null || triggerData.getInAppTrigger() == null) {
             return;
         }
 
-        List<BaseElement> elementList = inAppTriggerData.getInAppTrigger().getElements();
+        List<String> imageList = triggerData.getInAppTrigger().getImageURLs();
+        RemoteImageLoader loader = new RemoteImageLoader(this.context);
+        CompletableFuture<Void> future = loader.cacheAll(imageList);
 
-        if (elementList == null || elementList.isEmpty()) {
-            return;
-        }
-
-        imageList = new ArrayList<>();
-        loadedImageList = new ArrayList<>();
-        for (BaseElement element : elementList) {
-            Background background = element.getBg();
-            if (background != null && background.getImage() != null) {
-                imageList.add(background.getImage().getSrc());
-            }
-
-            if (element instanceof ImageElement && !TextUtils.isEmpty(((ImageElement) element).getSrc())) {
-                imageList.add(((ImageElement) element).getSrc());
-            }
-        }
-
-        for (String imageURL : imageList) {
-            loadImage(imageURL, 1);
-        }
-
-    }
-
-    /**
-     * Loads the image from the {@code imageUrl} and stores it in the cache.
-     *
-     * @param imageURL the image url to be loaded.
-     * @param attempt  current attempt to load the image.
-     */
-    public void loadImage(String imageURL, int attempt) {
-        Glide.with(context)
-                .asBitmap()
-                .load(imageURL)
-                .apply(new RequestOptions().diskCacheStrategy(DiskCacheStrategy.ALL))
-                .diskCacheStrategy(DiskCacheStrategy.ALL)
-                .listener(new RequestListener<Bitmap>() {
-
-                    @Override
-                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Bitmap> target, boolean isFirstResource) {
-                        if (attempt <= 3) {
-                            loadImage(imageURL, attempt + 1);
-                        } else {
-                            loadedImageList.add(imageURL);
-                            if (loadedImageList.size() == imageList.size()) {
-                                sendCallback();
-                            }
-                        }
-
-                        return true;
-                    }
-
-                    @Override
-                    public boolean onResourceReady(Bitmap resource, Object model, Target<Bitmap> target, DataSource dataSource, boolean isFirstResource) {
-                        loadedImageList.add(imageURL);
-                        if (loadedImageList.size() == imageList.size()) {
-                            sendCallback();
-                        }
-
-                        return true;
-                    }
-                })
-                .preload();
-    }
-
-    /**
-     * Sends the callback to the {@link com.letscooee.trigger.EngagementTriggerHelper} to notify
-     * that the images are loaded.
-     */
-    private void sendCallback() {
-        if (contentLoadedListener != null) {
-            contentLoadedListener.onInAppContentLoaded();
-        }
-        imageList = null;
-        contentLoadedListener = null;
-    }
-
-    /**
-     * set {@link OnInAppContentLoadedListener} to class.
-     *
-     * @param contentLoadedListener {@link OnInAppContentLoadedListener}
-     */
-    public void setContentLoadedListener(OnInAppContentLoadedListener contentLoadedListener) {
-        this.contentLoadedListener = contentLoadedListener;
+        future.get();
     }
 
     /**
@@ -259,9 +131,10 @@ public class PendingTriggerService extends ContextAware {
         pendingTrigger.loadedLazyData = false;
         pendingTrigger.data = gson.toJson(triggerData);
         pendingTrigger.scheduleAt = 0;
+        pendingTrigger.notificationId = triggerData.getNotificationID();
         pendingTrigger.sdkCode = BuildConfig.VERSION_CODE;
         pendingTrigger.id = this.cooeeDatabase.pendingTriggerDAO().insert(pendingTrigger);
-        Log.v(Constants.TAG, "Created " + pendingTrigger);
+        Log.v(TAG, "Created " + pendingTrigger);
         return pendingTrigger;
     }
 

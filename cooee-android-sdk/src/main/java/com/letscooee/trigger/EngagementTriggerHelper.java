@@ -31,12 +31,9 @@ import com.letscooee.utils.Constants;
 import com.letscooee.utils.LocalStorageHelper;
 import com.letscooee.utils.RuntimeData;
 import com.letscooee.utils.Timer;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
-import java.util.Objects;
+
+import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 /**
  * A small helper class for any kind of engagement trigger like caching or retrieving from local storage.
@@ -50,17 +47,18 @@ public class EngagementTriggerHelper {
     private static final long TIME_TO_WAIT_MILLIS = 6 * 1000L;
     private static boolean shouldRenderOrganicInApp = true;
 
-    private final Context context;
     @SuppressLint("StaticFieldLeak")
     private static Activity currentActivity;
+
+    private final Context context;
     private final PendingTriggerService pendingTriggerService;
     private final CooeeDatabase cooeeDatabase;
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public EngagementTriggerHelper(Context context) {
         this.context = context;
-        pendingTriggerService = new PendingTriggerService(context);
-        cooeeDatabase = CooeeDatabase.getInstance(context);
+        this.cooeeDatabase = CooeeDatabase.getInstance(context);
+        this.pendingTriggerService = CooeeFactory.getPendingTriggerService();
     }
 
     /**
@@ -182,9 +180,7 @@ public class EngagementTriggerHelper {
         }
 
         storeActiveTriggerDetails(context, triggerData);
-        pendingTriggerService.setContentLoadedListener(() -> renderInAppTrigger(triggerData));
-        pendingTriggerService.loadAndCacheInAppContent(triggerData);
-
+        cacheAndRenderInApp(triggerData);
     }
 
     /**
@@ -233,6 +229,16 @@ public class EngagementTriggerHelper {
 
         Log.v(Constants.TAG, "Deleting PendingTrigger( triggerId=" + triggerData.getId() + ")");
         cooeeDatabase.pendingTriggerDAO().delete(pendingTrigger);
+    }
+
+    public void cacheAndRenderInApp(TriggerData triggerData) {
+        try {
+            pendingTriggerService.loadAndCacheInAppContent(triggerData);
+        } catch (ExecutionException | InterruptedException e) {
+            return;
+        }
+
+        renderInAppTrigger(triggerData);
     }
 
     /**
@@ -329,13 +335,12 @@ public class EngagementTriggerHelper {
         }
 
         if (!pendingTrigger.loadedLazyData) {
-            loadLazyData(TriggerData.fromJson(pendingTrigger.data));
+            lazyLoadAndDisplay(TriggerData.fromJson(pendingTrigger.data));
             return;
         }
-        pendingTriggerService.setContentLoadedListener(() -> renderInAppTrigger(triggerData));
-        pendingTriggerService.loadAndCacheInAppContent(triggerData);
-    }
 
+        cacheAndRenderInApp(triggerData);
+    }
 
     private void launchInApp(TriggerData triggerData, int sdkVersionCode) {
         RuntimeData runtimeData = CooeeFactory.getRuntimeData();
@@ -373,7 +378,7 @@ public class EngagementTriggerHelper {
          * rendered via which sdk version.
          */
         if (sdkVersionCode < 10312) {
-            loadLazyData(triggerData);
+            lazyLoadAndDisplay(triggerData);
         } else {
             checkAndLoadInApp(triggerData);
         }
@@ -398,13 +403,12 @@ public class EngagementTriggerHelper {
         }
 
         if (!pendingTrigger.loadedLazyData) {
-            loadLazyData(triggerData);
+            lazyLoadAndDisplay(triggerData);
             return;
         }
 
         TriggerData storedTrigger = TriggerData.fromJson((String) pendingTrigger.data);
-        pendingTriggerService.setContentLoadedListener(() -> renderInAppTrigger(storedTrigger));
-        pendingTriggerService.loadAndCacheInAppContent(storedTrigger);
+        cacheAndRenderInApp(storedTrigger);
     }
 
     /**
@@ -412,13 +416,15 @@ public class EngagementTriggerHelper {
      *
      * @param triggerData Data to render in-app.
      */
-    public void loadLazyData(TriggerData triggerData) {
-        new InAppTriggerHelper().loadLazyData(triggerData, (String rawInAppTrigger) -> {
-            TriggerData inAppTriggerData = TriggerData.fromJson(rawInAppTrigger);
-            triggerData.setInAppTrigger(inAppTriggerData.getInAppTrigger());
-            pendingTriggerService.setContentLoadedListener(() -> renderInAppTrigger(triggerData));
-            pendingTriggerService.loadAndCacheInAppContent(triggerData);
-        });
+    public void lazyLoadAndDisplay(TriggerData triggerData) {
+        try {
+            new InAppTriggerHelper().loadLazyData(triggerData);
+        } catch (ExecutionException | InterruptedException e) {
+            // Error handled
+            return;
+        }
+
+        cacheAndRenderInApp(triggerData);
     }
 
     /**
