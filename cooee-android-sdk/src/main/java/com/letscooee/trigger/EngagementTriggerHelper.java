@@ -1,6 +1,5 @@
 package com.letscooee.trigger;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -43,15 +42,14 @@ public class EngagementTriggerHelper {
 
     private static final long TIME_TO_WAIT_MILLIS = 6 * 1000L;
 
-    @SuppressLint("StaticFieldLeak")
-    private static Activity currentActivity;
-
     private final Context context;
+    private final RuntimeData runtimeData;
     private final PendingTriggerService pendingTriggerService;
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public EngagementTriggerHelper(Context context) {
         this.context = context;
+        this.runtimeData = CooeeFactory.getRuntimeData();
         this.pendingTriggerService = CooeeFactory.getPendingTriggerService();
     }
 
@@ -186,14 +184,13 @@ public class EngagementTriggerHelper {
             return;
         }
 
-        RuntimeData runtimeData = CooeeFactory.getRuntimeData();
         if (runtimeData.isInBackground()) {
             Log.i(Constants.TAG, "Won't render in-app. App is in background");
             return;
         }
 
         try {
-            boolean isInFullscreenMode = !isStatusBarVisible();
+            boolean isInFullscreenMode = !isStatusBarVisible(runtimeData.getCurrentActivity());
             Intent intent = new Intent(context, InAppTriggerActivity.class);
             Bundle sendBundle = new Bundle();
             sendBundle.putParcelable(Constants.INTENT_TRIGGER_DATA_KEY, triggerData);
@@ -246,11 +243,24 @@ public class EngagementTriggerHelper {
     }
 
     /**
-     * Show last queued InApp on organic app launch.
-     *
-     * @param activity {@link Activity} instance.
+     * This is a safe method which ultimately calls {@link #handleOrganicLaunch()} and catches all the exception.
      */
-    public void handleOrganicLaunch(Activity activity) throws InvalidTriggerDataException {
+    public void handleOrganicLaunchSafe() {
+        try {
+            this.handleOrganicLaunch();
+        } catch (InvalidTriggerDataException e) {
+            // Error already logged to Sentry
+        } catch (Exception e) {
+            // Make sure no exception is thrown which should crash the app launch/resume
+            CooeeFactory.getSentryHelper().captureException("Unhandled exception in organic launch in-app ", e);
+        }
+    }
+
+    /**
+     * Show last queued InApp on organic app launch.
+     */
+    private void handleOrganicLaunch() throws InvalidTriggerDataException {
+        Activity activity = this.runtimeData.getCurrentActivity();
         if (activity == null || activity instanceof PreventBlurActivity) {
             return;
         }
@@ -261,6 +271,7 @@ public class EngagementTriggerHelper {
         }
 
         TriggerData triggerData = pendingTrigger.getTriggerData();
+
         new InAppTriggerHelper(context, triggerData).render();
     }
 
@@ -332,43 +343,21 @@ public class EngagementTriggerHelper {
     }
 
     /**
-     * Keeps track of the currently active {@link Activity}.
-     *
-     * @param currentActivity The currently active {@link Activity}.
-     */
-    public static void setCurrentActivity(Activity currentActivity) {
-        EngagementTriggerHelper.currentActivity = currentActivity;
-    }
-
-    /**
      * Check if status bar is visible or not for current {@link Activity}
      *
      * @return {@code true} if status bar is visible, {@code false} otherwise
      */
-    private boolean isStatusBarVisible() {
-        if (currentActivity == null) {
+    public static boolean isStatusBarVisible(Activity activity) {
+        if (activity == null) {
+            // Assume it's visible
             return true;
         }
 
         Rect rectangle = new Rect();
-        Window window = currentActivity.getWindow();
+        Window window = activity.getWindow();
         window.getDecorView().getWindowVisibleDisplayFrame(rectangle);
         int statusBarHeight = rectangle.top;
         return statusBarHeight != 0;
-    }
-
-    /**
-     * Change {@code shouldRenderOrganicInApp} to {@code true} so pending InApp logic start working
-     */
-    public static void handleOrganicLaunch() {
-        EngagementTriggerHelper helper = new EngagementTriggerHelper(currentActivity.getApplicationContext());
-
-        try {
-            helper.handleOrganicLaunch(currentActivity);
-        } catch (InvalidTriggerDataException e) {
-            e.printStackTrace();
-            // No need to rethrow
-        }
     }
 
 }

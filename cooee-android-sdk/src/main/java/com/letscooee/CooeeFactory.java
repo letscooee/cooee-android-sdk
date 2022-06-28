@@ -26,6 +26,7 @@ import io.sentry.Sentry;
 public class CooeeFactory {
 
     private static boolean initialized;
+    private static Context context;
     private static AppInfo appInfo;
     private static DeviceInfo deviceInfo;
     private static RuntimeData runtimeData;
@@ -42,6 +43,7 @@ public class CooeeFactory {
     }
 
     public synchronized static void init(Context context) {
+        CooeeFactory.context = context;
         if (initialized) {
             return;
         }
@@ -70,6 +72,10 @@ public class CooeeFactory {
         transaction.finish();
 
         initialized = true;
+    }
+
+    public static Context getContext() {
+        return context;
     }
 
     public static AppInfo getAppInfo() {

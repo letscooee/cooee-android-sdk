@@ -7,12 +7,10 @@ import android.os.Build;
 import android.os.Bundle;
 import android.view.*;
 import android.widget.RelativeLayout;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.app.AppCompatActivity;
-
 import com.letscooee.CooeeFactory;
 import com.letscooee.R;
 import com.letscooee.models.Event;
@@ -22,22 +20,21 @@ import com.letscooee.models.trigger.inapp.InAppTrigger;
 import com.letscooee.permission.PermissionManager;
 import com.letscooee.trigger.inapp.renderer.InAppTriggerRenderer;
 import com.letscooee.utils.Constants;
+import com.letscooee.utils.RuntimeData;
 import com.letscooee.utils.SentryHelper;
+import jp.wasabeef.blurry.Blurry;
 
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import jp.wasabeef.blurry.Blurry;
-
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class InAppTriggerActivity extends AppCompatActivity implements PreventBlurActivity {
-
-    private static Window lastActiveWindow;
 
     private TriggerData triggerData;
     private InAppTrigger inAppData;
 
+    private final RuntimeData runtimeData;
     private final SentryHelper sentryHelper;
     private final TriggerContext triggerContext = new TriggerContext();
 
@@ -48,6 +45,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
 
     public InAppTriggerActivity() {
         sentryHelper = CooeeFactory.getSentryHelper();
+        runtimeData = CooeeFactory.getRuntimeData();
     }
 
     @Override
@@ -74,7 +72,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
             }
 
             inAppData = triggerData.getInAppTrigger();
-            this.triggerContext.setViewGroupForBlurry((ViewGroup) lastActiveWindow.getDecorView());
+            this.triggerContext.setViewGroupForBlurry(this.getDecorView());
             this.triggerContext.onExit(data -> this.finish());
             this.triggerContext.setTriggerData(triggerData);
             this.triggerContext.setMakeInAppFullScreen(makeInAppFullScreen);
@@ -148,17 +146,16 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
 
     /**
      * To make the Glassmorphosis effect working, we need to capture the {@link Window} from last active/visible {@link Activity}.
-     *
-     * @param activity The current opened/visible activity.
+     * This method returns the {@link ViewGroup} from the last activity.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public static void captureWindowForBlurryEffect(@NonNull Activity activity) {
+    public ViewGroup getDecorView() {
+        Activity activity = this.runtimeData.getCurrentActivity();
         // Exclude activities from this plugin or which includes PreventBlurActivity
-        if (activity instanceof PreventBlurActivity) {
-            return;
+        if (activity == null || activity instanceof PreventBlurActivity) {
+            return null;
         }
 
-        lastActiveWindow = activity.getWindow();
+        return (ViewGroup) activity.getWindow().getDecorView();
     }
 
     @Override
@@ -220,4 +217,5 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
          */
         CooeeFactory.getDeviceInfo().initializeResource();
     }
+
 }

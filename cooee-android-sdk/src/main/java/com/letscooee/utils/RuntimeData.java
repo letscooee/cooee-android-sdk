@@ -1,5 +1,6 @@
 package com.letscooee.utils;
 
+import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
 import androidx.annotation.NonNull;
@@ -25,6 +26,7 @@ public class RuntimeData {
 
     private LaunchType launchType;
     private String currentScreenName;
+    private Activity currentActivity;
 
     public static RuntimeData getInstance(Context context) {
         if (instance == null) {
@@ -108,4 +110,18 @@ public class RuntimeData {
         }
         this.launchType = launchType;
     }
+
+    public Activity getCurrentActivity() {
+        return currentActivity;
+    }
+
+    /**
+     * Keeps track of the currently active {@link Activity}.
+     *
+     * @param activity The currently active {@link Activity}.
+     */
+    public void setCurrentActivity(Activity activity) {
+        this.currentActivity = activity;
+    }
+
 }

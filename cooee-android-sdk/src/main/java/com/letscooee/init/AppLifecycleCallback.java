@@ -51,7 +51,7 @@ class AppLifecycleCallback implements DefaultLifecycleObserver {
         boolean isNewSession = willCreateNewSession || runtimeData.isFirstForeground();
 
         if (isNewSession && this.runtimeData.getLaunchType() == LaunchType.ORGANIC) {
-            EngagementTriggerHelper.handleOrganicLaunch();
+            new EngagementTriggerHelper(context).handleOrganicLaunchSafe();
         }
 
         if (runtimeData.isFirstForeground()) {
@@ -98,4 +98,5 @@ class AppLifecycleCallback implements DefaultLifecycleObserver {
             safeHTTPService.sendEvent(event);
         });
     }
+
 }

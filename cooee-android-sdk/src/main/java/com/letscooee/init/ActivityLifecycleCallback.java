@@ -15,7 +15,6 @@ import com.letscooee.screenshot.ScreenshotHelper;
 import com.letscooee.screenshot.ScreenshotUtility;
 import com.letscooee.trigger.CooeeEmptyActivity;
 import com.letscooee.trigger.EngagementTriggerHelper;
-import com.letscooee.trigger.inapp.InAppTriggerActivity;
 import com.letscooee.trigger.inapp.PreventBlurActivity;
 import com.letscooee.utils.RuntimeData;
 
@@ -48,8 +47,7 @@ public class ActivityLifecycleCallback implements Application.ActivityLifecycleC
 
     @Override
     public void onActivityResumed(@NonNull Activity activity) {
-        InAppTriggerActivity.captureWindowForBlurryEffect(activity);
-        EngagementTriggerHelper.setCurrentActivity(activity);
+        this.runtimeData.setCurrentActivity(activity);
 
         if (activity instanceof CooeeEmptyActivity) {
             this.runtimeData.setLaunchType(LaunchType.PUSH_CLICK);
@@ -104,6 +102,7 @@ public class ActivityLifecycleCallback implements Application.ActivityLifecycleC
 
     @Override
     public void onActivityDestroyed(@NonNull Activity activity) {
-        // Activity distroyed
+        // Activity destroyed
     }
+
 }

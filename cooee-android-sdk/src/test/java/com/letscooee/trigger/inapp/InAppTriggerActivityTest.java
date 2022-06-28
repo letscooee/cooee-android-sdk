@@ -1,9 +1,5 @@
 package com.letscooee.trigger.inapp;
 
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -11,8 +7,9 @@ import androidx.annotation.NonNull;
 import androidx.room.Room;
 import com.letscooee.BaseTestCase;
 import com.letscooee.TestCaseActivity;
-import com.letscooee.models.trigger.TriggerData;
+import com.letscooee.exceptions.InvalidTriggerDataException;
 import com.letscooee.room.CooeeDatabase;
+import com.letscooee.trigger.TriggerDataHelper;
 import com.letscooee.utils.Constants;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,6 +17,8 @@ import org.robolectric.Robolectric;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.android.controller.ActivityController;
 import org.robolectric.util.ReflectionHelpers;
+
+import static org.mockito.Mockito.*;
 
 public class InAppTriggerActivityTest extends BaseTestCase {
 
@@ -47,7 +46,7 @@ public class InAppTriggerActivityTest extends BaseTestCase {
         Room.inMemoryDatabaseBuilder(context, CooeeDatabase.class).build();
 
         dummyActivity = Robolectric.buildActivity(TestCaseActivity.class).create().get();
-        InAppTriggerActivity.captureWindowForBlurryEffect(dummyActivity);
+        runtimeData.setCurrentActivity(dummyActivity);
     }
 
     private void createIntent() {
@@ -72,7 +71,12 @@ public class InAppTriggerActivityTest extends BaseTestCase {
     private void updatePayloadAndIntent(@NonNull PayloadProperty property) {
         String updatedPayload = samplePayload.replace(property.name().toLowerCase(), property.name().toLowerCase() + "x");
 
-        triggerData = TriggerData.fromJson(updatedPayload);
+        try {
+            triggerData = TriggerDataHelper.parse(updatedPayload);
+        } catch (InvalidTriggerDataException e) {
+            e.printStackTrace();
+        }
+
         Bundle bundle = new Bundle();
         bundle.putParcelable(Constants.INTENT_TRIGGER_DATA_KEY, triggerData);
         validIntent.putExtra("bundle", bundle);
@@ -211,4 +215,5 @@ public class InAppTriggerActivityTest extends BaseTestCase {
 
         commonTestCheck(controller, spy, false);
     }
+
 }
