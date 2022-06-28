@@ -27,7 +27,7 @@ import static com.google.firebase.messaging.Constants.TAG;
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class LazyTriggerLoader {
 
-    private TriggerData triggerData;
+    private final TriggerData triggerData;
     private final PendingTriggerService pendingTriggerService;
     private final CompletableFuture<Void> completableFuture = new CompletableFuture<>();
 
@@ -51,10 +51,10 @@ public class LazyTriggerLoader {
         }
 
         try {
-            // Update the global variable as it is coming from DB
-            triggerData = pendingTrigger.getTriggerData();
+            TriggerData cachedTriggerData = pendingTrigger.getTriggerData();
+            this.updateTriggerData(cachedTriggerData);
         } catch (InvalidTriggerDataException e) {
-            return;
+            // Suppress the error and continue to load from the server
         }
 
         this.load();
@@ -95,14 +95,19 @@ public class LazyTriggerLoader {
 
         TriggerData partialData;
         try {
-            partialData = TriggerDataHelper.parse(rawTriggerData);
+            partialData = TriggerDataHelper.parseOnly(rawTriggerData);
         } catch (InvalidTriggerDataException e) {
             completableFuture.obtrudeException(e);
             return;
         }
 
-        triggerData.setInAppTrigger(partialData.getInAppTrigger());
+        this.updateTriggerData(partialData);
         completableFuture.complete(null);
+    }
+
+    private void updateTriggerData(TriggerData updatedTriggerData) {
+        triggerData.setInAppTrigger(updatedTriggerData.getInAppTrigger());
+        // TODO add for self-ar
     }
 
 }

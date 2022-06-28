@@ -53,15 +53,25 @@ public class TriggerDataHelper {
      * @throws JsonSyntaxException if the JSON string is not valid.
      */
     @NonNull
-    public static TriggerData parse(@NonNull String jsonString) throws InvalidTriggerDataException {
-        TriggerData triggerData;
-
+    public static TriggerData parseOnly(@NonNull String jsonString) throws InvalidTriggerDataException {
         try {
-            triggerData = getGson().fromJson(jsonString, TriggerData.class);
+            return getGson().fromJson(jsonString, TriggerData.class);
         } catch (JsonSyntaxException e) {
             CooeeFactory.getSentryHelper().captureException(e);
             throw new TriggerDataParseException(e, jsonString);
         }
+    }
+
+    /**
+     * Deserialize {@link TriggerData} from JSON string and validate it.
+     *
+     * @param jsonString JSON string to deserialize.
+     * @return @{@link TriggerData} object.
+     * @throws JsonSyntaxException if the JSON string is not valid.
+     */
+    @NonNull
+    public static TriggerData parse(@NonNull String jsonString) throws InvalidTriggerDataException {
+        TriggerData triggerData = parseOnly(jsonString);
 
         if (TextUtils.isEmpty(triggerData.getId())) {
             throw new InvalidTriggerDataException("Trigger id is missing", triggerData);
