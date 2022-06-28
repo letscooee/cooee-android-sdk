@@ -5,15 +5,16 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
-import com.google.gson.JsonSyntaxException;
 import com.letscooee.CooeeFactory;
 import com.letscooee.enums.trigger.PendingTriggerAction;
+import com.letscooee.exceptions.InvalidTriggerDataException;
 import com.letscooee.font.FontProcessor;
 import com.letscooee.models.Event;
 import com.letscooee.models.trigger.TriggerData;
 import com.letscooee.pushnotification.PushProviderUtils;
 import com.letscooee.room.trigger.PendingTrigger;
-import com.letscooee.trigger.EngagementTriggerHelper;
+import com.letscooee.trigger.InAppTriggerHelper;
+import com.letscooee.trigger.TriggerDataHelper;
 import com.letscooee.trigger.cache.PendingTriggerService;
 import com.letscooee.trigger.pushnotification.SimpleNotificationRenderer;
 import com.letscooee.utils.Constants;
@@ -29,7 +30,6 @@ import java.util.Map;
 public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
 
     private final Context context;
-    private final EngagementTriggerHelper engagementTriggerHelper;
     private final PendingTriggerService pendingTriggerService;
 
     @SuppressWarnings("unused")
@@ -44,7 +44,6 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
      */
     public CooeeFirebaseMessagingService(Context context) {
         this.context = context != null ? context : getApplicationContext();
-        this.engagementTriggerHelper = new EngagementTriggerHelper(context);
         this.pendingTriggerService = new PendingTriggerService(context);
     }
 
@@ -94,21 +93,13 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
         PushProviderUtils.pushTokenRefresh(token);
     }
 
+    // TODO why this is public?
     public void handleTriggerData(String rawTriggerData) {
         TriggerData triggerData;
 
         try {
-            triggerData = TriggerData.fromJson(rawTriggerData);
-            if (triggerData.isCurrentlySupported()) {
-                Log.d(Constants.TAG, "Unsupported payload version received " + triggerData.getVersion());
-                return;
-            }
-        } catch (JsonSyntaxException e) {
-            CooeeFactory.getSentryHelper().captureException(e);
-            return;
-        }
-
-        if (triggerData.getId() == null) {
+            triggerData = TriggerDataHelper.parse(rawTriggerData);
+        } catch (InvalidTriggerDataException e) {
             return;
         }
 
@@ -119,7 +110,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
             showNotification(triggerData);
         } else {
             // This is just for testing locally when sending in-app only previews
-            engagementTriggerHelper.lazyLoadAndDisplay(triggerData);
+            new InAppTriggerHelper(context, triggerData).render();
         }
     }
 

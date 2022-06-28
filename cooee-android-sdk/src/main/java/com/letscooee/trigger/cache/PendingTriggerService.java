@@ -3,7 +3,6 @@ package com.letscooee.trigger.cache;
 import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
-import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import com.google.gson.Gson;
 import com.letscooee.BuildConfig;
@@ -12,8 +11,7 @@ import com.letscooee.enums.trigger.PendingTriggerAction;
 import com.letscooee.models.trigger.TriggerData;
 import com.letscooee.room.CooeeDatabase;
 import com.letscooee.room.trigger.PendingTrigger;
-import com.letscooee.trigger.InAppTriggerHelper;
-import java9.util.stream.StreamSupport;
+import com.letscooee.trigger.LazyTriggerLoader;
 
 import java.util.Date;
 import java.util.concurrent.ExecutionException;
@@ -48,19 +46,18 @@ public class PendingTriggerService extends ContextAware {
             return;
         }
 
-        if (!shouldLazyLoad(triggerData)) {
+        if (!triggerData.shouldLazyLoad()) {
             delete(triggerData);
             return;
         }
 
         try {
-            new InAppTriggerHelper(context, triggerData).loadLazyData();
+            new LazyTriggerLoader(triggerData).load();
         } catch (ExecutionException | InterruptedException e) {
             return;
         }
 
         pendingTrigger.data = gson.toJson(triggerData);
-        pendingTrigger.loadedLazyData = true;
 
         this.cooeeDatabase.pendingTriggerDAO().update(pendingTrigger);
         Log.v(TAG, "Updated " + pendingTrigger);
@@ -68,26 +65,6 @@ public class PendingTriggerService extends ContextAware {
 
     public PendingTrigger findForTrigger(TriggerData triggerData) {
         return cooeeDatabase.pendingTriggerDAO().getByID(triggerData.getId());
-    }
-
-    /**
-     * Checks if feature is present or not.
-     * <ul>
-     *     <li>If its null, will allow to load InApp from server</li>
-     *     <li>If its empty, will allow to load InApp from server</li>
-     *     <li>If its present, Will loop and check if there is any feature except PN is present or not.</li>
-     *     <ol>
-     *         <li>If present, Will allow loading data from server</li>
-     *     </ol>
-     * </ul>
-     *
-     * @param triggerData {@link TriggerData} object to be checked.
-     * @return true if InApp/AR is present, false otherwise.
-     */
-    private boolean shouldLazyLoad(@NonNull TriggerData triggerData) {
-        return StreamSupport.stream(triggerData.getFeatures())
-                .filter(feature -> feature != null && (feature == 2 || feature == 3))
-                .findFirst() != null;
     }
 
     /**
@@ -104,7 +81,6 @@ public class PendingTriggerService extends ContextAware {
         PendingTrigger pendingTrigger = new PendingTrigger();
         pendingTrigger.dateCreated = new Date().getTime();
         pendingTrigger.triggerId = triggerData.getId();
-        pendingTrigger.loadedLazyData = false;
         pendingTrigger.data = gson.toJson(triggerData);
         pendingTrigger.scheduleAt = 0;
         pendingTrigger.notificationId = triggerData.getNotificationID();

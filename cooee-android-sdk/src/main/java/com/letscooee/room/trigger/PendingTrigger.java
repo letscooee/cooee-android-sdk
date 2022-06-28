@@ -4,6 +4,9 @@ import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
+import com.letscooee.exceptions.InvalidTriggerDataException;
+import com.letscooee.models.trigger.TriggerData;
+import com.letscooee.trigger.TriggerDataHelper;
 
 /**
  * Entity class for pending trigger which need to displayed.
@@ -13,6 +16,8 @@ import androidx.room.PrimaryKey;
  */
 @Entity
 public class PendingTrigger {
+
+    private TriggerData triggerData;
 
     @PrimaryKey(autoGenerate = true)
     public long id;
@@ -28,9 +33,6 @@ public class PendingTrigger {
 
     @ColumnInfo(name = "data")
     public String data;
-
-    @ColumnInfo(name = "loaded_lazy_data")
-    public boolean loadedLazyData;
 
     @ColumnInfo(name = "schedule_at")
     public long scheduleAt;
@@ -49,4 +51,14 @@ public class PendingTrigger {
     public String toString() {
         return "PendingTrigger(id=" + id + ", triggerId=" + triggerId + ", sdkCode=" + sdkCode + ")";
     }
+
+    public TriggerData getTriggerData() throws InvalidTriggerDataException {
+        if (triggerData != null) {
+            return triggerData;
+        }
+
+        this.triggerData = TriggerDataHelper.parse(this.data);
+        return triggerData;
+    }
+
 }

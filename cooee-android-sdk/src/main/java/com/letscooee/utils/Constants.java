@@ -86,4 +86,8 @@ public class Constants {
     public static final String DATE_FORMAT_UTC = "EEE MMM dd HH:mm:ss zzz yyyy";
     public static final String ISO_DATE_FORMAT_UTC = "yyyy-MM-dd'T'HH:mm:ssZ";
     // endregion
+
+    public static final int FEATURE_PUSH = 1;
+    public static final int FEATURE_IN_APP = 2;
+    public static final int FEATURE_SELF_AR = 3;
 }

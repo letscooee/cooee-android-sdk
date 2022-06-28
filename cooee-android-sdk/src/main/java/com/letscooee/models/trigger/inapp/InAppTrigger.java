@@ -11,7 +11,7 @@ import com.letscooee.models.trigger.blocks.Animation;
 import com.letscooee.models.trigger.blocks.Background;
 import com.letscooee.models.trigger.blocks.ClickAction;
 import com.letscooee.models.trigger.elements.BaseElement;
-import com.letscooee.utils.trigger.TriggerDataUtils;
+import com.letscooee.trigger.TriggerDataHelper;
 import java9.util.stream.Collectors;
 import java9.util.stream.StreamSupport;
 
@@ -147,6 +147,6 @@ public class InAppTrigger extends BaseElement {
      */
     @NonNull
     public static InAppTrigger fromJson(@NonNull String jsonString) throws JsonSyntaxException {
-        return TriggerDataUtils.getGson().fromJson(jsonString, InAppTrigger.class);
+        return TriggerDataHelper.getGson().fromJson(jsonString, InAppTrigger.class);
     }
 }

@@ -1,21 +1,18 @@
 package com.letscooee.trigger;
 
 import android.content.Context;
+import android.util.Log;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.google.gson.Gson;
-import com.letscooee.CooeeFactory;
-import com.letscooee.exceptions.HttpRequestFailedException;
 import com.letscooee.loader.http.RemoteImageLoader;
 import com.letscooee.models.trigger.TriggerData;
 import com.letscooee.models.trigger.blocks.Background;
 import com.letscooee.models.trigger.elements.ImageElement;
 import com.letscooee.models.trigger.inapp.InAppTrigger;
-import com.letscooee.task.CooeeExecutors;
+import com.letscooee.utils.Constants;
 import java9.util.concurrent.CompletableFuture;
 
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -26,8 +23,6 @@ import java.util.concurrent.ExecutionException;
  */
 public class InAppTriggerHelper {
 
-    private static final Gson gson = new Gson();
-
     private final Context context;
     private final TriggerData triggerData;
 
@@ -37,6 +32,8 @@ public class InAppTriggerHelper {
     }
 
     public void render() {
+        Log.d(Constants.TAG, "Render " + triggerData);
+
         try {
             this.loadLazyData();
             this.precacheImages();
@@ -52,50 +49,8 @@ public class InAppTriggerHelper {
     /**
      * Load in-app data on a separate thread through a http call to server.
      */
-    public void loadLazyData() throws ExecutionException, InterruptedException {
-        if (this.triggerData.getInAppTrigger() != null) {
-            return;
-        }
-
-        CompletableFuture<Void> completableFuture = new CompletableFuture<>();
-
-        CooeeExecutors.getInstance().singleThreadExecutor().execute(() -> {
-            String triggerID = triggerData.getId();
-            Map<String, Object> response;
-
-            try {
-                response = CooeeFactory.getBaseHTTPService().getLazyData(triggerID);
-            } catch (HttpRequestFailedException e) {
-                CooeeFactory.getSentryHelper().captureException(e);
-                completableFuture.cancel(false);
-                return;
-            }
-
-            String rawInAppTrigger = gson.toJson(response);
-
-            if (rawInAppTrigger == null) {
-                completableFuture.complete(null);
-                return;
-            }
-
-            TriggerData partialData = TriggerData.fromJson(rawInAppTrigger);
-            triggerData.setInAppTrigger(partialData.getInAppTrigger());
-            completableFuture.complete(null);
-        });
-
-        completableFuture.get();
-    }
-
-    @Deprecated
-    public void precacheImagesAndRender() {
-        try {
-            this.precacheImages();
-        } catch (ExecutionException | InterruptedException e) {
-            return;
-        }
-
-        // TODO clean this up
-        new EngagementTriggerHelper(context).renderInAppTrigger(triggerData);
+    private void loadLazyData() throws ExecutionException, InterruptedException {
+        new LazyTriggerLoader(triggerData).load();
     }
 
     /**

@@ -3,12 +3,13 @@ package com.letscooee.models.trigger;
 import android.os.Parcel;
 import android.os.Parcelable;
 import androidx.annotation.NonNull;
-import com.google.gson.JsonSyntaxException;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import com.letscooee.exceptions.InvalidTriggerDataException;
 import com.letscooee.models.trigger.inapp.InAppTrigger;
 import com.letscooee.models.trigger.push.PushNotificationTrigger;
-import com.letscooee.utils.trigger.TriggerDataUtils;
+import com.letscooee.trigger.TriggerDataHelper;
+import com.letscooee.utils.Constants;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -162,20 +163,44 @@ public class TriggerData implements Parcelable {
         dest.writeList(features);
     }
 
-    /**
-     * Deserialize @{@link TriggerData} from JSON.
-     *
-     * @param jsonString JSON string to deserialize.
-     * @return @{@link TriggerData} object.
-     * @throws JsonSyntaxException if the JSON string is not valid.
-     */
     @NonNull
-    public static TriggerData fromJson(@NonNull String jsonString) throws JsonSyntaxException {
-        return TriggerDataUtils.getGson().fromJson(jsonString, TriggerData.class);
+    @Override
+    public String toString() {
+        return "Trigger{" +
+                "id='" + id + '\'' +
+                '}';
+    }
+
+    @NonNull
+    @Deprecated
+    // TODO Fix test cases and remove this method
+    public static TriggerData fromJson(@NonNull String jsonString) throws InvalidTriggerDataException {
+        return TriggerDataHelper.parse(jsonString);
     }
 
     public boolean isCurrentlySupported() {
         return version >= 4 && version < 5;
+    }
+
+    /**
+     * Checks if IN_APP or SELF_AR features are present or not.
+     * <ul>
+     *     <li>If its null, will allow to load InApp from server</li>
+     *     <li>If its empty, will allow to load InApp from server</li>
+     *     <li>If its present, Will loop and check if there is any feature except PN is present or not.</li>
+     *     <ol>
+     *         <li>If present, Will allow loading data from server</li>
+     *     </ol>
+     * </ul>
+     *
+     * @return true if InApp/AR is present, false otherwise.
+     */
+    public boolean shouldLazyLoad() {
+        if (getFeatures().contains(Constants.FEATURE_IN_APP) && getInAppTrigger() == null) {
+            return true;
+        }
+        // TODO add check for self AR object
+        return getFeatures().contains(Constants.FEATURE_SELF_AR);
     }
 
 }

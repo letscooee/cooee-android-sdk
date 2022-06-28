@@ -12,9 +12,9 @@ import android.view.Window;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
 import com.letscooee.BuildConfig;
 import com.letscooee.CooeeFactory;
+import com.letscooee.exceptions.InvalidTriggerDataException;
 import com.letscooee.models.Event;
 import com.letscooee.models.trigger.EmbeddedTrigger;
 import com.letscooee.models.trigger.TriggerData;
@@ -167,14 +167,13 @@ public class EngagementTriggerHelper {
 
         TriggerData triggerData;
         try {
-            triggerData = TriggerData.fromJson(rawTriggerData);
-        } catch (JsonSyntaxException e) {
-            CooeeFactory.getSentryHelper().captureException(e);
+            triggerData = TriggerDataHelper.parse(rawTriggerData);
+        } catch (InvalidTriggerDataException e) {
             return;
         }
 
         storeActiveTriggerDetails(context, triggerData);
-        new InAppTriggerHelper(context, triggerData).precacheImagesAndRender();
+        new InAppTriggerHelper(context, triggerData).render();
     }
 
     /**
@@ -206,7 +205,7 @@ public class EngagementTriggerHelper {
             // Store trigger in-case in-app is sent
             setActiveTrigger(context, triggerData);
         } catch (Exception ex) {
-            CooeeFactory.getSentryHelper().captureException("Couldn't show Engagement Trigger", ex);
+            CooeeFactory.getSentryHelper().captureException("Failed to show In-App", ex);
             return;
         }
 
@@ -247,11 +246,11 @@ public class EngagementTriggerHelper {
     }
 
     /**
-     * Will render InApp on organic App Launch.
+     * Show last queued InApp on organic app launch.
      *
      * @param activity {@link Activity} instance.
      */
-    public void handleOrganicLaunch(Activity activity) {
+    public void handleOrganicLaunch(Activity activity) throws InvalidTriggerDataException {
         if (activity == null || activity instanceof PreventBlurActivity) {
             return;
         }
@@ -261,24 +260,8 @@ public class EngagementTriggerHelper {
             return;
         }
 
-        TriggerData triggerData;
-        try {
-            triggerData = TriggerData.fromJson(pendingTrigger.data);
-        } catch (JsonSyntaxException e) {
-            CooeeFactory.getSentryHelper().captureException(e);
-            return;
-        }
-
-        if (TextUtils.isEmpty(triggerData.getId())) {
-            return;
-        }
-
-        if (!pendingTrigger.loadedLazyData) {
-            lazyLoadAndDisplay(TriggerData.fromJson(pendingTrigger.data));
-            return;
-        }
-
-        new InAppTriggerHelper(context, triggerData).precacheImagesAndRender();
+        TriggerData triggerData = pendingTrigger.getTriggerData();
+        new InAppTriggerHelper(context, triggerData).render();
     }
 
     private void launchInApp(TriggerData triggerData, int sdkVersionCode) {
@@ -290,7 +273,7 @@ public class EngagementTriggerHelper {
         } else {
             // Otherwise show it instantly
             // Using 2 seconds delay as "App Foreground" is not called yet that means the below call be treated
-            // as "App in Background" and it will now render the in-app. Need to use Database
+            // as "App in Background" and it will not render the in-app. Need to use Database
             new Timer().schedule(() -> renderInAppFromPushNotification(triggerData, sdkVersionCode), 2 * 1000);
         }
     }
@@ -317,7 +300,7 @@ public class EngagementTriggerHelper {
          * rendered via which sdk version.
          */
         if (sdkVersionCode < 10312) {
-            lazyLoadAndDisplay(triggerData);
+            new InAppTriggerHelper(context, triggerData).render();
         } else {
             checkAndLoadInApp(triggerData);
         }
@@ -336,17 +319,18 @@ public class EngagementTriggerHelper {
 
         PendingTrigger pendingTrigger = this.pendingTriggerService.findForTrigger(triggerData);
         if (pendingTrigger == null) {
-            Log.v(Constants.TAG, "Trigger with ID " + triggerData.getId() + " is already displayed");
+            Log.v(Constants.TAG, "" + triggerData + " is already displayed");
             return;
         }
 
-        if (!pendingTrigger.loadedLazyData) {
-            lazyLoadAndDisplay(triggerData);
+        try {
+            // Updating the same variable as it is coming from DB
+            triggerData = pendingTrigger.getTriggerData();
+        } catch (InvalidTriggerDataException e) {
             return;
         }
 
-        TriggerData storedTrigger = TriggerData.fromJson((String) pendingTrigger.data);
-        new InAppTriggerHelper(context, storedTrigger).render();
+        new InAppTriggerHelper(context, triggerData).render();
     }
 
     /**
@@ -355,6 +339,7 @@ public class EngagementTriggerHelper {
      * @param triggerData Data to render in-app.
      */
     @Deprecated
+    // TODO fix all test cases and delete this
     public void lazyLoadAndDisplay(TriggerData triggerData) {
         InAppTriggerHelper helper = new InAppTriggerHelper(context, triggerData);
         helper.render();
@@ -401,6 +386,14 @@ public class EngagementTriggerHelper {
      * Change {@code shouldRenderOrganicInApp} to {@code true} so pending InApp logic start working
      */
     public static void handleOrganicLaunch() {
-        new EngagementTriggerHelper(currentActivity.getApplicationContext()).handleOrganicLaunch(currentActivity);
+        EngagementTriggerHelper helper = new EngagementTriggerHelper(currentActivity.getApplicationContext());
+
+        try {
+            helper.handleOrganicLaunch(currentActivity);
+        } catch (InvalidTriggerDataException e) {
+            e.printStackTrace();
+            // No need to rethrow
+        }
     }
+
 }
