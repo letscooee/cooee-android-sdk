@@ -4,11 +4,14 @@ import android.content.Context;
 import android.util.Log;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.letscooee.CooeeFactory;
 import com.letscooee.loader.http.RemoteImageLoader;
 import com.letscooee.models.trigger.TriggerData;
 import com.letscooee.models.trigger.blocks.Background;
 import com.letscooee.models.trigger.elements.ImageElement;
 import com.letscooee.models.trigger.inapp.InAppTrigger;
+import com.letscooee.room.trigger.PendingTrigger;
+import com.letscooee.trigger.cache.PendingTriggerService;
 import com.letscooee.utils.Constants;
 import java9.util.concurrent.CompletableFuture;
 
@@ -24,11 +27,30 @@ import java.util.concurrent.ExecutionException;
 public class InAppTriggerHelper {
 
     private final Context context;
-    private final TriggerData triggerData;
+    private final PendingTriggerService pendingTriggerService;
+
+    private TriggerData triggerData;
+    private boolean checkInPendingTrigger;
 
     public InAppTriggerHelper(Context context, TriggerData triggerData) {
         this.context = context;
         this.triggerData = triggerData;
+        this.pendingTriggerService = CooeeFactory.getPendingTriggerService();
+    }
+
+    /**
+     * Check if related InApp data is present in {@link PendingTrigger} DB and load it.
+     * If not present, then load the InApp data from the server.
+     */
+    public void checkInPendingTriggerAndRender() {
+        PendingTrigger pendingTrigger = this.pendingTriggerService.findForTrigger(triggerData);
+        if (pendingTrigger == null) {
+            Log.v(Constants.TAG, "" + triggerData + " is already displayed");
+            return;
+        }
+
+        this.checkInPendingTrigger = true;
+        this.render();
     }
 
     public void render() {
@@ -50,7 +72,13 @@ public class InAppTriggerHelper {
      * Load in-app data on a separate thread through a http call to server.
      */
     private void loadLazyData() throws ExecutionException, InterruptedException {
-        new LazyTriggerLoader(triggerData).load();
+        LazyTriggerLoader loader = new LazyTriggerLoader(triggerData);
+
+        if (this.checkInPendingTrigger) {
+            loader.checkInPendingTriggerOrLoad();
+        } else {
+            loader.load();
+        }
     }
 
     /**

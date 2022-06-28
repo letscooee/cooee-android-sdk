@@ -41,16 +41,8 @@ public class PendingTriggerService extends ContextAware {
      * @param pendingTrigger {@link PendingTrigger} object whose data need to be updated.
      * @param triggerData    the trigger data to be loaded and cached.
      */
+    // TODO Update test cases and make it private
     public void lazyLoadAndUpdate(PendingTrigger pendingTrigger, TriggerData triggerData) {
-        if (pendingTrigger == null || triggerData == null || TextUtils.isEmpty(triggerData.getId())) {
-            return;
-        }
-
-        if (!triggerData.shouldLazyLoad()) {
-            delete(triggerData);
-            return;
-        }
-
         try {
             new LazyTriggerLoader(triggerData).load();
         } catch (ExecutionException | InterruptedException e) {
@@ -78,6 +70,10 @@ public class PendingTriggerService extends ContextAware {
             return null;
         }
 
+        if (triggerData.shouldLazyLoad()) {
+            return null;
+        }
+
         PendingTrigger pendingTrigger = new PendingTrigger();
         pendingTrigger.dateCreated = new Date().getTime();
         pendingTrigger.triggerId = triggerData.getId();
@@ -87,6 +83,11 @@ public class PendingTriggerService extends ContextAware {
         pendingTrigger.sdkCode = BuildConfig.VERSION_CODE;
         pendingTrigger.id = this.cooeeDatabase.pendingTriggerDAO().insert(pendingTrigger);
         Log.v(TAG, "Created " + pendingTrigger);
+
+        // After saving the main trigger, pull the lazy data from backend and update it
+        // So that even OS allowed time to render push is finished, at least base trigger is stored
+        this.lazyLoadAndUpdate(pendingTrigger, triggerData);
+
         return pendingTrigger;
     }
 

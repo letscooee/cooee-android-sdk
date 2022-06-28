@@ -7,7 +7,10 @@ import com.letscooee.CooeeFactory;
 import com.letscooee.exceptions.HttpRequestFailedException;
 import com.letscooee.exceptions.InvalidTriggerDataException;
 import com.letscooee.models.trigger.TriggerData;
+import com.letscooee.room.trigger.PendingTrigger;
 import com.letscooee.task.CooeeExecutors;
+import com.letscooee.trigger.cache.PendingTriggerService;
+import com.letscooee.utils.Constants;
 import java9.util.concurrent.CompletableFuture;
 
 import java.util.Map;
@@ -24,11 +27,37 @@ import static com.google.firebase.messaging.Constants.TAG;
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class LazyTriggerLoader {
 
-    private final TriggerData triggerData;
+    private TriggerData triggerData;
+    private final PendingTriggerService pendingTriggerService;
     private final CompletableFuture<Void> completableFuture = new CompletableFuture<>();
 
     public LazyTriggerLoader(TriggerData triggerData) {
         this.triggerData = triggerData;
+        this.pendingTriggerService = CooeeFactory.getPendingTriggerService();
+    }
+
+    /**
+     * Check if trigger data is present in {@link PendingTrigger} DB or load it from server.
+     * If not present, then load the InApp data from the server.
+     * <p>
+     * TODO Merge this method with {@link #load()} method after 1st Oct 2022
+     */
+    public void checkInPendingTriggerOrLoad() throws ExecutionException, InterruptedException {
+        PendingTrigger pendingTrigger = this.pendingTriggerService.findForTrigger(triggerData);
+        if (pendingTrigger == null) {
+            Log.v(Constants.TAG, "" + triggerData + " is not available in DB");
+            this.load();
+            return;
+        }
+
+        try {
+            // Update the global variable as it is coming from DB
+            triggerData = pendingTrigger.getTriggerData();
+        } catch (InvalidTriggerDataException e) {
+            return;
+        }
+
+        this.load();
     }
 
     /**

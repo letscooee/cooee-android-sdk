@@ -115,11 +115,15 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
     }
 
     private void showNotification(TriggerData triggerData) {
-        PendingTrigger pendingTrigger = pendingTriggerService.newTrigger(triggerData);
         SimpleNotificationRenderer renderer = new SimpleNotificationRenderer(context, triggerData);
-        renderer.render();
+        try {
+            renderer.render();
+        } catch (Exception e) {
+            e.printStackTrace();
+            CooeeFactory.getSentryHelper().captureException("Unable to render push", e);
+        }
 
-        pendingTriggerService.lazyLoadAndUpdate(pendingTrigger, triggerData);
+        pendingTriggerService.newTrigger(triggerData);
     }
 
 }

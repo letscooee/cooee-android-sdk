@@ -266,6 +266,7 @@ public class EngagementTriggerHelper {
 
     private void launchInApp(TriggerData triggerData, int sdkVersionCode) {
         RuntimeData runtimeData = CooeeFactory.getRuntimeData();
+
         // If app is being launched from the "cold state"
         if (runtimeData.isFirstForeground()) {
             // Then wait for some time before showing the in-app
@@ -289,8 +290,9 @@ public class EngagementTriggerHelper {
         Event event = new Event("CE Notification Clicked", triggerData);
         CooeeFactory.getSafeHTTPService().sendEventWithoutSession(event);
 
+        InAppTriggerHelper helper = new InAppTriggerHelper(context, triggerData);
         /*
-         * If the SDK version is less than 10312 i.e v1.3.12, then we will render InApp with old way.
+         * If the SDK version is less than 10400 i.e v1.4.0, then we will render InApp with old way.
          * Else we will render InApp with new way i.e With PendingTrigger helpers.
          *
          * This sdkVersionCode comes from Push Notification click intent after version v1.3.12.
@@ -299,38 +301,11 @@ public class EngagementTriggerHelper {
          * This sdkVersionCode will also help us to determine whether clicked push notification was
          * rendered via which sdk version.
          */
-        if (sdkVersionCode < 10312) {
-            new InAppTriggerHelper(context, triggerData).render();
+        if (sdkVersionCode < 10400) {
+            helper.render();
         } else {
-            checkAndLoadInApp(triggerData);
+            helper.checkInPendingTriggerAndRender();
         }
-    }
-
-    /**
-     * Check if related InApp data is present at LocalStorage and load it.
-     * If not present, then load the InApp data from the server.
-     *
-     * @param triggerData Data to render in-app.
-     */
-    private void checkAndLoadInApp(TriggerData triggerData) {
-        if (triggerData == null) {
-            return;
-        }
-
-        PendingTrigger pendingTrigger = this.pendingTriggerService.findForTrigger(triggerData);
-        if (pendingTrigger == null) {
-            Log.v(Constants.TAG, "" + triggerData + " is already displayed");
-            return;
-        }
-
-        try {
-            // Updating the same variable as it is coming from DB
-            triggerData = pendingTrigger.getTriggerData();
-        } catch (InvalidTriggerDataException e) {
-            return;
-        }
-
-        new InAppTriggerHelper(context, triggerData).render();
     }
 
     /**
