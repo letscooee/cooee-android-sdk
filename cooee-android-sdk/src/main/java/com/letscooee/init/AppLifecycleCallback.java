@@ -70,9 +70,6 @@ class AppLifecycleCallback implements DefaultLifecycleObserver {
 
         // Sent AR CTA once App is resumed
         ARActionPerformed.processLastARResponse(context);
-
-        // Try to launch pending AR if any
-        ARHelper.launchPendingAR(context);
     }
 
     @Override
