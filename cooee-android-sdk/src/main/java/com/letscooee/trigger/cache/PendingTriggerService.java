@@ -49,7 +49,7 @@ public class PendingTriggerService extends ContextAware {
             return;
         }
 
-        pendingTrigger.data = gson.toJson(triggerData);
+        pendingTrigger.data = triggerData;
 
         this.cooeeDatabase.pendingTriggerDAO().update(pendingTrigger);
         Log.v(TAG, "Updated " + pendingTrigger);
@@ -77,7 +77,7 @@ public class PendingTriggerService extends ContextAware {
         PendingTrigger pendingTrigger = new PendingTrigger();
         pendingTrigger.dateCreated = new Date().getTime();
         pendingTrigger.triggerId = triggerData.getId();
-        pendingTrigger.data = gson.toJson(triggerData);
+        pendingTrigger.data = triggerData;
         pendingTrigger.scheduleAt = 0;
         pendingTrigger.notificationId = triggerData.getNotificationID();
         pendingTrigger.sdkCode = BuildConfig.VERSION_CODE;

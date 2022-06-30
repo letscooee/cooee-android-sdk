@@ -2,6 +2,7 @@ package com.letscooee.trigger;
 
 import android.text.TextUtils;
 import androidx.annotation.NonNull;
+import androidx.room.TypeConverter;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
@@ -23,9 +24,6 @@ import com.letscooee.utils.PermissionType;
  * @since 1.3.2
  */
 public class TriggerDataHelper {
-
-    private TriggerDataHelper() {
-    }
 
     private static Gson gson;
 
@@ -77,7 +75,7 @@ public class TriggerDataHelper {
             throw new InvalidTriggerDataException("Trigger id is missing", triggerData);
         }
 
-        if (triggerData.isCurrentlySupported()) {
+        if (!triggerData.isCurrentlySupported()) {
             CooeeFactory.getSentryHelper().captureMessage("Unsupported payload version received " + triggerData.getVersion());
             throw new InvalidTriggerDataException("Unsupported payload version received", triggerData);
         }
@@ -85,4 +83,44 @@ public class TriggerDataHelper {
         return triggerData;
     }
 
+    /**
+     * Serialize {@link TriggerData} to JSON string.
+     *
+     * @param triggerData {@link TriggerData} object to serialize.
+     * @return JSON string.
+     */
+    public static String stringify(@NonNull TriggerData triggerData) {
+        return getGson().toJson(triggerData);
+    }
+
+    /**
+     * Serialize {@link TriggerData} to JSON string.
+     * This method is used by {@link com.letscooee.room.trigger.PendingTrigger#data}
+     * {@link TypeConverter} to store {@link TriggerData} in database.
+     *
+     * @param value {@link TriggerData} object to serialize.
+     * @return JSON string.
+     */
+    @TypeConverter
+    public String fromEventType(TriggerData value) {
+        return stringify(value);
+    }
+
+    /**
+     * Deserialize {@link TriggerData} from JSON string.
+     * This method is used by {@link com.letscooee.room.trigger.PendingTrigger#data}
+     * {@link TypeConverter} to deserialize trigger data
+     *
+     * @param value JSON string to deserialize.
+     * @return @{@link TriggerData} object.
+     */
+    @TypeConverter
+    public TriggerData toEventType(String value) {
+        try {
+            return parse(value);
+        } catch (InvalidTriggerDataException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }

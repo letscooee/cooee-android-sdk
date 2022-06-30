@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
+import androidx.room.TypeConverters;
 import com.letscooee.exceptions.InvalidTriggerDataException;
 import com.letscooee.models.trigger.TriggerData;
 import com.letscooee.trigger.TriggerDataHelper;
@@ -16,8 +17,6 @@ import com.letscooee.trigger.TriggerDataHelper;
  */
 @Entity
 public class PendingTrigger {
-
-    private TriggerData triggerData;
 
     @PrimaryKey(autoGenerate = true)
     public long id;
@@ -32,7 +31,8 @@ public class PendingTrigger {
     public long dateCreated;
 
     @ColumnInfo(name = "data")
-    public String data;
+    @TypeConverters(TriggerDataHelper.class)
+    public TriggerData data;
 
     @ColumnInfo(name = "schedule_at")
     public long scheduleAt;
@@ -53,12 +53,7 @@ public class PendingTrigger {
     }
 
     public TriggerData getTriggerData() throws InvalidTriggerDataException {
-        if (triggerData != null) {
-            return triggerData;
-        }
-
-        this.triggerData = TriggerDataHelper.parse(this.data);
-        return triggerData;
+        return data;
     }
 
 }
