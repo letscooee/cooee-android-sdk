@@ -17,9 +17,8 @@ import com.bumptech.glide.request.transition.Transition;
 import com.letscooee.CooeeFactory;
 import com.letscooee.utils.Closure;
 import com.letscooee.utils.SentryHelper;
-import java9.util.concurrent.CompletableFuture;
-
 import java.util.List;
+import java9.util.concurrent.CompletableFuture;
 
 /**
  * Helper class to load an HTTP image from remote.
@@ -33,8 +32,8 @@ public class RemoteImageLoader implements HttpResourceLoader<Bitmap> {
 
     private final SentryHelper sentryHelper;
     private final RequestBuilder<Bitmap> requestBuilder;
-    private final CompletableFuture<Void> completableFuture = new CompletableFuture<>();
 
+    private CompletableFuture<Void> completableFuture = new CompletableFuture<>();
     private int imagesToCache;
     private int imagesCached;
     private int imagesAttempted;
@@ -83,12 +82,13 @@ public class RemoteImageLoader implements HttpResourceLoader<Bitmap> {
     }
 
     public CompletableFuture<Void> cacheAll(@NonNull List<String> urls) {
-        this.imagesToCache = urls.size();
-        for (String imageURL : urls) {
-            cache(imageURL);
-        }
-
-        return this.completableFuture;
+        completableFuture = CompletableFuture.runAsync(() -> {
+            imagesToCache = urls.size();
+            for (String imageURL : urls) {
+                cache(imageURL);
+            }
+        });
+        return completableFuture;
     }
 
     private void cache(String url) {
