@@ -3,6 +3,7 @@ package com.letscooee.services;
 import android.content.Context;
 import android.util.Log;
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.letscooee.CooeeFactory;
@@ -29,8 +30,8 @@ import java.util.Map;
  */
 public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
 
-    private final Context context;
-    private final PendingTriggerService pendingTriggerService;
+    private Context context;
+    private PendingTriggerService pendingTriggerService;
 
     @SuppressWarnings("unused")
     public CooeeFirebaseMessagingService() {
@@ -43,8 +44,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
      * @param context {@link Context}
      */
     public CooeeFirebaseMessagingService(Context context) {
-        this.context = context != null ? context : getApplicationContext();
-        this.pendingTriggerService = new PendingTriggerService(context);
+        this.context = context;
     }
 
     @Override
@@ -72,6 +72,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
      * @param rawData {@link PendingTrigger}
      */
     private void handlePendingTriggerDeletion(String rawData) {
+        initializeVariables();
         Map<String, String> deletionAction = PendingTriggerAction.parseRawData(rawData);
         if (deletionAction == null) {
             return;
@@ -93,8 +94,15 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
         PushProviderUtils.pushTokenRefresh(token);
     }
 
-    // TODO why this is public?
+    /**
+     * This method handles trigger data received via FCM.
+     * <p> This method is open only for {@code com.letscooee} group.</p>
+     *
+     * @param rawTriggerData {@link String} raw trigger data received via FCM.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public void handleTriggerData(String rawTriggerData) {
+        initializeVariables();
         TriggerData triggerData;
 
         try {
@@ -111,6 +119,15 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
         } else {
             // This is just for testing locally when sending in-app only previews
             new InAppTriggerHelper(context, triggerData).render();
+        }
+    }
+
+    private void initializeVariables() {
+        if (this.context == null) {
+            this.context = getApplicationContext();
+        }
+        if (this.pendingTriggerService == null) {
+            this.pendingTriggerService = new PendingTriggerService(context);
         }
     }
 

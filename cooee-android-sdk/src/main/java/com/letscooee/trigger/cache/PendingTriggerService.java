@@ -70,7 +70,7 @@ public class PendingTriggerService extends ContextAware {
             return null;
         }
 
-        if (triggerData.shouldLazyLoad()) {
+        if (!triggerData.shouldLazyLoad()) {
             return null;
         }
 

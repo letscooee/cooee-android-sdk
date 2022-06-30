@@ -36,7 +36,7 @@ public class TriggerData implements Parcelable {
 
     @SerializedName("ar")
     @Expose
-    private final Map<String, Object> selfARData = new HashMap<>();
+    private Map<String, Object> selfARData = new HashMap<>();
 
     @SerializedName("features")
     @Expose
@@ -142,6 +142,10 @@ public class TriggerData implements Parcelable {
         return features == null ? new ArrayList<>() : features;
     }
 
+    public void setSelfARData(Map<String, Object> selfARData) {
+        this.selfARData = selfARData;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -196,6 +200,10 @@ public class TriggerData implements Parcelable {
      * @return true if InApp/AR is present, false otherwise.
      */
     public boolean shouldLazyLoad() {
+        if (getFeatures().isEmpty()){
+            return true;
+        }
+
         if (getFeatures().contains(Constants.FEATURE_IN_APP) && getInAppTrigger() == null) {
             return true;
         }

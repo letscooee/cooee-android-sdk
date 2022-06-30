@@ -1,5 +1,6 @@
 package com.letscooee.trigger;
 
+import static com.letscooee.utils.Constants.TAG;
 import android.util.Log;
 import androidx.annotation.RestrictTo;
 import com.google.gson.Gson;
@@ -10,13 +11,10 @@ import com.letscooee.models.trigger.TriggerData;
 import com.letscooee.room.trigger.PendingTrigger;
 import com.letscooee.task.CooeeExecutors;
 import com.letscooee.trigger.cache.PendingTriggerService;
-import com.letscooee.utils.Constants;
 import java9.util.concurrent.CompletableFuture;
 
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
-
-import static com.google.firebase.messaging.Constants.TAG;
 
 /**
  * A small helper class for in-app trigger for fetching data from server.
@@ -45,7 +43,7 @@ public class LazyTriggerLoader {
     public void checkInPendingTriggerOrLoad() throws ExecutionException, InterruptedException {
         PendingTrigger pendingTrigger = this.pendingTriggerService.findForTrigger(triggerData);
         if (pendingTrigger == null) {
-            Log.v(Constants.TAG, "" + triggerData + " is not available in DB");
+            Log.v(TAG, "" + triggerData + " is not available in DB");
             this.load();
             return;
         }
@@ -64,7 +62,7 @@ public class LazyTriggerLoader {
      * Load in-app data on a separate thread through a http call to server.
      */
     public void load() throws ExecutionException, InterruptedException {
-        if (this.triggerData.shouldLazyLoad()) {
+        if (!this.triggerData.shouldLazyLoad()) {
             Log.d(TAG, "Nothing to lazy load for " + triggerData);
             return;
         }
@@ -107,7 +105,7 @@ public class LazyTriggerLoader {
 
     private void updateTriggerData(TriggerData updatedTriggerData) {
         triggerData.setInAppTrigger(updatedTriggerData.getInAppTrigger());
-        // TODO add for self-ar
+        triggerData.setSelfARData(updatedTriggerData.getARData());
     }
 
 }
