@@ -1,28 +1,23 @@
 package com.letscooee.trigger.cache;
 
+import static com.google.common.truth.Truth.assertThat;
+import static org.mockito.Mockito.spy;
 import com.letscooee.BaseTestCase;
 import com.letscooee.enums.trigger.PendingTriggerAction;
+import com.letscooee.exceptions.InvalidTriggerDataException;
 import com.letscooee.models.trigger.TriggerData;
 import com.letscooee.room.CooeeDatabase;
 import com.letscooee.room.trigger.PendingTrigger;
-import com.letscooee.trigger.InAppTriggerHelper;
+import com.letscooee.trigger.TriggerDataHelper;
 import org.junit.Test;
-import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.util.ReflectionHelpers;
-
 import java.util.List;
-
-import static com.google.common.truth.Truth.assertThat;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
 
 public class PendingTriggerServiceTest extends BaseTestCase {
 
     PendingTriggerService pendingTriggerService;
     CooeeDatabase database;
-    @Mock
-    InAppTriggerHelper inAppTriggerHelper;
 
     @Override
     public void setUp() {
@@ -32,20 +27,21 @@ public class PendingTriggerServiceTest extends BaseTestCase {
         MockitoAnnotations.openMocks(this);
         this.pendingTriggerService = spy(new PendingTriggerService(context));
         database = CooeeDatabase.getInstance(context);
-        ReflectionHelpers.setField(this.pendingTriggerService, "inAppTriggerHelper", inAppTriggerHelper);
         ReflectionHelpers.setField(this.pendingTriggerService, "cooeeDatabase", database);
     }
 
     private void commonTriggerLoading(TriggerData triggerData, int times) {
-        /*PendingTrigger pendingTrigger = pendingTriggerService.newTrigger(triggerData);
-        doNothing().when(inAppTriggerHelper).loadLazyData(any(TriggerData.class), any());
-        pendingTriggerService.loadAndSaveTriggerData(pendingTrigger, triggerData);
+        PendingTrigger pendingTrigger = pendingTriggerService.newTrigger(triggerData);
         if (times == 0) {
-            verify(inAppTriggerHelper, never()).loadLazyData(any(TriggerData.class), any());
+            assertThat(pendingTrigger).isNull();
         } else {
-            verify(inAppTriggerHelper, times(times)).loadLazyData(any(TriggerData.class), any());
+            PendingTrigger savedTrigger = pendingTriggerService.peep();
+            assertThat(pendingTrigger).isNotNull();
+            assertThat(savedTrigger).isNotNull();
+            assertThat(savedTrigger.id).isEqualTo(pendingTrigger.id);
+            assertThat(savedTrigger.triggerId).isEqualTo(pendingTrigger.triggerId);
         }
-        emptyDatabase();*/
+        emptyDatabase();
     }
 
     private void emptyDatabase() {
@@ -54,42 +50,22 @@ public class PendingTriggerServiceTest extends BaseTestCase {
 
     @Test
     public void load_ian_with_null_trigger_data() {
+        emptyDatabase();
         commonTriggerLoading(null, 0);
     }
 
     @Test
     public void load_ian_with_empty_trigger_data() {
-        commonTriggerLoading(TriggerData.fromJson("{}"), 0);
+        try {
+            commonTriggerLoading(TriggerDataHelper.parse("{}"), 0);
+        } catch (Exception e) {
+            assertThat(e).isInstanceOf(InvalidTriggerDataException.class);
+        }
     }
 
     @Test
     public void load_ian_with_valid_trigger_data() {
         commonTriggerLoading(triggerData, 1);
-    }
-
-    private void commonContentDownloadDownload(TriggerData triggerData, int times) {
-        /*doNothing().when(pendingTriggerService).loadImage(anyString(), anyInt());
-        pendingTriggerService.loadAndCacheInAppContent(triggerData);
-        if (times == 0) {
-            verify(pendingTriggerService, never()).loadImage(anyString(), anyInt());
-        } else {
-            verify(pendingTriggerService, atLeast(times)).loadImage(anyString(), anyInt());
-        }*/
-    }
-
-    @Test
-    public void load_ian_content_with_null_trigger_content() {
-        commonContentDownloadDownload(null, 0);
-    }
-
-    @Test
-    public void load_ian_content_with_empty_trigger_content() {
-        commonContentDownloadDownload(TriggerData.fromJson("{}"), 0);
-    }
-
-    @Test
-    public void load_ian_content_with_valid_trigger_content() {
-        commonContentDownloadDownload(triggerData, 1);
     }
 
     private void addMultipleTriggers() {
@@ -132,7 +108,13 @@ public class PendingTriggerServiceTest extends BaseTestCase {
         pendingTriggerService.newTrigger(triggerData);
         addMultipleTriggers();
         payloadMap.put("id", "1243");
-        TriggerData triggerData = TriggerData.fromJson(gson.toJson(payloadMap));
+        TriggerData triggerData = null;
+        try {
+            triggerData = TriggerDataHelper.parse(gson.toJson(payloadMap));
+        } catch (InvalidTriggerDataException e) {
+            assertThat(e).isNull();
+        }
+        assertThat(triggerData).isNotNull();
         PendingTrigger pendingTrigger = pendingTriggerService.newTrigger(triggerData);
 
         pendingTriggerService.delete(PendingTriggerAction.DELETE_ID, this.triggerData.getId());
