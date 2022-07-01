@@ -5,6 +5,7 @@ import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.*;
 import android.widget.RelativeLayout;
 import androidx.annotation.NonNull;
@@ -67,7 +68,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
                 setFullscreen();
             }
 
-            if (triggerData == null || !triggerData.isContainValidData()) {
+            if (triggerData == null || TextUtils.isEmpty(triggerData.getId())) {
                 throw new Exception("Couldn't render In-App because trigger data is null");
             }
 

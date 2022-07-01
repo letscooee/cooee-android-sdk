@@ -190,15 +190,6 @@ public class InAppTriggerActivityTest extends BaseTestCase {
     }
 
     @Test
-    public void on_create_with_valid_intent_no_in_app_elements() {
-        updatePayloadAndIntent(PayloadProperty.ELEMS);
-        ActivityController<InAppTriggerActivity> controller = Robolectric.buildActivity(InAppTriggerActivity.class, validIntent);
-        InAppTriggerActivity spy = getSpy(controller);
-
-        commonTestCheck(controller, spy, false);
-    }
-
-    @Test
     public void on_create_with_valid_intent_no_in_app_container() {
         updatePayloadAndIntent(PayloadProperty.CONT);
         ActivityController<InAppTriggerActivity> controller = Robolectric.buildActivity(InAppTriggerActivity.class, validIntent);
