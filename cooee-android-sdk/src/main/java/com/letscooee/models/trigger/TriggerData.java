@@ -6,12 +6,9 @@ import android.text.TextUtils;
 import androidx.annotation.NonNull;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-import com.letscooee.exceptions.InvalidTriggerDataException;
 import com.letscooee.models.trigger.inapp.InAppTrigger;
 import com.letscooee.models.trigger.push.PushNotificationTrigger;
-import com.letscooee.trigger.TriggerDataHelper;
 import com.letscooee.utils.Constants;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -176,13 +173,6 @@ public class TriggerData implements Parcelable {
                 '}';
     }
 
-    @NonNull
-    @Deprecated
-    // TODO Fix test cases and remove this method
-    public static TriggerData fromJson(@NonNull String jsonString) throws InvalidTriggerDataException {
-        return TriggerDataHelper.parse(jsonString);
-    }
-
     public boolean isCurrentlySupported() {
         return version >= 4 && version < 5;
     }
@@ -201,7 +191,7 @@ public class TriggerData implements Parcelable {
      * @return true if InApp/AR is present, false otherwise.
      */
     public boolean shouldLazyLoad() {
-        if (getFeatures().isEmpty()){
+        if (getFeatures().isEmpty()) {
             return true;
         }
 

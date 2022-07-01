@@ -50,7 +50,6 @@ public class TriggerDataHelper {
      * @return @{@link TriggerData} object.
      * @throws JsonSyntaxException if the JSON string is not valid.
      */
-    @NonNull
     public static TriggerData parseOnly(@NonNull String jsonString) throws InvalidTriggerDataException {
         try {
             return getGson().fromJson(jsonString, TriggerData.class);
@@ -71,7 +70,7 @@ public class TriggerDataHelper {
     public static TriggerData parse(@NonNull String jsonString) throws InvalidTriggerDataException {
         TriggerData triggerData = parseOnly(jsonString);
 
-        if (TextUtils.isEmpty(triggerData.getId())) {
+        if (triggerData == null || TextUtils.isEmpty(triggerData.getId())) {
             throw new InvalidTriggerDataException("Trigger id is missing", triggerData);
         }
 

@@ -104,6 +104,10 @@ public class LazyTriggerLoader {
     }
 
     private void updateTriggerData(TriggerData updatedTriggerData) {
+        if (updatedTriggerData == null) {
+            return;
+        }
+
         triggerData.setInAppTrigger(updatedTriggerData.getInAppTrigger());
         triggerData.setSelfARData(updatedTriggerData.getARData());
     }

@@ -67,7 +67,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
                 setFullscreen();
             }
 
-            if (triggerData == null || triggerData.getInAppTrigger() == null) {
+            if (triggerData == null || !triggerData.isContainValidData()) {
                 throw new Exception("Couldn't render In-App because trigger data is null");
             }
 
