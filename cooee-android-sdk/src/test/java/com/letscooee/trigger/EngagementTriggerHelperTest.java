@@ -1,12 +1,12 @@
 package com.letscooee.trigger;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import android.app.Activity;
@@ -19,6 +19,8 @@ import com.letscooee.models.trigger.EmbeddedTrigger;
 import com.letscooee.models.trigger.TriggerData;
 import com.letscooee.room.CooeeDatabase;
 import com.letscooee.trigger.cache.PendingTriggerService;
+import com.letscooee.utils.Constants;
+import com.letscooee.utils.LocalStorageHelper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -99,15 +101,14 @@ public class EngagementTriggerHelperTest extends BaseTestCase {
         }
     }
 
-    /*@Test
+    @Test
     public void render_in_app_from_json_string() {
-        assertThat(samplePayload).isNotEmpty();
-
-        doNothing().when(pendingTriggerService).loadAndCacheInAppContent(any(TriggerData.class));
-        engagementTriggerHelperMock.renderInAppTriggerFromJSONString(samplePayload);
-
-        verify(pendingTriggerService, times(1)).loadAndCacheInAppContent(any(TriggerData.class));
-    }*/
+        assertThat(triggerData).isNotNull();
+        LocalStorageHelper.remove(context, Constants.STORAGE_ACTIVATED_TRIGGERS);
+        engagementTriggerHelperMock.renderInAppTriggerFromJSONString(TriggerDataHelper.stringify(triggerData));
+        List<EmbeddedTrigger> list = EngagementTriggerHelper.getActiveTriggers(context);
+        assertThat(triggerData.getId()).isEqualTo(list.get(0).getTriggerID());
+    }
 
     @Test
     public void render_in_app_from_json_string_null_string() {
@@ -147,9 +148,9 @@ public class EngagementTriggerHelperTest extends BaseTestCase {
     }
 
     private void commonRenderInAppFromPushNotification(Activity activity, int times) {
-        doNothing().when(engagementTriggerHelperMock).renderInAppFromPushNotification(any(TriggerData.class), anyInt());
+        doNothing().when(engagementTriggerHelperMock).renderInAppTrigger(any(TriggerData.class));
         engagementTriggerHelperMock.renderInAppFromPushNotification(activity);
-        verify(engagementTriggerHelperMock, times(times)).renderInAppFromPushNotification(any(TriggerData.class),anyInt());
+        verify(engagementTriggerHelperMock, timeout(5000).times(times)).renderInAppTrigger(any(TriggerData.class));
     }
 
     @Ignore("Failing due to overloaded methods")
@@ -160,7 +161,6 @@ public class EngagementTriggerHelperTest extends BaseTestCase {
         commonRenderInAppFromPushNotification(activity, 1);
     }
 
-    @Ignore("Failing due to overloaded methods")
     @Test
     public void render_in_app_from_notification_from_activity_with_no_extra() {
         assertThat(activityWithNoBundle).isNotNull();
@@ -168,7 +168,6 @@ public class EngagementTriggerHelperTest extends BaseTestCase {
         commonRenderInAppFromPushNotification(activityWithNoBundle, 0);
     }
 
-    @Ignore("Failing due to overloaded methods")
     @Test
     public void render_in_app_from_notification_from_activity_with_no_trigger_data_in_extra() {
         assertThat(activityWithNoBundle).isNotNull();
@@ -176,7 +175,7 @@ public class EngagementTriggerHelperTest extends BaseTestCase {
         commonRenderInAppFromPushNotification(activityWithNoBundle, 0);
     }
 
-    @Ignore("Failing due pending task")
+    @Ignore("This test is not working properly. Need to fix it.")
     @Test
     public void render_in_app_from_notification_from_trigger_data() {
         assertThat(triggerData).isNotNull();
@@ -185,8 +184,8 @@ public class EngagementTriggerHelperTest extends BaseTestCase {
         assertThat(triggerData.getExpireAt()).isGreaterThan(0);
 
         doNothing().when(engagementTriggerHelperMock).renderInAppTrigger(any(TriggerData.class));
-        engagementTriggerHelperMock.renderInAppFromPushNotification(triggerData,1);
-        verify(engagementTriggerHelperMock, times(1)).renderInAppTrigger(any(TriggerData.class));
+        engagementTriggerHelperMock.renderInAppFromPushNotification(triggerData, 1);
+        verify(engagementTriggerHelperMock, timeout(5000).times(1)).renderInAppTrigger(any(TriggerData.class));
     }
 
     private List<EmbeddedTrigger> saveAndGetActiveTriggers(Context context, TriggerData triggerData) {
