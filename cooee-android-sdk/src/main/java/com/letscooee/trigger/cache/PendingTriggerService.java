@@ -1,10 +1,10 @@
 package com.letscooee.trigger.cache;
 
+import static com.letscooee.utils.Constants.TAG;
 import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
 import androidx.annotation.RestrictTo;
-import com.google.gson.Gson;
 import com.letscooee.BuildConfig;
 import com.letscooee.ContextAware;
 import com.letscooee.enums.trigger.PendingTriggerAction;
@@ -12,11 +12,8 @@ import com.letscooee.models.trigger.TriggerData;
 import com.letscooee.room.CooeeDatabase;
 import com.letscooee.room.trigger.PendingTrigger;
 import com.letscooee.trigger.LazyTriggerLoader;
-
 import java.util.Date;
 import java.util.concurrent.ExecutionException;
-
-import static com.letscooee.utils.Constants.TAG;
 
 /**
  * Store the payload and cache all the content of InApp to local cache.
@@ -27,7 +24,6 @@ import static com.letscooee.utils.Constants.TAG;
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class PendingTriggerService extends ContextAware {
 
-    private final Gson gson = new Gson();
     private final CooeeDatabase cooeeDatabase;
 
     public PendingTriggerService(Context context) {
@@ -41,8 +37,7 @@ public class PendingTriggerService extends ContextAware {
      * @param pendingTrigger {@link PendingTrigger} object whose data need to be updated.
      * @param triggerData    the trigger data to be loaded and cached.
      */
-    // TODO Update test cases and make it private
-    public void lazyLoadAndUpdate(PendingTrigger pendingTrigger, TriggerData triggerData) {
+    private void lazyLoadAndUpdate(PendingTrigger pendingTrigger, TriggerData triggerData) {
         try {
             new LazyTriggerLoader(triggerData).load();
         } catch (ExecutionException | InterruptedException e) {
