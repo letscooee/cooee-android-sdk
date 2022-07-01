@@ -276,7 +276,6 @@ public class EngagementTriggerHelper {
     }
 
     private void launchInApp(TriggerData triggerData, int sdkVersionCode) {
-        RuntimeData runtimeData = CooeeFactory.getRuntimeData();
 
         // If app is being launched from the "cold state"
         if (runtimeData.isFirstForeground()) {
@@ -286,7 +285,7 @@ public class EngagementTriggerHelper {
             // Otherwise show it instantly
             // Using 2 seconds delay as "App Foreground" is not called yet that means the below call be treated
             // as "App in Background" and it will not render the in-app. Need to use Database
-            new Timer().schedule(() -> renderInAppFromPushNotification(triggerData, sdkVersionCode), 2 * 1000);
+            new Timer().schedule(() -> renderInAppFromPushNotification(triggerData, sdkVersionCode), 2 * 1000L);
         }
     }
 
