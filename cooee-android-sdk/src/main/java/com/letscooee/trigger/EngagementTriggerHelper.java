@@ -319,18 +319,6 @@ public class EngagementTriggerHelper {
     }
 
     /**
-     * Fetch Trigger InApp data from server
-     *
-     * @param triggerData Data to render in-app.
-     */
-    @Deprecated
-    // TODO fix all test cases and delete this
-    public void lazyLoadAndDisplay(TriggerData triggerData) {
-        InAppTriggerHelper helper = new InAppTriggerHelper(context, triggerData);
-        helper.render();
-    }
-
-    /**
      * Set active trigger for the session
      *
      * @param context     The application's context.

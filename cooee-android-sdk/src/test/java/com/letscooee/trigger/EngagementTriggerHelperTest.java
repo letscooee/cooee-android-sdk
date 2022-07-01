@@ -14,6 +14,7 @@ import android.content.Context;
 import androidx.room.Room;
 import com.google.gson.JsonSyntaxException;
 import com.letscooee.BaseTestCase;
+import com.letscooee.exceptions.InvalidTriggerDataException;
 import com.letscooee.models.trigger.EmbeddedTrigger;
 import com.letscooee.models.trigger.TriggerData;
 import com.letscooee.room.CooeeDatabase;
@@ -46,9 +47,13 @@ public class EngagementTriggerHelperTest extends BaseTestCase {
         engagementTriggerHelper = new EngagementTriggerHelper(context);
         engagementTriggerHelperMock = Mockito.spy(engagementTriggerHelper);
         pendingTriggerService = Mockito.mock(PendingTriggerService.class);
-        expiredTriggerData = TriggerData.fromJson(samplePayload);
+        try {
+            expiredTriggerData = TriggerDataHelper.parse(samplePayload);
+        } catch (InvalidTriggerDataException e) {
+            e.printStackTrace();
+        }
         makeActiveTrigger();
-        ReflectionHelpers.setField(engagementTriggerHelperMock, "cacheTriggerContent", pendingTriggerService);
+        ReflectionHelpers.setField(engagementTriggerHelperMock, "pendingTriggerService", pendingTriggerService);
     }
 
     @Test
@@ -179,9 +184,9 @@ public class EngagementTriggerHelperTest extends BaseTestCase {
         assertThat(triggerData.getEngagementID()).isNotEmpty();
         assertThat(triggerData.getExpireAt()).isGreaterThan(0);
 
-        doNothing().when(engagementTriggerHelperMock).lazyLoadAndDisplay(any(TriggerData.class));
+        doNothing().when(engagementTriggerHelperMock).renderInAppTrigger(any(TriggerData.class));
         engagementTriggerHelperMock.renderInAppFromPushNotification(triggerData,1);
-        verify(engagementTriggerHelperMock, times(1)).lazyLoadAndDisplay(any(TriggerData.class));
+        verify(engagementTriggerHelperMock, times(1)).renderInAppTrigger(any(TriggerData.class));
     }
 
     private List<EmbeddedTrigger> saveAndGetActiveTriggers(Context context, TriggerData triggerData) {
