@@ -149,4 +149,8 @@ public class InAppTrigger extends BaseElement {
     public static InAppTrigger fromJson(@NonNull String jsonString) throws JsonSyntaxException {
         return TriggerDataHelper.getGson().fromJson(jsonString, InAppTrigger.class);
     }
+
+    public boolean isContainValidData() {
+        return container != null && elements != null && !elements.isEmpty();
+    }
 }

@@ -2,6 +2,7 @@ package com.letscooee.models.trigger;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.text.TextUtils;
 import androidx.annotation.NonNull;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -211,4 +212,7 @@ public class TriggerData implements Parcelable {
         return getFeatures().contains(Constants.FEATURE_SELF_AR);
     }
 
+    public boolean isContainValidData() {
+        return !TextUtils.isEmpty(id) && getInAppTrigger() != null && getInAppTrigger().isContainValidData();
+    }
 }
