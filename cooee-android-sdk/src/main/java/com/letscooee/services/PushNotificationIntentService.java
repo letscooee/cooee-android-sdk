@@ -75,7 +75,7 @@ public class PushNotificationIntentService extends IntentService {
             return;
         }
 
-        Event event = new Event("CE Notification Cancelled", triggerData);
+        Event event = new Event(Constants.EVENT_NOTIFICATION_CANCELLED, triggerData);
         CooeeFactory.getSafeHTTPService().sendEventWithoutSession(event);
         CooeeFactory.getPendingTriggerService().delete(triggerData);
     }

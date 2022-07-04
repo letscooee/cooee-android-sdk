@@ -205,7 +205,7 @@ public abstract class NotificationRenderer {
         for (StatusBarNotification statusBarNotification : statusBarNotifications) {
 
             if (statusBarNotification.getId() == this.notificationID) {
-                Event event = new Event("CE Notification Viewed", triggerData);
+                Event event = new Event(Constants.EVENT_NOTIFICATION_VIEWED, triggerData);
                 this.safeHTTPService.sendEventWithoutSession(event);
             }
         }

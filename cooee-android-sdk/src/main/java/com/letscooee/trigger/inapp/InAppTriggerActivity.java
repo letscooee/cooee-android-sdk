@@ -126,7 +126,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
             return;
         }
 
-        Event event = new Event("CE Trigger Displayed", triggerData);
+        Event event = new Event(Constants.EVENT_TRIGGER_DISPLAYED, triggerData);
         CooeeFactory.getSafeHTTPService().sendEvent(event);
     }
 
@@ -182,7 +182,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
         int duration = (int) ((new Date().getTime() - startTime.getTime()) / 1000);
         closedEventProps.put("duration", duration);
 
-        Event event = new Event("CE Trigger Closed", closedEventProps);
+        Event event = new Event(Constants.EVENT_TRIGGER_CLOSED, closedEventProps);
         event.withTrigger(triggerData);
         CooeeFactory.getSafeHTTPService().sendEvent(event);
     }

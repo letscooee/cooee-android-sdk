@@ -112,7 +112,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
         }
 
         if (triggerData.getPn() != null) {
-            Event event = new Event("CE Notification Received", triggerData);
+            Event event = new Event(Constants.EVENT_NOTIFICATION_RECEIVED, triggerData);
             CooeeFactory.getSafeHTTPService().sendEventWithoutSession(event);
 
             showNotification(triggerData);

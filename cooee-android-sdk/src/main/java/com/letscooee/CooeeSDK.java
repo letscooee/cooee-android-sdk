@@ -8,6 +8,7 @@ import com.letscooee.models.Event;
 import com.letscooee.network.SafeHTTPService;
 import com.letscooee.retrofit.DeviceAuthService;
 import com.letscooee.task.CooeeExecutors;
+import com.letscooee.utils.Constants;
 import com.letscooee.utils.CooeeCTAListener;
 import com.letscooee.utils.PropertyNameException;
 import com.letscooee.utils.RuntimeData;
@@ -179,7 +180,7 @@ public class CooeeSDK {
         Map<String, Object> eventProperties = new HashMap<>();
         eventProperties.put("screenName", screenName);
 
-        Event event = new Event("CE Screen View", eventProperties);
+        Event event = new Event(Constants.EVENT_SCREEN_VIEW, eventProperties);
         safeHTTPService.sendEvent(event);
     }
 

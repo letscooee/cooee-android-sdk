@@ -14,6 +14,7 @@ import com.letscooee.task.CooeeExecutors;
 import com.letscooee.trigger.EngagementTriggerHelper;
 import com.letscooee.user.NewSessionExecutor;
 import com.letscooee.user.SessionManager;
+import com.letscooee.utils.Constants;
 import com.letscooee.utils.RuntimeData;
 
 import java.util.HashMap;
@@ -63,7 +64,7 @@ class AppLifecycleCallback implements DefaultLifecycleObserver {
             Map<String, Object> eventProps = new HashMap<>();
             eventProps.put("iaDur", backgroundDuration);
 
-            Event event = new Event("CE App Foreground", eventProps);
+            Event event = new Event(Constants.EVENT_APP_FOREGROUND, eventProps);
             event.setDeviceProps(sessionExecutor.getMutableDeviceProps());
             safeHTTPService.sendEvent(event);
         });
@@ -89,7 +90,7 @@ class AppLifecycleCallback implements DefaultLifecycleObserver {
             Map<String, Object> eventProperties = new HashMap<>();
             eventProperties.put("aDur", duration);
 
-            Event event = new Event("CE App Background", eventProperties);
+            Event event = new Event(Constants.EVENT_APP_BACKGROUND, eventProperties);
             event.setDeviceProps(sessionExecutor.getMutableDeviceProps());
 
             safeHTTPService.sendEvent(event);
