@@ -173,6 +173,14 @@ public class CooeeSDK {
      */
     public void setCurrentScreen(String screenName) {
         this.runtimeData.setCurrentScreenName(screenName);
+
+        // TODO: 04/07/22 Should we send properties here? As event sends screen name by default.
+        //  Added screenName in property as web SDK adds it.
+        Map<String, Object> eventProperties = new HashMap<>();
+        eventProperties.put("screenName", screenName);
+
+        Event event = new Event("CE Screen View", eventProperties);
+        safeHTTPService.sendEvent(event);
     }
 
     /**
@@ -224,7 +232,7 @@ public class CooeeSDK {
         }
 
         for (String key : map.keySet()) {
-            if (key.substring(0, 3).equalsIgnoreCase(SYSTEM_DATA_PREFIX)) {
+            if (key.length() > 3 && key.substring(0, 3).equalsIgnoreCase(SYSTEM_DATA_PREFIX)) {
                 throw new PropertyNameException();
             }
         }
