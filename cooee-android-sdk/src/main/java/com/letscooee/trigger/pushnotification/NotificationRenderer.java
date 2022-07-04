@@ -355,7 +355,7 @@ public abstract class NotificationRenderer {
          If notification is not displayed it will get removed from the notification manager
          and we will get the actual event of notification view.
          */
-        new Timer().schedule(this::checkForNotificationViewed, 2000);
+        new Timer().schedule(this::checkForNotificationViewed, 1000);
     }
 
     /**
