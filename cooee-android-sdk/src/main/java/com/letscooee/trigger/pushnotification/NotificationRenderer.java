@@ -27,7 +27,7 @@ import com.letscooee.network.SafeHTTPService;
 import com.letscooee.services.PushNotificationIntentService;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.PendingIntentUtility;
-
+import com.letscooee.utils.Timer;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -348,7 +348,14 @@ public abstract class NotificationRenderer {
 
         this.notificationManager.notify(this.notificationID, notification);
 
-        this.checkForNotificationViewed();
+         /*
+         Will wait for 2 seconds before checking if the notification has been viewed
+         This will let notification manager to display or do whatever with notification
+         before we check if it has been viewed
+         If notification is not displayed it will get removed from the notification manager
+         and we will get the actual event of notification view.
+         */
+        new Timer().schedule(this::checkForNotificationViewed, 2000);
     }
 
     /**
