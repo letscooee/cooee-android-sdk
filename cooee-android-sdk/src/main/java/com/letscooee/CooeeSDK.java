@@ -2,6 +2,8 @@ package com.letscooee;
 
 import android.content.Context;
 import android.content.Intent;
+import android.text.TextUtils;
+import android.util.Log;
 import androidx.annotation.NonNull;
 import com.letscooee.device.DebugInfoActivity;
 import com.letscooee.models.Event;
@@ -173,15 +175,16 @@ public class CooeeSDK {
      * @param screenName Name of the screen. Like Login, Cart, Wishlist etc.
      */
     public void setCurrentScreen(String screenName) {
-        this.runtimeData.setCurrentScreenName(screenName);
+        if (TextUtils.isEmpty(screenName)) {
+            Log.v(Constants.TAG, "Trying to set empty screen name");
+            return;
+        }
 
-        // TODO: 04/07/22 Should we send properties here? As event sends screen name by default.
-        //  Added screenName in property as web SDK adds it.
-        Map<String, Object> eventProperties = new HashMap<>();
-        eventProperties.put("screenName", screenName);
-
-        Event event = new Event(Constants.EVENT_SCREEN_VIEW, eventProperties);
+        Event event = new Event(Constants.EVENT_SCREEN_VIEW);
+        event.setScreenName(screenName);
         safeHTTPService.sendEvent(event);
+
+        this.runtimeData.setCurrentScreenName(screenName);
     }
 
     /**
