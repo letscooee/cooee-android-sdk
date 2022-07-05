@@ -19,7 +19,6 @@ import com.letscooee.trigger.inapp.TriggerContext;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.CooeeCTAListener;
 import java.util.HashMap;
-import java.util.Objects;
 
 /**
  * @author Shashank Agrawal
@@ -92,11 +91,15 @@ public class ClickActionExecutor {
             return;
         }
 
-        String shareBody = Objects.requireNonNull(action.getShare().get("text")).toString();
+        String shareText = (String) action.getShare().get("text");
+
+        if (TextUtils.isEmpty(shareText)) {
+            return;
+        }
 
         Intent intent = new Intent(Intent.ACTION_SEND);
         intent.setType("text/plain");
-        intent.putExtra(Intent.EXTRA_TEXT, shareBody);
+        intent.putExtra(Intent.EXTRA_TEXT, shareText);
         startActivity(Intent.createChooser(intent, "Share with"));
 
     }
@@ -108,6 +111,7 @@ public class ClickActionExecutor {
     private void loadAR() {
         int launchFeature = action.getLaunchFeature();
 
+        //noinspection StatementWithEmptyBody
         if (launchFeature == 2) {
             // TODO: 02/01/22 launch self AR
         } else if (launchFeature == 3) {
