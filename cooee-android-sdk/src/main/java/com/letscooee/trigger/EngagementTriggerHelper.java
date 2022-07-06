@@ -166,12 +166,11 @@ public class EngagementTriggerHelper {
         TriggerData triggerData;
         try {
             triggerData = TriggerDataHelper.parse(rawTriggerData);
+            storeActiveTriggerDetails(context, triggerData);
+            new InAppTriggerHelper(context, triggerData).render();
         } catch (InvalidTriggerDataException e) {
-            return;
+            Log.e(Constants.TAG, e.getMessage(), e);
         }
-
-        storeActiveTriggerDetails(context, triggerData);
-        new InAppTriggerHelper(context, triggerData).render();
     }
 
     /**
@@ -179,10 +178,11 @@ public class EngagementTriggerHelper {
      *
      * @param triggerData received and parsed trigger data.
      */
-    public void renderInAppTrigger(TriggerData triggerData) {
+    public void renderInAppTrigger(TriggerData triggerData) throws InvalidTriggerDataException {
         if (triggerData == null || !triggerData.isContainValidData()) {
-            CooeeFactory.getSentryHelper().captureException(new InvalidTriggerDataException("Invalid trigger data received: " + triggerData));
-            return;
+            InvalidTriggerDataException exception = new InvalidTriggerDataException("Invalid trigger data received: " + triggerData);
+            CooeeFactory.getSentryHelper().captureException(exception);
+            throw exception;
         }
 
         if (runtimeData.isInBackground()) {
@@ -281,13 +281,30 @@ public class EngagementTriggerHelper {
         // If app is being launched from the "cold state"
         if (runtimeData.isFirstForeground()) {
             // Then wait for some time before showing the in-app
-            new Timer().schedule(() -> renderInAppFromPushNotification(triggerData, sdkVersionCode), TIME_TO_WAIT_MILLIS);
+            setTimeOut(triggerData, sdkVersionCode, TIME_TO_WAIT_MILLIS);
         } else {
             // Otherwise show it instantly
             // Using 2 seconds delay as "App Foreground" is not called yet that means the below call be treated
             // as "App in Background" and it will not render the in-app. Need to use Database
-            new Timer().schedule(() -> renderInAppFromPushNotification(triggerData, sdkVersionCode), 2 * 1000L);
+            setTimeOut(triggerData, sdkVersionCode, 2 * 1000L);
         }
+    }
+
+    /**
+     * Runs runnable provides after given time.
+     *
+     * @param triggerData      Trigger data
+     * @param sdkVersionCode   SDK version code
+     * @param timeToWaitMillis Time to wait in milliseconds
+     */
+    private void setTimeOut(TriggerData triggerData, int sdkVersionCode, long timeToWaitMillis) {
+        new Timer().schedule(() -> {
+            try {
+                renderInAppFromPushNotification(triggerData, sdkVersionCode);
+            } catch (InvalidTriggerDataException e) {
+                Log.e(Constants.TAG, e.getMessage());
+            }
+        }, timeToWaitMillis);
     }
 
     /**
@@ -295,7 +312,7 @@ public class EngagementTriggerHelper {
      *
      * @param triggerData Data to render in-app.
      */
-    public void renderInAppFromPushNotification(TriggerData triggerData, int sdkVersionCode) {
+    public void renderInAppFromPushNotification(TriggerData triggerData, int sdkVersionCode) throws InvalidTriggerDataException {
         storeActiveTriggerDetails(context, triggerData);
 
         Event event = new Event(Constants.EVENT_NOTIFICATION_CLICKED, triggerData);

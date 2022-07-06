@@ -118,7 +118,11 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
             showNotification(triggerData);
         } else {
             // This is just for testing locally when sending in-app only previews
-            new InAppTriggerHelper(context, triggerData).render();
+            try {
+                new InAppTriggerHelper(context, triggerData).render();
+            } catch (InvalidTriggerDataException e) {
+                Log.e(Constants.TAG, e.getMessage(), e);
+            }
         }
     }
 
