@@ -14,11 +14,13 @@ import com.letscooee.CooeeSDK;
 import com.letscooee.ar.ARHelper;
 import com.letscooee.models.trigger.TriggerData;
 import com.letscooee.models.trigger.blocks.AppAR;
+import com.letscooee.models.trigger.blocks.BrowserContent;
 import com.letscooee.models.trigger.blocks.ClickAction;
 import com.letscooee.trigger.inapp.TriggerContext;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.CooeeCTAListener;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Shashank Agrawal
@@ -221,7 +223,6 @@ public class ClickActionExecutor {
             return;
         }
 
-        // TODO: 25/07/21 Append data
         String url = action.getExternal().getUrl();
 
         if (TextUtils.isEmpty(url)) {
@@ -229,7 +230,33 @@ public class ClickActionExecutor {
             return;
         }
 
+        String queryParameters = getQueryParameters(action.getExternal());
+        if (!TextUtils.isEmpty(queryParameters)) {
+            url += "?" + queryParameters;
+        }
+
         openURL(url);
+    }
+
+    /**
+     * Generates query parameters for URL from {@link BrowserContent}
+     *
+     * @param browserContent {@link BrowserContent} object to generate query parameters from
+     * @return query parameters in string format
+     */
+    private String getQueryParameters(BrowserContent browserContent) {
+        if (browserContent.getQueryParams().isEmpty()) {
+            return null;
+        }
+
+        StringBuilder queryParameters = new StringBuilder();
+        for (Map.Entry<String, Object> entry : browserContent.getQueryParams().entrySet()) {
+            queryParameters.append(entry.getKey());
+            queryParameters.append("=");
+            queryParameters.append(entry.getValue());
+            queryParameters.append("&");
+        }
+        return queryParameters.toString();
     }
 
     /**
