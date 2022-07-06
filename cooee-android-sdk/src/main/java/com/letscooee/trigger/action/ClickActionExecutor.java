@@ -87,11 +87,11 @@ public class ClickActionExecutor {
      * Check and process <code>share</code> and launch {@link Intent} for {@link Intent#ACTION_SEND}
      */
     private void shareContent() {
-        if (action.getShare().isEmpty()) {
+        if (action.getShare() == null) {
             return;
         }
 
-        String shareText = (String) action.getShare().get("text");
+        String shareText = action.getShare().getContent();
 
         if (TextUtils.isEmpty(shareText)) {
             return;
