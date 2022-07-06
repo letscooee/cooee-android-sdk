@@ -94,6 +94,7 @@ public class ClickActionExecutor {
         String shareText = action.getShare().getContent();
 
         if (TextUtils.isEmpty(shareText)) {
+            logToSentry("Received empty content in share CTA in trigger: " + globalData.getTriggerData());
             return;
         }
 
@@ -159,6 +160,15 @@ public class ClickActionExecutor {
     }
 
     /**
+     * Add log to Sentry
+     *
+     * @param message to log
+     */
+    private void logToSentry(String message) {
+        CooeeFactory.getSentryHelper().captureMessage(message);
+    }
+
+    /**
      * Check and process <code>up</code> and update user property
      */
     private void updateUserProperties() {
@@ -178,7 +188,9 @@ public class ClickActionExecutor {
         }
 
         String url = action.getIab().getUrl();
+
         if (TextUtils.isEmpty(url)) {
+            logToSentry("Received empty url in InAppBrowser CTA in trigger: " + globalData.getTriggerData());
             return;
         }
 
@@ -211,6 +223,12 @@ public class ClickActionExecutor {
 
         // TODO: 25/07/21 Append data
         String url = action.getExternal().getUrl();
+
+        if (TextUtils.isEmpty(url)) {
+            logToSentry("Received empty url in external CTA in trigger: " + globalData.getTriggerData());
+            return;
+        }
+
         openURL(url);
     }
 
