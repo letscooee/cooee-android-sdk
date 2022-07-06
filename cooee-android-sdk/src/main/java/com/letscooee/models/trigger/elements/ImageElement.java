@@ -46,4 +46,8 @@ public class ImageElement extends BaseElement {
         return urls;
     }
 
+    @Override
+    public boolean hasValidData() {
+        return super.hasValidData() && !TextUtils.isEmpty(src);
+    }
 }

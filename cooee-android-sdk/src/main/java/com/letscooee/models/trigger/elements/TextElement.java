@@ -39,4 +39,9 @@ public class TextElement extends BaseTextElement {
         super.writeToParcel(dest, flags);
         dest.writeList(parts);
     }
+
+    @Override
+    public boolean hasValidData() {
+        return super.hasValidData() && parts != null && !parts.isEmpty();
+    }
 }

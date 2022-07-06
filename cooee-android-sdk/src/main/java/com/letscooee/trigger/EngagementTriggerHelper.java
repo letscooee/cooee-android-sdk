@@ -181,6 +181,7 @@ public class EngagementTriggerHelper {
      */
     public void renderInAppTrigger(TriggerData triggerData) {
         if (triggerData == null || !triggerData.isContainValidData()) {
+            CooeeFactory.getSentryHelper().captureException(new InvalidTriggerDataException("Invalid trigger data received: " + triggerData));
             return;
         }
 

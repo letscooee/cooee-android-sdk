@@ -12,6 +12,10 @@ public class InvalidTriggerDataException extends Exception {
     String payload;
     TriggerData triggerData;
 
+    public InvalidTriggerDataException(String message) {
+        super(message);
+    }
+
     public InvalidTriggerDataException(String message, TriggerData triggerData) {
         super(message);
         this.triggerData = triggerData;

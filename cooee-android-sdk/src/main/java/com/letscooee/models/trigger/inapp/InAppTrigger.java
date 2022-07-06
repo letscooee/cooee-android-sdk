@@ -151,6 +151,16 @@ public class InAppTrigger extends BaseElement {
     }
 
     public boolean isContainValidData() {
-        return container != null && elements != null && !elements.isEmpty();
+        return container != null && elements != null && !elements.isEmpty() && containsValidChildren();
+    }
+
+    private boolean containsValidChildren() {
+        for (BaseElement element : elements) {
+            if (!element.hasValidData()) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }
