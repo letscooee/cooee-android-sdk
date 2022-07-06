@@ -196,6 +196,11 @@ public class ClickActionExecutor {
             return;
         }
 
+        String queryParameters = getQueryParameters(action.getExternal());
+        if (!TextUtils.isEmpty(queryParameters)) {
+            url += "?" + queryParameters;
+        }
+
         CustomTabsIntent.Builder customTabBuilder = new CustomTabsIntent.Builder();
         CustomTabsIntent customTabsIntent = customTabBuilder.build();
         String chromePackageName = "com.android.chrome";
