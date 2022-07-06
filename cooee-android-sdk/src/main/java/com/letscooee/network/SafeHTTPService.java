@@ -68,7 +68,7 @@ public class SafeHTTPService extends ContextAware {
             event.setSessionNumber(sessionManager.getCurrentSessionNumber());
         }
 
-        event.getProperties().put("screenName", runtimeData.getCurrentScreenName());
+        event.setScreenName(runtimeData.getCurrentScreenName());
         event.setActiveTriggers((ArrayList<EmbeddedTrigger>) EngagementTriggerHelper.getActiveTriggers(context));
         event.setActiveTrigger(trigger);
 

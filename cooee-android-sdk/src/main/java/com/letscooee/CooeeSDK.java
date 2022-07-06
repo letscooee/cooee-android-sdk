@@ -180,11 +180,23 @@ public class CooeeSDK {
             return;
         }
 
-        Event event = new Event(Constants.EVENT_SCREEN_VIEW);
-        event.setScreenName(screenName);
-        safeHTTPService.sendEvent(event);
+        CooeeExecutors.getInstance().singleThreadExecutor().execute(() -> {
+            /*
+             * Properties will hold previous screen name.
+             */
+            Map<String, Object> properties = new HashMap<>();
+            properties.put("ps", this.runtimeData.getCurrentScreenName());
 
-        this.runtimeData.setCurrentScreenName(screenName);
+            /*
+             * Update current screen name at runtime so that other event can have updated screen name.
+             */
+            this.runtimeData.setCurrentScreenName(screenName);
+
+            Event event = new Event(Constants.EVENT_SCREEN_VIEW, properties);
+
+            this.safeHTTPService.sendEvent(event);
+        });
+
     }
 
     /**
