@@ -156,7 +156,7 @@ public class InAppTrigger extends BaseElement {
 
     private boolean containsValidChildren() {
         for (BaseElement element : elements) {
-            if (!element.hasValidData()) {
+            if (!element.hasValidImageResource()) {
                 return false;
             }
         }

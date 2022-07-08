@@ -41,7 +41,7 @@ public class TextElement extends BaseTextElement {
     }
 
     @Override
-    public boolean hasValidData() {
-        return super.hasValidData() && parts != null && !parts.isEmpty();
+    public boolean hasValidImageResource() {
+        return parts != null && !parts.isEmpty();
     }
 }

@@ -47,7 +47,7 @@ public class ImageElement extends BaseElement {
     }
 
     @Override
-    public boolean hasValidData() {
-        return super.hasValidData() && !TextUtils.isEmpty(src);
+    public boolean hasValidImageResource() {
+        return !TextUtils.isEmpty(src);
     }
 }

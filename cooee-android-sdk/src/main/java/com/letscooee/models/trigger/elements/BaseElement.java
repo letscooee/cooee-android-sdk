@@ -147,7 +147,7 @@ public abstract class BaseElement implements Parcelable {
         return urls;
     }
 
-    public boolean hasValidData() {
+    public boolean hasValidImageResource() {
         return bg == null || bg.getImage() == null || !TextUtils.isEmpty(bg.getImage().getSrc());
     }
 
