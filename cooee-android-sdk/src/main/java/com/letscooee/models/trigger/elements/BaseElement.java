@@ -5,6 +5,7 @@ import android.os.Parcelable;
 import android.text.TextUtils;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import com.letscooee.exceptions.InvalidTriggerDataException;
 import com.letscooee.models.trigger.blocks.*;
 
 import java.util.ArrayList;
@@ -147,8 +148,18 @@ public abstract class BaseElement implements Parcelable {
         return urls;
     }
 
-    public boolean hasValidImageResource() {
-        return bg == null || bg.getImage() == null || !TextUtils.isEmpty(bg.getImage().getSrc());
+    /**
+     * Checks if Element has valid background image resource.
+     *
+     * @return true if background image resource is valid, otherwise throws error with details.
+     * @throws InvalidTriggerDataException if background image resource is invalid.
+     */
+    public boolean hasValidImageResource() throws InvalidTriggerDataException {
+        if (bg == null || bg.getImage() == null || !TextUtils.isEmpty(getBgImage())) {
+            return true;
+        }
+
+        throw new InvalidTriggerDataException("Found Empty background image url");
     }
 
 }

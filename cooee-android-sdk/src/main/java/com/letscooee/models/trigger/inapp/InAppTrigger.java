@@ -7,6 +7,7 @@ import com.google.gson.JsonSyntaxException;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.letscooee.enums.trigger.Gravity;
+import com.letscooee.exceptions.InvalidTriggerDataException;
 import com.letscooee.models.trigger.blocks.Animation;
 import com.letscooee.models.trigger.blocks.Background;
 import com.letscooee.models.trigger.blocks.ClickAction;
@@ -150,11 +151,24 @@ public class InAppTrigger extends BaseElement {
         return TriggerDataHelper.getGson().fromJson(jsonString, InAppTrigger.class);
     }
 
-    public boolean isContainValidData() {
-        return container != null && elements != null && !elements.isEmpty() && containsValidChildren();
+    /**
+     * Checks if InAppTrigger is valid container, elements and background image.
+     *
+     * @return True if InAppTrigger is valid
+     * @throws InvalidTriggerDataException If InAppTrigger is not valid
+     */
+    public boolean containValidData() throws InvalidTriggerDataException {
+        return hasValidImageResource() && container != null && container.hasValidImageResource()
+                && elements != null && !elements.isEmpty() && containsValidChildren();
     }
 
-    private boolean containsValidChildren() {
+    /**
+     * Checks if elements contains valid children
+     *
+     * @return True if elements contains valid children
+     * @throws InvalidTriggerDataException If elements contains invalid children
+     */
+    private boolean containsValidChildren() throws InvalidTriggerDataException {
         for (BaseElement element : elements) {
             if (!element.hasValidImageResource()) {
                 return false;

@@ -179,18 +179,16 @@ public class EngagementTriggerHelper {
      * @param triggerData received and parsed trigger data.
      */
     public void renderInAppTrigger(TriggerData triggerData) throws InvalidTriggerDataException {
-        if (triggerData == null || !triggerData.isContainValidData()) {
-            InvalidTriggerDataException exception = new InvalidTriggerDataException("Invalid trigger data received: " + triggerData);
-            CooeeFactory.getSentryHelper().captureException(exception);
-            throw exception;
-        }
-
         if (runtimeData.isInBackground()) {
             Log.i(Constants.TAG, "Won't render in-app. App is in background");
             return;
         }
 
         try {
+            if (triggerData == null || !triggerData.containValidData()) {
+                return;
+            }
+
             boolean isInFullscreenMode = !isStatusBarVisible(runtimeData.getCurrentActivity());
             Intent intent = new Intent(context, InAppTriggerActivity.class);
             Bundle sendBundle = new Bundle();
@@ -204,7 +202,9 @@ public class EngagementTriggerHelper {
             setActiveTrigger(context, triggerData);
         } catch (Exception ex) {
             CooeeFactory.getSentryHelper().captureException("Failed to show In-App", ex);
-            return;
+
+            // Sends exception back to callers
+            throw ex;
         }
 
         new PushTriggerHelper(context, triggerData).removePushFromTray();

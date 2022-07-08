@@ -3,7 +3,7 @@ package com.letscooee.models.trigger.elements;
 import android.os.Parcel;
 import android.text.TextUtils;
 
-import java.util.ArrayList;
+import com.letscooee.exceptions.InvalidTriggerDataException;
 import java.util.List;
 
 public class ImageElement extends BaseElement {
@@ -46,8 +46,18 @@ public class ImageElement extends BaseElement {
         return urls;
     }
 
+    /**
+     * Checks if the image element has valid image resource.
+     *
+     * @return true if the image element has valid image resource.
+     * @throws InvalidTriggerDataException if the image element has no/empty image resource.
+     */
     @Override
-    public boolean hasValidImageResource() {
-        return !TextUtils.isEmpty(src);
+    public boolean hasValidImageResource() throws InvalidTriggerDataException {
+        if (TextUtils.isEmpty(src)) {
+            throw new InvalidTriggerDataException("ImageElement has no/empty src");
+        }
+
+        return true;
     }
 }

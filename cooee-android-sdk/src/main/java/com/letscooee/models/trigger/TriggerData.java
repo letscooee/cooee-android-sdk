@@ -6,6 +6,7 @@ import android.text.TextUtils;
 import androidx.annotation.NonNull;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import com.letscooee.exceptions.InvalidTriggerDataException;
 import com.letscooee.models.trigger.inapp.InAppTrigger;
 import com.letscooee.models.trigger.push.PushNotificationTrigger;
 import com.letscooee.utils.Constants;
@@ -202,7 +203,17 @@ public class TriggerData implements Parcelable {
         return getFeatures().contains(Constants.FEATURE_SELF_AR);
     }
 
-    public boolean isContainValidData() {
-        return !TextUtils.isEmpty(id) && getInAppTrigger() != null && getInAppTrigger().isContainValidData();
+    /**
+     * Checks if IN_APP contains valid data.
+     *
+     * @return true if InApp is present and valid.
+     * @throws InvalidTriggerDataException if InApp is present but invalid.
+     */
+    public boolean containValidData() throws InvalidTriggerDataException {
+        try {
+            return !TextUtils.isEmpty(id) && getInAppTrigger() != null && getInAppTrigger().containValidData();
+        } catch (InvalidTriggerDataException e) {
+            throw new InvalidTriggerDataException(e.getMessage() + " in trigger: " + this);
+        }
     }
 }
