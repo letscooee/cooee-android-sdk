@@ -6,7 +6,12 @@ import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.view.*;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowInsets;
+import android.view.WindowInsetsController;
+import android.view.WindowManager;
 import android.widget.RelativeLayout;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -23,11 +28,10 @@ import com.letscooee.trigger.inapp.renderer.InAppTriggerRenderer;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.RuntimeData;
 import com.letscooee.utils.SentryHelper;
-import jp.wasabeef.blurry.Blurry;
-
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import jp.wasabeef.blurry.Blurry;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class InAppTriggerActivity extends AppCompatActivity implements PreventBlurActivity {
@@ -119,6 +123,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
         super.onStart();
         startTime = new Date();
         isSuccessfullyStarted = true;
+        setRequestedOrientation(inAppData.getInAppOrientation());
     }
 
     public void sendTriggerDisplayedEvent() {

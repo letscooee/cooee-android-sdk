@@ -7,17 +7,17 @@ import com.google.gson.JsonSyntaxException;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.letscooee.enums.trigger.Gravity;
+import com.letscooee.enums.trigger.InAppOrientation;
 import com.letscooee.exceptions.InvalidTriggerDataException;
 import com.letscooee.models.trigger.blocks.Animation;
 import com.letscooee.models.trigger.blocks.Background;
 import com.letscooee.models.trigger.blocks.ClickAction;
 import com.letscooee.models.trigger.elements.BaseElement;
 import com.letscooee.trigger.TriggerDataHelper;
-import java9.util.stream.Collectors;
-import java9.util.stream.StreamSupport;
-
 import java.util.ArrayList;
 import java.util.List;
+import java9.util.stream.Collectors;
+import java9.util.stream.StreamSupport;
 
 public class InAppTrigger extends BaseElement {
 
@@ -37,12 +37,17 @@ public class InAppTrigger extends BaseElement {
     @Expose
     private final Animation animation;
 
+    @SerializedName("ori")
+    @Expose
+    private final InAppOrientation inAppOrientation;
+
     protected InAppTrigger(Parcel in) {
         super(in);
         container = in.readParcelable(Container.class.getClassLoader());
         elements = in.readArrayList(getClass().getClassLoader());
         gravity = in.readByte();
         animation = in.readParcelable(Animation.class.getClassLoader());
+        inAppOrientation = (InAppOrientation) in.readSerializable();
     }
 
     public static final Creator<InAppTrigger> CREATOR = new Creator<InAppTrigger>() {
@@ -78,6 +83,7 @@ public class InAppTrigger extends BaseElement {
         dest.writeList(elements);
         dest.writeByte(gravity);
         dest.writeParcelable(animation, flags);
+        dest.writeSerializable(inAppOrientation);
     }
 
     /**
@@ -176,5 +182,9 @@ public class InAppTrigger extends BaseElement {
         }
 
         return true;
+    }
+
+    public int getInAppOrientation() {
+        return inAppOrientation == null ? InAppOrientation.UNKNOWN.getScreenOrientation() : inAppOrientation.getScreenOrientation();
     }
 }
