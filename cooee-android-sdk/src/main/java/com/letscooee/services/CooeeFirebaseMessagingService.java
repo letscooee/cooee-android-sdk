@@ -45,6 +45,12 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
     Context context;
     EngagementTriggerHelper engagementTriggerHelper;
 
+    /**
+     * Will be use to determine if the message is already delivered.
+     * This will play main role with flutter and react native wrappers to stop displaying same message twice.
+     */
+    private static boolean isNotificationDelivered = false;
+
     public CooeeFirebaseMessagingService() {
     }
 
@@ -65,6 +71,14 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
     @Override
     public void onMessageReceived(@NonNull RemoteMessage remoteMessage) {
         super.onMessageReceived(remoteMessage);
+
+        /*
+         * Will stop the service if flag is set to true.
+         */
+        if (isNotificationDelivered) {
+            return;
+        }
+
         this.context = getApplicationContext();
         engagementTriggerHelper = new EngagementTriggerHelper(context);
 
@@ -198,5 +212,17 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
         }
 
         return actions;
+    }
+
+    /**
+     * Set message is delivered already to stop service execution. This flag is only set from Flutter
+     * and React Native wrappers.
+     * <p>
+     * This flag will be set to true when notification is delivered via wrapper receiver.
+     */
+    @SuppressWarnings("unused")
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static void setMessageDelivered() {
+        isNotificationDelivered = true;
     }
 }
