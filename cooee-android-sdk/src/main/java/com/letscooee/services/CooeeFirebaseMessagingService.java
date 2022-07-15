@@ -26,12 +26,11 @@ import com.letscooee.models.trigger.push.PushNotificationTrigger;
 import com.letscooee.pushnotification.PushProviderUtils;
 import com.letscooee.trigger.CooeeEmptyActivity;
 import com.letscooee.trigger.EngagementTriggerHelper;
+import com.letscooee.trigger.adapters.TriggerGsonDeserializer;
 import com.letscooee.trigger.pushnotification.NotificationRenderer;
 import com.letscooee.trigger.pushnotification.SimpleNotificationRenderer;
 import com.letscooee.utils.Constants;
-import com.letscooee.trigger.adapters.TriggerGsonDeserializer;
 import com.letscooee.utils.PendingIntentUtility;
-
 import java.util.HashMap;
 
 /**
@@ -44,6 +43,12 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
 
     Context context;
     EngagementTriggerHelper engagementTriggerHelper;
+
+    /**
+     * Will be use to determine if the message is already delivered.
+     * This will play main role with flutter and react native wrappers to stop displaying same message twice.
+     */
+    private static boolean disableMessagingHandling = false;
 
     public CooeeFirebaseMessagingService() {
     }
@@ -66,11 +71,29 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
     public void onMessageReceived(@NonNull RemoteMessage remoteMessage) {
         super.onMessageReceived(remoteMessage);
         this.context = getApplicationContext();
-        engagementTriggerHelper = new EngagementTriggerHelper(context);
 
+        /*
+         * Will stop the service if flag is set to true.
+         */
+        if (disableMessagingHandling) {
+            return;
+        }
+
+        this.handleRemoteMessage(remoteMessage);
+    }
+
+    /**
+     * Process {@link RemoteMessage} and check if it contains cooee's payload/any other data.
+     *
+     * @param remoteMessage {@link RemoteMessage} received from server.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public void handleRemoteMessage(@NonNull RemoteMessage remoteMessage) {
         if (remoteMessage.getData().size() == 0) {
             return;
         }
+
+        engagementTriggerHelper = new EngagementTriggerHelper(context);
 
         FontProcessor.downloadFonts(context, remoteMessage.getData().get("fonts"));
         this.handleTriggerData(remoteMessage.getData().get("triggerData"));
@@ -198,5 +221,17 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
         }
 
         return actions;
+    }
+
+    /**
+     * Sets {@code disableMessagingHandling} to {@code true} to stop service if notification
+     * is already handled. This flag is only set from Flutter and React Native wrappers.
+     * <p>
+     * This flag will be set to true when notification is delivered via wrapper receiver.
+     */
+    @SuppressWarnings("unused")
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static void setMessageDelivered() {
+        disableMessagingHandling = true;
     }
 }
