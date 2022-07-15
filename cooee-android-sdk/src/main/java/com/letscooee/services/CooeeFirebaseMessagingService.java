@@ -71,7 +71,6 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
     public void onMessageReceived(@NonNull RemoteMessage remoteMessage) {
         super.onMessageReceived(remoteMessage);
         this.context = getApplicationContext();
-        engagementTriggerHelper = new EngagementTriggerHelper(context);
 
         /*
          * Will stop the service if flag is set to true.
@@ -93,6 +92,8 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
         if (remoteMessage.getData().size() == 0) {
             return;
         }
+
+        engagementTriggerHelper = new EngagementTriggerHelper(context);
 
         FontProcessor.downloadFonts(context, remoteMessage.getData().get("fonts"));
         this.handleTriggerData(remoteMessage.getData().get("triggerData"));
