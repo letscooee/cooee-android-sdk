@@ -1,5 +1,12 @@
 # Change Log
 
+## 1.3.12 (2022-07-15)
+
+### Improvements
+
+1. Add facility to stop firebase service from wrappers.
+2. Make bluetooth permission optional.
+
 ## 1.3.11 (2022-05-26)
 
 ### Improvements
