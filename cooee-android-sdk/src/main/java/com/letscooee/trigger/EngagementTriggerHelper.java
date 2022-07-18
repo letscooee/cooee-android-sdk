@@ -297,7 +297,7 @@ public class EngagementTriggerHelper {
     public void renderInAppFromPushNotification(TriggerData triggerData, int sdkVersionCode) {
         storeActiveTriggerDetails(context, triggerData);
 
-        Event event = new Event("CE Notification Clicked", triggerData);
+        Event event = new Event(Constants.EVENT_NOTIFICATION_CLICKED, triggerData);
         CooeeFactory.getSafeHTTPService().sendEventWithoutSession(event);
 
         InAppTriggerHelper helper = new InAppTriggerHelper(context, triggerData);

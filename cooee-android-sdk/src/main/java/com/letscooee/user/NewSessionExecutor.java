@@ -99,7 +99,7 @@ public class NewSessionExecutor extends ContextAware {
             mutableDeviceProps.put("wrp", wrapper);
         }
 
-        Event event = new Event("CE App Installed");
+        Event event = new Event(Constants.EVENT_APP_INSTALLED);
         event.setDeviceProps(mutableDeviceProps);
         safeHTTPService.sendEvent(event);
     }
@@ -114,7 +114,7 @@ public class NewSessionExecutor extends ContextAware {
             mutableDeviceProps.put("wrp", wrapper);
         }
 
-        Event event = new Event("CE App Launched");
+        Event event = new Event(Constants.EVENT_APP_LAUNCHED);
         event.setDeviceProps(mutableDeviceProps);
         safeHTTPService.sendEvent(event);
     }

@@ -92,4 +92,19 @@ public class Constants {
     public static final int FEATURE_IN_APP = 2;
     public static final int FEATURE_SELF_AR = 3;
     // endregion
+
+    // region Event Names
+    public static final String EVENT_SCREEN_VIEW = "CE Screen View";
+    public static final String EVENT_APP_INSTALLED = "CE App Installed";
+    public static final String EVENT_APP_LAUNCHED = "CE App Launched";
+    public static final String EVENT_APP_BACKGROUND = "CE App Background";
+    public static final String EVENT_APP_FOREGROUND = "CE App Foreground";
+    public static final String EVENT_TRIGGER_DISPLAYED = "CE Trigger Displayed";
+    public static final String EVENT_TRIGGER_CLOSED = "CE Trigger Closed";
+    public static final String EVENT_NOTIFICATION_RECEIVED = "CE Notification Received";
+    public static final String EVENT_NOTIFICATION_VIEWED = "CE Notification Viewed";
+    public static final String EVENT_NOTIFICATION_CLICKED = "CE Notification Clicked";
+    public static final String EVENT_NOTIFICATION_CANCELLED = "CE Notification Cancelled";
+    public static final String EVENT_CAROUSEL_MOVED = "CE PN Carousel Move";
+    // endregion
 }

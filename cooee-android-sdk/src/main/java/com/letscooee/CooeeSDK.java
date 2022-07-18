@@ -2,12 +2,15 @@ package com.letscooee;
 
 import android.content.Context;
 import android.content.Intent;
+import android.text.TextUtils;
+import android.util.Log;
 import androidx.annotation.NonNull;
 import com.letscooee.device.DebugInfoActivity;
 import com.letscooee.models.Event;
 import com.letscooee.network.SafeHTTPService;
 import com.letscooee.retrofit.DeviceAuthService;
 import com.letscooee.task.CooeeExecutors;
+import com.letscooee.utils.Constants;
 import com.letscooee.utils.CooeeCTAListener;
 import com.letscooee.utils.PropertyNameException;
 import com.letscooee.utils.RuntimeData;
@@ -172,7 +175,28 @@ public class CooeeSDK {
      * @param screenName Name of the screen. Like Login, Cart, Wishlist etc.
      */
     public void setCurrentScreen(String screenName) {
-        this.runtimeData.setCurrentScreenName(screenName);
+        if (TextUtils.isEmpty(screenName)) {
+            Log.v(Constants.TAG, "Trying to set empty screen name");
+            return;
+        }
+
+        CooeeExecutors.getInstance().singleThreadExecutor().execute(() -> {
+            /*
+             * Properties will hold previous screen name.
+             */
+            Map<String, Object> properties = new HashMap<>();
+            properties.put("ps", this.runtimeData.getCurrentScreenName());
+
+            /*
+             * Update current screen name at runtime so that other event can have updated screen name.
+             */
+            this.runtimeData.setCurrentScreenName(screenName);
+
+            Event event = new Event(Constants.EVENT_SCREEN_VIEW, properties);
+
+            this.safeHTTPService.sendEvent(event);
+        });
+
     }
 
     /**
@@ -224,7 +248,7 @@ public class CooeeSDK {
         }
 
         for (String key : map.keySet()) {
-            if (key.substring(0, 3).equalsIgnoreCase(SYSTEM_DATA_PREFIX)) {
+            if (key.length() > 3 && key.substring(0, 3).equalsIgnoreCase(SYSTEM_DATA_PREFIX)) {
                 throw new PropertyNameException();
             }
         }

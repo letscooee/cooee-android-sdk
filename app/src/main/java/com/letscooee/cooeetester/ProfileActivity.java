@@ -29,12 +29,13 @@ public class ProfileActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
         Intent intent = getIntent();
         animation = intent.getStringExtra("animation");
+        if (TextUtils.isEmpty(animation)) {
+            animation = "slide";
+        }
         overrideAnimation(animation);
 
         cooee = CooeeSDK.getDefaultInstance(this);
-        binding.ivBack.setOnClickListener(v -> {
-            finish();
-        });
+        binding.ivBack.setOnClickListener(v -> finish());
         cooee.setCurrentScreen(TAG);
         binding.btnSave.setOnClickListener(v -> {
             if (TextUtils.isEmpty(binding.edtPersonName.getText().toString())) {
