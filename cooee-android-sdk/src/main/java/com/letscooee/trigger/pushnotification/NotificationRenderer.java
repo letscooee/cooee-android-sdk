@@ -211,8 +211,8 @@ public abstract class NotificationRenderer {
         }
     }
 
-    public int getNotificationID() {
-        return this.notificationID;
+    public long getNotificationID() {
+        return this.triggerData.getNotificationID();
     }
 
     @SuppressWarnings("unused")

@@ -1,6 +1,5 @@
 package com.letscooee.enums.trigger;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
 /**

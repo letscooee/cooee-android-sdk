@@ -13,11 +13,13 @@ import com.letscooee.CooeeFactory;
 import com.letscooee.CooeeSDK;
 import com.letscooee.models.Event;
 import com.letscooee.models.trigger.blocks.ClickAction;
+import com.letscooee.trigger.action.ClickActionExecutor;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.CooeeCTAListener;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Listen the response sent via AR Android SDK and send it to {@link CooeeCTAListener}
@@ -66,9 +68,11 @@ public class ARActionPerformed extends BroadcastReceiver {
         Map<String, Object> arResponse = gson.fromJson(rawResponse, new TypeToken<Map<String, Object>>() {
         }.getType());
 
-        Event event = new Event(arResponse.get(EVENT_NAME).toString());
+        String eventName = Objects.requireNonNull(arResponse.get(EVENT_NAME)).toString();
+        Event event = new Event(eventName);
 
         if (arResponse.get(EVENT_PROPERTIES) != null) {
+            //noinspection unchecked
             event.setProperties((Map<String, Object>) arResponse.get(EVENT_PROPERTIES));
         }
 
@@ -79,13 +83,8 @@ public class ARActionPerformed extends BroadcastReceiver {
         }
 
         lastARResponse = gson.fromJson(gson.toJson(arResponse.get(EVENT_CTA)), ClickAction.class);
-        Map<String, Object> userProperty = lastARResponse.getUserPropertiesToUpdate();
 
-        if (userProperty == null) {
-            return;
-        }
-
-        CooeeSDK.getDefaultInstance(context).updateUserProfile(userProperty);
+        new ClickActionExecutor(context, lastARResponse, null).execute();
     }
 
     /**

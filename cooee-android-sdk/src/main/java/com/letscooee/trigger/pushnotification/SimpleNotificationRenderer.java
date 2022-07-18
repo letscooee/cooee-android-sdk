@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.text.TextUtils;
 import androidx.annotation.RestrictTo;
+import com.letscooee.BuildConfig;
 import com.letscooee.R;
 import com.letscooee.models.trigger.TriggerData;
 import com.letscooee.trigger.CooeeEmptyActivity;
@@ -80,6 +81,7 @@ public class SimpleNotificationRenderer extends NotificationRenderer {
         bundle.putParcelable(Constants.INTENT_TRIGGER_DATA_KEY, triggerData);
 
         appLaunchIntent.putExtra(Constants.INTENT_BUNDLE_KEY, bundle);
+        appLaunchIntent.putExtra(Constants.INTENT_SDK_VERSION_CODE_KEY, BuildConfig.VERSION_CODE);
         appLaunchIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
         PendingIntent appLaunchPendingIntent = PendingIntentUtility.getActivity(
@@ -92,6 +94,7 @@ public class SimpleNotificationRenderer extends NotificationRenderer {
 
     @Override
     public void render() {
+        this.setContentIntent();
         boolean hasSmallImage = hasSmallImage();
         boolean hasLargeImage = hasLargeImage();
 

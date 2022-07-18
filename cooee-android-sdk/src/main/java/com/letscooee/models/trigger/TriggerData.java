@@ -2,12 +2,14 @@ package com.letscooee.models.trigger;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-
+import android.text.TextUtils;
+import androidx.annotation.NonNull;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.letscooee.models.trigger.inapp.InAppTrigger;
 import com.letscooee.models.trigger.push.PushNotificationTrigger;
-
+import com.letscooee.utils.Constants;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -32,7 +34,11 @@ public class TriggerData implements Parcelable {
 
     @SerializedName("ar")
     @Expose
-    private final Map<String, Object> selfARData = new HashMap<>();
+    private Map<String, Object> selfARData = new HashMap<>();
+
+    @SerializedName("features")
+    @Expose
+    private final ArrayList<Integer> features;
 
     /**
      * No longer used and is replaced by {@link #expireAt}. This was used to append time after notification was
@@ -41,6 +47,8 @@ public class TriggerData implements Parcelable {
      */
     @Deprecated
     private final long duration;
+
+    private final long pushNotificationID = new Date().getTime();
 
     protected TriggerData(Parcel in) {
         id = in.readString();
@@ -59,6 +67,7 @@ public class TriggerData implements Parcelable {
         expireAt = in.readLong();
         in.readMap(selfARData, Object.class.getClassLoader());
         sentAt = (Date) in.readSerializable();
+        features = in.readArrayList(Integer.class.getClassLoader());
     }
 
     public static final Creator<TriggerData> CREATOR = new Creator<TriggerData>() {
@@ -79,6 +88,10 @@ public class TriggerData implements Parcelable {
 
     public String getId() {
         return id;
+    }
+
+    public long getNotificationID() {
+        return this.pushNotificationID;
     }
 
     public double getVersion() {
@@ -118,6 +131,19 @@ public class TriggerData implements Parcelable {
         return sentAt;
     }
 
+    public Map<String, Object> getARData() {
+        return selfARData;
+    }
+
+    @NonNull
+    public ArrayList<Integer> getFeatures() {
+        return features == null ? new ArrayList<>() : features;
+    }
+
+    public void setSelfARData(Map<String, Object> selfARData) {
+        this.selfARData = selfARData;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -136,5 +162,47 @@ public class TriggerData implements Parcelable {
         dest.writeLong(expireAt);
         dest.writeMap(selfARData);
         dest.writeSerializable(sentAt);
+        dest.writeList(features);
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return "Trigger{" +
+                "id='" + id + '\'' +
+                '}';
+    }
+
+    public boolean isCurrentlySupported() {
+        return version >= 4 && version < 5;
+    }
+
+    /**
+     * Checks if IN_APP or SELF_AR features are present or not.
+     * <ul>
+     *     <li>If its null, will allow to load InApp from server</li>
+     *     <li>If its empty, will allow to load InApp from server</li>
+     *     <li>If its present, Will loop and check if there is any feature except PN is present or not.</li>
+     *     <ol>
+     *         <li>If present, Will allow loading data from server</li>
+     *     </ol>
+     * </ul>
+     *
+     * @return true if InApp/AR is present, false otherwise.
+     */
+    public boolean shouldLazyLoad() {
+        if (getFeatures().isEmpty()) {
+            return true;
+        }
+
+        if (getFeatures().contains(Constants.FEATURE_IN_APP) && getInAppTrigger() == null) {
+            return true;
+        }
+        // TODO add check for self AR object
+        return getFeatures().contains(Constants.FEATURE_SELF_AR);
+    }
+
+    public boolean isContainValidData() {
+        return !TextUtils.isEmpty(id) && getInAppTrigger() != null && getInAppTrigger().isContainValidData();
     }
 }

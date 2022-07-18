@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.Log;
 import androidx.annotation.RestrictTo;
 import com.google.gson.Gson;
+import com.letscooee.BuildConfig;
 import com.letscooee.ContextAware;
 import com.letscooee.models.Event;
 import com.letscooee.room.CooeeDatabase;
@@ -70,6 +71,7 @@ public class PendingTaskService extends ContextAware {
         task.data = data;
         task.type = taskType;
         task.dateCreated = new Date().getTime();
+        task.sdkCode = BuildConfig.VERSION_CODE;
 
         task.id = this.database.pendingTaskDAO().insert(task);
 

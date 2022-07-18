@@ -1,32 +1,26 @@
 package com.letscooee.services;
 
-import android.app.PendingIntent;
 import android.content.Context;
-import android.content.Intent;
-import android.text.TextUtils;
 import android.util.Log;
 import androidx.annotation.NonNull;
-import androidx.core.app.NotificationCompat;
+import androidx.annotation.RestrictTo;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
-import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
-import com.google.gson.reflect.TypeToken;
 import com.letscooee.CooeeFactory;
-import com.letscooee.R;
+import com.letscooee.enums.trigger.PendingTriggerAction;
+import com.letscooee.exceptions.InvalidTriggerDataException;
 import com.letscooee.font.FontProcessor;
-import com.letscooee.loader.http.RemoteImageLoader;
 import com.letscooee.models.Event;
 import com.letscooee.models.trigger.TriggerData;
-import com.letscooee.models.trigger.elements.ButtonElement;
-import com.letscooee.models.trigger.push.PushNotificationTrigger;
 import com.letscooee.pushnotification.PushProviderUtils;
-import com.letscooee.trigger.EngagementTriggerHelper;
-import com.letscooee.trigger.adapters.TriggerGsonDeserializer;
+import com.letscooee.room.trigger.PendingTrigger;
+import com.letscooee.trigger.InAppTriggerHelper;
+import com.letscooee.trigger.TriggerDataHelper;
+import com.letscooee.trigger.cache.PendingTriggerService;
 import com.letscooee.trigger.pushnotification.SimpleNotificationRenderer;
 import com.letscooee.utils.Constants;
-import com.letscooee.utils.PendingIntentUtility;
-import java.util.HashMap;
+
+import java.util.Map;
 
 /**
  * Process received payload and work accordingly
@@ -36,11 +30,12 @@ import java.util.HashMap;
  */
 public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
 
-    Context context;
-    EngagementTriggerHelper engagementTriggerHelper;
+    private Context context;
+    private PendingTriggerService pendingTriggerService;
 
     @SuppressWarnings("unused")
     public CooeeFirebaseMessagingService() {
+        this(null);
     }
 
     /**
@@ -48,7 +43,6 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
      *
      * @param context {@link Context}
      */
-    @SuppressWarnings("unused")
     public CooeeFirebaseMessagingService(Context context) {
         this.context = context;
     }
@@ -61,15 +55,33 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
     @Override
     public void onMessageReceived(@NonNull RemoteMessage remoteMessage) {
         super.onMessageReceived(remoteMessage);
-        this.context = getApplicationContext();
-        engagementTriggerHelper = new EngagementTriggerHelper(context);
 
-        if (remoteMessage.getData().size() == 0) {
+        Map<String, String> payload = remoteMessage.getData();
+        if (payload.size() == 0) {
             return;
         }
 
-        FontProcessor.downloadFonts(context, remoteMessage.getData().get("fonts"));
-        this.handleTriggerData(remoteMessage.getData().get("triggerData"));
+        FontProcessor.downloadFonts(context, payload.get("fonts"));
+        this.handleTriggerData(payload.get("triggerData"));
+        this.handlePendingTriggerDeletion(payload.get("pendingTrigger"));
+    }
+
+    /**
+     * Perform delete operations in Pending trigger directly from the received payload.
+     *
+     * @param rawData {@link PendingTrigger}
+     */
+    private void handlePendingTriggerDeletion(String rawData) {
+        initializeVariables();
+        Map<String, String> deletionAction = PendingTriggerAction.parseRawData(rawData);
+        if (deletionAction == null) {
+            return;
+        }
+
+        PendingTriggerAction action = PendingTriggerAction.fromValue(deletionAction.get("a"));
+        String triggerID = deletionAction.get("ti");
+
+        pendingTriggerService.delete(action, triggerID);
     }
 
     /**
@@ -82,43 +94,20 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
         PushProviderUtils.pushTokenRefresh(token);
     }
 
-    private RemoteImageLoader imageLoader;
-
+    /**
+     * This method handles trigger data received via FCM.
+     * <p> This method is open only for {@code com.letscooee} group.</p>
+     *
+     * @param rawTriggerData {@link String} raw trigger data received via FCM.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public void handleTriggerData(String rawTriggerData) {
-        if (TextUtils.isEmpty(rawTriggerData)) {
-            Log.d(Constants.TAG, "No triggerData found on the notification payload");
-            return;
-        }
-
-        if (imageLoader == null) {
-            imageLoader = new RemoteImageLoader(context);
-        }
-
+        initializeVariables();
         TriggerData triggerData;
 
         try {
-            Gson gson = new Gson();
-
-            HashMap<String, Object> baseTriggerData = gson.fromJson(rawTriggerData, new TypeToken<HashMap<String, Object>>() {
-            }.getType());
-
-            assert baseTriggerData != null;
-
-            Double version = (Double) baseTriggerData.get("v");
-            if (version == null || version >= 5 || version < 4) {
-                Log.d(Constants.TAG, "Unsupported payload version received " + version);
-                return;
-            }
-
-            gson = TriggerGsonDeserializer.getGson();
-            triggerData = gson.fromJson(rawTriggerData, TriggerData.class);
-
-        } catch (JsonSyntaxException e) {
-            CooeeFactory.getSentryHelper().captureException(e);
-            return;
-        }
-
-        if (triggerData.getId() == null) {
+            triggerData = TriggerDataHelper.parse(rawTriggerData);
+        } catch (InvalidTriggerDataException e) {
             return;
         }
 
@@ -128,43 +117,30 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
 
             showNotification(triggerData);
         } else {
-            engagementTriggerHelper.loadLazyData(triggerData);
+            // This is just for testing locally when sending in-app only previews
+            new InAppTriggerHelper(context, triggerData).render();
+        }
+    }
+
+    private void initializeVariables() {
+        if (this.context == null) {
+            this.context = getApplicationContext();
+        }
+        if (this.pendingTriggerService == null) {
+            this.pendingTriggerService = new PendingTriggerService(context);
         }
     }
 
     private void showNotification(TriggerData triggerData) {
         SimpleNotificationRenderer renderer = new SimpleNotificationRenderer(context, triggerData);
-        renderer.setContentIntent();
-        renderer.addActions(createActionButtons(triggerData.getPn(), renderer.getNotificationID()));
-        renderer.render();
-    }
-
-    private NotificationCompat.Action[] createActionButtons(PushNotificationTrigger triggerData, int notificationID) {
-        if (triggerData.getButtons() == null) {
-            return new NotificationCompat.Action[0];
+        try {
+            renderer.render();
+        } catch (Exception e) {
+            e.printStackTrace();
+            CooeeFactory.getSentryHelper().captureException("Unable to render push", e);
         }
 
-        NotificationCompat.Action[] actions = new NotificationCompat.Action[triggerData.getButtons().size()];
-        int requestCode = notificationID;
-        int i = 0;
-        for (ButtonElement triggerButton : triggerData.getButtons()) {
-            String title = triggerButton.getText();
-
-            Intent actionButtonIntent = new Intent(getApplicationContext(), PushNotificationIntentService.class);
-            actionButtonIntent.setAction(Constants.ACTION_PUSH_BUTTON_CLICK);
-            actionButtonIntent.putExtra(Constants.INTENT_TRIGGER_DATA_KEY, triggerData);
-            actionButtonIntent.putExtra("notificationId", notificationID);
-
-            PendingIntent pendingIntent = PendingIntentUtility.getService(
-                    getApplicationContext(),
-                    requestCode++,
-                    actionButtonIntent
-            );
-
-            actions[i++] = new NotificationCompat.Action(R.drawable.common_google_signin_btn_icon_dark, title, pendingIntent);
-
-        }
-
-        return actions;
+        pendingTriggerService.newTrigger(triggerData);
     }
+
 }

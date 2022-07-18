@@ -57,7 +57,7 @@ public class BaseHTTPService extends ContextAware {
         return responseData;
     }
 
-    public Map<String, Object> getIANTrigger(String triggerId) throws HttpRequestFailedException {
+    public Map<String, Object> getLazyData(String triggerId) throws HttpRequestFailedException {
         Call<Map<String, Object>> call = apiService.loadTriggerDetails(triggerId);
         Response<?> response = this.executeHTTPCall(call, "Get trigger In-App data");
 
@@ -143,8 +143,8 @@ public class BaseHTTPService extends ContextAware {
             throw new HttpRequestFailedException("Error on " + message, response.code(), response.body());
 
         } catch (IOException e) {
-            Log.e(Constants.TAG, "Exception in HTTP " + message, e);
-            throw new HttpRequestFailedException("Exception in HTTP " + message, e);
+            Log.e(Constants.TAG, "Exception in HTTP: " + message, e);
+            throw new HttpRequestFailedException("Exception in HTTP: " + message, e);
         }
     }
 }

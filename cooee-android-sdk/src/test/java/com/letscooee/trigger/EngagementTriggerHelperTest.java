@@ -1,32 +1,42 @@
 package com.letscooee.trigger;
 
+import static com.google.common.truth.Truth.assertThat;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import android.app.Activity;
 import android.content.Context;
 import androidx.room.Room;
 import com.google.gson.JsonSyntaxException;
 import com.letscooee.BaseTestCase;
+import com.letscooee.exceptions.InvalidTriggerDataException;
 import com.letscooee.models.trigger.EmbeddedTrigger;
 import com.letscooee.models.trigger.TriggerData;
 import com.letscooee.room.CooeeDatabase;
-import com.letscooee.trigger.adapters.TriggerGsonDeserializer;
+import com.letscooee.trigger.cache.PendingTriggerService;
+import com.letscooee.utils.Constants;
+import com.letscooee.utils.LocalStorageHelper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.robolectric.RuntimeEnvironment;
-
-import java.util.ArrayList;
+import org.robolectric.util.ReflectionHelpers;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-
-import static com.google.common.truth.Truth.assertThat;
-import static org.mockito.Mockito.*;
 
 public class EngagementTriggerHelperTest extends BaseTestCase {
 
     EngagementTriggerHelper engagementTriggerHelperMock;
     EngagementTriggerHelper engagementTriggerHelper;
+    PendingTriggerService pendingTriggerService;
 
     @Before
     @Override
@@ -38,8 +48,14 @@ public class EngagementTriggerHelperTest extends BaseTestCase {
         database = Room.inMemoryDatabaseBuilder(context, CooeeDatabase.class).build();
         engagementTriggerHelper = new EngagementTriggerHelper(context);
         engagementTriggerHelperMock = Mockito.spy(engagementTriggerHelper);
-        expiredTriggerData = TriggerGsonDeserializer.getGson().fromJson(samplePayload, TriggerData.class);
+        pendingTriggerService = Mockito.mock(PendingTriggerService.class);
+        try {
+            expiredTriggerData = TriggerDataHelper.parse(samplePayload);
+        } catch (InvalidTriggerDataException e) {
+            e.printStackTrace();
+        }
         makeActiveTrigger();
+        ReflectionHelpers.setField(engagementTriggerHelperMock, "pendingTriggerService", pendingTriggerService);
     }
 
     @Test
@@ -74,7 +90,7 @@ public class EngagementTriggerHelperTest extends BaseTestCase {
         verify(engagementTriggerHelperMock, never()).renderInAppTriggerFromJSONString(samplePayload);
     }
 
-    private void commonRenderInAppTriggerFromJSONString(String payload, int times) {
+    private void commonRenderInAppTriggerFromJSONString(String payload, @SuppressWarnings("SameParameterValue") int times) {
         doNothing().when(engagementTriggerHelperMock).renderInAppTrigger(any(TriggerData.class));
         engagementTriggerHelperMock.renderInAppTriggerFromJSONString(payload);
 
@@ -87,9 +103,11 @@ public class EngagementTriggerHelperTest extends BaseTestCase {
 
     @Test
     public void render_in_app_from_json_string() {
-        assertThat(samplePayload).isNotEmpty();
-
-        commonRenderInAppTriggerFromJSONString(samplePayload, 1);
+        assertThat(triggerData).isNotNull();
+        LocalStorageHelper.remove(context, Constants.STORAGE_ACTIVATED_TRIGGERS);
+        engagementTriggerHelperMock.renderInAppTriggerFromJSONString(TriggerDataHelper.stringify(triggerData));
+        List<EmbeddedTrigger> list = EngagementTriggerHelper.getActiveTriggers(context);
+        assertThat(triggerData.getId()).isEqualTo(list.get(0).getTriggerID());
     }
 
     @Test
@@ -126,13 +144,13 @@ public class EngagementTriggerHelperTest extends BaseTestCase {
 
     @Test
     public void render_in_app_from_json_string_invalid_json_string_scenario_3() {
-        commonRenderInAppTriggerFromJSONString("{}", 1);
+        commonRenderInAppTriggerFromJSONString("{}", 0);
     }
 
     private void commonRenderInAppFromPushNotification(Activity activity, int times) {
-        doNothing().when(engagementTriggerHelperMock).renderInAppFromPushNotification(any(TriggerData.class));
+        doNothing().when(engagementTriggerHelperMock).renderInAppTrigger(any(TriggerData.class));
         engagementTriggerHelperMock.renderInAppFromPushNotification(activity);
-        verify(engagementTriggerHelperMock, times(times)).renderInAppFromPushNotification(any(TriggerData.class));
+        verify(engagementTriggerHelperMock, timeout(5000).times(times)).renderInAppTrigger(any(TriggerData.class));
     }
 
     @Ignore("Failing due to overloaded methods")
@@ -143,7 +161,6 @@ public class EngagementTriggerHelperTest extends BaseTestCase {
         commonRenderInAppFromPushNotification(activity, 1);
     }
 
-    @Ignore("Failing due to overloaded methods")
     @Test
     public void render_in_app_from_notification_from_activity_with_no_extra() {
         assertThat(activityWithNoBundle).isNotNull();
@@ -151,7 +168,6 @@ public class EngagementTriggerHelperTest extends BaseTestCase {
         commonRenderInAppFromPushNotification(activityWithNoBundle, 0);
     }
 
-    @Ignore("Failing due to overloaded methods")
     @Test
     public void render_in_app_from_notification_from_activity_with_no_trigger_data_in_extra() {
         assertThat(activityWithNoBundle).isNotNull();
@@ -159,7 +175,7 @@ public class EngagementTriggerHelperTest extends BaseTestCase {
         commonRenderInAppFromPushNotification(activityWithNoBundle, 0);
     }
 
-    @Ignore("Failing due pending task")
+    @Ignore("This test is not working properly. Need to fix it.")
     @Test
     public void render_in_app_from_notification_from_trigger_data() {
         assertThat(triggerData).isNotNull();
@@ -167,12 +183,12 @@ public class EngagementTriggerHelperTest extends BaseTestCase {
         assertThat(triggerData.getEngagementID()).isNotEmpty();
         assertThat(triggerData.getExpireAt()).isGreaterThan(0);
 
-        doNothing().when(engagementTriggerHelperMock).loadLazyData(any(TriggerData.class));
-        engagementTriggerHelperMock.renderInAppFromPushNotification(triggerData);
-        verify(engagementTriggerHelperMock, times(1)).loadLazyData(any(TriggerData.class));
+        doNothing().when(engagementTriggerHelperMock).renderInAppTrigger(any(TriggerData.class));
+        engagementTriggerHelperMock.renderInAppFromPushNotification(triggerData, 1);
+        verify(engagementTriggerHelperMock, timeout(5000).times(1)).renderInAppTrigger(any(TriggerData.class));
     }
 
-    private ArrayList<EmbeddedTrigger> saveAndGetActiveTriggers(Context context, TriggerData triggerData) {
+    private List<EmbeddedTrigger> saveAndGetActiveTriggers(Context context, TriggerData triggerData) {
         EngagementTriggerHelper.storeActiveTriggerDetails(context, triggerData);
         return EngagementTriggerHelper.getActiveTriggers(context);
     }
@@ -184,7 +200,7 @@ public class EngagementTriggerHelperTest extends BaseTestCase {
         assertThat(triggerData.getEngagementID()).isNotEmpty();
         assertThat(triggerData.getExpireAt()).isGreaterThan(0);
 
-        ArrayList<EmbeddedTrigger> embeddedTriggers = saveAndGetActiveTriggers(context, triggerData);
+        List<EmbeddedTrigger> embeddedTriggers = saveAndGetActiveTriggers(context, triggerData);
 
         assertThat(embeddedTriggers).isNotEmpty();
         assertThat(embeddedTriggers.size()).isEqualTo(1);
@@ -198,7 +214,7 @@ public class EngagementTriggerHelperTest extends BaseTestCase {
         assertThat(expiredTriggerData.getEngagementID()).isNotEmpty();
         assertThat(expiredTriggerData.getExpireAt()).isGreaterThan(0);
 
-        ArrayList<EmbeddedTrigger> embeddedTriggers = saveAndGetActiveTriggers(context, expiredTriggerData);
+        List<EmbeddedTrigger> embeddedTriggers = saveAndGetActiveTriggers(context, expiredTriggerData);
 
         assertThat(embeddedTriggers).isEmpty();
         assertThat(embeddedTriggers.size()).isEqualTo(0);
