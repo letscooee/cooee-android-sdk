@@ -9,23 +9,29 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.robolectric.Shadows.shadowOf;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import androidx.room.Room;
 import com.google.gson.JsonSyntaxException;
 import com.letscooee.BaseTestCase;
+import com.letscooee.CooeeFactory;
 import com.letscooee.exceptions.InvalidTriggerDataException;
 import com.letscooee.models.trigger.EmbeddedTrigger;
 import com.letscooee.models.trigger.TriggerData;
 import com.letscooee.room.CooeeDatabase;
 import com.letscooee.trigger.cache.PendingTriggerService;
+import com.letscooee.trigger.inapp.InAppTriggerActivity;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.LocalStorageHelper;
+import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.robolectric.Robolectric;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.util.ReflectionHelpers;
 import java.util.HashMap;
@@ -33,6 +39,20 @@ import java.util.List;
 import java.util.Map;
 
 public class EngagementTriggerHelperTest extends BaseTestCase {
+
+    enum InvalidData {
+        EMPTY_BACKGROUND_IMAGE("invalidBg"), // background image is empty in any Element
+        NULL_PARTS("nullParts"), // Null parts in TextElement
+        EMPTY_PARTS("emptyParts"), // Empty parts in TextElement
+        EMPTY_IMAGE_URL("emptyImage"),
+        ; // Empty image url in ImageElement
+
+        public final String value;
+
+        InvalidData(String value) {
+            this.value = value;
+        }
+    }
 
     EngagementTriggerHelper engagementTriggerHelperMock;
     EngagementTriggerHelper engagementTriggerHelper;
@@ -56,6 +76,7 @@ public class EngagementTriggerHelperTest extends BaseTestCase {
         }
         makeActiveTrigger();
         ReflectionHelpers.setField(engagementTriggerHelperMock, "pendingTriggerService", pendingTriggerService);
+        activity = Robolectric.buildActivity(CooeeEmptyActivity.class, null).create().get();
     }
 
     @Test
@@ -90,7 +111,7 @@ public class EngagementTriggerHelperTest extends BaseTestCase {
         verify(engagementTriggerHelperMock, never()).renderInAppTriggerFromJSONString(samplePayload);
     }
 
-    private void commonRenderInAppTriggerFromJSONString(String payload, @SuppressWarnings("SameParameterValue") int times) {
+    private void commonRenderInAppTriggerFromJSONString(String payload, @SuppressWarnings("SameParameterValue") int times) throws InvalidTriggerDataException {
         doNothing().when(engagementTriggerHelperMock).renderInAppTrigger(any(TriggerData.class));
         engagementTriggerHelperMock.renderInAppTriggerFromJSONString(payload);
 
@@ -111,12 +132,12 @@ public class EngagementTriggerHelperTest extends BaseTestCase {
     }
 
     @Test
-    public void render_in_app_from_json_string_null_string() {
+    public void render_in_app_from_json_string_null_string() throws InvalidTriggerDataException {
         commonRenderInAppTriggerFromJSONString(null, 0);
     }
 
     @Test
-    public void render_in_app_from_json_string_empty_string() {
+    public void render_in_app_from_json_string_empty_string() throws InvalidTriggerDataException {
         String emptyPayload = "";
         commonRenderInAppTriggerFromJSONString(emptyPayload, 0);
     }
@@ -137,17 +158,17 @@ public class EngagementTriggerHelperTest extends BaseTestCase {
     }
 
     @Test
-    public void render_in_app_from_json_string_invalid_json_string_scenario_2() {
+    public void render_in_app_from_json_string_invalid_json_string_scenario_2() throws InvalidTriggerDataException {
         String invalidPayload = "invalid json string";
         commonRenderInAppTriggerFromJSONString(invalidPayload, 0);
     }
 
     @Test
-    public void render_in_app_from_json_string_invalid_json_string_scenario_3() {
+    public void render_in_app_from_json_string_invalid_json_string_scenario_3() throws InvalidTriggerDataException {
         commonRenderInAppTriggerFromJSONString("{}", 0);
     }
 
-    private void commonRenderInAppFromPushNotification(Activity activity, int times) {
+    private void commonRenderInAppFromPushNotification(Activity activity, int times) throws InvalidTriggerDataException {
         doNothing().when(engagementTriggerHelperMock).renderInAppTrigger(any(TriggerData.class));
         engagementTriggerHelperMock.renderInAppFromPushNotification(activity);
         verify(engagementTriggerHelperMock, timeout(5000).times(times)).renderInAppTrigger(any(TriggerData.class));
@@ -155,21 +176,21 @@ public class EngagementTriggerHelperTest extends BaseTestCase {
 
     @Ignore("Failing due to overloaded methods")
     @Test
-    public void render_in_app_from_notification_from_activity() {
+    public void render_in_app_from_notification_from_activity() throws InvalidTriggerDataException {
         assertThat(activity).isNotNull();
 
         commonRenderInAppFromPushNotification(activity, 1);
     }
 
     @Test
-    public void render_in_app_from_notification_from_activity_with_no_extra() {
+    public void render_in_app_from_notification_from_activity_with_no_extra() throws InvalidTriggerDataException {
         assertThat(activityWithNoBundle).isNotNull();
 
         commonRenderInAppFromPushNotification(activityWithNoBundle, 0);
     }
 
     @Test
-    public void render_in_app_from_notification_from_activity_with_no_trigger_data_in_extra() {
+    public void render_in_app_from_notification_from_activity_with_no_trigger_data_in_extra() throws InvalidTriggerDataException {
         assertThat(activityWithNoBundle).isNotNull();
 
         commonRenderInAppFromPushNotification(activityWithNoBundle, 0);
@@ -177,7 +198,7 @@ public class EngagementTriggerHelperTest extends BaseTestCase {
 
     @Ignore("This test is not working properly. Need to fix it.")
     @Test
-    public void render_in_app_from_notification_from_trigger_data() {
+    public void render_in_app_from_notification_from_trigger_data() throws InvalidTriggerDataException {
         assertThat(triggerData).isNotNull();
         assertThat(triggerData.getId()).isNotEmpty();
         assertThat(triggerData.getEngagementID()).isNotEmpty();
@@ -218,6 +239,92 @@ public class EngagementTriggerHelperTest extends BaseTestCase {
 
         assertThat(embeddedTriggers).isEmpty();
         assertThat(embeddedTriggers.size()).isEqualTo(0);
+    }
+
+    @Test
+    public void render_in_app() throws InvalidTriggerDataException {
+        CooeeFactory.getRuntimeData().setInForeground();
+        engagementTriggerHelperMock.renderInAppTrigger(triggerData);
+        Intent intent = shadowOf(activity).getNextStartedActivity();
+        assertThat(intent).isNotNull();
+        assertThat(intent.getComponent().getClassName()).isEqualTo(InAppTriggerActivity.class.getName());
+    }
+
+    @Test
+    public void render_in_app_with_empty_background_image() {
+        CooeeFactory.getRuntimeData().setInForeground();
+        TriggerData invalidBackgroundTriggerData = generateInvalidPayload(InvalidData.EMPTY_BACKGROUND_IMAGE);
+
+        try {
+            engagementTriggerHelperMock.renderInAppTrigger(invalidBackgroundTriggerData);
+        } catch (Exception e) {
+            assertThat(e).isInstanceOf(InvalidTriggerDataException.class);
+        }
+
+        Intent intent = shadowOf(activity).getNextStartedActivity();
+        assertThat(intent).isNull();
+    }
+
+    @Test
+    public void render_in_app_with_empty_part() {
+        CooeeFactory.getRuntimeData().setInForeground();
+        TriggerData invalidBackgroundTriggerData = generateInvalidPayload(InvalidData.EMPTY_PARTS);
+
+        try {
+            engagementTriggerHelperMock.renderInAppTrigger(invalidBackgroundTriggerData);
+        } catch (Exception e) {
+            assertThat(e).isInstanceOf(InvalidTriggerDataException.class);
+        }
+
+        Intent intent = shadowOf(activity).getNextStartedActivity();
+        assertThat(intent).isNull();
+    }
+
+    @Test
+    public void render_in_app_with_null_part() {
+        CooeeFactory.getRuntimeData().setInForeground();
+        TriggerData invalidBackgroundTriggerData = generateInvalidPayload(InvalidData.NULL_PARTS);
+
+        try {
+            engagementTriggerHelperMock.renderInAppTrigger(invalidBackgroundTriggerData);
+        } catch (Exception e) {
+            assertThat(e).isInstanceOf(InvalidTriggerDataException.class);
+        }
+
+        Intent intent = shadowOf(activity).getNextStartedActivity();
+        assertThat(intent).isNull();
+    }
+
+    @Test
+    public void render_in_app_with_empty_image_in_image_element() {
+        CooeeFactory.getRuntimeData().setInForeground();
+        TriggerData invalidBackgroundTriggerData = generateInvalidPayload(InvalidData.EMPTY_IMAGE_URL);
+
+        try {
+            engagementTriggerHelperMock.renderInAppTrigger(invalidBackgroundTriggerData);
+        } catch (Exception e) {
+            assertThat(e).isInstanceOf(InvalidTriggerDataException.class);
+        }
+
+        Intent intent = shadowOf(activity).getNextStartedActivity();
+        assertThat(intent).isNull();
+    }
+
+    private TriggerData generateInvalidPayload(InvalidData invalidData) {
+        TriggerData triggerData = this.triggerData;
+        //noinspection unchecked
+        Map<String, Object> inAppData = (Map<String, Object>) this.payloadMap.get("ian");
+
+        assert inAppData != null;
+        inAppData.put("elems", this.invalidElementsMap.get(invalidData.value));
+        payloadMap.put("ian", inAppData);
+        JSONObject jsonObject = new JSONObject(payloadMap);
+        try {
+            triggerData = TriggerDataHelper.parseOnly(jsonObject.toString());
+        } catch (InvalidTriggerDataException e) {
+            e.printStackTrace();
+        }
+        return triggerData;
     }
 
     @After

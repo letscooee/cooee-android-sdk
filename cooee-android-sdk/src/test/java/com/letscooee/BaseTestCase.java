@@ -51,6 +51,7 @@ public abstract class BaseTestCase extends TestCase {
     protected Context context;
     protected String samplePayload;
     protected Map<String, Object> payloadMap;
+    protected Map<String, Object> invalidElementsMap;
     protected TriggerData triggerData;
     protected Gson gson = new Gson();
     protected RuntimeData runtimeData;
@@ -103,6 +104,10 @@ public abstract class BaseTestCase extends TestCase {
         try {
             InputStream inputStream = context.getAssets().open("payload_2.json");
             samplePayload = new Scanner(inputStream).useDelimiter("\\A").next();
+            InputStream invalidData = context.getAssets().open("invalid_data.json");
+            String rawInvalidData = new Scanner(invalidData).useDelimiter("\\A").next();
+            invalidElementsMap = new Gson().fromJson(rawInvalidData, new TypeToken<HashMap<String, Object>>() {
+            }.getType());
         } catch (IOException e) {
             Log.e(Constants.TAG, "Error: ", e);
         }

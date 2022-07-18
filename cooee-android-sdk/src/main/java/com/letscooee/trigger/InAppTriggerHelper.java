@@ -5,6 +5,7 @@ import android.util.Log;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.letscooee.CooeeFactory;
+import com.letscooee.exceptions.InvalidTriggerDataException;
 import com.letscooee.loader.http.RemoteImageLoader;
 import com.letscooee.models.trigger.TriggerData;
 import com.letscooee.models.trigger.blocks.Background;
@@ -42,7 +43,7 @@ public class InAppTriggerHelper {
      * Check if related InApp data is present in {@link PendingTrigger} DB and load it.
      * If not present, then load the InApp data from the server.
      */
-    public void checkInPendingTriggerAndRender() {
+    public void checkInPendingTriggerAndRender() throws InvalidTriggerDataException {
         PendingTrigger pendingTrigger = this.pendingTriggerService.findForTrigger(triggerData);
         if (pendingTrigger == null) {
             Log.v(Constants.TAG, "" + triggerData + " is already displayed");
@@ -53,19 +54,18 @@ public class InAppTriggerHelper {
         this.render();
     }
 
-    public void render() {
+    public void render() throws InvalidTriggerDataException {
         Log.d(Constants.TAG, "Render " + triggerData);
 
         try {
             this.loadLazyData();
             this.precacheImages();
+            new EngagementTriggerHelper(context).renderInAppTrigger(triggerData);
         } catch (ExecutionException | InterruptedException e) {
-            // Error handled
             return;
+        } catch (InvalidTriggerDataException e) {
+            throw e;
         }
-
-        // TODO clean this up
-        new EngagementTriggerHelper(context).renderInAppTrigger(triggerData);
     }
 
     /**

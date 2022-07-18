@@ -10,10 +10,17 @@ import com.letscooee.models.trigger.TriggerData;
 public class InvalidTriggerDataException extends Exception {
 
     String payload;
+    String message;
     TriggerData triggerData;
+
+    public InvalidTriggerDataException(String message) {
+        super(message);
+        this.message = message;
+    }
 
     public InvalidTriggerDataException(String message, TriggerData triggerData) {
         super(message);
+        this.message = message;
         this.triggerData = triggerData;
     }
 
@@ -29,7 +36,7 @@ public class InvalidTriggerDataException extends Exception {
 
     public InvalidTriggerDataException(String message, Throwable cause, TriggerData triggerData) {
         super(message, cause);
+        this.message = message;
         this.triggerData = triggerData;
     }
-
 }
