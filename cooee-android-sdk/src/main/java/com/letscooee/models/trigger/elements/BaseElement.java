@@ -6,10 +6,12 @@ import android.text.TextUtils;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.letscooee.exceptions.InvalidTriggerDataException;
-import com.letscooee.models.trigger.blocks.*;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.letscooee.models.trigger.blocks.Background;
+import com.letscooee.models.trigger.blocks.Border;
+import com.letscooee.models.trigger.blocks.ClickAction;
+import com.letscooee.models.trigger.blocks.Shadow;
+import com.letscooee.models.trigger.blocks.Spacing;
+import com.letscooee.models.trigger.blocks.Transform;
 
 public abstract class BaseElement implements Parcelable {
 
@@ -138,14 +140,8 @@ public abstract class BaseElement implements Parcelable {
         return this.bg.getImage().getSrc();
     }
 
-    public List<String> getImageURLs() {
-        ArrayList<String> urls = new ArrayList<>();
-        String bgImage = this.getBgImage();
-        if (bgImage != null) {
-            urls.add(bgImage);
-        }
-
-        return urls;
+    public String getImageURL() {
+        return this.getBgImage();
     }
 
     /**

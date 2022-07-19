@@ -1,6 +1,7 @@
 package com.letscooee.models.trigger.inapp;
 
 import android.os.Parcel;
+import android.text.TextUtils;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.google.gson.JsonSyntaxException;
@@ -13,11 +14,10 @@ import com.letscooee.models.trigger.blocks.Background;
 import com.letscooee.models.trigger.blocks.ClickAction;
 import com.letscooee.models.trigger.elements.BaseElement;
 import com.letscooee.trigger.TriggerDataHelper;
-import java9.util.stream.Collectors;
-import java9.util.stream.StreamSupport;
-
 import java.util.ArrayList;
 import java.util.List;
+import java9.util.stream.Collectors;
+import java9.util.stream.StreamSupport;
 
 public class InAppTrigger extends BaseElement {
 
@@ -133,10 +133,23 @@ public class InAppTrigger extends BaseElement {
     }
 
     public List<String> getImageURLs() {
-        return StreamSupport.stream(elements)
-                .map(BaseElement::getImageURLs)
-                .flatMap(StreamSupport::stream)
+        // Collect and filter null/empty image URL from all elements
+        List<String> imageList = StreamSupport.stream(elements)
+                .map(BaseElement::getImageURL)
+                .filter(s -> !TextUtils.isEmpty(s))
                 .collect(Collectors.toList());
+
+        // Background image URL of InAppTrigger.
+        if (TextUtils.isEmpty(getImageURL())) {
+            imageList.add(getImageURL());
+        }
+
+        // Background image URL of Container.
+        if (TextUtils.isEmpty(container.getImageURL())) {
+            imageList.add(container.getImageURL());
+        }
+
+        return imageList;
     }
 
     /**

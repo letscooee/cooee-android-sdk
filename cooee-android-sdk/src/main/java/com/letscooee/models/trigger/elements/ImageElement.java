@@ -2,9 +2,7 @@ package com.letscooee.models.trigger.elements;
 
 import android.os.Parcel;
 import android.text.TextUtils;
-
 import com.letscooee.exceptions.InvalidTriggerDataException;
-import java.util.List;
 
 public class ImageElement extends BaseElement {
 
@@ -37,13 +35,9 @@ public class ImageElement extends BaseElement {
         return src;
     }
 
-    public List<String> getImageURLs() {
-        List<String> urls = super.getImageURLs();
-        if (!TextUtils.isEmpty(src)) {
-            urls.add(src);
-        }
-
-        return urls;
+    @Override
+    public String getImageURL() {
+        return getSrc();
     }
 
     /**
