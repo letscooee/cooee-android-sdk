@@ -180,17 +180,16 @@ public class CooeeSDK {
             return;
         }
 
+        // Update screen name on main thread, because other threads may be in paused state till CPU gets free.(Edge case scenario)
+        String previousScreenName = this.runtimeData.getCurrentScreenName();
+        this.runtimeData.setCurrentScreenName(screenName);
+
         CooeeExecutors.getInstance().singleThreadExecutor().execute(() -> {
             /*
              * Properties will hold previous screen name.
              */
             Map<String, Object> properties = new HashMap<>();
-            properties.put("ps", this.runtimeData.getCurrentScreenName());
-
-            /*
-             * Update current screen name at runtime so that other event can have updated screen name.
-             */
-            this.runtimeData.setCurrentScreenName(screenName);
+            properties.put("ps", previousScreenName);
 
             Event event = new Event(Constants.EVENT_SCREEN_VIEW, properties);
 
