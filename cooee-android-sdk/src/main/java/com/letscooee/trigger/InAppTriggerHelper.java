@@ -46,7 +46,7 @@ public class InAppTriggerHelper {
     public void checkInPendingTriggerAndRender() throws InvalidTriggerDataException {
         PendingTrigger pendingTrigger = this.pendingTriggerService.findForTrigger(triggerData);
         if (pendingTrigger == null) {
-            Log.v(Constants.TAG, "" + triggerData + " is already displayed");
+            Log.v(Constants.TAG, triggerData + " is already displayed");
             return;
         }
 

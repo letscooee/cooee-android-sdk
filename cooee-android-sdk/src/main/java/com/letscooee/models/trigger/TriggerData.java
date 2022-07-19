@@ -175,7 +175,13 @@ public class TriggerData implements Parcelable {
     }
 
     public boolean isCurrentlySupported() {
-        return version >= 4 && version < 5;
+        /*
+         * Casting in java  only removes decimal values.
+         * If input is 1.0, then output is 1.
+         * If input is 1.1, then output is 1.
+         * If input is 1.99, then output is 1.
+         */
+        return ((int) version) == 4;
     }
 
     /**

@@ -44,7 +44,7 @@ public class PushTriggerHelper {
 
     private void deleteNotification(PendingTrigger pendingTrigger) {
         Map<String, Object> triggerConfig = triggerData.getConfig();
-        if (!shouldRemovePushFromToday(triggerConfig)) {
+        if (!shouldRemovePushFromTray(triggerConfig)) {
             return;
         }
 
@@ -70,7 +70,7 @@ public class PushTriggerHelper {
      * @param triggerConfig Configuration to remove push notification from tray
      * @return Returns true to remove PN from tray other wise false
      */
-    private boolean shouldRemovePushFromToday(Map<String, Object> triggerConfig) {
+    private boolean shouldRemovePushFromTray(Map<String, Object> triggerConfig) {
         //noinspection ConstantConditions
         return triggerConfig == null || triggerConfig.get("rmPN") == null || ((boolean) triggerConfig.get("rmPN"));
     }
