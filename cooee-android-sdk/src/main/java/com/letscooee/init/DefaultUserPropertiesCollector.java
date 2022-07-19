@@ -23,7 +23,6 @@ import android.os.Environment;
 import android.os.StatFs;
 import android.telephony.TelephonyManager;
 import android.util.DisplayMetrics;
-import androidx.core.app.ActivityCompat;
 import com.letscooee.CooeeFactory;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.DateUtils;

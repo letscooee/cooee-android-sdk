@@ -19,7 +19,6 @@ import com.letscooee.trigger.TriggerDataHelper;
 import com.letscooee.trigger.cache.PendingTriggerService;
 import com.letscooee.trigger.pushnotification.SimpleNotificationRenderer;
 import com.letscooee.utils.Constants;
-
 import java.util.Map;
 
 /**
