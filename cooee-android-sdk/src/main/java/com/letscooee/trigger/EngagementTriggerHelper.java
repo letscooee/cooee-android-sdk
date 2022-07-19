@@ -19,6 +19,7 @@ import com.letscooee.models.trigger.EmbeddedTrigger;
 import com.letscooee.models.trigger.TriggerData;
 import com.letscooee.models.trigger.blocks.ClickAction;
 import com.letscooee.room.trigger.PendingTrigger;
+import com.letscooee.task.CooeeExecutors;
 import com.letscooee.trigger.action.ClickActionExecutor;
 import com.letscooee.trigger.cache.PendingTriggerService;
 import com.letscooee.trigger.inapp.InAppTriggerActivity;
@@ -28,8 +29,12 @@ import com.letscooee.utils.Constants;
 import com.letscooee.utils.LocalStorageHelper;
 import com.letscooee.utils.RuntimeData;
 import com.letscooee.utils.Timer;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * A small helper class for any kind of engagement trigger like caching or retrieving from local storage.
@@ -167,7 +172,7 @@ public class EngagementTriggerHelper {
         try {
             triggerData = TriggerDataHelper.parse(rawTriggerData);
             storeActiveTriggerDetails(context, triggerData);
-            new InAppTriggerHelper(context, triggerData).render();
+            render(triggerData);
         } catch (InvalidTriggerDataException e) {
             Log.e(Constants.TAG, e.getMessage(), e);
         }
@@ -273,7 +278,25 @@ public class EngagementTriggerHelper {
 
         TriggerData triggerData = pendingTrigger.getTriggerData();
 
-        new InAppTriggerHelper(context, triggerData).render();
+        render(triggerData);
+    }
+
+    /**
+     * Calls {@link InAppTriggerHelper#render()} with the given trigger data.
+     * To run {@link InAppTriggerHelper#render()} single worker thread operating off an unbounded queue is used.
+     * Which allows {@link java9.util.concurrent.CompletableFuture} to stop rendering the in-app trigger
+     * till all images are loaded.
+     *
+     * @param triggerData trigger data to be rendered.
+     */
+    private void render(TriggerData triggerData) {
+        new CooeeExecutors().singleThreadExecutor().execute(() -> {
+            try {
+                new InAppTriggerHelper(context, triggerData).render();
+            } catch (InvalidTriggerDataException e) {
+                Log.d(Constants.TAG, e.getMessage(), e);
+            }
+        });
     }
 
     private void launchInApp(TriggerData triggerData, int sdkVersionCode) {
@@ -318,7 +341,6 @@ public class EngagementTriggerHelper {
         Event event = new Event(Constants.EVENT_NOTIFICATION_CLICKED, triggerData);
         CooeeFactory.getSafeHTTPService().sendEventWithoutSession(event);
 
-        InAppTriggerHelper helper = new InAppTriggerHelper(context, triggerData);
         /*
          * If the SDK version is less than 10400 i.e v1.4.0, then we will render InApp with old way.
          * Else we will render InApp with new way i.e With PendingTrigger helpers.
@@ -330,9 +352,9 @@ public class EngagementTriggerHelper {
          * rendered via which sdk version.
          */
         if (sdkVersionCode < 10400) {
-            helper.render();
+            render(triggerData);
         } else {
-            helper.checkInPendingTriggerAndRender();
+            new InAppTriggerHelper(context, triggerData).checkInPendingTriggerAndRender();
         }
     }
 
