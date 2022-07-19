@@ -11,7 +11,7 @@
         android:text="My list should appear below this" />
 
     <TextView
-        android:id="@+id/textViewInfo"
+        android:id="@+id/textViewBody"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="My list should appear below this" />

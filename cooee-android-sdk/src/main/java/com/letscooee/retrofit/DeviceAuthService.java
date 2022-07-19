@@ -165,9 +165,10 @@ public class DeviceAuthService {
         APIClient.setAppVersion(CooeeFactory.getAppInfo().getVersion());
         this.sentryHelper.setUserId(userID);
 
-        if (!TextUtils.isEmpty(sdkToken)) {
+        // Stopping ScreenshotUtility as backend not accepting any new screenshot requests
+        /*if (!TextUtils.isEmpty(sdkToken)) {
             new ScreenshotUtility(context); // Initialize ScreenshotUtility
-        }
+        }*/
     }
 
     /**

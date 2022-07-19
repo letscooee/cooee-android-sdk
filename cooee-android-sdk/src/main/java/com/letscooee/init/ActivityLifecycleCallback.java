@@ -5,19 +5,18 @@ import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-
 import com.letscooee.CooeeFactory;
 import com.letscooee.device.DebugInfoActivity;
+import com.letscooee.enums.LaunchType;
 import com.letscooee.gesture.ShakeDetector;
 import com.letscooee.screenshot.ScreenshotHelper;
 import com.letscooee.screenshot.ScreenshotUtility;
 import com.letscooee.trigger.CooeeEmptyActivity;
 import com.letscooee.trigger.EngagementTriggerHelper;
-import com.letscooee.trigger.inapp.InAppTriggerActivity;
 import com.letscooee.trigger.inapp.PreventBlurActivity;
+import com.letscooee.utils.RuntimeData;
 
 /**
  * Register callbacks of different lifecycle of all the activities.
@@ -28,28 +27,34 @@ import com.letscooee.trigger.inapp.PreventBlurActivity;
 public class ActivityLifecycleCallback implements Application.ActivityLifecycleCallbacks {
 
     private final Context context;
+    private final RuntimeData runtimeData;
     private ShakeDetector shakeDetector;
 
     ActivityLifecycleCallback(Context context) {
         this.context = context;
+        this.runtimeData = CooeeFactory.getRuntimeData();
     }
 
     @Override
     public void onActivityCreated(@NonNull Activity activity, @Nullable Bundle savedInstanceState) {
+        // Activity created
     }
 
     @Override
     public void onActivityStarted(@NonNull Activity activity) {
+        // Activity started
     }
 
     @Override
     public void onActivityResumed(@NonNull Activity activity) {
-        InAppTriggerActivity.captureWindowForBlurryEffect(activity);
-
-        new EngagementTriggerHelper(context).renderInAppFromPushNotification(activity);
+        this.runtimeData.setCurrentActivity(activity);
 
         if (activity instanceof CooeeEmptyActivity) {
+            this.runtimeData.setLaunchType(LaunchType.PUSH_CLICK);
+            new EngagementTriggerHelper(context).renderInAppFromPushNotification(activity);
             activity.finish();
+        } else {
+            this.runtimeData.setLaunchType(LaunchType.ORGANIC);
         }
 
         registerShakeDetector(activity);
@@ -87,13 +92,17 @@ public class ActivityLifecycleCallback implements Application.ActivityLifecycleC
 
     @Override
     public void onActivityStopped(@NonNull Activity activity) {
+        // Activity Stopped
     }
 
     @Override
     public void onActivitySaveInstanceState(@NonNull Activity activity, @NonNull Bundle outState) {
+        // Activity saved instance state
     }
 
     @Override
     public void onActivityDestroyed(@NonNull Activity activity) {
+        // Activity destroyed
     }
+
 }

@@ -8,6 +8,9 @@ package com.letscooee.utils;
  */
 public class Constants {
 
+    private Constants() {
+    }
+
     public static final int PERMISSION_REQUEST_CODE = 1;
 
     // region All Shared Preference related keys
@@ -21,12 +24,12 @@ public class Constants {
     public static final String STORAGE_LAST_TOKEN_ATTEMPT = "last_token_check_attempt";
     public static final String STORAGE_LAST_FONT_ATTEMPT = "last_font_check_attempt";
     public static final String STORAGE_CACHED_FONTS = "cached_fonts";
-    public static final String STORAGE_FB_TOKEN = "fb_token";
     public static final String STORAGE_DEVICE_ID = "cooee_device_id";
     public static final String STORAGE_DEVICE_UUID = "cooee_device_uuid";
     public static final String STORAGE_SCREENSHOT_SYNC_TIME = "screenshot_sync_time";
     public static final String STORAGE_LAST_SESSION_USE_TIME = "cooee_last_session_use_time";
     public static final String STORAGE_ACTIVE_SESSION = "cooee_active_session";
+    public static final String STORAGE_RAW_IN_APP_TRIGGER_KEY = "cooee_raw_in_app_trigger";
     // endregion
 
     public static final String TAG = "CooeeSDK";
@@ -46,16 +49,17 @@ public class Constants {
     public static final String ACTION_DELETE_NOTIFICATION = "pnDelete";
     // endregion
 
+    // region Intent extras key
     public static final String INTENT_BUNDLE_KEY = "cooeeIntentBundle";
     public static final String INTENT_TRIGGER_DATA_KEY = "cooeeTriggerData";
+    public static final String INTENT_SDK_VERSION_CODE_KEY = "cooeeDdkVersionCode";
+    // endregion
 
     public static final int PENDING_TASK_JOB_ID = 2663;
+    public static final String IN_APP_FULLSCREEN_FLAG_KEY = "make_in_app_fullscreen";
 
     // region Units
     public static final String UNIT_PIXEL = "px";
-    public static final String UNIT_PERCENT = "%";
-    public static final String UNIT_VIEWPORT_HEIGHT = "vh";
-    public static final String UNIT_VIEWPORT_WIDTH = "vw";
     // endregion
 
     public static final int FONT_REFRESH_INTERVAL_DAYS = 7;
@@ -66,6 +70,7 @@ public class Constants {
     public static final String PLAY_STORE_LINK = "https://play.google.com/store/apps/details?id=";
     public static final int DEFAULT_CONTAINER_WIDTH = 1080;
     public static final int DEFAULT_CONTAINER_HEIGHT = 1920;
+    public static final int JUSTIFY_TEXT_ALIGNMENT = -1;
 
     // region AR
     public static final String AR_INTENT = "com.letscooee.launchCooeeAR";
@@ -79,5 +84,27 @@ public class Constants {
     // region Date Formats
     public static final String DATE_FORMAT_DEBUG = "dd-MMM-yyyy hh:mm a";
     public static final String DATE_FORMAT_UTC = "EEE MMM dd HH:mm:ss zzz yyyy";
+    public static final String ISO_DATE_FORMAT_UTC = "yyyy-MM-dd'T'HH:mm:ssZ";
+    // endregion
+
+    // region Features
+    public static final int FEATURE_PUSH = 1;
+    public static final int FEATURE_IN_APP = 2;
+    public static final int FEATURE_SELF_AR = 3;
+    // endregion
+
+    // region Event Names
+    public static final String EVENT_SCREEN_VIEW = "CE Screen View";
+    public static final String EVENT_APP_INSTALLED = "CE App Installed";
+    public static final String EVENT_APP_LAUNCHED = "CE App Launched";
+    public static final String EVENT_APP_BACKGROUND = "CE App Background";
+    public static final String EVENT_APP_FOREGROUND = "CE App Foreground";
+    public static final String EVENT_TRIGGER_DISPLAYED = "CE Trigger Displayed";
+    public static final String EVENT_TRIGGER_CLOSED = "CE Trigger Closed";
+    public static final String EVENT_NOTIFICATION_RECEIVED = "CE Notification Received";
+    public static final String EVENT_NOTIFICATION_VIEWED = "CE Notification Viewed";
+    public static final String EVENT_NOTIFICATION_CLICKED = "CE Notification Clicked";
+    public static final String EVENT_NOTIFICATION_CANCELLED = "CE Notification Cancelled";
+    public static final String EVENT_CAROUSEL_MOVED = "CE PN Carousel Move";
     // endregion
 }

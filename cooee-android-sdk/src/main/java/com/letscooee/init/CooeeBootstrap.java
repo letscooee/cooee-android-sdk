@@ -81,7 +81,6 @@ public class CooeeBootstrap {
             getAndUpdateFirebaseToken();
             checkAndStartJob();
             FontProcessor.checkAndUpdateBrandFonts(context);
-            ARHelper.checkDeviceSupport(context);
         });
     }
 

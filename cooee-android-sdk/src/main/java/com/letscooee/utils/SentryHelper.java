@@ -37,7 +37,7 @@ public class SentryHelper extends ContextAware {
     private final ManifestReader manifestReader;
     private final User sentryUser = new User();
 
-    private Boolean enabled;
+    private boolean enabled;
 
     public SentryHelper(Context context, AppInfo appInfo, ManifestReader manifestReader) {
         super(context);
@@ -47,11 +47,12 @@ public class SentryHelper extends ContextAware {
     }
 
     public void init() {
-        Log.d(Constants.TAG, "Initializing Sentry: " + enabled.toString());
+        Log.d(Constants.TAG, "Initializing Sentry: " + enabled);
         if (!enabled) {
             return;
         }
 
+        updateSentryUser();
         Sentry.setUser(sentryUser);
 
         SentryAndroid.init(context, options -> {
@@ -77,6 +78,16 @@ public class SentryHelper extends ContextAware {
         });
 
         this.setupGlobalTags();
+    }
+
+    /**
+     * This method will update the user ID in Sentry.
+     */
+    private void updateSentryUser() {
+        String userID = LocalStorageHelper.getString(context, Constants.STORAGE_USER_ID, null);
+        if (!TextUtils.isEmpty(userID)) {
+            sentryUser.setId(userID);
+        }
     }
 
     /**
@@ -118,10 +129,8 @@ public class SentryHelper extends ContextAware {
      * @param event will be SentryEvent
      */
     private boolean containsWordCooee(SentryEvent event) {
-        if (event.getMessage() != null) {
-            if (event.getMessage().getFormatted().toLowerCase().contains("cooee")) {
-                return true;
-            }
+        if (event.getMessage() != null && event.getMessage().getFormatted().toLowerCase().contains("cooee")) {
+            return true;
         }
 
         if (event.getOriginThrowable() == null) {
@@ -140,6 +149,7 @@ public class SentryHelper extends ContextAware {
      * This is a utility method which can be used while building the tester app to enable the Sentry notifications even
      * on debug mode of the SDK.
      */
+    @SuppressWarnings("unused")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public void enableSentryForDevelopment() {
         this.enabled = true;
@@ -174,7 +184,11 @@ public class SentryHelper extends ContextAware {
         }
 
         SentryId id = Sentry.captureException(throwable);
-        Log.d(Constants.TAG, "Sentry id of the exception: " + id.toString());
+        Log.d(Constants.TAG, "Sentry id of the exception: " + id);
+    }
+
+    public void addBreadcrumb(String message) {
+        Sentry.addBreadcrumb(message);
     }
 
     /**

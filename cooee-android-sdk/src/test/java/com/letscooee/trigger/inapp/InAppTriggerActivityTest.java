@@ -7,9 +7,9 @@ import androidx.annotation.NonNull;
 import androidx.room.Room;
 import com.letscooee.BaseTestCase;
 import com.letscooee.TestCaseActivity;
-import com.letscooee.models.trigger.TriggerData;
+import com.letscooee.exceptions.InvalidTriggerDataException;
 import com.letscooee.room.CooeeDatabase;
-import com.letscooee.trigger.adapters.TriggerGsonDeserializer;
+import com.letscooee.trigger.TriggerDataHelper;
 import com.letscooee.utils.Constants;
 import org.junit.Before;
 import org.junit.Test;
@@ -46,7 +46,7 @@ public class InAppTriggerActivityTest extends BaseTestCase {
         Room.inMemoryDatabaseBuilder(context, CooeeDatabase.class).build();
 
         dummyActivity = Robolectric.buildActivity(TestCaseActivity.class).create().get();
-        InAppTriggerActivity.captureWindowForBlurryEffect(dummyActivity);
+        runtimeData.setCurrentActivity(dummyActivity);
     }
 
     private void createIntent() {
@@ -71,7 +71,12 @@ public class InAppTriggerActivityTest extends BaseTestCase {
     private void updatePayloadAndIntent(@NonNull PayloadProperty property) {
         String updatedPayload = samplePayload.replace(property.name().toLowerCase(), property.name().toLowerCase() + "x");
 
-        triggerData = TriggerGsonDeserializer.getGson().fromJson(updatedPayload, TriggerData.class);
+        try {
+            triggerData = TriggerDataHelper.parse(updatedPayload);
+        } catch (InvalidTriggerDataException e) {
+            e.printStackTrace();
+        }
+
         Bundle bundle = new Bundle();
         bundle.putParcelable(Constants.INTENT_TRIGGER_DATA_KEY, triggerData);
         validIntent.putExtra("bundle", bundle);
@@ -185,15 +190,6 @@ public class InAppTriggerActivityTest extends BaseTestCase {
     }
 
     @Test
-    public void on_create_with_valid_intent_no_in_app_elements() {
-        updatePayloadAndIntent(PayloadProperty.ELEMS);
-        ActivityController<InAppTriggerActivity> controller = Robolectric.buildActivity(InAppTriggerActivity.class, validIntent);
-        InAppTriggerActivity spy = getSpy(controller);
-
-        commonTestCheck(controller, spy, false);
-    }
-
-    @Test
     public void on_create_with_valid_intent_no_in_app_container() {
         updatePayloadAndIntent(PayloadProperty.CONT);
         ActivityController<InAppTriggerActivity> controller = Robolectric.buildActivity(InAppTriggerActivity.class, validIntent);
@@ -210,4 +206,5 @@ public class InAppTriggerActivityTest extends BaseTestCase {
 
         commonTestCheck(controller, spy, false);
     }
+
 }

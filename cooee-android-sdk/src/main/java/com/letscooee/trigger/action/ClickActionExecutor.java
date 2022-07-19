@@ -14,13 +14,13 @@ import com.letscooee.CooeeSDK;
 import com.letscooee.ar.ARHelper;
 import com.letscooee.models.trigger.TriggerData;
 import com.letscooee.models.trigger.blocks.AppAR;
+import com.letscooee.models.trigger.blocks.BrowserContent;
 import com.letscooee.models.trigger.blocks.ClickAction;
 import com.letscooee.trigger.inapp.TriggerContext;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.CooeeCTAListener;
-
 import java.util.HashMap;
-import java.util.Objects;
+import java.util.Map;
 
 /**
  * @author Shashank Agrawal
@@ -89,26 +89,32 @@ public class ClickActionExecutor {
      * Check and process <code>share</code> and launch {@link Intent} for {@link Intent#ACTION_SEND}
      */
     private void shareContent() {
-        if (action.getShare().isEmpty()) {
+        if (action.getShare() == null) {
             return;
         }
 
-        String shareBody = Objects.requireNonNull(action.getShare().get("text")).toString();
+        String shareText = action.getShare().getContent();
+
+        if (TextUtils.isEmpty(shareText)) {
+            logToSentry("Received empty content in share CTA in trigger: " + globalData.getTriggerData());
+            return;
+        }
 
         Intent intent = new Intent(Intent.ACTION_SEND);
         intent.setType("text/plain");
-        intent.putExtra(Intent.EXTRA_TEXT, shareBody);
+        intent.putExtra(Intent.EXTRA_TEXT, shareText);
         startActivity(Intent.createChooser(intent, "Share with"));
 
     }
 
     /**
      * Check and process <code>appAR</code> and give control to
-     * {@link ARHelper#checkForARAndLaunch(Activity, AppAR, TriggerData)} to launch AR
+     * {@link ARHelper#launchARViaUnity(Context, AppAR, TriggerData)} to launch AR
      */
     private void loadAR() {
         int launchFeature = action.getLaunchFeature();
 
+        //noinspection StatementWithEmptyBody
         if (launchFeature == 2) {
             // TODO: 02/01/22 launch self AR
         } else if (launchFeature == 3) {
@@ -121,7 +127,7 @@ public class ClickActionExecutor {
             return;
         }
 
-        ARHelper.checkForARAndLaunch((Activity) context, action.getAR(), globalData.getTriggerData());
+        ARHelper.launchARViaUnity(context, action.getAR(), globalData.getTriggerData());
     }
 
     /**
@@ -156,6 +162,15 @@ public class ClickActionExecutor {
     }
 
     /**
+     * Add log to Sentry
+     *
+     * @param message to log
+     */
+    private void logToSentry(String message) {
+        CooeeFactory.getSentryHelper().captureMessage(message);
+    }
+
+    /**
      * Check and process <code>up</code> and update user property
      */
     private void updateUserProperties() {
@@ -175,8 +190,15 @@ public class ClickActionExecutor {
         }
 
         String url = action.getIab().getUrl();
+
         if (TextUtils.isEmpty(url)) {
+            logToSentry("Received empty url in InAppBrowser CTA in trigger: " + globalData.getTriggerData());
             return;
+        }
+
+        String queryParameters = getQueryParameters(action.getExternal());
+        if (!TextUtils.isEmpty(queryParameters)) {
+            url += "?" + queryParameters;
         }
 
         CustomTabsIntent.Builder customTabBuilder = new CustomTabsIntent.Builder();
@@ -206,9 +228,40 @@ public class ClickActionExecutor {
             return;
         }
 
-        // TODO: 25/07/21 Append data
         String url = action.getExternal().getUrl();
+
+        if (TextUtils.isEmpty(url)) {
+            logToSentry("Received empty url in external CTA in trigger: " + globalData.getTriggerData());
+            return;
+        }
+
+        String queryParameters = getQueryParameters(action.getExternal());
+        if (!TextUtils.isEmpty(queryParameters)) {
+            url += "?" + queryParameters;
+        }
+
         openURL(url);
+    }
+
+    /**
+     * Generates query parameters for URL from {@link BrowserContent}
+     *
+     * @param browserContent {@link BrowserContent} object to generate query parameters from
+     * @return query parameters in string format
+     */
+    private String getQueryParameters(BrowserContent browserContent) {
+        if (browserContent.getQueryParams().isEmpty()) {
+            return null;
+        }
+
+        StringBuilder queryParameters = new StringBuilder();
+        for (Map.Entry<String, Object> entry : browserContent.getQueryParams().entrySet()) {
+            queryParameters.append(entry.getKey());
+            queryParameters.append("=");
+            queryParameters.append(entry.getValue());
+            queryParameters.append("&");
+        }
+        return queryParameters.toString();
     }
 
     /**
