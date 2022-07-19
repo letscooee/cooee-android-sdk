@@ -26,12 +26,7 @@ public class ImageRenderer extends AbstractInAppRenderer {
         ImageView imageView = new ImageView(context);
         imageView.setAdjustViewBounds(true);
         imageView.setScaleType(ImageView.ScaleType.FIT_XY);
-        String imageURL = ((ImageElement) elementData).getSrc();
 
-        if (TextUtils.isEmpty(imageURL)) {
-            Log.e(TAG, "Trying to render image with empty url");
-            return newElement;
-        }
         Glide.with(context).load(((ImageElement) elementData).getSrc()).into(imageView);
 
         newElement = imageView;

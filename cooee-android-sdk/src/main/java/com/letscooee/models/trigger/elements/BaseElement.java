@@ -150,7 +150,7 @@ public abstract class BaseElement implements Parcelable {
      * @return true if background image resource is valid, otherwise throws error with details.
      * @throws InvalidTriggerDataException if background image resource is invalid.
      */
-    public boolean hasValidImageResource() throws InvalidTriggerDataException {
+    public boolean hasValidResource() throws InvalidTriggerDataException {
         if (bg == null || bg.getImage() == null || !TextUtils.isEmpty(getBgImage())) {
             return true;
         }

@@ -191,7 +191,7 @@ public class EngagementTriggerHelper {
 
         try {
             if (triggerData == null || !triggerData.containValidData()) {
-                return;
+                throw new InvalidTriggerDataException("Trying to render invalid trigger: " + triggerData);
             }
 
             boolean isInFullscreenMode = !isStatusBarVisible(runtimeData.getCurrentActivity());

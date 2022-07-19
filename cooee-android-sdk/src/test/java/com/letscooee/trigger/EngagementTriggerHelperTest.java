@@ -44,8 +44,7 @@ public class EngagementTriggerHelperTest extends BaseTestCase {
         EMPTY_BACKGROUND_IMAGE("invalidBg"), // background image is empty in any Element
         NULL_PARTS("nullParts"), // Null parts in TextElement
         EMPTY_PARTS("emptyParts"), // Empty parts in TextElement
-        EMPTY_IMAGE_URL("emptyImage"),
-        ; // Empty image url in ImageElement
+        EMPTY_IMAGE_URL("emptyImage"); // Empty image url in ImageElement
 
         public final String value;
 

@@ -217,7 +217,7 @@ public class TriggerData implements Parcelable {
      */
     public boolean containValidData() throws InvalidTriggerDataException {
         try {
-            return !TextUtils.isEmpty(id) && getInAppTrigger() != null && getInAppTrigger().containValidData();
+            return !TextUtils.isEmpty(id) && getInAppTrigger() != null && getInAppTrigger().hasValidResource();
         } catch (InvalidTriggerDataException e) {
             throw new InvalidTriggerDataException(e.getMessage() + " in trigger: " + this);
         }

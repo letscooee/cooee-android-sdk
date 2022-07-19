@@ -48,7 +48,7 @@ public class TextElement extends BaseTextElement {
      * @throws InvalidTriggerDataException if the text element has no/empty text.
      */
     @Override
-    public boolean hasValidImageResource() throws InvalidTriggerDataException {
+    public boolean hasValidResource() throws InvalidTriggerDataException {
         if (parts == null || parts.isEmpty()) {
             throw new InvalidTriggerDataException("TextElement has no/empty parts");
         }

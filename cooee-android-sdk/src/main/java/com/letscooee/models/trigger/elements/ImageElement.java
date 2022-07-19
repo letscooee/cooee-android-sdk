@@ -47,7 +47,7 @@ public class ImageElement extends BaseElement {
      * @throws InvalidTriggerDataException if the image element has no/empty image resource.
      */
     @Override
-    public boolean hasValidImageResource() throws InvalidTriggerDataException {
+    public boolean hasValidResource() throws InvalidTriggerDataException {
         if (TextUtils.isEmpty(src)) {
             throw new InvalidTriggerDataException("ImageElement has no/empty src");
         }

@@ -170,8 +170,9 @@ public class InAppTrigger extends BaseElement {
      * @return True if InAppTrigger is valid
      * @throws InvalidTriggerDataException If InAppTrigger is not valid
      */
-    public boolean containValidData() throws InvalidTriggerDataException {
-        return hasValidImageResource() && container != null && container.hasValidImageResource()
+    @Override
+    public boolean hasValidResource() throws InvalidTriggerDataException {
+        return super.hasValidResource() && container != null && container.hasValidResource()
                 && elements != null && !elements.isEmpty() && containsValidChildren();
     }
 
@@ -183,7 +184,7 @@ public class InAppTrigger extends BaseElement {
      */
     private boolean containsValidChildren() throws InvalidTriggerDataException {
         for (BaseElement element : elements) {
-            if (!element.hasValidImageResource()) {
+            if (!element.hasValidResource()) {
                 return false;
             }
         }
