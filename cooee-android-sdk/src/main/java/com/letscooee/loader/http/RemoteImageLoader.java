@@ -33,7 +33,7 @@ public class RemoteImageLoader implements HttpResourceLoader<Bitmap> {
     private final SentryHelper sentryHelper;
     private final RequestBuilder<Bitmap> requestBuilder;
 
-    private CompletableFuture<Void> completableFuture = new CompletableFuture<>();
+    private final CompletableFuture<Void> completableFuture = new CompletableFuture<>();
     private int imagesToCache;
     private int imagesCached;
     private int imagesAttempted;
@@ -82,13 +82,12 @@ public class RemoteImageLoader implements HttpResourceLoader<Bitmap> {
     }
 
     public CompletableFuture<Void> cacheAll(@NonNull List<String> urls) {
-        completableFuture = CompletableFuture.runAsync(() -> {
-            imagesToCache = urls.size();
-            for (String imageURL : urls) {
-                cache(imageURL);
-            }
-        });
-        return completableFuture;
+        this.imagesToCache = urls.size();
+        for (String imageURL : urls) {
+            cache(imageURL);
+        }
+
+        return this.completableFuture;
     }
 
     private void cache(String url) {
@@ -115,7 +114,6 @@ public class RemoteImageLoader implements HttpResourceLoader<Bitmap> {
 
                     @Override
                     public boolean onResourceReady(Bitmap resource, Object model, Target<Bitmap> target, DataSource dataSource, boolean isFirstResource) {
-                        imagesToCache++;
                         imagesAttempted++;
                         imagesCached++;
                         completeTask();
