@@ -1,0 +1,87 @@
+apply plugin: 'maven-publish'
+apply plugin: 'signing'
+
+ext {
+    PUBLISH_DESCRIPTION = 'Lets Cooee powers hyper-personalized and real time engagements for mobile apps based on machine learning'
+    PUBLISH_URL = 'https://github.com/letscooee/cooee-android-sdk'
+    PUBLISH_LICENSE_NAME = 'MIT License'
+    PUBLISH_LICENSE_URL = 'https://github.com/letscooee/cooee-android-sdk/blob/master/LICENSE'
+    PUBLISH_DEVELOPER_ID = 'letscooee'
+    PUBLISH_DEVELOPER_NAME = 'Lets Cooee'
+    PUBLISH_DEVELOPER_EMAIL = 'sdk.support@gmail.com'
+    PUBLISH_SCM_CONNECTION = 'scm:git:github.com/letscooee/cooee-android-sdk.git'
+    PUBLISH_SCM_DEVELOPER_CONNECTION = 'scm:git:ssh://github.com/letscooee/cooee-android-sdk.git'
+    PUBLISH_SCM_URL = 'https://github.com/letscooee/cooee-android-sdk/tree/master'
+}
+
+task androidSourcesJar(type: Jar) {
+    archiveClassifier.set('sources')
+    if (project.plugins.findPlugin("com.android.library")) {
+        from android.sourceSets.main.java.srcDirs
+    } else {
+        from sourceSets.main.java.srcDirs
+    }
+}
+
+artifacts {
+    archives androidSourcesJar
+}
+
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                // The coordinates of the library, being set from variables that
+                // we'll set up later
+                groupId project.group.toString()
+                artifactId project.getName()
+                version project.version.toString()
+
+                // Two artifacts, the `aar` (or `jar`) and the sources
+                if (project.plugins.findPlugin("com.android.library")) {
+                    from components.release
+                } else {
+                    artifact("$buildDir/libs/${project.getName()}-${version}.jar")
+                }
+
+                artifact androidSourcesJar
+
+                // Mostly self-explanatory metadata
+                pom {
+                    name = project.getName()
+                    description = PUBLISH_DESCRIPTION
+                    url = PUBLISH_URL
+                    licenses {
+                        license {
+                            name = PUBLISH_LICENSE_NAME
+                            url = PUBLISH_LICENSE_URL
+                        }
+                    }
+                    developers {
+                        developer {
+                            id = PUBLISH_DEVELOPER_ID
+                            name = PUBLISH_DEVELOPER_NAME
+                            email = PUBLISH_DEVELOPER_EMAIL
+                        }
+                    }
+
+                    // Version control info - if you're using GitHub, follow the
+                    // format as seen here
+                    scm {
+                        connection = PUBLISH_SCM_CONNECTION
+                        developerConnection = PUBLISH_SCM_DEVELOPER_CONNECTION
+                        url = PUBLISH_SCM_URL
+                    }
+                }
+            }
+        }
+    }
+}
+
+ext["signing.keyId"] = rootProject.ext["signing.keyId"]
+ext["signing.password"] = rootProject.ext["signing.password"]
+ext["signing.secretKeyRingFile"] = rootProject.ext["signing.secretKeyRingFile"]
+
+signing {
+    sign publishing.publications
+}

@@ -1,6 +1,7 @@
 apply plugin: 'com.android.library'
 apply plugin: 'maven-publish'
 apply plugin: 'com.jfrog.artifactory'
+apply from: "${rootProject.projectDir}/scripts/publish-module.gradle"
 
 //region Release configuration
 
