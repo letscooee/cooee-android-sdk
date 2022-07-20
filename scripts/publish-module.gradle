@@ -12,6 +12,7 @@ ext {
     PUBLISH_SCM_CONNECTION = 'scm:git:github.com/letscooee/cooee-android-sdk.git'
     PUBLISH_SCM_DEVELOPER_CONNECTION = 'scm:git:ssh://github.com/letscooee/cooee-android-sdk.git'
     PUBLISH_SCM_URL = 'https://github.com/letscooee/cooee-android-sdk/tree/master'
+    isReleaseVersion = !version.endsWith("SNAPSHOT")
 }
 
 task androidSourcesJar(type: Jar) {
@@ -84,4 +85,8 @@ ext["signing.secretKeyRingFile"] = rootProject.ext["signing.secretKeyRingFile"]
 
 signing {
     sign publishing.publications
+}
+
+tasks.withType(Sign) {
+    onlyIf { isReleaseVersion }
 }
