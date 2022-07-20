@@ -25,3 +25,9 @@ Publish to JFrog:
     artifacts:
       paths:
         - cooee-android-sdk/build/outputs/aar
+
+Publish to MavenCentral:
+  stage: deploy
+  script:
+    - cat $GPG_KEY_RING > SecretRingKey.gpg
+    - ./gradlew cooee-android-sdk:publishReleasePublicationToSonatypeRepository -Psigning.keyId=${GPG_KEY_ID} -Psigning.password=${GPG_KEY_PASSWORD} -PossrhUsername=${SONATYPE_USERNAME} -PossrhPassword=${SONATYPE_PASSWORD} -PsonatypeStagingProfileId=${SONATYPE_STAGING_PROFILE_ID}
