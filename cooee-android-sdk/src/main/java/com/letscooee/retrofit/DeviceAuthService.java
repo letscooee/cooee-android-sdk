@@ -5,6 +5,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import com.google.gson.Gson;
 import com.letscooee.BuildConfig;
 import com.letscooee.CooeeFactory;
 import com.letscooee.models.AuthenticationRequestBody;
@@ -23,6 +24,7 @@ import retrofit2.Response;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Map;
 
 /**
  * Utility class to register user with server and to provide related data
@@ -182,5 +184,42 @@ public class DeviceAuthService {
                 manifestReader.getAppID(),
                 uuid,
                 sessionExecutor.getImmutableDeviceProps());
+    }
+
+    /**
+     * Update auth details if its available.
+     * This is mainly used while profile merging.
+     *
+     * @param profileResponse response from server
+     */
+    public void checkAndUpdate(Map<String, Object> profileResponse) {
+        if (profileResponse == null || !profileResponse.containsKey("merge")) {
+            return;
+        }
+
+        @SuppressWarnings("unchecked")
+        Map<String, String> mergeDetails = (Map<String, String>) profileResponse.get("merge");
+        Gson gson = new Gson();
+        DeviceAuthResponse deviceAuthResponse = gson.fromJson(gson.toJson(mergeDetails), DeviceAuthResponse.class);
+        if (mergeDetails == null || mergeDetails.isEmpty()) {
+            return;
+        }
+        // If userID is not present then add it from local
+        if (TextUtils.isEmpty(deviceAuthResponse.getId())) {
+            deviceAuthResponse.setId(userID);
+        }
+
+        // If deviceID is not present then add it from local
+        if (TextUtils.isEmpty(deviceAuthResponse.getDeviceID())) {
+            deviceAuthResponse.setDeviceID(deviceID);
+        }
+
+        // If sdkToken is not present then add it from local
+        if (TextUtils.isEmpty(deviceAuthResponse.getSdkToken())) {
+            deviceAuthResponse.setDeviceID(sdkToken);
+        }
+
+        // send to update the local storage & api client
+        saveDeviceDataInStorage(deviceAuthResponse);
     }
 }

@@ -2,10 +2,9 @@ package com.letscooee.network;
 
 import android.content.Context;
 import android.util.Log;
-
 import androidx.annotation.NonNull;
-
 import com.letscooee.ContextAware;
+import com.letscooee.CooeeFactory;
 import com.letscooee.exceptions.HttpRequestFailedException;
 import com.letscooee.models.Event;
 import com.letscooee.retrofit.APIClient;
@@ -16,10 +15,8 @@ import com.letscooee.retrofit.internal.PublicApiClient;
 import com.letscooee.retrofit.internal.PublicApiService;
 import com.letscooee.trigger.EngagementTriggerHelper;
 import com.letscooee.utils.Constants;
-
 import java.io.IOException;
 import java.util.Map;
-
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
@@ -68,8 +65,12 @@ public class BaseHTTPService extends ContextAware {
         Call<Map<String, Object>> call = apiService.updateProfile(data);
         Response<?> response = this.executeHTTPCall(call, "Update user profile");
 
-        //noinspection unchecked
-        return (Map<String, Object>) response.body();
+        // Update device auth details in the device auth service
+        @SuppressWarnings("unchecked")
+        Map<String, Object> responseBody = (Map<String, Object>) response.body();
+        CooeeFactory.getDeviceAuthService().checkAndUpdate(responseBody);
+
+        return responseBody;
     }
 
     public Map<String, Object> updateDeviceProperty(Map<String, Object> data) throws HttpRequestFailedException {

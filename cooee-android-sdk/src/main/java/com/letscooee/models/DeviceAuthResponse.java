@@ -39,4 +39,8 @@ public class DeviceAuthResponse {
     public String getDeviceID() {
         return deviceID;
     }
+
+    public void setDeviceID(String deviceID) {
+        this.deviceID = deviceID;
+    }
 }
