@@ -189,6 +189,7 @@ public class EngagementTriggerHelper {
                 return;
             }
 
+            changeOrientation(triggerData);
             boolean isInFullscreenMode = !isStatusBarVisible(runtimeData.getCurrentActivity());
             Intent intent = new Intent(context, InAppTriggerActivity.class);
             Bundle sendBundle = new Bundle();
@@ -208,6 +209,15 @@ public class EngagementTriggerHelper {
         }
 
         new PushTriggerHelper(context, triggerData).removePushFromTray();
+    }
+
+    private void changeOrientation(TriggerData triggerData) {
+        Activity currentActivity = runtimeData.getCurrentActivity();
+        if (currentActivity == null) {
+            return;
+        }
+
+        currentActivity.setRequestedOrientation(triggerData.getInAppTrigger().getInAppOrientation());
     }
 
     public void renderInAppFromPushNotification(@NonNull Activity activity) {

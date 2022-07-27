@@ -6,6 +6,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import com.letscooee.enums.LaunchType;
+import com.letscooee.trigger.inapp.PreventBlurActivity;
 
 import java.util.Date;
 
@@ -27,6 +28,7 @@ public class RuntimeData {
     private LaunchType launchType;
     private String currentScreenName;
     private Activity currentActivity;
+    private int currentActivityOrientation;
 
     public static RuntimeData getInstance(Context context) {
         if (instance == null) {
@@ -121,7 +123,15 @@ public class RuntimeData {
      * @param activity The currently active {@link Activity}.
      */
     public void setCurrentActivity(Activity activity) {
+        if (activity instanceof PreventBlurActivity) {
+            return;
+        }
+
         this.currentActivity = activity;
+        this.currentActivityOrientation = activity.getResources().getConfiguration().orientation;
     }
 
+    public int getCurrentActivityOrientation() {
+        return currentActivityOrientation;
+    }
 }

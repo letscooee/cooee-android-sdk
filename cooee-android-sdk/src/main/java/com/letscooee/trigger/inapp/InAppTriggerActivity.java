@@ -1,11 +1,16 @@
 package com.letscooee.trigger.inapp;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.transition.Transition;
+import android.transition.TransitionListenerAdapter;
+import android.util.Log;
+import android.view.ActionMode;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -78,9 +83,10 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
 
             inAppData = triggerData.getInAppTrigger();
             this.triggerContext.setViewGroupForBlurry(this.getDecorView());
-            this.triggerContext.onExit(data -> this.finish());
+            this.triggerContext.onExit(data -> this.finishAfterTransition());
             this.triggerContext.setTriggerData(triggerData);
             this.triggerContext.setMakeInAppFullScreen(makeInAppFullScreen);
+            //setRequestedOrientation(inAppData.getInAppOrientation());
 
             setAnimations();
             renderInApp();
@@ -123,7 +129,6 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
         super.onStart();
         startTime = new Date();
         isSuccessfullyStarted = true;
-        setRequestedOrientation(inAppData.getInAppOrientation());
     }
 
     public void sendTriggerDisplayedEvent() {
@@ -169,12 +174,21 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
         this.triggerContext.closeInApp("Back Press");
     }
 
+    @Override
+    public void finishAfterTransition() {
+        if (isSuccessfullyStarted) {
+            //getWindow().setExitTransition(Transition.);
+        }
+        super.finishAfterTransition();
+    }
+
     /**
      * +
      * Send trigger KPIs to the next activity(FeedbackActivity) to be sent back to the server
      */
     @Override
     public void finish() {
+        Log.d(Constants.TAG, "finish 191: "+new Date().getTime());
         super.finish();
         if (!isSuccessfullyStarted) {
             return;
@@ -221,7 +235,31 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
          * As we added orientation configuration (in AndroidManifest.xml) changes should be listened in the activity.
          * As soon as orientation changes, this method will be called. and we need to update the device resource
          */
+        Log.d(Constants.TAG, "onConfigurationChanged 224: " + newConfig.orientation);
         CooeeFactory.getDeviceInfo().initializeResource();
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.d(Constants.TAG, "onPause 260: ");
+    }
+
+    @SuppressLint("WrongConstant")
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.d(Constants.TAG, "onDestroy 266: "+new Date().getTime());
+        runtimeData.getCurrentActivity().setRequestedOrientation(runtimeData.getCurrentActivityOrientation());
+    }
+
+    @Override
+    public void onActionModeFinished(ActionMode mode) {
+        super.onActionModeFinished(mode);
+    }
+
+    @Override
+    public void onEnterAnimationComplete() {
+        super.onEnterAnimationComplete();
+    }
 }

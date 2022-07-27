@@ -52,7 +52,7 @@ public class ActivityLifecycleCallback implements Application.ActivityLifecycleC
         if (activity instanceof CooeeEmptyActivity) {
             this.runtimeData.setLaunchType(LaunchType.PUSH_CLICK);
             new EngagementTriggerHelper(context).renderInAppFromPushNotification(activity);
-            activity.finish();
+            activity.finishAfterTransition();
         } else {
             this.runtimeData.setLaunchType(LaunchType.ORGANIC);
         }
