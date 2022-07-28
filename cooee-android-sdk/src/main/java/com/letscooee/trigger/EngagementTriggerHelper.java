@@ -215,6 +215,15 @@ public class EngagementTriggerHelper {
         new PushTriggerHelper(context, triggerData).removePushFromTray();
     }
 
+    private void changeOrientation(TriggerData triggerData) {
+        Activity currentActivity = runtimeData.getCurrentActivity();
+        if (currentActivity == null) {
+            return;
+        }
+
+        currentActivity.setRequestedOrientation(triggerData.getInAppTrigger().getInAppOrientation());
+    }
+
     public void renderInAppFromPushNotification(@NonNull Activity activity) {
         Bundle bundle = activity.getIntent().getBundleExtra(Constants.INTENT_BUNDLE_KEY);
         // Should not go ahead if bundle is null

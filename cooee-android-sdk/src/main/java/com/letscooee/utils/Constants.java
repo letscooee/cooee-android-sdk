@@ -29,6 +29,7 @@ public class Constants {
     public static final String STORAGE_SCREENSHOT_SYNC_TIME = "screenshot_sync_time";
     public static final String STORAGE_LAST_SESSION_USE_TIME = "cooee_last_session_use_time";
     public static final String STORAGE_ACTIVE_SESSION = "cooee_active_session";
+    @SuppressWarnings("unused")
     public static final String STORAGE_RAW_IN_APP_TRIGGER_KEY = "cooee_raw_in_app_trigger";
     // endregion
 
@@ -71,6 +72,7 @@ public class Constants {
     public static final int DEFAULT_CONTAINER_WIDTH = 1080;
     public static final int DEFAULT_CONTAINER_HEIGHT = 1920;
     public static final int JUSTIFY_TEXT_ALIGNMENT = -1;
+    public static final long ANIMATION_DURATION = 500; // in milliseconds
 
     // region AR
     public static final String AR_INTENT = "com.letscooee.launchCooeeAR";
@@ -88,6 +90,7 @@ public class Constants {
     // endregion
 
     // region Features
+    @SuppressWarnings("unused")
     public static final int FEATURE_PUSH = 1;
     public static final int FEATURE_IN_APP = 2;
     public static final int FEATURE_SELF_AR = 3;

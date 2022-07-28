@@ -42,7 +42,7 @@ public class DeviceInfo extends ContextAware {
 
             width = displayMetrics.widthPixels;
             height = displayMetrics.heightPixels;
-            scaledDensity = displayMetrics.scaledDensity;
+            scaledDensity = displayMetrics.density;
             orientation = resources.getConfiguration().orientation;
         }
 
