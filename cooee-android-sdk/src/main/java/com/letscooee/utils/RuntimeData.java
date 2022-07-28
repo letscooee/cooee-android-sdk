@@ -2,12 +2,13 @@ package com.letscooee.utils;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.Configuration;
 import android.util.Log;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import com.letscooee.enums.LaunchType;
 import com.letscooee.trigger.inapp.PreventBlurActivity;
-
 import java.util.Date;
 
 /**
@@ -29,6 +30,11 @@ public class RuntimeData {
     private String currentScreenName;
     private Activity currentActivity;
     private int currentActivityOrientation;
+
+    /**
+     * Current app configuration, {@code null} if app configuration is not changed since app launch.
+     */
+    private Configuration appCurrentConfiguration;
 
     public static RuntimeData getInstance(Context context) {
         if (instance == null) {
@@ -64,6 +70,7 @@ public class RuntimeData {
         this.lastEnterForeground = new Date();
     }
 
+    @SuppressWarnings("unused")
     public Boolean isInForeground() {
         return !this.inBackground;
     }
@@ -81,6 +88,7 @@ public class RuntimeData {
         return this.currentScreenName;
     }
 
+    @SuppressWarnings("unused")
     public Date getLastEnterBackground() {
         return this.lastEnterBackground;
     }
@@ -119,6 +127,7 @@ public class RuntimeData {
 
     /**
      * Keeps track of the currently active {@link Activity}.
+     * Also updates the {@link #currentActivityOrientation} based on the orientation of the activity.
      *
      * @param activity The currently active {@link Activity}.
      */
@@ -131,7 +140,32 @@ public class RuntimeData {
         this.currentActivityOrientation = activity.getResources().getConfiguration().orientation;
     }
 
+    /**
+     * Returns previous activity orientation.
+     *
+     * @return previous activity orientation
+     */
     public int getCurrentActivityOrientation() {
         return currentActivityOrientation;
+    }
+
+    /**
+     * Returns the current {@link Configuration} of the application.
+     *
+     * @return The current {@link Configuration} of the application.
+     */
+    @Nullable
+    public Configuration getAppCurrentConfiguration() {
+        return appCurrentConfiguration;
+    }
+
+    /**
+     * Stores app's configuration changes tracked while runtime.
+     * This {@link Configuration} will mainly used for InApp orientation changes
+     *
+     * @param appCurrentConfiguration {@link Configuration} object of the app.
+     */
+    public void setAppCurrentConfiguration(Configuration appCurrentConfiguration) {
+        this.appCurrentConfiguration = appCurrentConfiguration;
     }
 }

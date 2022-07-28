@@ -7,10 +7,7 @@ import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.transition.Transition;
-import android.transition.TransitionListenerAdapter;
 import android.util.Log;
-import android.view.ActionMode;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -24,6 +21,7 @@ import androidx.annotation.RestrictTo;
 import androidx.appcompat.app.AppCompatActivity;
 import com.letscooee.CooeeFactory;
 import com.letscooee.R;
+import com.letscooee.exceptions.InvalidTriggerDataException;
 import com.letscooee.models.Event;
 import com.letscooee.models.trigger.TriggerData;
 import com.letscooee.models.trigger.blocks.Animation;
@@ -51,7 +49,9 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
     private Date startTime;
     private boolean isFreshLaunch;
     private boolean isSuccessfullyStarted;
-    private boolean makeInAppFullScreen;
+    private RelativeLayout rootViewElement;
+    private android.view.animation.Animation enterAnimation;
+    private android.view.animation.Animation exitAnimation;
 
     public InAppTriggerActivity() {
         sentryHelper = CooeeFactory.getSentryHelper();
@@ -61,7 +61,11 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(Constants.TAG, "*** onCreate 67: ");
         this.setContentView(R.layout.in_app_trigger_activity);
+
+        this.rootViewElement = findViewById(R.id.inAppTriggerRoot);
+        this.rootViewElement.setVisibility(View.INVISIBLE);
 
         this.isFreshLaunch = savedInstanceState == null;
 
@@ -69,7 +73,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
             triggerData = getIntent()
                     .getBundleExtra("bundle")
                     .getParcelable(Constants.INTENT_TRIGGER_DATA_KEY);
-            makeInAppFullScreen = getIntent()
+            boolean makeInAppFullScreen = getIntent()
                     .getBundleExtra("bundle")
                     .getBoolean(Constants.IN_APP_FULLSCREEN_FLAG_KEY);
 
@@ -78,7 +82,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
             }
 
             if (triggerData == null || TextUtils.isEmpty(triggerData.getId())) {
-                throw new Exception("Couldn't render In-App because trigger data is null");
+                throw new InvalidTriggerDataException("Couldn't render In-App because trigger data is null");
             }
 
             inAppData = triggerData.getInAppTrigger();
@@ -86,7 +90,9 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
             this.triggerContext.onExit(data -> this.finishAfterTransition());
             this.triggerContext.setTriggerData(triggerData);
             this.triggerContext.setMakeInAppFullScreen(makeInAppFullScreen);
-            //setRequestedOrientation(inAppData.getInAppOrientation());
+            setRequestedOrientation(inAppData.getInAppOrientation());
+            triggerContext.setDisplayHeight(CooeeFactory.getDeviceInfo().getDisplayHeight());
+            triggerContext.setDisplayWidth(CooeeFactory.getDeviceInfo().getDisplayWidth());
 
             setAnimations();
             renderInApp();
@@ -114,7 +120,6 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
                 controller.setSystemBarsBehavior(WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
             }
         } else {
-            //noinspection deprecation
             getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN
                     | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                     | View.SYSTEM_UI_FLAG_IMMERSIVE
@@ -129,6 +134,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
         super.onStart();
         startTime = new Date();
         isSuccessfullyStarted = true;
+        rootViewElement.startAnimation(enterAnimation);
     }
 
     public void sendTriggerDisplayedEvent() {
@@ -142,14 +148,48 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
 
     private void setAnimations() {
         Animation animation = inAppData.getAnimation();
-        int enterAnimation = InAppAnimationProvider.getEnterAnimation(animation);
-        int exitAnimation = InAppAnimationProvider.getExitAnimation(animation);
+        this.enterAnimation = InAppAnimationProvider.getEnterAnimation(animation);
+        this.exitAnimation = InAppAnimationProvider.getExitAnimation(animation);
 
-        overridePendingTransition(enterAnimation, exitAnimation);
+        enterAnimation.setAnimationListener(new android.view.animation.Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(android.view.animation.Animation animation) {
+                rootViewElement.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onAnimationEnd(android.view.animation.Animation animation) {
+                // Nothing to do in enter animation
+            }
+
+            @Override
+            public void onAnimationRepeat(android.view.animation.Animation animation) {
+                // Nothing to do in enter animation
+            }
+        });
+
+        exitAnimation.setAnimationListener(new android.view.animation.Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(android.view.animation.Animation animation) {
+                // Nothing to do in exit animation
+            }
+
+            @SuppressLint("WrongConstant")
+            @Override
+            public void onAnimationEnd(android.view.animation.Animation animation) {
+                rootViewElement.removeAllViews();
+                finish();
+                setRequestedOrientation(runtimeData.getCurrentActivityOrientation());
+            }
+
+            @Override
+            public void onAnimationRepeat(android.view.animation.Animation animation) {
+                // Nothing to do in exit animation
+            }
+        });
     }
 
     private void renderInApp() {
-        RelativeLayout rootViewElement = findViewById(R.id.inAppTriggerRoot);
         triggerContext.setTriggerParentLayout(rootViewElement);
 
         new InAppTriggerRenderer(this, rootViewElement, inAppData, inAppData, triggerContext).render();
@@ -174,27 +214,17 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
         this.triggerContext.closeInApp("Back Press");
     }
 
-    @Override
-    public void finishAfterTransition() {
-        if (isSuccessfullyStarted) {
-            //getWindow().setExitTransition(Transition.);
-        }
-        super.finishAfterTransition();
-    }
-
     /**
      * +
      * Send trigger KPIs to the next activity(FeedbackActivity) to be sent back to the server
      */
     @Override
     public void finish() {
-        Log.d(Constants.TAG, "finish 191: "+new Date().getTime());
+        Log.d(Constants.TAG, "*** finish 191: " + new Date().getTime());
         super.finish();
         if (!isSuccessfullyStarted) {
             return;
         }
-
-        setAnimations();
 
         Map<String, Object> closedEventProps = triggerContext.getClosedEventProps();
 
@@ -211,12 +241,18 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
      *
      * @param bitmap {@link Bitmap}
      */
+    @SuppressWarnings("unused")
     public void setBitmapForBlurry(Bitmap bitmap) {
         this.triggerContext.setBitmapForBlurry(bitmap);
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        // TODO: 28/07/22 onRequestPermissionsResult is deprecated
+        //  This as not Android API restrictions
+        //  Solution: https://stackoverflow.com/questions/66551781/android-onrequestpermissionsresult-is-deprecated-are-there-any-alternatives
+        //  Ref: https://developer.android.com/reference/androidx/fragment/app/FragmentActivity#onRequestPermissionsResult(int,java.lang.String[],int[])
+
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
         PermissionManager permissionManager = new PermissionManager(InAppTriggerActivity.this);
@@ -235,31 +271,13 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
          * As we added orientation configuration (in AndroidManifest.xml) changes should be listened in the activity.
          * As soon as orientation changes, this method will be called. and we need to update the device resource
          */
-        Log.d(Constants.TAG, "onConfigurationChanged 224: " + newConfig.orientation);
+        rootViewElement.removeAllViews();
         CooeeFactory.getDeviceInfo().initializeResource();
+        renderInApp();
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
-        Log.d(Constants.TAG, "onPause 260: ");
-    }
-
-    @SuppressLint("WrongConstant")
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        Log.d(Constants.TAG, "onDestroy 266: "+new Date().getTime());
-        runtimeData.getCurrentActivity().setRequestedOrientation(runtimeData.getCurrentActivityOrientation());
-    }
-
-    @Override
-    public void onActionModeFinished(ActionMode mode) {
-        super.onActionModeFinished(mode);
-    }
-
-    @Override
-    public void onEnterAnimationComplete() {
-        super.onEnterAnimationComplete();
+    public void finishAfterTransition() {
+        rootViewElement.startAnimation(exitAnimation);
     }
 }

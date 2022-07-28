@@ -2,7 +2,9 @@ package com.letscooee.trigger.inapp.renderer;
 
 import static com.letscooee.utils.Constants.TAG;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.util.Log;
@@ -17,6 +19,7 @@ import com.letscooee.device.DeviceInfo;
 import com.letscooee.models.trigger.elements.*;
 import com.letscooee.models.trigger.inapp.InAppTrigger;
 import com.letscooee.trigger.inapp.TriggerContext;
+import com.letscooee.utils.RuntimeData;
 
 /**
  * Renders the topmost container of the in-app.
@@ -28,6 +31,7 @@ public class ContainerRenderer extends AbstractInAppRenderer {
 
     private final InAppTrigger inAppTrigger;
     private final DeviceInfo deviceInfo;
+    private final RuntimeData runtimeData;
     private double displayWidth;
     private double displayHeight;
 
@@ -36,6 +40,7 @@ public class ContainerRenderer extends AbstractInAppRenderer {
         super(context, parentView, element, globalData);
         this.inAppTrigger = inAppTrigger;
         this.deviceInfo = CooeeFactory.getDeviceInfo();
+        this.runtimeData = CooeeFactory.getRuntimeData();
         updateScalingFactor();
     }
 
@@ -124,10 +129,24 @@ public class ContainerRenderer extends AbstractInAppRenderer {
     /**
      * Updates the height and width of the container. If the container is
      * {@link TriggerContext#isCurrentActivityFullscreen()}
-     *
+     * <p>
      * returns {@code true}.
      */
     private void getDisplayHeightAndWidth() {
+        /*
+         * If application configuration is present and height & width are not undefined
+         * then there is no need to check anything else.
+         */
+        Configuration configuration = runtimeData.getAppCurrentConfiguration();
+        if (configuration != null && configuration.screenWidthDp != Configuration.SCREEN_WIDTH_DP_UNDEFINED
+                && configuration.screenHeightDp != Configuration.SCREEN_HEIGHT_DP_UNDEFINED) {
+            double density = deviceInfo.getScaledDensity();
+
+            displayWidth = configuration.screenWidthDp * density;
+            displayHeight = configuration.screenHeightDp * density;
+            return;
+        }
+
         if (!globalData.isCurrentActivityFullscreen()) {
             displayWidth = deviceInfo.getRunTimeDisplayWidth();
             displayHeight = deviceInfo.getRunTimeDisplayHeight();

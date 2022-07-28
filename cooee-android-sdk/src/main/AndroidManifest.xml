@@ -39,7 +39,7 @@
 
         <activity
             android:name=".trigger.inapp.InAppTriggerActivity"
-            android:configChanges="orientation"
+            android:configChanges="orientation|screenSize|keyboardHidden"
             android:theme="@style/AppTheme.PopUp" />
 
         <activity android:name=".trigger.CooeeEmptyActivity" />

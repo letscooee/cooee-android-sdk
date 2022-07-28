@@ -189,7 +189,6 @@ public class EngagementTriggerHelper {
                 return;
             }
 
-            changeOrientation(triggerData);
             boolean isInFullscreenMode = !isStatusBarVisible(runtimeData.getCurrentActivity());
             Intent intent = new Intent(context, InAppTriggerActivity.class);
             Bundle sendBundle = new Bundle();
