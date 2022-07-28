@@ -132,11 +132,12 @@ public class RuntimeData {
      * @param activity The currently active {@link Activity}.
      */
     public void setCurrentActivity(Activity activity) {
+        this.currentActivity = activity;
+
         if (activity instanceof PreventBlurActivity) {
             return;
         }
 
-        this.currentActivity = activity;
         this.currentActivityOrientation = activity.getResources().getConfiguration().orientation;
     }
 

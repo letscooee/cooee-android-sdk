@@ -1,8 +1,6 @@
 package com.letscooee.trigger.inapp.renderer;
 
 import static com.letscooee.utils.Constants.TAG;
-
-import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Point;
@@ -13,10 +11,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
-
 import com.letscooee.CooeeFactory;
 import com.letscooee.device.DeviceInfo;
-import com.letscooee.models.trigger.elements.*;
+import com.letscooee.models.trigger.elements.BaseElement;
+import com.letscooee.models.trigger.elements.ButtonElement;
+import com.letscooee.models.trigger.elements.ImageElement;
+import com.letscooee.models.trigger.elements.ShapeElement;
+import com.letscooee.models.trigger.elements.TextElement;
+import com.letscooee.models.trigger.elements.VideoElement;
 import com.letscooee.models.trigger.inapp.InAppTrigger;
 import com.letscooee.trigger.inapp.TriggerContext;
 import com.letscooee.utils.RuntimeData;
@@ -160,10 +162,8 @@ public class ContainerRenderer extends AbstractInAppRenderer {
             displayWidth = rect.width();
             displayHeight = rect.height();
         } else {
-            //noinspection deprecation
             Display display = windowManager.getDefaultDisplay();
             Point point = new Point();
-            //noinspection deprecation
             display.getSize(point);
             displayWidth = point.x;
             displayHeight = point.y;

@@ -64,6 +64,15 @@ public class InAppAnimationProvider {
         }
     }
 
+    /**
+     * Generate {@link TranslateAnimation} with given parameters.
+     *
+     * @param fromXDelta The start x position.
+     * @param toXDelta   The end x position.
+     * @param fromYDelta The start y position.
+     * @param toYDelta   The end y position.
+     * @return {@link Animation} generated with given parameters.
+     */
     private static android.view.animation.Animation getAnimation(float fromXDelta, float toXDelta,
                                                                  float fromYDelta, float toYDelta) {
         android.view.animation.Animation animation = new TranslateAnimation(

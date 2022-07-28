@@ -29,8 +29,6 @@ public class TriggerContext {
     private RelativeLayout triggerParentLayout;
     private double scalingFactor;
     private boolean makeInAppFullScreen;
-    private double displayHeight;
-    private double displayWidth;
 
     public Map<String, Object> getClosedEventProps() {
         return closedEventProps;
@@ -94,21 +92,5 @@ public class TriggerContext {
 
     public void setMakeInAppFullScreen(boolean makeInAppFullScreen) {
         this.makeInAppFullScreen = makeInAppFullScreen;
-    }
-
-    public double getDisplayHeight() {
-        return displayHeight;
-    }
-
-    public void setDisplayHeight(double displayHeight) {
-        this.displayHeight = displayHeight;
-    }
-
-    public double getDisplayWidth() {
-        return displayWidth;
-    }
-
-    public void setDisplayWidth(double displayWidth) {
-        this.displayWidth = displayWidth;
     }
 }

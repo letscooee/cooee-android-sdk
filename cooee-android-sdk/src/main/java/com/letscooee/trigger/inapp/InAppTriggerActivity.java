@@ -7,7 +7,6 @@ import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -61,10 +60,12 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d(Constants.TAG, "*** onCreate 67: ");
         this.setContentView(R.layout.in_app_trigger_activity);
 
         this.rootViewElement = findViewById(R.id.inAppTriggerRoot);
+        /*
+         * Hide view until animation starts to prevent view from blinking.
+         */
         this.rootViewElement.setVisibility(View.INVISIBLE);
 
         this.isFreshLaunch = savedInstanceState == null;
@@ -91,8 +92,6 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
             this.triggerContext.setTriggerData(triggerData);
             this.triggerContext.setMakeInAppFullScreen(makeInAppFullScreen);
             setRequestedOrientation(inAppData.getInAppOrientation());
-            triggerContext.setDisplayHeight(CooeeFactory.getDeviceInfo().getDisplayHeight());
-            triggerContext.setDisplayWidth(CooeeFactory.getDeviceInfo().getDisplayWidth());
 
             setAnimations();
             renderInApp();
@@ -134,6 +133,8 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
         super.onStart();
         startTime = new Date();
         isSuccessfullyStarted = true;
+
+        // start rootView animation once activity fully started
         rootViewElement.startAnimation(enterAnimation);
     }
 
@@ -154,6 +155,7 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
         enterAnimation.setAnimationListener(new android.view.animation.Animation.AnimationListener() {
             @Override
             public void onAnimationStart(android.view.animation.Animation animation) {
+                // As soon as animation starts, view need to be visible to see animation.
                 rootViewElement.setVisibility(View.VISIBLE);
             }
 
@@ -177,6 +179,11 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
             @SuppressLint("WrongConstant")
             @Override
             public void onAnimationEnd(android.view.animation.Animation animation) {
+                /*
+                 * As soon as animation remove all child elements from root view.
+                 * This will prevent UI blink as finish operation may take time which leads to delay
+                 * for activity destroy.
+                 */
                 rootViewElement.removeAllViews();
                 finish();
                 setRequestedOrientation(runtimeData.getCurrentActivityOrientation());
@@ -220,7 +227,6 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
      */
     @Override
     public void finish() {
-        Log.d(Constants.TAG, "*** finish 191: " + new Date().getTime());
         super.finish();
         if (!isSuccessfullyStarted) {
             return;
@@ -269,7 +275,9 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
         super.onConfigurationChanged(newConfig);
         /*
          * As we added orientation configuration (in AndroidManifest.xml) changes should be listened in the activity.
-         * As soon as orientation changes, this method will be called. and we need to update the device resource
+         * As soon as orientation changes, Screen size changes, this method will be called. and we need to update the device resource.
+         * To make UI compatible we will need to remove previous InApp (which is rendered with different screen size)
+         * and render new InApp with new screen size.
          */
         rootViewElement.removeAllViews();
         CooeeFactory.getDeviceInfo().initializeResource();
