@@ -8,6 +8,11 @@ import com.letscooee.BuildConfig;
 import com.letscooee.ContextAware;
 import com.letscooee.device.AppInfo;
 import com.letscooee.trigger.inapp.InAppTriggerActivity;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 import io.sentry.CustomSamplingContext;
 import io.sentry.Sentry;
 import io.sentry.SentryEvent;
@@ -15,12 +20,6 @@ import io.sentry.SentryOptions;
 import io.sentry.android.core.SentryAndroid;
 import io.sentry.protocol.SentryId;
 import io.sentry.protocol.User;
-
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
 
 /**
  * Utility class for Sentry initialization, logging & other utility.
@@ -133,13 +132,13 @@ public class SentryHelper extends ContextAware {
             return true;
         }
 
-        if (event.getOriginThrowable() == null) {
+        if (event.getThrowable() == null) {
             return false;
         }
 
         StringWriter stringWriter = new StringWriter();
         PrintWriter printWriter = new PrintWriter(stringWriter);
-        Objects.requireNonNull(event.getOriginThrowable()).printStackTrace(printWriter);
+        Objects.requireNonNull(event.getThrowable()).printStackTrace(printWriter);
         String stackTrace = stringWriter.toString();
 
         return stackTrace.toLowerCase().contains("cooee");
