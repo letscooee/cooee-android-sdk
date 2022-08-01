@@ -15,6 +15,7 @@ public class EmbeddedTrigger {
     private final String triggerID;
     private final String engagementID;
     private final Long expireAt;
+    @SuppressWarnings("unused")
     private Boolean expired;
 
     public EmbeddedTrigger(TriggerData triggerData) {
@@ -25,10 +26,7 @@ public class EmbeddedTrigger {
         this.triggerID = triggerID;
         this.engagementID = engagementID;
         this.expireAt = expireAt;
-
-        if (isExpired()) {
-            this.expired = isExpired();
-        }
+        this.expired = isExpired();
     }
 
     public String getTriggerID() {
@@ -47,4 +45,10 @@ public class EmbeddedTrigger {
         return this.expireAt < new Date().getTime();
     }
 
+    /**
+     * Update {@link #expired} value at runtime
+     */
+    public void updateStatus() {
+        this.expired = isExpired();
+    }
 }

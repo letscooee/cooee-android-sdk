@@ -22,6 +22,7 @@ public class Event {
     private int sessionNumber;
     private String screenName;
     private ArrayList<EmbeddedTrigger> activeTriggers;
+    @SuppressWarnings({"FieldCanBeLocal", "FieldMayBeFinal", "unused"})
     private Date occurred;
     private Map<String, Object> deviceProps;
 
@@ -44,7 +45,7 @@ public class Event {
     }
 
     public void withTrigger(TriggerData triggerData) {
-        properties.put("triggerID", triggerData.getId().trim());
+        this.activeTrigger = new EmbeddedTrigger(triggerData);
     }
 
     public String getName() {
@@ -87,6 +88,7 @@ public class Event {
         this.screenName = screenName;
     }
 
+    @SuppressWarnings("unused")
     public ArrayList<EmbeddedTrigger> getActiveTriggers() {
         return activeTriggers;
     }

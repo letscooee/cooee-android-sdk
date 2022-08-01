@@ -63,14 +63,30 @@ public class SafeHTTPService extends ContextAware {
         String sessionID = sessionManager.getCurrentSessionID(useSession);
         EmbeddedTrigger trigger = LocalStorageHelper.getEmbeddedTrigger(context, Constants.STORAGE_ACTIVE_TRIGGER, null);
 
+        /*
+         * Update trigger.expired every time before sending the event.
+         * As event.trigger will be tracked till the session is not expired.
+         * There is possibility that the trigger can get get expire in same session.
+         * If trigger getting expired when app is running.
+         */
+        if (trigger != null) {
+            trigger.updateStatus();
+        }
+
+        /*
+         * Will set session and trigger in event if event is other than Notification event.
+         */
         if (useSession) {
             event.setSessionID(sessionID);
             event.setSessionNumber(sessionManager.getCurrentSessionNumber());
+            /*
+             * Moved to if condition to prevent overwriting the trigger from notification event.
+             */
+            event.setActiveTrigger(trigger);
         }
 
         event.setScreenName(runtimeData.getCurrentScreenName());
         event.setActiveTriggers((ArrayList<EmbeddedTrigger>) EngagementTriggerHelper.getActiveTriggers(context));
-        event.setActiveTrigger(trigger);
 
         PendingTask pendingTask = pendingTaskService.newTask(event);
         this.attemptTaskImmediately(pendingTask);
