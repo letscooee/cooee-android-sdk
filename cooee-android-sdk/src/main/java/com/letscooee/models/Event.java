@@ -18,8 +18,7 @@ import java.util.Map;
  */
 public class Event {
 
-    @SerializedName("_id")
-    @Expose
+    @SuppressWarnings({"unused", "FieldCanBeLocal", "FieldMayBeFinal"})
     private String id;
     private String name;
     private Map<String, Object> properties;
