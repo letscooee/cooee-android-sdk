@@ -104,7 +104,7 @@ public class SentryHelper extends ContextAware {
             }
 
             // Additional check to prevent sending events in the local debug mode of SDK
-            if (BuildConfig.IS_TESTING.get()) {
+            if (BuildConfig.IS_TESTING) {
                 return null;
             }
 
