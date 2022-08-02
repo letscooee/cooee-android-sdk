@@ -1,9 +1,11 @@
 package com.letscooee.models;
 
+import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.letscooee.models.trigger.EmbeddedTrigger;
 import com.letscooee.models.trigger.TriggerData;
 
+import org.bson.types.ObjectId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -16,6 +18,8 @@ import java.util.Map;
  */
 public class Event {
 
+    @SuppressWarnings({"unused", "FieldCanBeLocal", "FieldMayBeFinal"})
+    private String id;
     private String name;
     private Map<String, Object> properties;
     private String sessionID;
@@ -38,6 +42,7 @@ public class Event {
     }
 
     public Event(String name, Map<String, Object> properties) {
+        this.id = new ObjectId().toHexString();
         this.name = name;
         this.properties = properties;
         this.occurred = new Date();
