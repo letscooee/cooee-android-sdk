@@ -126,7 +126,7 @@ public class ClickAction implements Parcelable {
      */
     public boolean isOnlyCloseCTA() {
         return iab == null && external == null && updateApp == null && prompt == null && up.isEmpty() && kv.isEmpty()
-                && share.isEmpty() && launchFeature == 0;
+                && share.isEmpty() && launchFeature == 0 && customKV.isEmpty();
     }
 
     public int getLaunchFeature() {
