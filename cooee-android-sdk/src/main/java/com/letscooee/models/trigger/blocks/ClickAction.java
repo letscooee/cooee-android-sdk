@@ -27,6 +27,10 @@ public class ClickAction implements Parcelable {
     private PermissionType prompt;
     private final HashMap<String, Object> up = new HashMap<>();
     private final HashMap<String, Object> kv = new HashMap<>();
+
+    @SerializedName("custKV")
+    @Expose
+    private final HashMap<String, Object> customKV = new HashMap<>();
     private final HashMap<String, Object> share = new HashMap<>();
     private final boolean close;
 
@@ -64,6 +68,7 @@ public class ClickAction implements Parcelable {
         in.readMap(share, Object.class.getClassLoader());
         appAR = in.readParcelable(AppAR.class.getClassLoader());
         launchFeature = in.readInt();
+        in.readMap(customKV, Object.class.getClassLoader());
     }
 
     public static final Creator<ClickAction> CREATOR = new Creator<ClickAction>() {
@@ -145,5 +150,10 @@ public class ClickAction implements Parcelable {
         dest.writeMap(share);
         dest.writeParcelable(appAR, flags);
         dest.writeInt(launchFeature);
+        dest.writeMap(customKV);
+    }
+
+    public Map<String, Object> getCustomKV() {
+        return customKV;
     }
 }

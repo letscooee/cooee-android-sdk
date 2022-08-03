@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.letscooee.CooeeSDK;
 import com.letscooee.cooeetester.databinding.ActivityHomeBinding;
 import com.letscooee.trigger.EngagementTriggerHelper;
+import com.letscooee.utils.Constants;
 import com.letscooee.utils.CooeeCTAListener;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -119,7 +120,7 @@ public class HomeActivity extends AppCompatActivity implements CooeeCTAListener 
     @Override
     public void onResponse(HashMap<String, Object> hashMap) {
         for (String key : hashMap.keySet()) {
-            Log.d("Type ::", key + " -> " + hashMap.get(key).getClass().getName());
+            Log.d(Constants.TAG, key + " -> " + hashMap.get(key));
         }
     }
 }

@@ -18,7 +18,6 @@ import com.letscooee.models.trigger.blocks.ClickAction;
 import com.letscooee.trigger.inapp.TriggerContext;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.CooeeCTAListener;
-
 import java.util.HashMap;
 import java.util.Objects;
 
@@ -148,11 +147,25 @@ public class ClickActionExecutor {
     private void passKeyValueToApp() {
         CooeeCTAListener listener = CooeeSDK.getDefaultInstance(context).getCTAListener();
 
-        if (listener == null || action.getKeyValue().isEmpty()) {
+        HashMap<String, Object> mergedKV = (HashMap<String, Object>) action.getCustomKV();
+
+        if (mergedKV == null) {
+            mergedKV = new HashMap<>();
+        }
+
+        /*
+         * Merging order is most important and should not change in future.
+         * Merging main kv to customKV will override duplicate key from customKV with kv.
+         */
+        if (action.getKeyValue() != null) {
+            mergedKV.putAll(action.getKeyValue());
+        }
+
+        if (mergedKV.isEmpty()) {
             return;
         }
 
-        listener.onResponse((HashMap<String, Object>) action.getKeyValue());
+        listener.onResponse(mergedKV);
     }
 
     /**
