@@ -1,5 +1,11 @@
 # Change Log
 
+## 1.3.13 (2022-08-04)
+
+### Improvements
+
+1. Add Ability to process custom CTA.
+
 ## 1.3.12 (2022-07-15)
 
 ### Improvements
