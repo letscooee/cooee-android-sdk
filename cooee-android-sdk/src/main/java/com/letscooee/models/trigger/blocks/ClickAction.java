@@ -153,7 +153,8 @@ public class ClickAction implements Parcelable {
         dest.writeMap(customKV);
     }
 
-    public Map<String, Object> getCustomKV() {
-        return customKV;
+    public HashMap<String, Object> getCustomKV() {
+        //noinspection ConstantConditions
+        return customKV == null ? new HashMap<>() : customKV;
     }
 }

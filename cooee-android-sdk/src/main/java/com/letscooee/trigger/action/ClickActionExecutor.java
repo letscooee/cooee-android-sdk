@@ -147,11 +147,7 @@ public class ClickActionExecutor {
     private void passKeyValueToApp() {
         CooeeCTAListener listener = CooeeSDK.getDefaultInstance(context).getCTAListener();
 
-        HashMap<String, Object> mergedKV = (HashMap<String, Object>) action.getCustomKV();
-
-        if (mergedKV == null) {
-            mergedKV = new HashMap<>();
-        }
+        HashMap<String, Object> mergedKV = action.getCustomKV();
 
         /*
          * Merging order is most important and should not change in future.
@@ -159,10 +155,6 @@ public class ClickActionExecutor {
          */
         if (action.getKeyValue() != null) {
             mergedKV.putAll(action.getKeyValue());
-        }
-
-        if (mergedKV.isEmpty()) {
-            return;
         }
 
         listener.onResponse(mergedKV);
