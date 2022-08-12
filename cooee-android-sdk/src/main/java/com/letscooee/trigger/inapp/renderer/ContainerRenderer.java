@@ -142,7 +142,7 @@ public class ContainerRenderer extends AbstractInAppRenderer {
         Configuration configuration = runtimeData.getAppCurrentConfiguration();
         if (configuration != null && configuration.screenWidthDp != Configuration.SCREEN_WIDTH_DP_UNDEFINED
                 && configuration.screenHeightDp != Configuration.SCREEN_HEIGHT_DP_UNDEFINED) {
-            double density = deviceInfo.getScaledDensity();
+            double density = deviceInfo.getDensity();
 
             displayWidth = configuration.screenWidthDp * density;
             displayHeight = configuration.screenHeightDp * density;

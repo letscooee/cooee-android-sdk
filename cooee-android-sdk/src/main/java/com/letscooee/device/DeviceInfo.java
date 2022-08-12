@@ -34,7 +34,7 @@ public class DeviceInfo extends ContextAware {
         private String name;
         private int width;
         private int height;
-        private float scaledDensity;
+        private float density;
         private int orientation;
 
         CachedInfo() {
@@ -42,7 +42,7 @@ public class DeviceInfo extends ContextAware {
 
             width = displayMetrics.widthPixels;
             height = displayMetrics.heightPixels;
-            scaledDensity = displayMetrics.density;
+            density = displayMetrics.density;
             orientation = resources.getConfiguration().orientation;
         }
 
@@ -105,8 +105,8 @@ public class DeviceInfo extends ContextAware {
         return this.cachedInfo.height;
     }
 
-    public float getScaledDensity() {
-        return this.cachedInfo.scaledDensity;
+    public float getDensity() {
+        return this.cachedInfo.density;
     }
 
     public int getOrientation() {
