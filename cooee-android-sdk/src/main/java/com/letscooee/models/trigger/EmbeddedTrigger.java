@@ -27,9 +27,7 @@ public class EmbeddedTrigger {
         this.engagementID = engagementID;
         this.expireAt = expireAt;
 
-        if (isExpired()) {
-            this.expired = isExpired();
-        }
+        this.updateExpired();
     }
 
     public String getTriggerID() {
@@ -53,7 +51,7 @@ public class EmbeddedTrigger {
      */
     public void updateExpired() {
         if (isExpired()) {
-            this.expired = isExpired();
+            this.expired = true;
         }
     }
 }
