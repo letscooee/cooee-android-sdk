@@ -70,7 +70,7 @@ public class SafeHTTPService extends ContextAware {
          * If trigger getting expired when app is running.
          */
         if (trigger != null) {
-            trigger.updateStatus();
+            trigger.updateExpired();
         }
 
         /*
