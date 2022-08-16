@@ -94,9 +94,13 @@ public class InAppTriggerHelper {
 
         List<String> imageList = triggerData.getInAppTrigger().getImageURLs();
         RemoteImageLoader loader = new RemoteImageLoader(this.context);
-        CompletableFuture<Void> future = loader.cacheAll(imageList);
+        CompletableFuture<Boolean> future = loader.cacheAll(imageList);
 
-        future.get();
+        boolean futureResult = future.get();
+
+        if (!futureResult) {
+            throw new InterruptedException("Fail to download images");
+        }
     }
 
 }

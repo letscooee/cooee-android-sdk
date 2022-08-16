@@ -33,7 +33,7 @@ public class RemoteImageLoader implements HttpResourceLoader<Bitmap> {
     private final SentryHelper sentryHelper;
     private final RequestBuilder<Bitmap> requestBuilder;
 
-    private final CompletableFuture<Void> completableFuture = new CompletableFuture<>();
+    private final CompletableFuture<Boolean> completableFuture = new CompletableFuture<>();
     private int imagesToCache;
     private int imagesCached;
     private int imagesAttempted;
@@ -81,7 +81,7 @@ public class RemoteImageLoader implements HttpResourceLoader<Bitmap> {
                 });
     }
 
-    public CompletableFuture<Void> cacheAll(@NonNull List<String> urls) {
+    public CompletableFuture<Boolean> cacheAll(@NonNull List<String> urls) {
         this.imagesToCache = urls.size();
         for (String imageURL : urls) {
             cache(imageURL);
@@ -128,11 +128,7 @@ public class RemoteImageLoader implements HttpResourceLoader<Bitmap> {
             return;
         }
 
-        if (this.imagesToCache == this.imagesCached) {
-            this.completableFuture.complete(null);
-        } else {
-            this.completableFuture.cancel(false);
-        }
+        this.completableFuture.complete(this.imagesToCache == this.imagesCached);
     }
 
 }
