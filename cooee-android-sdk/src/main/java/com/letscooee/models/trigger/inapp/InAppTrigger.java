@@ -140,12 +140,12 @@ public class InAppTrigger extends BaseElement {
                 .collect(Collectors.toList());
 
         // Background image URL of InAppTrigger.
-        if (TextUtils.isEmpty(getImageURL())) {
+        if (!TextUtils.isEmpty(getImageURL())) {
             imageList.add(getImageURL());
         }
 
         // Background image URL of Container.
-        if (TextUtils.isEmpty(container.getImageURL())) {
+        if (!TextUtils.isEmpty(container.getImageURL())) {
             imageList.add(container.getImageURL());
         }
 
