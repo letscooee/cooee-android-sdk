@@ -196,7 +196,7 @@ public class ClickActionExecutor {
             return;
         }
 
-        String queryParameters = getQueryParameters(action.getExternal());
+        String queryParameters = getQueryParameters(action.getIab());
         if (!TextUtils.isEmpty(queryParameters)) {
             url += "?" + queryParameters;
         }
@@ -250,7 +250,7 @@ public class ClickActionExecutor {
      * @return query parameters in string format
      */
     private String getQueryParameters(BrowserContent browserContent) {
-        if (browserContent.getQueryParams().isEmpty()) {
+        if (browserContent.getQueryParams() == null || browserContent.getQueryParams().isEmpty()) {
             return null;
         }
 
