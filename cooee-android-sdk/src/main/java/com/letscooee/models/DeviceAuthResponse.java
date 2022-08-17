@@ -10,7 +10,7 @@ public class DeviceAuthResponse {
     private String sdkToken;
     private String sessionID;
     private String deviceID;
-    private String id;
+    private String userID;
 
     public String getSdkToken() {
         return sdkToken;
@@ -28,12 +28,12 @@ public class DeviceAuthResponse {
         this.sessionID = sessionID;
     }
 
-    public String getId() {
-        return id;
+    public String getUserID() {
+        return userID;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setUserID(String userID) {
+        this.userID = userID;
     }
 
     public String getDeviceID() {

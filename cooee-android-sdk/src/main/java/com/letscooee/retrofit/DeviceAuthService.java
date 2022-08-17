@@ -5,13 +5,11 @@ import android.text.TextUtils;
 import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
-import com.google.gson.Gson;
 import com.letscooee.BuildConfig;
 import com.letscooee.CooeeFactory;
 import com.letscooee.models.AuthenticationRequestBody;
 import com.letscooee.models.DeviceAuthResponse;
 import com.letscooee.schedular.CooeeJobUtils;
-import com.letscooee.screenshot.ScreenshotUtility;
 import com.letscooee.user.NewSessionExecutor;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.LocalStorageHelper;
@@ -24,7 +22,6 @@ import retrofit2.Response;
 
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Map;
 
 /**
  * Utility class to register user with server and to provide related data
@@ -43,6 +40,7 @@ public class DeviceAuthService {
 
     private String sdkToken;
     private String userID;
+    @SuppressWarnings("unused")
     private String deviceID;
     private String uuid;
 
@@ -55,8 +53,8 @@ public class DeviceAuthService {
     }
 
     public boolean hasToken() {
-        String sdkToken = LocalStorageHelper.getString(context, Constants.STORAGE_SDK_TOKEN, null);
-        return !TextUtils.isEmpty(sdkToken);
+        String storageSDKToken = LocalStorageHelper.getString(context, Constants.STORAGE_SDK_TOKEN, null);
+        return !TextUtils.isEmpty(storageSDKToken);
     }
 
     public String getUserID() {
@@ -124,8 +122,7 @@ public class DeviceAuthService {
         apiService.registerDevice(requestBody).enqueue(new Callback<DeviceAuthResponse>() {
             @Override
             public void onResponse(@NonNull Call<DeviceAuthResponse> call, @NonNull Response<DeviceAuthResponse> response) {
-                if (response.isSuccessful()) {
-                    assert response.body() != null;
+                if (response.isSuccessful() && response.body() != null) {
                     DeviceAuthService.this.saveDeviceDataInStorage(response.body());
 
                     // Start the job immediately to make sure the pending tasks can be sent
@@ -145,15 +142,43 @@ public class DeviceAuthService {
     }
 
     private void saveDeviceDataInStorage(DeviceAuthResponse deviceAuthResponse) {
-        this.sdkToken = deviceAuthResponse.getSdkToken();
-        this.userID = deviceAuthResponse.getId();
-        this.deviceID = deviceAuthResponse.getDeviceID();
+        this.setSDKToken(deviceAuthResponse.getSdkToken());
+        this.setUserID(deviceAuthResponse.getUserID());
+        this.setDeviceID(deviceAuthResponse.getDeviceID());
         this.updateAPIClient();
 
-        LocalStorageHelper.putString(context, Constants.STORAGE_SDK_TOKEN, sdkToken);
-        LocalStorageHelper.putString(context, Constants.STORAGE_USER_ID, userID);
-        LocalStorageHelper.putString(context, Constants.STORAGE_DEVICE_ID, deviceID);
         LocalStorageHelper.putString(context, Constants.STORAGE_DEVICE_UUID, uuid);
+
+    }
+
+    /**
+     * Populates value to the {@link #deviceID} and LocalStorage immediately.
+     *
+     * @param deviceID Device ID to be set
+     */
+    private void setDeviceID(String deviceID) {
+        this.deviceID = deviceID;
+        LocalStorageHelper.putString(context, Constants.STORAGE_DEVICE_ID, deviceID);
+    }
+
+    /**
+     * Populates value to the {@link #userID} and LocalStorage immediately.
+     *
+     * @param userID User ID to be set
+     */
+    private void setUserID(String userID) {
+        this.userID = userID;
+        LocalStorageHelper.putString(context, Constants.STORAGE_USER_ID, userID);
+    }
+
+    /**
+     * Populates value to the {@link #sdkToken} and LocalStorage immediately.
+     *
+     * @param sdkToken SDK Token to be set
+     */
+    private void setSDKToken(String sdkToken) {
+        this.sdkToken = sdkToken;
+        LocalStorageHelper.putString(context, Constants.STORAGE_SDK_TOKEN, sdkToken);
     }
 
     private void updateAPIClient() {
@@ -190,36 +215,29 @@ public class DeviceAuthService {
      * Update auth details if its available.
      * This is mainly used while profile merging.
      *
-     * @param profileResponse response from server
+     * @param deviceAuthResponse response from server
      */
-    public void checkAndUpdate(Map<String, Object> profileResponse) {
-        if (profileResponse == null || !profileResponse.containsKey("merge")) {
+    public void checkAndUpdate(DeviceAuthResponse deviceAuthResponse) {
+        if (deviceAuthResponse == null) {
             return;
         }
 
-        @SuppressWarnings("unchecked")
-        Map<String, String> mergeDetails = (Map<String, String>) profileResponse.get("merge");
-        Gson gson = new Gson();
-        DeviceAuthResponse deviceAuthResponse = gson.fromJson(gson.toJson(mergeDetails), DeviceAuthResponse.class);
-        if (mergeDetails == null || mergeDetails.isEmpty()) {
-            return;
-        }
-        // If userID is not present then add it from local
-        if (TextUtils.isEmpty(deviceAuthResponse.getId())) {
-            deviceAuthResponse.setId(userID);
+        // If userID is present then update it immediately
+        if (!TextUtils.isEmpty(deviceAuthResponse.getUserID())) {
+            this.setUserID(deviceAuthResponse.getUserID());
         }
 
-        // If deviceID is not present then add it from local
-        if (TextUtils.isEmpty(deviceAuthResponse.getDeviceID())) {
-            deviceAuthResponse.setDeviceID(deviceID);
+        // If deviceID is present then update it immediately
+        if (!TextUtils.isEmpty(deviceAuthResponse.getDeviceID())) {
+            this.setDeviceID(deviceAuthResponse.getDeviceID());
         }
 
-        // If sdkToken is not present then add it from local
-        if (TextUtils.isEmpty(deviceAuthResponse.getSdkToken())) {
-            deviceAuthResponse.setDeviceID(sdkToken);
+        // If sdkToken is present then update it immediately
+        if (!TextUtils.isEmpty(deviceAuthResponse.getSdkToken())) {
+            this.setSDKToken(deviceAuthResponse.getSdkToken());
         }
 
-        // send to update the local storage & api client
-        saveDeviceDataInStorage(deviceAuthResponse);
+        // Populate updated details with APIClient
+        this.updateAPIClient();
     }
 }
