@@ -32,7 +32,6 @@ public class ProfileActivity extends AppCompatActivity {
         if (TextUtils.isEmpty(animation)) {
             animation = "slide";
         }
-        overrideAnimation(animation);
 
         cooee = CooeeSDK.getDefaultInstance(this);
         binding.ivBack.setOnClickListener(v -> finish());
@@ -68,28 +67,5 @@ public class ProfileActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         finish();
-    }
-
-    @Override
-    public void finish() {
-        super.finish();
-        overrideAnimation(animation);
-
-    }
-
-    private void overrideAnimation(String animation) {
-        switch (animation) {
-            case "top_right":
-                overridePendingTransition(R.anim.slide_in_top_right, R.anim.slide_out_top_right);
-                break;
-            case "bottom_left":
-                overridePendingTransition(R.anim.slide_in_bottom_left, R.anim.slide_out_bottom_left);
-                break;
-            case "bottom_right":
-                overridePendingTransition(R.anim.slide_in_bottom_right, R.anim.slide_out_bottom_right);
-                break;
-            default:
-                overridePendingTransition(R.anim.slide_in_top_left, R.anim.slide_out_top_left);
-        }
     }
 }
