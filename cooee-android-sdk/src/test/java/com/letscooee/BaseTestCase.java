@@ -40,7 +40,7 @@ import java.util.Scanner;
 import static org.robolectric.annotation.SQLiteMode.Mode.NATIVE;
 
 @SQLiteMode(NATIVE)
-@Config(sdk = Build.VERSION_CODES.S)
+@Config(sdk = Build.VERSION_CODES.S_V2)
 @RunWith(RobolectricTestRunner.class)
 public abstract class BaseTestCase extends TestCase {
 
