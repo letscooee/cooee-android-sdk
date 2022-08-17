@@ -2,11 +2,11 @@ package com.letscooee.network;
 
 import android.content.Context;
 import android.util.Log;
-
 import androidx.annotation.NonNull;
-
 import com.letscooee.ContextAware;
+import com.letscooee.CooeeFactory;
 import com.letscooee.exceptions.HttpRequestFailedException;
+import com.letscooee.models.DeviceAuthResponse;
 import com.letscooee.models.Event;
 import com.letscooee.retrofit.APIClient;
 import com.letscooee.retrofit.APIService;
@@ -16,10 +16,8 @@ import com.letscooee.retrofit.internal.PublicApiClient;
 import com.letscooee.retrofit.internal.PublicApiService;
 import com.letscooee.trigger.EngagementTriggerHelper;
 import com.letscooee.utils.Constants;
-
 import java.io.IOException;
 import java.util.Map;
-
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
@@ -50,6 +48,7 @@ public class BaseHTTPService extends ContextAware {
         Call<Map<String, Object>> call = apiService.sendEvent(event);
         Response<?> response = this.executeHTTPCall(call, "Send " + event);
 
+        //noinspection unchecked
         Map<String, Object> responseData = (Map<String, Object>) response.body();
 
         new EngagementTriggerHelper(context).renderInAppTriggerFromResponse(responseData);
@@ -61,17 +60,23 @@ public class BaseHTTPService extends ContextAware {
         Call<Map<String, Object>> call = apiService.loadTriggerDetails(triggerId);
         Response<?> response = this.executeHTTPCall(call, "Get trigger In-App data");
 
-        return (Map<String, Object>) response.body();
-    }
-
-    public Map<String, Object> updateUserProfile(Map<String, Object> data) throws HttpRequestFailedException {
-        Call<Map<String, Object>> call = apiService.updateProfile(data);
-        Response<?> response = this.executeHTTPCall(call, "Update user profile");
-
         //noinspection unchecked
         return (Map<String, Object>) response.body();
     }
 
+    @SuppressWarnings("UnusedReturnValue")
+    public DeviceAuthResponse updateUserProfile(Map<String, Object> data) throws HttpRequestFailedException {
+        Call<DeviceAuthResponse> call = apiService.updateProfile(data);
+        Response<?> response = this.executeHTTPCall(call, "Update user profile");
+
+        // Update device auth details in the device auth service
+        DeviceAuthResponse responseBody = (DeviceAuthResponse) response.body();
+        CooeeFactory.getDeviceAuthService().checkAndUpdate(responseBody);
+
+        return responseBody;
+    }
+
+    @SuppressWarnings("UnusedReturnValue")
     public Map<String, Object> updateDeviceProperty(Map<String, Object> data) throws HttpRequestFailedException {
         Call<Map<String, Object>> call = apiService.updateDeviceProperty(data);
         Response<?> response = this.executeHTTPCall(call, "Update device property");
@@ -84,16 +89,24 @@ public class BaseHTTPService extends ContextAware {
         Call<ResponseBody> call = apiService.setPushToken(data);
         Response<?> response = this.executeHTTPCall(call, "Update user profile");
 
-        // TODO: 03/06/21 should we close ResponseBody.close()
-        // https://square.github.io/okhttp/4.x/okhttp/okhttp3/-response-body/#the-response-body-can-be-consumed-only-once
+        /*
+         * Close the response body if it is not null.
+         * Ref: https://square.github.io/okhttp/4.x/okhttp/okhttp3/-response-body/#the-response-body-can-be-consumed-only-once
+         */
+        assert response.body() != null;
+        ((ResponseBody) response.body()).close();
     }
 
     public void sendSessionConcludedEvent(Map<String, Object> data) throws HttpRequestFailedException {
         Call<ResponseBody> call = apiService.concludeSession(data);
         Response<?> response = this.executeHTTPCall(call, "Conclude Session");
 
-        // TODO: 03/06/21 should we close ResponseBody.close()
-        // https://square.github.io/okhttp/4.x/okhttp/okhttp3/-response-body/#the-response-body-can-be-consumed-only-once
+        /*
+         * Close the response body if it is not null.
+         * Ref: https://square.github.io/okhttp/4.x/okhttp/okhttp3/-response-body/#the-response-body-can-be-consumed-only-once
+         */
+        assert response.body() != null;
+        ((ResponseBody) response.body()).close();
     }
 
     public void keepAliveSession(Map<String, Object> data) {
@@ -105,7 +118,7 @@ public class BaseHTTPService extends ContextAware {
 
             @Override
             public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
-                Log.e(Constants.TAG, "Session Alive Response Error Message" + t.toString());
+                Log.e(Constants.TAG, "Session Alive Response Error Message" + t);
             }
         });
     }
@@ -113,6 +126,7 @@ public class BaseHTTPService extends ContextAware {
     public Map<String, Object> getAppConfig(String appId) throws HttpRequestFailedException {
         Call<Map<String, Object>> call = publicApiService.getAppConfig(appId);
         Response<?> response = this.executeHTTPCall(call, "Font Request");
+        //noinspection unchecked
         return (Map<String, Object>) response.body();
     }
 
@@ -126,6 +140,7 @@ public class BaseHTTPService extends ContextAware {
             throws HttpRequestFailedException {
         Call<Map<String, Object>> call = apiService.uploadScreenshot(body, parameter);
         Response<?> response = this.executeHTTPCall(call, "Upload Request");
+        //noinspection unchecked
         return (Map<String, Object>) response.body();
     }
 
@@ -134,7 +149,7 @@ public class BaseHTTPService extends ContextAware {
             Response<?> response = call.execute();
 
             if (response.isSuccessful()) {
-                return (Response<?>) response;
+                return response;
             }
 
             Log.d(Constants.TAG, "Server failure for " + message + ", resp code: " + response.code()
