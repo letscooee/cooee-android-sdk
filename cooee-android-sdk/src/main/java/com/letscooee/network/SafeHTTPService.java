@@ -61,7 +61,19 @@ public class SafeHTTPService extends ContextAware {
 
     private void sendEvent(Event event, boolean useSession) {
         String sessionID = sessionManager.getCurrentSessionID(useSession);
-        EmbeddedTrigger trigger = LocalStorageHelper.getEmbeddedTrigger(context, Constants.STORAGE_ACTIVE_TRIGGER, null);
+
+        if (event.getActiveTrigger() == null) {
+            EmbeddedTrigger trigger = LocalStorageHelper.getLastActiveTrigger(context, Constants.STORAGE_ACTIVE_TRIGGER, null);
+
+            /*
+             * There is a possibility that the trigger can get expire in the same session or while the app is running. So, update
+             * "trigger.expired" before sending any event as the last active trigger will be tracked till the session is not expired.
+             */
+            if (trigger != null) {
+                trigger.updateExpired();
+                event.setActiveTrigger(trigger);
+            }
+        }
 
         if (useSession) {
             event.setSessionID(sessionID);
@@ -70,7 +82,6 @@ public class SafeHTTPService extends ContextAware {
 
         event.setScreenName(runtimeData.getCurrentScreenName());
         event.setActiveTriggers((ArrayList<EmbeddedTrigger>) EngagementTriggerHelper.getActiveTriggers(context));
-        event.setActiveTrigger(trigger);
 
         PendingTask pendingTask = pendingTaskService.newTask(event);
         this.attemptTaskImmediately(pendingTask);
@@ -107,4 +118,5 @@ public class SafeHTTPService extends ContextAware {
     private void attemptTaskImmediately(PendingTask pendingTask) {
         CooeeExecutors.getInstance().networkExecutor().execute(() -> pendingTaskService.processTask(pendingTask));
     }
+
 }

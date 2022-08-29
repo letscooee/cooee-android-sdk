@@ -27,6 +27,14 @@ allprojects {
     if (project.gradle.startParameter.taskNames[0]?.contains("publishToMavenLocal")) {
         project.version = project.version + "-SNAPSHOT"
     }
+
+    /**
+     * This will add -alpha to the version if the build is triggered by the "assembleDebug" task.
+     * assembleDebug is the default task for the "debug" flavor.
+     */
+    if (project.gradle.startParameter.taskNames[0]?.contains("assembleDebug")) {
+        project.version = project.version + "-alpha"
+    }
 }
 
 task clean(type: Delete) {

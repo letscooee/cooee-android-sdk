@@ -81,7 +81,7 @@ public class LocalStorageHelperTest extends BaseTestCase {
         EmbeddedTrigger trigger = new EmbeddedTrigger("TID-1", "EID-1", 789L);
         LocalStorageHelper.putEmbeddedTriggerImmediately(context, KEY, trigger);
 
-        EmbeddedTrigger resultTrigger = LocalStorageHelper.getEmbeddedTrigger(context, KEY, null);
+        EmbeddedTrigger resultTrigger = LocalStorageHelper.getLastActiveTrigger(context, KEY, null);
         assertThat(resultTrigger.getTriggerID()).isEqualTo(trigger.getTriggerID());
     }
 
@@ -91,7 +91,7 @@ public class LocalStorageHelperTest extends BaseTestCase {
         LocalStorageHelper.putEmbeddedTriggerImmediately(context, KEY, trigger);
 
         LocalStorageHelper.remove(context, KEY);
-        EmbeddedTrigger resultTrigger = LocalStorageHelper.getEmbeddedTrigger(context, KEY, null);
+        EmbeddedTrigger resultTrigger = LocalStorageHelper.getLastActiveTrigger(context, KEY, null);
         assertThat(resultTrigger).isNull();
     }
 

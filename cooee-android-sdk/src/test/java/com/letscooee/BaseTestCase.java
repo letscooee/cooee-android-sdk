@@ -61,9 +61,12 @@ public abstract class BaseTestCase extends TestCase {
     protected CooeeEmptyActivity activityWithNoTriggerData;
     protected CooeeDatabase database;
 
-    static {
-        BuildConfig.IS_TESTING.set(true);
-    }
+    /*
+     * Keeping this code for future reference.
+     * static {
+     *    BuildConfig.IS_TESTING.set(true);
+     * }
+     */
 
     @Before
     @Override

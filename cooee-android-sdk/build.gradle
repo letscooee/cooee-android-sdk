@@ -107,6 +107,7 @@ android {
         renderscriptSupportModeEnabled true
         versionCode project.version.toString()
                 .replace("-SNAPSHOT", "")
+                .replace("-alpha", "") // Removes `-alpha` suffix from version code
                 .tokenize('.')
                 .collect { it.padLeft(2, '0') }
                 .join('')
@@ -117,7 +118,13 @@ android {
 
         buildConfigField "long", "VERSION_CODE", "${defaultConfig.versionCode}"
         buildConfigField "String", "VERSION_NAME", "\"${defaultConfig.versionName}\""
-        buildConfigField "java.util.concurrent.atomic.AtomicBoolean", "IS_TESTING", "new java.util.concurrent.atomic.AtomicBoolean(false)"
+
+        /**
+         * IS_TESTING is a boolean flag that is used to determine if the app is being built for testing or not.
+         * Keeping old creation of IS_TESTING for other references.
+         */
+        //buildConfigField "java.util.concurrent.atomic.AtomicBoolean", "IS_TESTING", "new java.util.concurrent.atomic.AtomicBoolean(false)"
+        buildConfigField "boolean", "IS_TESTING", "${project.gradle.startParameter.taskNames[0]?.contains("test") ?: false}"
     }
     buildTypes {
         debug {
@@ -179,7 +186,7 @@ dependencies {
     // region Single standalone dependencies
     api 'com.github.bumptech.glide:glide:4.12.0'
     api 'jp.wasabeef:blurry:4.0.0'
-    api 'io.sentry:sentry-android:4.3.0'
+    api 'io.sentry:sentry-android:6.3.0'
     api 'org.mongodb:bson:4.2.3'
     // endregion
 
