@@ -22,9 +22,4 @@ public class ButtonRenderer extends TextRenderer {
 
         return newElement;
     }
-
-    protected void setBackgroundDrawable() {
-        // For Button, the drawable should be directly applied to the Button instead of it's proxy parent
-        newElement.setBackground(backgroundDrawable);
-    }
 }

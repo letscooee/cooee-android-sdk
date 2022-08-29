@@ -2,19 +2,19 @@ package com.letscooee;
 
 import android.content.Context;
 import android.content.Intent;
-
+import android.text.TextUtils;
+import android.util.Log;
 import androidx.annotation.NonNull;
-
 import com.letscooee.device.DebugInfoActivity;
 import com.letscooee.models.Event;
 import com.letscooee.network.SafeHTTPService;
 import com.letscooee.retrofit.DeviceAuthService;
 import com.letscooee.task.CooeeExecutors;
+import com.letscooee.utils.Constants;
 import com.letscooee.utils.CooeeCTAListener;
 import com.letscooee.utils.PropertyNameException;
 import com.letscooee.utils.RuntimeData;
 import com.letscooee.utils.SentryHelper;
-
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Map;
@@ -97,9 +97,10 @@ public class CooeeSDK {
         }
 
         containsSystemDataPrefix(eventProperties);
-
-        Event event = new Event(eventName, eventProperties);
-        this.safeHTTPService.sendEvent(event);
+        CooeeExecutors.getInstance().singleThreadExecutor().execute(() -> {
+            Event event = new Event(eventName, eventProperties);
+            this.safeHTTPService.sendEvent(event);
+        });
     }
 
     /**
@@ -162,9 +163,10 @@ public class CooeeSDK {
         }
 
         containsSystemDataPrefix(userData);
-
-        this.sentryHelper.setUserInfo(userData);
-        this.safeHTTPService.updateUserProfile(userData);
+        CooeeExecutors.getInstance().singleThreadExecutor().execute(() -> {
+            this.sentryHelper.setUserInfo(userData);
+            this.safeHTTPService.updateUserProfile(userData);
+        });
     }
 
     /**
@@ -173,7 +175,27 @@ public class CooeeSDK {
      * @param screenName Name of the screen. Like Login, Cart, Wishlist etc.
      */
     public void setCurrentScreen(String screenName) {
+        if (TextUtils.isEmpty(screenName)) {
+            Log.v(Constants.TAG, "Trying to set empty screen name");
+            return;
+        }
+
+        // Update screen name on main thread, because other threads may be in paused state till CPU gets free.(Edge case scenario)
+        String previousScreenName = this.runtimeData.getCurrentScreenName();
         this.runtimeData.setCurrentScreenName(screenName);
+
+        CooeeExecutors.getInstance().singleThreadExecutor().execute(() -> {
+            /*
+             * Properties will hold previous screen name.
+             */
+            Map<String, Object> properties = new HashMap<>();
+            properties.put("ps", previousScreenName);
+
+            Event event = new Event(Constants.EVENT_SCREEN_VIEW, properties);
+
+            this.safeHTTPService.sendEvent(event);
+        });
+
     }
 
     /**
@@ -225,7 +247,7 @@ public class CooeeSDK {
         }
 
         for (String key : map.keySet()) {
-            if (key.substring(0, 3).equalsIgnoreCase(SYSTEM_DATA_PREFIX)) {
+            if (key.length() > 3 && key.substring(0, 3).equalsIgnoreCase(SYSTEM_DATA_PREFIX)) {
                 throw new PropertyNameException();
             }
         }

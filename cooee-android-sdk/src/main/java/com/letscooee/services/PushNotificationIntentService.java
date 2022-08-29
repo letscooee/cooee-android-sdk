@@ -6,10 +6,8 @@ import android.app.PendingIntent;
 import android.app.TaskStackBuilder;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-
 import com.letscooee.CooeeFactory;
 import com.letscooee.models.Event;
 import com.letscooee.models.trigger.TriggerData;
@@ -60,10 +58,25 @@ public class PushNotificationIntentService extends IntentService {
                 break;
             }
             case Constants.ACTION_DELETE_NOTIFICATION: {
-                Event event = new Event("CE Notification Cancelled", triggerData);
-                CooeeFactory.getSafeHTTPService().sendEventWithoutSession(event);
+                sendCancelEventAndRemovePendingTrigger(triggerData);
                 break;
             }
         }
+    }
+
+    /**
+     * Send Cancelled event to server and removes related {@link com.letscooee.room.trigger.PendingTrigger}
+     * from the {@link com.letscooee.room.CooeeDatabase}
+     *
+     * @param triggerData {@link TriggerData} for whom operation to be perform
+     */
+    private void sendCancelEventAndRemovePendingTrigger(TriggerData triggerData) {
+        if (triggerData == null) {
+            return;
+        }
+
+        Event event = new Event(Constants.EVENT_NOTIFICATION_CANCELLED, triggerData);
+        CooeeFactory.getSafeHTTPService().sendEventWithoutSession(event);
+        CooeeFactory.getPendingTriggerService().delete(triggerData);
     }
 }

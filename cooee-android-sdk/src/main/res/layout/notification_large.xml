@@ -12,24 +12,44 @@
         <TextView
             android:id="@+id/textViewTitle"
             style="@style/TextAppearance.Compat.Notification.Title"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:maxWidth="250dp"
+            android:visibility="gone"
+            android:ellipsize="end"
+            android:maxLines="2"
             android:text="Notification Sample App" />
 
         <TextView
-            android:id="@+id/textViewInfo"
+            android:id="@+id/textViewSmallBody"
             style="@style/TextAppearance.Compat.Notification.Info"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
+            android:visibility="gone"
             android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="2"
             android:text="Expand me to see a detailed message!" />
 
-        <ImageView
-            android:id="@+id/imageViewLarge"
+        <TextView
+            android:id="@+id/textViewLargeBody"
+            style="@style/TextAppearance.Compat.Notification.Info"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:scaleType="centerCrop" />
+            android:text="Expand me to see a detailed message!"
+            android:visibility="gone" />
+
+        <RelativeLayout
+            android:id="@+id/image_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/imageViewLarge"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:scaleType="centerCrop" />
+
+        </RelativeLayout>
 
     </LinearLayout>
 

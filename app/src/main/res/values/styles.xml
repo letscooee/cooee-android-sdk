@@ -18,6 +18,10 @@
         <item name="colorOnSecondary">@color/black</item>
         <!-- Status bar color. -->
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
+
+        <!--Set windowNoTitle & android:windowFullscreen false to launch app in normal mode-->
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowFullscreen">true</item>
     </style>
 
     <style name="PrimaryButton" parent="TextAppearance.MaterialComponents.Button">

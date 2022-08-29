@@ -31,7 +31,7 @@ public class ClickAction implements Parcelable {
     @SerializedName("custKV")
     @Expose
     private final HashMap<String, Object> customKV = new HashMap<>();
-    private final HashMap<String, Object> share = new HashMap<>();
+    private ShareContent share;
     private final boolean close;
 
     @SerializedName("ntvAR")
@@ -65,7 +65,7 @@ public class ClickAction implements Parcelable {
         //  Old Method Ref: https://developer.android.com/reference/android/os/Parcel#readMap(java.util.Map,%20java.lang.ClassLoader)
         in.readMap(up, Object.class.getClassLoader());
         in.readMap(kv, Object.class.getClassLoader());
-        in.readMap(share, Object.class.getClassLoader());
+        share = in.readParcelable(ShareContent.class.getClassLoader());
         appAR = in.readParcelable(AppAR.class.getClassLoader());
         launchFeature = in.readInt();
         in.readMap(customKV, Object.class.getClassLoader());
@@ -107,7 +107,7 @@ public class ClickAction implements Parcelable {
         return kv;
     }
 
-    public Map<String, Object> getShare() {
+    public ShareContent getShare() {
         return share;
     }
 
@@ -126,7 +126,7 @@ public class ClickAction implements Parcelable {
      */
     public boolean isOnlyCloseCTA() {
         return iab == null && external == null && updateApp == null && prompt == null && up.isEmpty() && kv.isEmpty()
-                && share.isEmpty() && launchFeature == 0 && customKV.isEmpty();
+                && share == null && launchFeature == 0 && customKV.isEmpty();
     }
 
     public int getLaunchFeature() {
@@ -147,7 +147,7 @@ public class ClickAction implements Parcelable {
         dest.writeByte((byte) (close ? 1 : 0));
         dest.writeMap(up);
         dest.writeMap(kv);
-        dest.writeMap(share);
+        dest.writeParcelable(share, flags);
         dest.writeParcelable(appAR, flags);
         dest.writeInt(launchFeature);
         dest.writeMap(customKV);

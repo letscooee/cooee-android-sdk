@@ -2,13 +2,16 @@ package com.letscooee.models.trigger.elements;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
+import android.text.TextUtils;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-import com.letscooee.models.trigger.blocks.*;
+import com.letscooee.exceptions.InvalidTriggerDataException;
+import com.letscooee.models.trigger.blocks.Background;
+import com.letscooee.models.trigger.blocks.Border;
+import com.letscooee.models.trigger.blocks.ClickAction;
+import com.letscooee.models.trigger.blocks.Shadow;
+import com.letscooee.models.trigger.blocks.Spacing;
+import com.letscooee.models.trigger.blocks.Transform;
 
 public abstract class BaseElement implements Parcelable {
 
@@ -128,4 +131,31 @@ public abstract class BaseElement implements Parcelable {
     public double getHeight() {
         return height;
     }
+
+    public String getBgImage() {
+        if (this.bg == null || this.bg.getImage() == null || TextUtils.isEmpty(this.bg.getImage().getSrc())) {
+            return null;
+        }
+
+        return this.bg.getImage().getSrc();
+    }
+
+    public String getImageURL() {
+        return this.getBgImage();
+    }
+
+    /**
+     * Checks if Element has valid background image resource.
+     *
+     * @return true if background image resource is valid, otherwise throws error with details.
+     * @throws InvalidTriggerDataException if background image resource is invalid.
+     */
+    public boolean hasValidResource() throws InvalidTriggerDataException {
+        if (bg == null || bg.getImage() == null || !TextUtils.isEmpty(getBgImage())) {
+            return true;
+        }
+
+        throw new InvalidTriggerDataException("Found Empty background image url");
+    }
+
 }

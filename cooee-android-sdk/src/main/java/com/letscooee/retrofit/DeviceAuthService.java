@@ -10,7 +10,6 @@ import com.letscooee.CooeeFactory;
 import com.letscooee.models.AuthenticationRequestBody;
 import com.letscooee.models.DeviceAuthResponse;
 import com.letscooee.schedular.CooeeJobUtils;
-import com.letscooee.screenshot.ScreenshotUtility;
 import com.letscooee.user.NewSessionExecutor;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.LocalStorageHelper;
@@ -41,6 +40,7 @@ public class DeviceAuthService {
 
     private String sdkToken;
     private String userID;
+    @SuppressWarnings("unused")
     private String deviceID;
     private String uuid;
 
@@ -53,8 +53,8 @@ public class DeviceAuthService {
     }
 
     public boolean hasToken() {
-        String sdkToken = LocalStorageHelper.getString(context, Constants.STORAGE_SDK_TOKEN, null);
-        return !TextUtils.isEmpty(sdkToken);
+        String storageSDKToken = LocalStorageHelper.getString(context, Constants.STORAGE_SDK_TOKEN, null);
+        return !TextUtils.isEmpty(storageSDKToken);
     }
 
     public String getUserID() {
@@ -122,8 +122,7 @@ public class DeviceAuthService {
         apiService.registerDevice(requestBody).enqueue(new Callback<DeviceAuthResponse>() {
             @Override
             public void onResponse(@NonNull Call<DeviceAuthResponse> call, @NonNull Response<DeviceAuthResponse> response) {
-                if (response.isSuccessful()) {
-                    assert response.body() != null;
+                if (response.isSuccessful() && response.body() != null) {
                     DeviceAuthService.this.saveDeviceDataInStorage(response.body());
 
                     // Start the job immediately to make sure the pending tasks can be sent
@@ -143,15 +142,43 @@ public class DeviceAuthService {
     }
 
     private void saveDeviceDataInStorage(DeviceAuthResponse deviceAuthResponse) {
-        this.sdkToken = deviceAuthResponse.getSdkToken();
-        this.userID = deviceAuthResponse.getId();
-        this.deviceID = deviceAuthResponse.getDeviceID();
+        this.setSDKToken(deviceAuthResponse.getSdkToken());
+        this.setUserID(deviceAuthResponse.getUserID());
+        this.setDeviceID(deviceAuthResponse.getDeviceID());
         this.updateAPIClient();
 
-        LocalStorageHelper.putString(context, Constants.STORAGE_SDK_TOKEN, sdkToken);
-        LocalStorageHelper.putString(context, Constants.STORAGE_USER_ID, userID);
-        LocalStorageHelper.putString(context, Constants.STORAGE_DEVICE_ID, deviceID);
         LocalStorageHelper.putString(context, Constants.STORAGE_DEVICE_UUID, uuid);
+
+    }
+
+    /**
+     * Populates value to the {@link #deviceID} and LocalStorage immediately.
+     *
+     * @param deviceID Device ID to be set
+     */
+    private void setDeviceID(String deviceID) {
+        this.deviceID = deviceID;
+        LocalStorageHelper.putString(context, Constants.STORAGE_DEVICE_ID, deviceID);
+    }
+
+    /**
+     * Populates value to the {@link #userID} and LocalStorage immediately.
+     *
+     * @param userID User ID to be set
+     */
+    private void setUserID(String userID) {
+        this.userID = userID;
+        LocalStorageHelper.putString(context, Constants.STORAGE_USER_ID, userID);
+    }
+
+    /**
+     * Populates value to the {@link #sdkToken} and LocalStorage immediately.
+     *
+     * @param sdkToken SDK Token to be set
+     */
+    private void setSDKToken(String sdkToken) {
+        this.sdkToken = sdkToken;
+        LocalStorageHelper.putString(context, Constants.STORAGE_SDK_TOKEN, sdkToken);
     }
 
     private void updateAPIClient() {
@@ -165,9 +192,10 @@ public class DeviceAuthService {
         APIClient.setAppVersion(CooeeFactory.getAppInfo().getVersion());
         this.sentryHelper.setUserId(userID);
 
-        if (!TextUtils.isEmpty(sdkToken)) {
+        // Stopping ScreenshotUtility as backend not accepting any new screenshot requests
+        /*if (!TextUtils.isEmpty(sdkToken)) {
             new ScreenshotUtility(context); // Initialize ScreenshotUtility
-        }
+        }*/
     }
 
     /**
@@ -181,5 +209,35 @@ public class DeviceAuthService {
                 manifestReader.getAppID(),
                 uuid,
                 sessionExecutor.getImmutableDeviceProps());
+    }
+
+    /**
+     * Update auth details if its available.
+     * This is mainly used while profile merging.
+     *
+     * @param deviceAuthResponse response from server
+     */
+    public void checkAndUpdate(DeviceAuthResponse deviceAuthResponse) {
+        if (deviceAuthResponse == null) {
+            return;
+        }
+
+        // If userID is present then update it immediately
+        if (!TextUtils.isEmpty(deviceAuthResponse.getUserID())) {
+            this.setUserID(deviceAuthResponse.getUserID());
+        }
+
+        // If deviceID is present then update it immediately
+        if (!TextUtils.isEmpty(deviceAuthResponse.getDeviceID())) {
+            this.setDeviceID(deviceAuthResponse.getDeviceID());
+        }
+
+        // If sdkToken is present then update it immediately
+        if (!TextUtils.isEmpty(deviceAuthResponse.getSdkToken())) {
+            this.setSDKToken(deviceAuthResponse.getSdkToken());
+        }
+
+        // Populate updated details with APIClient
+        this.updateAPIClient();
     }
 }

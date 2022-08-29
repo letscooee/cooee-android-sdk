@@ -81,6 +81,7 @@ artifactory {
             // This is how we tell the Artifactory Plugin which artifacts should be published to Artifactory.
             publishArtifacts = true
             // Properties to be attached to the published artifacts.
+            //noinspection GroovyConstructorNamedArguments
             properties = ['qa.level': 'basic', 'dev.team': 'core']
             publishPom = true // Publish generated POM files to Artifactory (true by default)
         }
@@ -98,14 +99,15 @@ android {
         pickFirst 'lib/**/*.so'
     }
 
-    compileSdkVersion 31
+    compileSdkVersion 32
     defaultConfig {
         minSdkVersion 21
-        targetSdkVersion 31
+        targetSdkVersion 32
         renderscriptTargetApi 29
         renderscriptSupportModeEnabled true
         versionCode project.version.toString()
                 .replace("-SNAPSHOT", "")
+                .replace("-alpha", "") // Removes `-alpha` suffix from version code
                 .tokenize('.')
                 .collect { it.padLeft(2, '0') }
                 .join('')
@@ -116,7 +118,13 @@ android {
 
         buildConfigField "long", "VERSION_CODE", "${defaultConfig.versionCode}"
         buildConfigField "String", "VERSION_NAME", "\"${defaultConfig.versionName}\""
-        buildConfigField "java.util.concurrent.atomic.AtomicBoolean", "IS_TESTING", "new java.util.concurrent.atomic.AtomicBoolean(false)"
+
+        /**
+         * IS_TESTING is a boolean flag that is used to determine if the app is being built for testing or not.
+         * Keeping old creation of IS_TESTING for other references.
+         */
+        //buildConfigField "java.util.concurrent.atomic.AtomicBoolean", "IS_TESTING", "new java.util.concurrent.atomic.AtomicBoolean(false)"
+        buildConfigField "boolean", "IS_TESTING", "${project.gradle.startParameter.taskNames[0]?.contains("test") ?: false}"
     }
     buildTypes {
         debug {
@@ -141,15 +149,15 @@ android {
 }
 
 dependencies {
-    String lifecycleVersion = "2.4.1"
+    String lifecycleVersion = "2.5.0"
 
     implementation fileTree(dir: "libs", include: ["*.jar"])
     // region AndroidX dependencies
-    api 'androidx.core:core:1.7.0'
+    api 'androidx.core:core:1.8.0'
     api "androidx.cardview:cardview:1.0.0"
-    api "androidx.room:room-runtime:2.3.0"
-    api 'androidx.appcompat:appcompat:1.3.1'
-    api 'androidx.constraintlayout:constraintlayout:2.1.0'
+    api "androidx.room:room-runtime:2.4.2"
+    api 'androidx.appcompat:appcompat:1.4.2'
+    api 'androidx.constraintlayout:constraintlayout:2.1.4'
     api "androidx.lifecycle:lifecycle-process:$lifecycleVersion"
     api "androidx.lifecycle:lifecycle-common-java8:$lifecycleVersion"
     api "androidx.browser:browser:1.4.0"
@@ -158,35 +166,34 @@ dependencies {
     // region Retrofit dependencies
     api 'com.squareup.retrofit2:retrofit:2.9.0'
     api 'com.squareup.retrofit2:converter-gson:2.9.0'
-    api "com.squareup.retrofit2:adapter-rxjava2:2.4.0"
     // endregion
 
     // region Google Firebase dependencies
-    api 'com.google.android.gms:play-services-location:18.0.0'
+    api 'com.google.android.gms:play-services-location:20.0.0'
     api platform('com.google.firebase:firebase-bom:26.2.0')
     api 'com.google.firebase:firebase-analytics'
     api 'com.google.firebase:firebase-messaging'
     // endregion
 
     // region RxJava dependencies
-    api 'io.reactivex.rxjava3:rxandroid:3.0.0'
-    api 'io.reactivex.rxjava3:rxjava:3.0.12'
+    api 'net.sourceforge.streamsupport:android-retrofuture:1.7.4'
     // endregion
 
     // region Google's additional dependencies
-    api 'com.google.android.material:material:1.4.0'
+    api 'com.google.android.material:material:1.6.1'
     // endregion
 
     // region Single standalone dependencies
     api 'com.github.bumptech.glide:glide:4.12.0'
     api 'jp.wasabeef:blurry:4.0.0'
-    api 'io.sentry:sentry-android:4.3.0'
+    api 'io.sentry:sentry-android:6.3.0'
     api 'org.mongodb:bson:4.2.3'
-    implementation 'com.google.ar:core:1.29.0'
     // endregion
 
-    annotationProcessor "androidx.room:room-compiler:2.3.0"
+    // region annotationProcessor dependencies
+    annotationProcessor "androidx.room:room-compiler:2.4.2"
     annotationProcessor 'com.github.bumptech.glide:compiler:4.12.0'
+    // endregion
 
     // region Test Case dependencies
     testImplementation 'junit:junit:4.13.2'

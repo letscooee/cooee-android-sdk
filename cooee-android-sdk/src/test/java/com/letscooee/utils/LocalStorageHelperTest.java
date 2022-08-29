@@ -1,13 +1,13 @@
 package com.letscooee.utils;
 
+import static com.google.common.truth.Truth.assertThat;
 import com.letscooee.BaseTestCase;
 import com.letscooee.models.trigger.EmbeddedTrigger;
 import org.junit.Test;
-
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-
-import static com.google.common.truth.Truth.assertThat;
+import java.util.Map;
 
 public class LocalStorageHelperTest extends BaseTestCase {
 
@@ -81,7 +81,7 @@ public class LocalStorageHelperTest extends BaseTestCase {
         EmbeddedTrigger trigger = new EmbeddedTrigger("TID-1", "EID-1", 789L);
         LocalStorageHelper.putEmbeddedTriggerImmediately(context, KEY, trigger);
 
-        EmbeddedTrigger resultTrigger = LocalStorageHelper.getEmbeddedTrigger(context, KEY, null);
+        EmbeddedTrigger resultTrigger = LocalStorageHelper.getLastActiveTrigger(context, KEY, null);
         assertThat(resultTrigger.getTriggerID()).isEqualTo(trigger.getTriggerID());
     }
 
@@ -91,7 +91,7 @@ public class LocalStorageHelperTest extends BaseTestCase {
         LocalStorageHelper.putEmbeddedTriggerImmediately(context, KEY, trigger);
 
         LocalStorageHelper.remove(context, KEY);
-        EmbeddedTrigger resultTrigger = LocalStorageHelper.getEmbeddedTrigger(context, KEY, null);
+        EmbeddedTrigger resultTrigger = LocalStorageHelper.getLastActiveTrigger(context, KEY, null);
         assertThat(resultTrigger).isNull();
     }
 
@@ -102,5 +102,18 @@ public class LocalStorageHelperTest extends BaseTestCase {
 
         long storedLong = LocalStorageHelper.getLong(context, KEY, 0);
         assertThat(storedLong).isEqualTo(testLong);
+    }
+
+    @Test
+    public void put_map() {
+        Map<String, Object> testMap = new HashMap<>();
+        testMap.put("key1", "value1");
+        testMap.put("key2", true);
+        LocalStorageHelper.putMap(context, KEY, testMap);
+
+        Map<String, Object> resultMap = LocalStorageHelper.getMap(context, KEY, new HashMap<>());
+        assertThat(resultMap).isNotEmpty();
+        assertThat(resultMap.get("key1")).isEqualTo("value1");
+        assertThat(resultMap.get("key2")).isEqualTo(true);
     }
 }

@@ -1,17 +1,27 @@
 package com.letscooee.trigger.inapp.renderer;
 
+import static com.letscooee.utils.Constants.TAG;
 import android.content.Context;
+import android.content.res.Configuration;
+import android.graphics.Point;
+import android.graphics.Rect;
 import android.util.Log;
+import android.view.Display;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.FrameLayout;
 import com.letscooee.CooeeFactory;
 import com.letscooee.device.DeviceInfo;
-import com.letscooee.models.trigger.elements.*;
+import com.letscooee.models.trigger.elements.BaseElement;
+import com.letscooee.models.trigger.elements.ButtonElement;
+import com.letscooee.models.trigger.elements.ImageElement;
+import com.letscooee.models.trigger.elements.ShapeElement;
+import com.letscooee.models.trigger.elements.TextElement;
+import com.letscooee.models.trigger.elements.VideoElement;
 import com.letscooee.models.trigger.inapp.InAppTrigger;
 import com.letscooee.trigger.inapp.TriggerContext;
-
-import static com.letscooee.utils.Constants.TAG;
+import com.letscooee.utils.RuntimeData;
 
 /**
  * Renders the topmost container of the in-app.
@@ -23,12 +33,16 @@ public class ContainerRenderer extends AbstractInAppRenderer {
 
     private final InAppTrigger inAppTrigger;
     private final DeviceInfo deviceInfo;
+    private final RuntimeData runtimeData;
+    private double displayWidth;
+    private double displayHeight;
 
     public ContainerRenderer(Context context, ViewGroup parentView, BaseElement element, InAppTrigger inAppTrigger,
                              TriggerContext globalData) {
         super(context, parentView, element, globalData);
         this.inAppTrigger = inAppTrigger;
         this.deviceInfo = CooeeFactory.getDeviceInfo();
+        this.runtimeData = CooeeFactory.getRuntimeData();
         updateScalingFactor();
     }
 
@@ -98,8 +112,7 @@ public class ContainerRenderer extends AbstractInAppRenderer {
      * Calculates the scaling factor for the container and add it to {@link TriggerContext}.
      */
     private void updateScalingFactor() {
-        double displayWidth = deviceInfo.getRunTimeDisplayWidth();
-        double displayHeight = deviceInfo.getRunTimeDisplayHeight();
+        getDisplayHeightAndWidth();
         Log.d(TAG, "Display width: " + displayWidth + ", height: " + displayHeight);
 
         double containerWidth = elementData.getWidth();
@@ -113,5 +126,47 @@ public class ContainerRenderer extends AbstractInAppRenderer {
         }
 
         globalData.setScalingFactor(scalingFactor);
+    }
+
+    /**
+     * Updates the height and width of the container. If the container is
+     * {@link TriggerContext#isCurrentActivityFullscreen()}
+     * <p>
+     * returns {@code true}.
+     */
+    private void getDisplayHeightAndWidth() {
+        /*
+         * If application configuration is present and height & width are not undefined
+         * then there is no need to check anything else.
+         */
+        Configuration configuration = runtimeData.getAppCurrentConfiguration();
+        if (configuration != null && configuration.screenWidthDp != Configuration.SCREEN_WIDTH_DP_UNDEFINED
+                && configuration.screenHeightDp != Configuration.SCREEN_HEIGHT_DP_UNDEFINED) {
+            double density = deviceInfo.getDensity();
+
+            displayWidth = configuration.screenWidthDp * density;
+            displayHeight = configuration.screenHeightDp * density;
+            return;
+        }
+
+        if (!globalData.isCurrentActivityFullscreen()) {
+            displayWidth = deviceInfo.getRunTimeDisplayWidth();
+            displayHeight = deviceInfo.getRunTimeDisplayHeight();
+            return;
+        }
+
+        WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+            Rect rect = windowManager.getCurrentWindowMetrics().getBounds();
+            displayWidth = rect.width();
+            displayHeight = rect.height();
+        } else {
+            Display display = windowManager.getDefaultDisplay();
+            Point point = new Point();
+            display.getSize(point);
+            displayWidth = point.x;
+            displayHeight = point.y;
+        }
     }
 }

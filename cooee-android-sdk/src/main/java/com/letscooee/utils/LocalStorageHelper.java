@@ -3,21 +3,18 @@ package com.letscooee.utils;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.text.TextUtils;
-
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import com.letscooee.models.trigger.EmbeddedTrigger;
-
-import io.sentry.Sentry;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import io.sentry.Sentry;
 
 /**
  * LocalStorageHelper is used to store local shared preference data
@@ -127,7 +124,7 @@ public final class LocalStorageHelper {
         putStringImmediately(context, key, gson.toJson(list));
     }
 
-    public static EmbeddedTrigger getEmbeddedTrigger(Context context, String key, EmbeddedTrigger defaultValue) {
+    public static EmbeddedTrigger getLastActiveTrigger(Context context, String key, EmbeddedTrigger defaultValue) {
         String stringTrigger = getString(context, key, "");
 
         if (TextUtils.isEmpty(stringTrigger)) {
@@ -208,4 +205,30 @@ public final class LocalStorageHelper {
         long time = getLong(context, key, 0);
         return time > 0 ? new Date(time) : defaultValue;
     }
+
+    /**
+     * Stores a {@link Map} in the preferences.
+     *
+     * @param context The context to use.
+     * @param key     The key to store the map under.
+     * @param map     The map to store.
+     */
+    public static void putMap(@NonNull Context context, @NonNull String key, @NonNull Map<String, Object> map) {
+        putString(context, key, gson.toJson(map));
+    }
+
+    /**
+     * Retrieves a {@link Map} from the preferences.
+     *
+     * @param context      The context to use.
+     * @param key          The key to retrieve the map from.
+     * @param defaultValue The default value to return if the key is not found.
+     * @return The stored {@link Map}, or the default value if the key is not found.
+     */
+    public static Map<String, Object> getMap(@NonNull Context context, @NonNull String key, @NonNull Map<String, Object> defaultValue) {
+        String json = getString(context, key, null);
+        return json != null ? gson.fromJson(json, new TypeToken<Map<String, Object>>() {
+        }.getType()) : defaultValue;
+    }
+
 }
