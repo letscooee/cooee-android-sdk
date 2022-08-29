@@ -61,28 +61,23 @@ public class SafeHTTPService extends ContextAware {
 
     private void sendEvent(Event event, boolean useSession) {
         String sessionID = sessionManager.getCurrentSessionID(useSession);
-        EmbeddedTrigger trigger = LocalStorageHelper.getEmbeddedTrigger(context, Constants.STORAGE_ACTIVE_TRIGGER, null);
 
-        /*
-         * Update trigger.expired every time before sending the event.
-         * As event.trigger will be tracked till the session is not expired.
-         * There is possibility that the trigger can get get expire in same session.
-         * If trigger getting expired when app is running.
-         */
-        if (trigger != null) {
-            trigger.updateExpired();
+        if (event.getActiveTrigger() == null) {
+            EmbeddedTrigger trigger = LocalStorageHelper.getLastActiveTrigger(context, Constants.STORAGE_ACTIVE_TRIGGER, null);
+
+            /*
+             * There is a possibility that the trigger can get expire in the same session or while the app is running. So, update
+             * "trigger.expired" before sending any event as the last active trigger will be tracked till the session is not expired.
+             */
+            if (trigger != null) {
+                trigger.updateExpired();
+                event.setActiveTrigger(trigger);
+            }
         }
 
-        /*
-         * Will set session and trigger in event if event is other than Notification event.
-         */
         if (useSession) {
             event.setSessionID(sessionID);
             event.setSessionNumber(sessionManager.getCurrentSessionNumber());
-            /*
-             * Moved to if condition to prevent overwriting the trigger from notification event.
-             */
-            event.setActiveTrigger(trigger);
         }
 
         event.setScreenName(runtimeData.getCurrentScreenName());
@@ -123,4 +118,5 @@ public class SafeHTTPService extends ContextAware {
     private void attemptTaskImmediately(PendingTask pendingTask) {
         CooeeExecutors.getInstance().networkExecutor().execute(() -> pendingTaskService.processTask(pendingTask));
     }
+
 }

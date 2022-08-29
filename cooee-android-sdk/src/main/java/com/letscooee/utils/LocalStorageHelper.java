@@ -124,7 +124,7 @@ public final class LocalStorageHelper {
         putStringImmediately(context, key, gson.toJson(list));
     }
 
-    public static EmbeddedTrigger getEmbeddedTrigger(Context context, String key, EmbeddedTrigger defaultValue) {
+    public static EmbeddedTrigger getLastActiveTrigger(Context context, String key, EmbeddedTrigger defaultValue) {
         String stringTrigger = getString(context, key, "");
 
         if (TextUtils.isEmpty(stringTrigger)) {
@@ -230,4 +230,5 @@ public final class LocalStorageHelper {
         return json != null ? gson.fromJson(json, new TypeToken<Map<String, Object>>() {
         }.getType()) : defaultValue;
     }
+
 }

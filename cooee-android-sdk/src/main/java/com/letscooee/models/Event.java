@@ -93,6 +93,10 @@ public class Event {
         return activeTriggers;
     }
 
+    public EmbeddedTrigger getActiveTrigger() {
+        return activeTrigger;
+    }
+
     public void setActiveTriggers(ArrayList<EmbeddedTrigger> activeTriggers) {
         this.activeTriggers = activeTriggers;
     }
@@ -106,6 +110,10 @@ public class Event {
     }
 
     public void setActiveTrigger(EmbeddedTrigger activeTrigger) {
+        if (this.activeTrigger != null) {
+            return;
+        }
+
         this.activeTrigger = activeTrigger;
     }
 
@@ -113,4 +121,5 @@ public class Event {
     public String toString() {
         return "Event{name=" + name + "}";
     }
+
 }
