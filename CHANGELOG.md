@@ -1,5 +1,31 @@
 # Change Log
 
+## 1.4.0 (2022-08-30)
+
+### Feature
+
+1. Handle pending engagement on organic app launch.
+2. Ability to manage InApp orientation.
+
+### Improvements
+
+1. Add support to Android 12L.
+2. Ability to support profile merging.
+3. Add Null-Safety check before processing any payload.
+4. Track `Screen View` event when user set current screen.
+5. Make AR-Core from SDK.
+6. Improve Notification rendering by making all fields optional except title.
+7. Expose method to accept wrapper information.
+8. Add support to `JUSTIFY` text alignment.
+9. Render InApp when all resources are preloaded.
+10. Improve `event.trigger` tracking for Notification events
+
+### Fixes
+
+1. Fix tracking event twice to backend (Send eventID with event).
+2. Fix `Notification View` event tracking if notification is not rendered on device.
+3. Fix failure while loading InApp data from server.
+
 ## 1.3.13 (2022-08-04)
 
 ### Improvements
