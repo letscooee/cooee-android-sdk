@@ -1,13 +1,13 @@
 package com.letscooee.models.trigger.elements;
 
-import android.graphics.Color;
+import android.os.Build;
 import android.os.Parcel;
-import android.text.TextUtils;
 import android.view.Gravity;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.letscooee.models.trigger.blocks.*;
+import com.letscooee.utils.Constants;
 
 public abstract class BaseTextElement extends BaseElement {
 
@@ -52,6 +52,8 @@ public abstract class BaseTextElement extends BaseElement {
                 return Gravity.CENTER;
             case 2:
                 return Gravity.END;
+            case 3:
+                return Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q ? Constants.JUSTIFY_TEXT_ALIGNMENT : Gravity.START;
             default:
                 return Gravity.START;
         }

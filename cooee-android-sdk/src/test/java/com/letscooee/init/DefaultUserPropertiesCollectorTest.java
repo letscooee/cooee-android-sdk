@@ -149,13 +149,13 @@ public class DefaultUserPropertiesCollectorTest extends BaseTestCase {
 
     @Test
     public void get_device_orientation() {
-        when(spyDefaultUserPropertiesCollector.getDeviceOrientation()).thenReturn("Portrait");
-        String deviceOrientation = null;
+        when(spyDefaultUserPropertiesCollector.getDeviceOrientation()).thenReturn(1);
+        int deviceOrientation = 0;
         try {
             deviceOrientation = spyDefaultUserPropertiesCollector.getDeviceOrientation();
-            assertThat(deviceOrientation).isEqualTo("Portrait");
+            assertThat(deviceOrientation).isEqualTo(1);
         } catch (Exception e) {
-            assertThat(deviceOrientation).isEqualTo("Portrait");
+            assertThat(deviceOrientation).isEqualTo(1);
         }
         verify(spyDefaultUserPropertiesCollector, times(1)).getDeviceOrientation();
     }

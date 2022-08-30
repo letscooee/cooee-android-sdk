@@ -1,20 +1,26 @@
 package com.letscooee.trigger.inapp;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
-import android.view.*;
+import android.text.TextUtils;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowInsets;
+import android.view.WindowInsetsController;
+import android.view.WindowManager;
 import android.widget.RelativeLayout;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.app.AppCompatActivity;
-
 import com.letscooee.CooeeFactory;
 import com.letscooee.R;
+import com.letscooee.exceptions.InvalidTriggerDataException;
 import com.letscooee.models.Event;
 import com.letscooee.models.trigger.TriggerData;
 import com.letscooee.models.trigger.blocks.Animation;
@@ -22,31 +28,33 @@ import com.letscooee.models.trigger.inapp.InAppTrigger;
 import com.letscooee.permission.PermissionManager;
 import com.letscooee.trigger.inapp.renderer.InAppTriggerRenderer;
 import com.letscooee.utils.Constants;
+import com.letscooee.utils.RuntimeData;
 import com.letscooee.utils.SentryHelper;
-
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-
 import jp.wasabeef.blurry.Blurry;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class InAppTriggerActivity extends AppCompatActivity implements PreventBlurActivity {
 
-    private static Window lastActiveWindow;
-
     private TriggerData triggerData;
     private InAppTrigger inAppData;
 
+    private final RuntimeData runtimeData;
     private final SentryHelper sentryHelper;
     private final TriggerContext triggerContext = new TriggerContext();
 
     private Date startTime;
     private boolean isFreshLaunch;
     private boolean isSuccessfullyStarted;
+    private RelativeLayout rootViewElement;
+    private android.view.animation.Animation enterAnimation;
+    private android.view.animation.Animation exitAnimation;
 
     public InAppTriggerActivity() {
         sentryHelper = CooeeFactory.getSentryHelper();
+        runtimeData = CooeeFactory.getRuntimeData();
     }
 
     @Override
@@ -54,21 +62,36 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
         super.onCreate(savedInstanceState);
         this.setContentView(R.layout.in_app_trigger_activity);
 
+        this.rootViewElement = findViewById(R.id.inAppTriggerRoot);
+        /*
+         * Hide view until animation starts to prevent view from blinking.
+         */
+        this.rootViewElement.setVisibility(View.INVISIBLE);
+
         this.isFreshLaunch = savedInstanceState == null;
 
         try {
             triggerData = getIntent()
                     .getBundleExtra("bundle")
                     .getParcelable(Constants.INTENT_TRIGGER_DATA_KEY);
+            boolean makeInAppFullScreen = getIntent()
+                    .getBundleExtra("bundle")
+                    .getBoolean(Constants.IN_APP_FULLSCREEN_FLAG_KEY);
 
-            if (triggerData == null || triggerData.getInAppTrigger() == null) {
-                throw new Exception("Couldn't render In-App because trigger data is null");
+            if (makeInAppFullScreen) {
+                setFullscreen();
+            }
+
+            if (triggerData == null || TextUtils.isEmpty(triggerData.getId())) {
+                throw new InvalidTriggerDataException("Couldn't render In-App because trigger data is null");
             }
 
             inAppData = triggerData.getInAppTrigger();
-            this.triggerContext.setViewGroupForBlurry((ViewGroup) lastActiveWindow.getDecorView());
-            this.triggerContext.onExit(data -> this.finish());
+            this.triggerContext.setViewGroupForBlurry(this.getDecorView());
+            this.triggerContext.onExit(data -> this.finishAfterTransition());
             this.triggerContext.setTriggerData(triggerData);
+            this.triggerContext.setMakeInAppFullScreen(makeInAppFullScreen);
+            setRequestedOrientation(inAppData.getInAppOrientation());
 
             setAnimations();
             renderInApp();
@@ -96,7 +119,6 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
                 controller.setSystemBarsBehavior(WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
             }
         } else {
-            //noinspection deprecation
             getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN
                     | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                     | View.SYSTEM_UI_FLAG_IMMERSIVE
@@ -111,6 +133,9 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
         super.onStart();
         startTime = new Date();
         isSuccessfullyStarted = true;
+
+        // start rootView animation once activity fully started
+        rootViewElement.startAnimation(enterAnimation);
     }
 
     public void sendTriggerDisplayedEvent() {
@@ -118,20 +143,60 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
             return;
         }
 
-        Event event = new Event("CE Trigger Displayed", triggerData);
+        Event event = new Event(Constants.EVENT_TRIGGER_DISPLAYED, triggerData);
         CooeeFactory.getSafeHTTPService().sendEvent(event);
     }
 
     private void setAnimations() {
         Animation animation = inAppData.getAnimation();
-        int enterAnimation = InAppAnimationProvider.getEnterAnimation(animation);
-        int exitAnimation = InAppAnimationProvider.getExitAnimation(animation);
+        this.enterAnimation = InAppAnimationProvider.getEnterAnimation(animation);
+        this.exitAnimation = InAppAnimationProvider.getExitAnimation(animation);
 
-        overridePendingTransition(enterAnimation, exitAnimation);
+        enterAnimation.setAnimationListener(new android.view.animation.Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(android.view.animation.Animation animation) {
+                // As soon as animation starts, view need to be visible to see animation.
+                rootViewElement.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onAnimationEnd(android.view.animation.Animation animation) {
+                // Nothing to do in enter animation
+            }
+
+            @Override
+            public void onAnimationRepeat(android.view.animation.Animation animation) {
+                // Nothing to do in enter animation
+            }
+        });
+
+        exitAnimation.setAnimationListener(new android.view.animation.Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(android.view.animation.Animation animation) {
+                // Nothing to do in exit animation
+            }
+
+            @SuppressLint("WrongConstant")
+            @Override
+            public void onAnimationEnd(android.view.animation.Animation animation) {
+                /*
+                 * As soon as animation remove all child elements from root view.
+                 * This will prevent UI blink as finish operation may take time which leads to delay
+                 * for activity destroy.
+                 */
+                rootViewElement.removeAllViews();
+                finish();
+                setRequestedOrientation(runtimeData.getCurrentActivityOrientation());
+            }
+
+            @Override
+            public void onAnimationRepeat(android.view.animation.Animation animation) {
+                // Nothing to do in exit animation
+            }
+        });
     }
 
     private void renderInApp() {
-        RelativeLayout rootViewElement = findViewById(R.id.inAppTriggerRoot);
         triggerContext.setTriggerParentLayout(rootViewElement);
 
         new InAppTriggerRenderer(this, rootViewElement, inAppData, inAppData, triggerContext).render();
@@ -139,17 +204,16 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
 
     /**
      * To make the Glassmorphosis effect working, we need to capture the {@link Window} from last active/visible {@link Activity}.
-     *
-     * @param activity The current opened/visible activity.
+     * This method returns the {@link ViewGroup} from the last activity.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public static void captureWindowForBlurryEffect(@NonNull Activity activity) {
+    public ViewGroup getDecorView() {
+        Activity activity = this.runtimeData.getCurrentActivity();
         // Exclude activities from this plugin or which includes PreventBlurActivity
-        if (activity instanceof PreventBlurActivity) {
-            return;
+        if (activity == null || activity instanceof PreventBlurActivity) {
+            return null;
         }
 
-        lastActiveWindow = activity.getWindow();
+        return (ViewGroup) activity.getWindow().getDecorView();
     }
 
     @Override
@@ -168,14 +232,12 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
             return;
         }
 
-        setAnimations();
-
         Map<String, Object> closedEventProps = triggerContext.getClosedEventProps();
 
         int duration = (int) ((new Date().getTime() - startTime.getTime()) / 1000);
         closedEventProps.put("duration", duration);
 
-        Event event = new Event("CE Trigger Closed", closedEventProps);
+        Event event = new Event(Constants.EVENT_TRIGGER_CLOSED, closedEventProps);
         event.withTrigger(triggerData);
         CooeeFactory.getSafeHTTPService().sendEvent(event);
     }
@@ -185,12 +247,18 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
      *
      * @param bitmap {@link Bitmap}
      */
+    @SuppressWarnings("unused")
     public void setBitmapForBlurry(Bitmap bitmap) {
         this.triggerContext.setBitmapForBlurry(bitmap);
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        // TODO: 28/07/22 onRequestPermissionsResult is deprecated
+        //  This as not Android API restrictions
+        //  Solution: https://stackoverflow.com/questions/66551781/android-onrequestpermissionsresult-is-deprecated-are-there-any-alternatives
+        //  Ref: https://developer.android.com/reference/androidx/fragment/app/FragmentActivity#onRequestPermissionsResult(int,java.lang.String[],int[])
+
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
         PermissionManager permissionManager = new PermissionManager(InAppTriggerActivity.this);
@@ -207,8 +275,17 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
         super.onConfigurationChanged(newConfig);
         /*
          * As we added orientation configuration (in AndroidManifest.xml) changes should be listened in the activity.
-         * As soon as orientation changes, this method will be called. and we need to update the device resource
+         * As soon as orientation changes, Screen size changes, this method will be called. and we need to update the device resource.
+         * To make UI compatible we will need to remove previous InApp (which is rendered with different screen size)
+         * and render new InApp with new screen size.
          */
+        rootViewElement.removeAllViews();
         CooeeFactory.getDeviceInfo().initializeResource();
+        renderInApp();
+    }
+
+    @Override
+    public void finishAfterTransition() {
+        rootViewElement.startAnimation(exitAnimation);
     }
 }

@@ -13,7 +13,6 @@ import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.content.res.Configuration;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
@@ -267,9 +266,8 @@ public class DefaultUserPropertiesCollector {
      *
      * @return "Landscape"/"Portrait"
      */
-    public String getDeviceOrientation() {
-        int orientation = context.getResources().getConfiguration().orientation;
-        return orientation == Configuration.ORIENTATION_LANDSCAPE ? "Landscape" : "Portrait";
+    public int getDeviceOrientation() {
+        return context.getResources().getConfiguration().orientation;
     }
 
     /**

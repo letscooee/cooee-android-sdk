@@ -36,7 +36,7 @@ public interface APIService {
     Call<ResponseBody> concludeSession(@Body Map<String, Object> sessionConcludeRequest);
 
     @PUT("/v1/user/update")
-    Call<Map<String, Object>> updateProfile(@Body Map<String, Object> objectMap);
+    Call<DeviceAuthResponse> updateProfile(@Body Map<String, Object> objectMap);
 
     @PUT("/v1/device/update")
     Call<Map<String, Object>> updateDeviceProperty(@Body Map<String, Object> objectMap);

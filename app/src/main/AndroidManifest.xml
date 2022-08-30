@@ -28,14 +28,8 @@
                 android:value="5f9136107d618d7d123cc118" />
 
         <meta-data
-                android:name="COOEE_APP_SECRET"
-                android:value="TEST-6107d618d7d123cc118" />
-
-        <meta-data
             android:name="SHAKE_TO_DEBUG_COUNT"
             android:value="LOW" />
-
-        <meta-data android:name="com.google.ar.core" android:value="optional" />
 
     </application>
 </manifest>
