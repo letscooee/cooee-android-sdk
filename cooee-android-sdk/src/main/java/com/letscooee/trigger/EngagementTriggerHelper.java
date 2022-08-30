@@ -277,7 +277,7 @@ public class EngagementTriggerHelper {
         }
 
         TriggerData triggerData = pendingTrigger.getTriggerData();
-
+        storeActiveTriggerDetails(context, triggerData);
         render(triggerData);
     }
 
