@@ -1,5 +1,11 @@
 # Change Log
 
+## 1.4.1 (2022-10-07)
+
+### Fixes
+
+1. Fix minify rules for dependent library.
+
 ## 1.4.0 (2022-08-30)
 
 ### Feature
