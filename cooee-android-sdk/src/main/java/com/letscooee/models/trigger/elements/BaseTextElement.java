@@ -11,19 +11,22 @@ import com.letscooee.utils.Constants;
 
 public abstract class BaseTextElement extends BaseElement {
 
-    protected String text;
-
     @SerializedName("alg")
     @Expose
     protected int alignment;
 
-    @SerializedName("f")
-    @Expose
-    protected Font font;
-
     @SerializedName("c")
     @Expose
     protected Colour color;
+
+    @SerializedName("f")
+    @Expose
+    protected Font font;
+    protected String text;
+
+    @SerializedName("txtShd")
+    @Expose
+    protected TextShadow textShadow;
 
     protected BaseTextElement(Parcel in) {
         super(in);
@@ -31,19 +34,7 @@ public abstract class BaseTextElement extends BaseElement {
         alignment = in.readInt();
         font = in.readParcelable(Font.class.getClassLoader());
         color = in.readParcelable(Colour.class.getClassLoader());
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        super.writeToParcel(dest, flags);
-        dest.writeString(text);
-        dest.writeInt(alignment);
-        dest.writeParcelable(font, flags);
-        dest.writeParcelable(color, flags);
-    }
-
-    public String getText() {
-        return text;
+        textShadow = in.readParcelable(TextShadow.class.getClassLoader());
     }
 
     public int getAlignment() {
@@ -59,11 +50,29 @@ public abstract class BaseTextElement extends BaseElement {
         }
     }
 
+    public Colour getColor() {
+        return color;
+    }
+
     public Font getFont() {
         return font;
     }
 
-    public Colour getColor() {
-        return color;
+    public String getText() {
+        return text;
+    }
+
+    public TextShadow getTextShadow() {
+        return textShadow;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        super.writeToParcel(dest, flags);
+        dest.writeString(text);
+        dest.writeInt(alignment);
+        dest.writeParcelable(font, flags);
+        dest.writeParcelable(color, flags);
+        dest.writeParcelable(textShadow, flags);
     }
 }
