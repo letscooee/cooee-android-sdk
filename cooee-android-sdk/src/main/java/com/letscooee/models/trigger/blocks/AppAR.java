@@ -6,16 +6,6 @@ import java.util.HashMap;
 
 public class AppAR implements Parcelable {
 
-    private final String name;
-    private final HashMap<String, Object> splash;
-    private final HashMap<String, Object> data;
-
-    protected AppAR(Parcel in) {
-        name = in.readString();
-        data = (HashMap<String, Object>) in.readSerializable();
-        splash = (HashMap<String, Object>) in.readSerializable();
-    }
-
     public static final Creator<AppAR> CREATOR = new Creator<AppAR>() {
         @Override
         public AppAR createFromParcel(Parcel in) {
@@ -27,6 +17,15 @@ public class AppAR implements Parcelable {
             return new AppAR[size];
         }
     };
+    private final HashMap<String, Object> data = new HashMap<>();
+    private final String name;
+    private final HashMap<String, Object> splash = new HashMap<>();
+
+    protected AppAR(Parcel in) {
+        name = in.readString();
+        in.readMap(data, Object.class.getClassLoader());
+        in.readMap(splash, Object.class.getClassLoader());
+    }
 
     @Override
     public int describeContents() {
@@ -36,18 +35,19 @@ public class AppAR implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(name);
-        dest.writeSerializable(data);
-        dest.writeSerializable(splash);
-    }
-
-    public String getName() {
-        return name;
+        dest.writeMap(data);
+        dest.writeMap(splash);
     }
 
     public HashMap<String, Object> getData() {
         return data;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    @SuppressWarnings("unused")
     public HashMap<String, Object> getSplash() {
         return splash;
     }
