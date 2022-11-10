@@ -9,7 +9,6 @@ import com.google.firebase.messaging.RemoteMessage;
 import com.letscooee.CooeeFactory;
 import com.letscooee.enums.trigger.PendingTriggerAction;
 import com.letscooee.exceptions.InvalidTriggerDataException;
-import com.letscooee.font.FontProcessor;
 import com.letscooee.models.Event;
 import com.letscooee.models.trigger.TriggerData;
 import com.letscooee.pushnotification.PushProviderUtils;
@@ -84,7 +83,6 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
             return;
         }
 
-        FontProcessor.downloadFonts(context, payload.get("fonts"));
         this.handleTriggerData(payload.get("triggerData"));
         this.handlePendingTriggerDeletion(payload.get("pendingTrigger"));
     }

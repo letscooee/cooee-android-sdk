@@ -1,11 +1,13 @@
 package com.letscooee.trigger;
 
+import static com.letscooee.utils.Constants.TAG;
 import android.content.Context;
 import android.util.Log;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.letscooee.CooeeFactory;
 import com.letscooee.exceptions.InvalidTriggerDataException;
+import com.letscooee.font.FontProcessor;
 import com.letscooee.loader.http.RemoteImageLoader;
 import com.letscooee.models.trigger.TriggerData;
 import com.letscooee.models.trigger.blocks.Background;
@@ -13,11 +15,9 @@ import com.letscooee.models.trigger.elements.ImageElement;
 import com.letscooee.models.trigger.inapp.InAppTrigger;
 import com.letscooee.room.trigger.PendingTrigger;
 import com.letscooee.trigger.cache.PendingTriggerService;
-import com.letscooee.utils.Constants;
-import java9.util.concurrent.CompletableFuture;
-
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java9.util.concurrent.CompletableFuture;
 
 /**
  * A small helper class for in-app trigger for fetching data from server.
@@ -27,11 +27,10 @@ import java.util.concurrent.ExecutionException;
  */
 public class InAppTriggerHelper {
 
+    private boolean checkInPendingTrigger;
     private final Context context;
     private final PendingTriggerService pendingTriggerService;
-
-    private TriggerData triggerData;
-    private boolean checkInPendingTrigger;
+    private final TriggerData triggerData;
 
     public InAppTriggerHelper(Context context, TriggerData triggerData) {
         this.context = context;
@@ -46,7 +45,7 @@ public class InAppTriggerHelper {
     public void checkInPendingTriggerAndRender() throws InvalidTriggerDataException {
         PendingTrigger pendingTrigger = this.pendingTriggerService.findForTrigger(triggerData);
         if (pendingTrigger == null) {
-            Log.v(Constants.TAG, triggerData + " is already displayed");
+            Log.v(TAG, triggerData + " is already displayed");
             return;
         }
 
@@ -55,11 +54,12 @@ public class InAppTriggerHelper {
     }
 
     public void render() throws InvalidTriggerDataException {
-        Log.d(Constants.TAG, "Render " + triggerData);
+        Log.d(TAG, "Render " + triggerData);
 
         try {
             this.loadLazyData();
             this.precacheImages();
+            this.precacheFonts();
             new EngagementTriggerHelper(context).renderInAppTrigger(triggerData);
         } catch (ExecutionException | InterruptedException e) {
             return;
@@ -82,6 +82,18 @@ public class InAppTriggerHelper {
     }
 
     /**
+     * Cache all the font required for the InApp
+     */
+    private void precacheFonts() {
+        if (triggerData == null || triggerData.getInAppTrigger() == null) {
+            return;
+        }
+
+        List<String> fontURLs = triggerData.getInAppTrigger().getFontURLs();
+        FontProcessor.downloadFontFromURLs(context, fontURLs);
+    }
+
+    /**
      * Loops {@link InAppTrigger#getElements()} to loads the
      * {@link Background#getImage()} and {@link ImageElement#getSrc()} and stores it in the cache.
      * <p>
@@ -93,6 +105,10 @@ public class InAppTriggerHelper {
         }
 
         List<String> imageList = triggerData.getInAppTrigger().getImageURLs();
+        if (imageList == null || imageList.isEmpty()) {
+            return;
+        }
+
         RemoteImageLoader loader = new RemoteImageLoader(this.context);
         CompletableFuture<Boolean> future = loader.cacheAll(imageList);
 

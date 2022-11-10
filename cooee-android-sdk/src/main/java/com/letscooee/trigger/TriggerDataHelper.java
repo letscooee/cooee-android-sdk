@@ -7,6 +7,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import com.letscooee.CooeeFactory;
+import com.letscooee.enums.trigger.FontStyle;
 import com.letscooee.enums.trigger.InAppOrientation;
 import com.letscooee.enums.trigger.PushType;
 import com.letscooee.exceptions.InvalidTriggerDataException;
@@ -14,6 +15,7 @@ import com.letscooee.exceptions.TriggerDataParseException;
 import com.letscooee.models.trigger.TriggerData;
 import com.letscooee.models.trigger.elements.BaseElement;
 import com.letscooee.trigger.adapters.ChildElementDeserializer;
+import com.letscooee.trigger.adapters.FontStyleParser;
 import com.letscooee.trigger.adapters.InAppTriggerOrientationParser;
 import com.letscooee.trigger.adapters.PermissionTypeDeserializer;
 import com.letscooee.trigger.adapters.PushTypeDeserializer;
@@ -41,6 +43,7 @@ public class TriggerDataHelper {
                     .registerTypeAdapter(PermissionType.class, new PermissionTypeDeserializer())
                     .registerTypeAdapter(PushType.class, new PushTypeDeserializer())
                     .registerTypeAdapter(InAppOrientation.class, new InAppTriggerOrientationParser())
+                    .registerTypeAdapter(FontStyle.class, new FontStyleParser())
                     .create();
         }
         return gson;

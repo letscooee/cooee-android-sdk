@@ -156,6 +156,9 @@ public class Gradient implements Parcelable {
     public void updateDrawable(GradientDrawable drawable) {
         drawable.setGradientType(getType().value);
         drawable.setOrientation(getGradiantAngle());
+        if (getType() == Type.RADIAL) {
+            drawable.setGradientRadius(angle);
+        }
         drawable.setColors(getColours());
     }
 }
