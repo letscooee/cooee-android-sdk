@@ -38,6 +38,10 @@ public class HomeActivity extends AppCompatActivity implements CooeeCTAListener 
 
         Log.d(TAG, "User ID " + cooeeSDK.getUserID());
 
+        this.addButtonActions(binding);
+    }
+
+    private void addButtonActions(ActivityHomeBinding binding) {
         Map<String, Object> eventProps = new HashMap<>();
         Map<String, Object> item = new HashMap<>();
         item.put("item_id", "item_123");
@@ -55,7 +59,6 @@ public class HomeActivity extends AppCompatActivity implements CooeeCTAListener 
         eventProps.put("floatValue", 1000.001);
         eventProps.put("booleanValue", true);
         eventProps.put("stringValue", "Hello Cooee");
-
 
         binding.btnSendImageEvent.setOnClickListener(view -> {
             cooeeSDK.sendEvent("Add To Cart", eventProps);
@@ -95,6 +98,8 @@ public class HomeActivity extends AppCompatActivity implements CooeeCTAListener 
             intent.putExtra("animation", "bottom_right");
             startActivity(intent);
         });
+
+        binding.btnLogOut.setOnClickListener(v -> cooeeSDK.logOut());
     }
 
     @SuppressWarnings("SameParameterValue")
@@ -123,4 +128,5 @@ public class HomeActivity extends AppCompatActivity implements CooeeCTAListener 
             Log.d(Constants.TAG, key + " -> " + hashMap.get(key));
         }
     }
+
 }
