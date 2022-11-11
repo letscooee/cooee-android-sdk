@@ -2,6 +2,7 @@ package com.letscooee.network;
 
 import android.content.Context;
 import com.letscooee.ContextAware;
+import com.letscooee.models.DeviceAuthResponse;
 import com.letscooee.models.Event;
 import com.letscooee.models.trigger.EmbeddedTrigger;
 import com.letscooee.room.task.PendingTask;
@@ -117,6 +118,11 @@ public class SafeHTTPService extends ContextAware {
      */
     private void attemptTaskImmediately(PendingTask pendingTask) {
         CooeeExecutors.getInstance().networkExecutor().execute(() -> pendingTaskService.processTask(pendingTask));
+    }
+
+    public void logOutUser() {
+        PendingTask pendingTask = pendingTaskService.newTask("", PendingTaskType.API_LOGOUT);
+        this.attemptTaskImmediately(pendingTask);
     }
 
 }
