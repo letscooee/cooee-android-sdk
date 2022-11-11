@@ -11,4 +11,5 @@ public enum PendingTaskType {
     API_SESSION_CONCLUDE,
     API_UPDATE_PUSH_TOKEN,
     API_DEVICE_PROPERTY,
+    API_LOGOUT,
 }
