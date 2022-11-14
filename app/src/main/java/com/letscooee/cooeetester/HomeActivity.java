@@ -99,7 +99,7 @@ public class HomeActivity extends AppCompatActivity implements CooeeCTAListener 
             startActivity(intent);
         });
 
-        binding.btnLogOut.setOnClickListener(v -> cooeeSDK.logOut());
+        binding.btnLogOut.setOnClickListener(v -> cooeeSDK.logout());
     }
 
     @SuppressWarnings("SameParameterValue")

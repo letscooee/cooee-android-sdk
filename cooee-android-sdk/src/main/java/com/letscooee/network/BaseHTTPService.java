@@ -145,7 +145,7 @@ public class BaseHTTPService extends ContextAware {
     }
 
     @SuppressWarnings("UnusedReturnValue")
-    public DeviceAuthResponse logOutUser() throws HttpRequestFailedException {
+    public DeviceAuthResponse logoutUser() throws HttpRequestFailedException {
         Call<DeviceAuthResponse> call = apiService.logOutUser();
         Response<?> response = this.executeHTTPCall(call, "Logout User");
 

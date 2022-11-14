@@ -8,7 +8,7 @@ import com.letscooee.room.task.PendingTask;
 import com.letscooee.room.task.PendingTaskType;
 
 /**
- * An abstract layer to process the {@link PendingTask} related {@link PendingTaskType#API_LOGOUT}
+ * An layer to process the {@link PendingTask} related {@link PendingTaskType#API_LOGOUT}
  * with some common useful methods.
  *
  * @author Ashish Gaikwad
@@ -24,7 +24,7 @@ public class LogoutTaskProcessor extends HttpTaskProcessor<String> {
 
     @Override
     protected void doHTTP(String data) throws HttpRequestFailedException {
-        this.baseHTTPService.logOutUser();
+        this.baseHTTPService.logoutUser();
     }
 
     @Override
