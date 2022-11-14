@@ -68,16 +68,6 @@ public class CooeeSDK {
     }
 
     /**
-     * Get manually updated screen name
-     *
-     * @return current screen name
-     */
-    @Deprecated
-    public String getCurrentScreenName() {
-        return this.runtimeData.getCurrentScreenName();
-    }
-
-    /**
      * Create and return default instance for CooeeSDK (Singleton Class)
      *
      * @param context application context
@@ -91,11 +81,6 @@ public class CooeeSDK {
         }
 
         return cooeeSDK;
-    }
-
-    @Deprecated
-    public String getUUID() {
-        return this.getUserID();
     }
 
     /**
@@ -195,40 +180,6 @@ public class CooeeSDK {
     }
 
     /**
-     * Send given user data to the server
-     *
-     * @param userData The common user data like name, email.
-     * @throws PropertyNameException if property name starts with "CE "
-     * @deprecated use {@link CooeeSDK#updateUserProfile(Map)} instead
-     */
-    @Deprecated
-    public void updateUserData(Map<String, Object> userData) throws PropertyNameException {
-        updateUserProfile(userData, null);
-    }
-
-    /**
-     * Send the given user data and user properties to the server.
-     *
-     * @param userData       The common user data like name, email.
-     * @param userProperties The additional user properties.
-     * @throws PropertyNameException if property name starts with "CE "
-     * @deprecated use {@link CooeeSDK#updateUserProfile(Map)} instead
-     */
-    @Deprecated
-    public void updateUserProfile(Map<String, Object> userData, Map<String, Object> userProperties) throws PropertyNameException {
-        Map<String, Object> userMap = new HashMap<>();
-        if (userData != null) {
-            userMap.putAll(userData);
-        }
-
-        if (userProperties != null) {
-            userMap.putAll(userProperties);
-        }
-
-        updateUserProfile(userMap);
-    }
-
-    /**
      * Send the given user data and user properties to the server.
      *
      * @param userData The common user data like name, email, etc.
@@ -247,18 +198,6 @@ public class CooeeSDK {
             this.sentryHelper.setUserInfo(userData);
             this.safeHTTPService.updateUserProfile(userData);
         });
-    }
-
-    /**
-     * Send given user properties to the server
-     *
-     * @param userProperties The additional user properties.
-     * @throws PropertyNameException if property name starts with "CE "
-     * @deprecated use {@link CooeeSDK#updateUserProfile(Map)} instead
-     */
-    @Deprecated
-    public void updateUserProperties(Map<String, Object> userProperties) throws PropertyNameException {
-        updateUserProfile(null, userProperties);
     }
 
     /**
