@@ -119,6 +119,33 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         this.processShadowBlock();
         this.processTransformBlock();
         this.processClickBlock();
+        this.processOpacity();
+        this.processZIIndex();
+    }
+
+    private void processZIIndex() {
+        Integer zIndex = elementData.getZ();
+
+        if (zIndex == null) {
+            materialCardView.setTranslationZ(0);
+            return;
+        }
+
+        materialCardView.setTranslationZ(zIndex);
+    }
+
+    protected void processOpacity() {
+        Integer alpha = this.elementData.getAlpha();
+        if (alpha == null) {
+            return;
+        }
+
+        if (alpha < 0 || alpha > 100) {
+            Log.e(TAG, "Received wrong alpha value: " + alpha);
+            return;
+        }
+
+        this.materialCardView.setAlpha((((float) alpha) / 100));
     }
 
     protected void insertNewElementInHierarchy() {
@@ -136,7 +163,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
             return;
         }
 
-        materialCardView.setCardElevation(shadow.getElevation());
+        materialCardView.setCardElevation(getScaledPixelAsInt(shadow.getElevation()));
     }
 
     protected void processClickBlock() {
@@ -192,15 +219,6 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
 
         materialCardView.setX(left);
         materialCardView.setY(top);
-
-        Integer zIndex = elementData.getZ();
-
-        if (zIndex == null) {
-            materialCardView.setTranslationZ(0);
-            return;
-        }
-
-        materialCardView.setTranslationZ(zIndex);
     }
 
     /**
@@ -208,6 +226,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
      *
      * @return <code>int</code> height of the TitleBar
      */
+    @SuppressWarnings("unused")
     private float getTitleBarHeight() {
         Rect rectangle = new Rect();
         Window window = ((Activity) context).getWindow();
@@ -327,4 +346,5 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
     protected int getScaledPixelAsInt(double value) {
         return (int) Math.round(getScaledPixel(value));
     }
+
 }
