@@ -42,7 +42,7 @@ public abstract class BaseElement implements Parcelable {
     protected final float width;
     private final float x;
     private final float y;
-    private final Integer z;
+    private Integer z;
 
     protected BaseElement(Parcel in) {
         bg = in.readParcelable(Background.class.getClassLoader());
@@ -140,6 +140,10 @@ public abstract class BaseElement implements Parcelable {
 
     public Integer getZ() {
         return z;
+    }
+
+    public void setZ(Integer z) {
+        this.z = z;
     }
 
     public Integer getAlpha() {

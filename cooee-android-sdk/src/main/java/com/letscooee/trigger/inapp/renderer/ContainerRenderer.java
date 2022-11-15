@@ -53,7 +53,7 @@ public class ContainerRenderer extends AbstractInAppRenderer {
         insertNewElementInHierarchy();
         processCommonBlocks();
         if (inAppTrigger != null) {
-            processChildren();
+            processChildren(getElementElevation(this.elementData));
         }
 
         // For container, it is necessary to be of size of device i.e. match_parent
@@ -69,8 +69,22 @@ public class ContainerRenderer extends AbstractInAppRenderer {
         return newElement;
     }
 
-    protected void processChildren() {
+    private int getElementElevation(BaseElement baseElement) {
+        if (baseElement.getShadow() == null) {
+            return 0;
+        }
+
+        return baseElement.getShadow().getElevation();
+    }
+
+    protected void processChildren(int alpha) {
+
+        int lastElevation = Math.max(alpha, 0);
+
         for (BaseElement child : inAppTrigger.getElements()) {
+            lastElevation = Math.max(lastElevation, getElementElevation(child)) + 1;
+            child.setZ(lastElevation);
+
             if (child instanceof ImageElement) {
                 new ImageRenderer(context, (ViewGroup) newElement, child, globalData).render();
 
@@ -169,4 +183,5 @@ public class ContainerRenderer extends AbstractInAppRenderer {
             displayHeight = point.y;
         }
     }
+
 }

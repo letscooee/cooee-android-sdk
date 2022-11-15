@@ -1,28 +1,34 @@
 package com.letscooee.trigger.inapp.renderer;
 
 import static com.letscooee.utils.Constants.TAG;
-
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.GradientDrawable;
+import android.os.Build;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.widget.*;
-
+import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import androidx.annotation.RestrictTo;
-
 import com.bumptech.glide.Glide;
 import com.google.android.material.card.MaterialCardView;
 import com.letscooee.BuildConfig;
-import com.letscooee.models.trigger.blocks.*;
+import com.letscooee.models.trigger.blocks.Background;
+import com.letscooee.models.trigger.blocks.Border;
+import com.letscooee.models.trigger.blocks.ClickAction;
+import com.letscooee.models.trigger.blocks.Glassmorphism;
+import com.letscooee.models.trigger.blocks.Shadow;
+import com.letscooee.models.trigger.blocks.Spacing;
+import com.letscooee.models.trigger.blocks.Transform;
 import com.letscooee.models.trigger.elements.BaseElement;
 import com.letscooee.trigger.action.ClickActionExecutor;
 import com.letscooee.trigger.inapp.TriggerContext;
-
 import jp.wasabeef.blurry.Blurry;
 
 /**
@@ -116,7 +122,6 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         this.processBackground();
         this.setBackgroundDrawable();
         this.processBorderBlock();
-        this.processShadowBlock();
         this.processTransformBlock();
         this.processClickBlock();
         this.processOpacity();
@@ -124,14 +129,30 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
     }
 
     private void processZIIndex() {
+        boolean shadowApplied = this.processShadowBlock();
         Integer zIndex = elementData.getZ();
-
-        if (zIndex == null) {
-            materialCardView.setTranslationZ(0);
+        if (zIndex == null || shadowApplied) {
+            materialCardView.setTranslationZ(0f);
             return;
         }
 
-        materialCardView.setTranslationZ(zIndex);
+        materialCardView.animate().z(zIndex.floatValue());
+    }
+
+    protected boolean processShadowBlock() {
+        Shadow shadow = this.elementData.getShadow();
+        if (shadow == null) {
+            materialCardView.setElevation(0);
+            materialCardView.setOutlineProvider(null);
+            return false;
+        }
+        materialCardView.setElevation(getScaledPixelAsInt(shadow.getElevation()));
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            materialCardView.setOutlineSpotShadowColor(shadow.getColor().getHexColor());
+        }
+
+        return true;
     }
 
     protected void processOpacity() {
@@ -156,15 +177,6 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         this.baseFrameLayout.addView(newElement);
     }
 
-    protected void processShadowBlock() {
-        Shadow shadow = this.elementData.getShadow();
-        if (shadow == null) {
-            materialCardView.setCardElevation(0);
-            return;
-        }
-
-        materialCardView.setCardElevation(getScaledPixelAsInt(shadow.getElevation()));
-    }
 
     protected void processClickBlock() {
         ClickAction clickAction = elementData.getClickAction();

@@ -38,6 +38,10 @@ public class Shadow implements Parcelable {
     }
 
     public Colour getColor() {
+        if (colour == null) {
+            return new Colour();
+        }
+
         return colour;
     }
 
