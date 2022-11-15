@@ -5,10 +5,8 @@ import android.graphics.drawable.GradientDrawable;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
-
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-
 import java.util.ArrayList;
 
 public class Gradient implements Parcelable {
@@ -29,23 +27,23 @@ public class Gradient implements Parcelable {
         }
     }
 
-    private Type type;
+    private final Type type;
 
     @SerializedName("c1")
     @Expose
-    private String start;
+    private final String start;
 
     @SerializedName("c2")
     @Expose
-    private String center;
+    private final String center;
 
     @SerializedName("c3")
     @Expose
-    private String end;
+    private final String end;
 
     @SerializedName("ang")
     @Expose
-    private int angle;
+    private final int angle;
 
     protected Gradient(Parcel in) {
         start = in.readString();
@@ -125,7 +123,7 @@ public class Gradient implements Parcelable {
             }
         }
 
-        return "DEGREE" + AVAILABLE_ANGLES[index];
+        return "DEGREE" + (AVAILABLE_ANGLES[index] + 90);
     }
 
     // Gradient requires two colours minimum.
@@ -161,4 +159,5 @@ public class Gradient implements Parcelable {
         }
         drawable.setColors(getColours());
     }
+
 }
