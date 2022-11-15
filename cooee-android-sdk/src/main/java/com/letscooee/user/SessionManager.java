@@ -4,12 +4,12 @@ import android.content.Context;
 import android.text.TextUtils;
 import androidx.annotation.RestrictTo;
 import com.letscooee.CooeeFactory;
+import com.letscooee.models.Event;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.LocalStorageHelper;
 import com.letscooee.utils.RuntimeData;
 import com.letscooee.utils.Timer;
 import org.bson.types.ObjectId;
-
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,10 +26,12 @@ public class SessionManager {
     private static SessionManager instance;
 
     private final Context context;
+    @SuppressWarnings({"FieldCanBeLocal", "unused"})
     private final RuntimeData runtimeData;
 
     private String currentSessionID;
     private Integer currentSessionNumber;
+    @SuppressWarnings("unused")
     private Date currentSessionStartTime;
 
     private Timer timer = new Timer();
@@ -41,6 +43,7 @@ public class SessionManager {
     }
 
     public static SessionManager getInstance(Context context) {
+        //noinspection DoubleCheckedLocking
         if (instance == null) {
             synchronized (SessionManager.class) {
                 if (instance == null) {
@@ -131,6 +134,11 @@ public class SessionManager {
         currentSessionNumber += 1;
 
         LocalStorageHelper.putInt(context, Constants.STORAGE_SESSION_NUMBER, currentSessionNumber);
+        this.sendSessionStarted();
+    }
+
+    private void sendSessionStarted() {
+        CooeeFactory.getSafeHTTPService().sendEvent(new Event(Constants.EVENT_SESSION_STARTED));
     }
 
     /**
@@ -201,4 +209,5 @@ public class SessionManager {
     public void stopSessionAlive() {
         timer.stop();
     }
+
 }
