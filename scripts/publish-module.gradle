@@ -5,13 +5,13 @@ ext {
     PUBLISH_DESCRIPTION = 'Lets Cooee powers hyper-personalized and real time engagements for mobile apps based on machine learning'
     PUBLISH_URL = 'https://github.com/letscooee/cooee-android-sdk'
     PUBLISH_LICENSE_NAME = 'MIT License'
-    PUBLISH_LICENSE_URL = 'https://github.com/letscooee/cooee-android-sdk/blob/master/LICENSE'
+    PUBLISH_LICENSE_URL = 'https://github.com/letscooee/cooee-android-sdk/blob/main/LICENSE'
     PUBLISH_DEVELOPER_ID = 'letscooee'
     PUBLISH_DEVELOPER_NAME = 'Lets Cooee'
-    PUBLISH_DEVELOPER_EMAIL = 'sdk.support@gmail.com'
+    PUBLISH_DEVELOPER_EMAIL = 'shoutout@letscooee.com'
     PUBLISH_SCM_CONNECTION = 'scm:git:github.com/letscooee/cooee-android-sdk.git'
     PUBLISH_SCM_DEVELOPER_CONNECTION = 'scm:git:ssh://github.com/letscooee/cooee-android-sdk.git'
-    PUBLISH_SCM_URL = 'https://github.com/letscooee/cooee-android-sdk/tree/master'
+    PUBLISH_SCM_URL = 'https://github.com/letscooee/cooee-android-sdk/tree/main'
     isReleaseVersion = !version.endsWith("SNAPSHOT")
 }
 
