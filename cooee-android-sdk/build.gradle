@@ -8,6 +8,12 @@ apply from: "${rootProject.projectDir}/scripts/publish-module.gradle"
 artifactoryPublish.dependsOn('build')
 publishToMavenLocal.dependsOn('build')
 
+nexusStaging {
+    serverUrl = "https://s01.oss.sonatype.org/service/local/" //required only for projects registered in Sonatype after 2021-02-24
+    packageGroup = project.group.toString() //optional if packageGroup == project.getGroup()
+    stagingProfileId = System.getProperty('sonatypeStagingProfileId') //when not defined will be got from server using "packageGroup"
+}
+
 publishing {
     publications {
         cooeeJFrog(MavenPublication) {

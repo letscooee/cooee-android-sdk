@@ -1,12 +1,12 @@
 image: jangrewe/gitlab-ci-android
 
 before_script:
-    - export GRADLE_USER_HOME=$(pwd)/.gradle
-    - chmod +x ./gradlew
+  - export GRADLE_USER_HOME=$(pwd)/.gradle
+  - chmod +x ./gradlew
 
 stages:
-    - test
-    - deploy
+  - test
+  - deploy
 
 Validate MR:
   stage: test
@@ -17,21 +17,27 @@ Validate MR:
     - merge_requests
 
 Publish to JFrog:
-    stage: deploy
-    script:
-      - ./gradlew clean cooee-android-sdk:artifactoryPublish -PartifactoryUser=${ARTIFACTORY_USER} -PartifactoryPassword=${ARTIFACTORY_PASS}
-    only:
-      - tags
-    artifacts:
-      paths:
-        - cooee-android-sdk/build/outputs/aar
+  stage: deploy
+  script:
+    - ./gradlew clean cooee-android-sdk:artifactoryPublish\
+        -PartifactoryUser=${ARTIFACTORY_USER}\
+        -PartifactoryPassword=${ARTIFACTORY_PASS}
+  only:
+    - tags
+  artifacts:
+    paths:
+      - cooee-android-sdk/build/outputs/aar
 
 Publish to MavenCentral:
   stage: deploy
   script:
     - curl --silent "https://gitlab.com/gitlab-org/incubation-engineering/mobile-devops/load-secure-files/-/raw/main/installer" | bash
-    - ls
     - ls -lah .secure_files
-    - pwd
-    - ./gradlew cooee-android-sdk:publishReleasePublicationToSonatypeRepository -Dsigning.keyId=${GPG_KEY_ID} -Dsigning.password=${GPG_KEY_PASSWORD} -DossrhUsername=${SONATYPE_USERNAME} -DossrhPassword=${SONATYPE_PASSWORD} -DsonatypeStagingProfileId=${SONATYPE_STAGING_PROFILE_ID} --stacktrace
+    - ./gradlew cooee-android-sdk:publishReleasePublicationToSonatypeRepository\
+        -Dsigning.keyId=${GPG_KEY_ID}\
+        -Dsigning.password=${GPG_KEY_PASSWORD}\
+        -DossrhUsername=${SONATYPE_USERNAME}\
+        -DossrhPassword=${SONATYPE_PASSWORD}\
+        -DsonatypeStagingProfileId=${SONATYPE_STAGING_PROFILE_ID}
+    - ./gradlew closeAndReleaseRepository
   when: manual
