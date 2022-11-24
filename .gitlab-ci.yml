@@ -30,5 +30,6 @@ Publish to MavenCentral:
   stage: deploy
   script:
     - curl --silent "https://gitlab.com/gitlab-org/incubation-engineering/mobile-devops/load-secure-files/-/raw/main/installer" | bash
+    - ls
     - ./gradlew cooee-android-sdk:publishReleasePublicationToSonatypeRepository -Psigning.keyId=${GPG_KEY_ID} -Psigning.password=${GPG_KEY_PASSWORD} -PossrhUsername=${SONATYPE_USERNAME} -PossrhPassword=${SONATYPE_PASSWORD} -PsonatypeStagingProfileId=${SONATYPE_STAGING_PROFILE_ID}
   when: manual
