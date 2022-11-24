@@ -19,9 +19,7 @@ Validate MR:
 Publish to JFrog:
   stage: deploy
   script:
-    - ./gradlew clean cooee-android-sdk:artifactoryPublish\
-        -PartifactoryUser=${ARTIFACTORY_USER}\
-        -PartifactoryPassword=${ARTIFACTORY_PASS}
+    - ./gradlew clean cooee-android-sdk:artifactoryPublish -PartifactoryUser=${ARTIFACTORY_USER} -PartifactoryPassword=${ARTIFACTORY_PASS}
   only:
     - tags
   artifacts:
@@ -33,11 +31,6 @@ Publish to MavenCentral:
   script:
     - curl --silent "https://gitlab.com/gitlab-org/incubation-engineering/mobile-devops/load-secure-files/-/raw/main/installer" | bash
     - ls -lah .secure_files
-    - ./gradlew cooee-android-sdk:publishReleasePublicationToSonatypeRepository\
-        -Dsigning.keyId=${GPG_KEY_ID}\
-        -Dsigning.password=${GPG_KEY_PASSWORD}\
-        -DossrhUsername=${SONATYPE_USERNAME}\
-        -DossrhPassword=${SONATYPE_PASSWORD}\
-        -DsonatypeStagingProfileId=${SONATYPE_STAGING_PROFILE_ID}
+    - ./gradlew cooee-android-sdk:publishReleasePublicationToSonatypeRepository -Dsigning.keyId=${GPG_KEY_ID} -Dsigning.password=${GPG_KEY_PASSWORD} -DossrhUsername=${SONATYPE_USERNAME} -DossrhPassword=${SONATYPE_PASSWORD} -DsonatypeStagingProfileId=${SONATYPE_STAGING_PROFILE_ID}
     - ./gradlew closeAndReleaseRepository
   when: manual
