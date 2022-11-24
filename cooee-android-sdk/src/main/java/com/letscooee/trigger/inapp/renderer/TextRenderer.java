@@ -14,6 +14,7 @@ import android.widget.TextView;
 import androidx.core.text.HtmlCompat;
 
 import com.letscooee.models.trigger.blocks.Border;
+import com.letscooee.models.trigger.blocks.TextShadow;
 import com.letscooee.models.trigger.elements.BaseElement;
 import com.letscooee.models.trigger.elements.PartElement;
 import com.letscooee.models.trigger.elements.TextElement;
@@ -138,6 +139,7 @@ public class TextRenderer extends FontRenderer {
             textView.setBreakStrategy(LineBreaker.BREAK_STRATEGY_BALANCED);
         }
 
+        this.processTextShadowBlock(textView);
         this.newElement = textView;
 
         this.processColourBlock();
@@ -145,6 +147,22 @@ public class TextRenderer extends FontRenderer {
 
         insertNewElementInHierarchy();
         processCommonBlocks();
+    }
+
+    /**
+     * Adds text shadow from {@link TextShadow} ot the given {@link TextView}
+     *
+     * @param textView {@link TextView} on which shadow need to be added.
+     */
+    private void processTextShadowBlock(TextView textView) {
+        TextShadow textShadow = textData.getTextShadow();
+
+        if (textShadow == null) {
+            return;
+        }
+
+        textView.setShadowLayer(textShadow.getElevation(), textShadow.getX(), textShadow.getY(),
+                textShadow.getColor().getHexColor());
     }
 
     protected void processAlignmentBlock() {
