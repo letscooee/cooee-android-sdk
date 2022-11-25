@@ -99,7 +99,7 @@ public class CooeeSDK {
      * @since 1.4.2
      */
     public void logout() {
-        CooeeExecutors.getInstance().singleThreadExecutor().execute(this.safeHTTPService::logoutUser);
+        CooeeExecutors.getInstance().singleThreadExecutor().execute(this.safeHTTPService::logout);
     }
 
     /**

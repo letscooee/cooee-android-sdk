@@ -119,7 +119,7 @@ public class SafeHTTPService extends ContextAware {
         CooeeExecutors.getInstance().networkExecutor().execute(() -> pendingTaskService.processTask(pendingTask));
     }
 
-    public void logoutUser() {
+    public void logout() {
         PendingTask pendingTask = pendingTaskService.newTask("", PendingTaskType.API_LOGOUT);
         this.attemptTaskImmediately(pendingTask);
     }

@@ -24,7 +24,7 @@ public class LogoutTaskProcessor extends HttpTaskProcessor<String> {
 
     @Override
     protected void doHTTP(String data) throws HttpRequestFailedException {
-        this.baseHTTPService.logoutUser();
+        this.baseHTTPService.logout();
     }
 
     @Override

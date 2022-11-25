@@ -55,5 +55,5 @@ public interface APIService {
     Call<Map<String, Object>> uploadScreenshot(@Part MultipartBody.Part body, @Part("screenName") RequestBody parameter);
 
     @GET("/v1/user/logout")
-    Call<DeviceAuthResponse> logOutUser();
+    Call<DeviceAuthResponse> logout();
 }
