@@ -1,17 +1,17 @@
 // Create variables with empty default values
-ext["signing.keyId"] = ''
-ext["signing.password"] = ''
-ext["signing.secretKeyRingFile"] = ''
-ext["ossrhUsername"] = ''
-ext["ossrhPassword"] = ''
-ext["sonatypeStagingProfileId"] = ''
+ext["signing.keyId"] = System.getProperty('signing.keyId')
+ext["signing.password"] = System.getProperty('signing.password')
+ext["signing.secretKeyRingFile"] = System.getProperty('signing.secretKeyRingFile')
+ext["ossrhUsername"] = System.getProperty('ossrhUsername')
+ext["ossrhPassword"] = System.getProperty('ossrhPassword')
+ext["sonatypeStagingProfileId"] = System.getProperty('sonatypeStagingProfileId')
 
 File secretPropsFile = project.rootProject.file('gradle.properties')
 if (secretPropsFile.exists()) {
     // Read local.properties file first if it exists
     Properties p = new Properties()
     new FileInputStream(secretPropsFile).withCloseable { is -> p.load(is) }
-    p.each { name, value -> ext[name] = value }
+    ext["signing.secretKeyRingFile"] = p.get("signing.secretKeyRingFile").toString()
 } else {
     throw new GradleException("Missing gradle.properties file")
 }
