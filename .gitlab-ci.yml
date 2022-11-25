@@ -9,26 +9,35 @@ stages:
     - deploy
 
 Validate MR:
-  stage: test
-  script:
-    - ./gradlew cooee-android-sdk:test
-    - ./gradlew cooee-android-sdk:publishToMavenLocal
-  only:
-    - merge_requests
+    stage: test
+    script:
+        - ./gradlew cooee-android-sdk:test
+        - ./gradlew cooee-android-sdk:publishToMavenLocal
+    only:
+        - merge_requests
 
 Publish to JFrog:
     stage: deploy
     script:
-      - ./gradlew clean cooee-android-sdk:artifactoryPublish -PartifactoryUser=${ARTIFACTORY_USER} -PartifactoryPassword=${ARTIFACTORY_PASS}
+        - >
+          ./gradlew clean cooee-android-sdk:artifactoryPublish
+          -PartifactoryUser=${ARTIFACTORY_USER}
+          -PartifactoryPassword=${ARTIFACTORY_PASS}
     only:
-      - tags
+        - tags
     artifacts:
-      paths:
-        - cooee-android-sdk/build/outputs/aar
+        paths:
+            - cooee-android-sdk/build/outputs/aar
 
 Publish to MavenCentral:
-  stage: deploy
-  script:
-    - curl --silent "https://gitlab.com/gitlab-org/incubation-engineering/mobile-devops/load-secure-files/-/raw/main/installer" | bash
-    - ./gradlew cooee-android-sdk:publishReleasePublicationToSonatypeRepository -Psigning.keyId=${GPG_KEY_ID} -Psigning.password=${GPG_KEY_PASSWORD} -PossrhUsername=${SONATYPE_USERNAME} -PossrhPassword=${SONATYPE_PASSWORD} -PsonatypeStagingProfileId=${SONATYPE_STAGING_PROFILE_ID}
-  when: manual
+    stage: deploy
+    script:
+        - curl --silent "https://gitlab.com/gitlab-org/incubation-engineering/mobile-devops/load-secure-files/-/raw/main/installer" | bash
+        - >
+          ./gradlew cooee-android-sdk:publishReleasePublicationToSonatypeRepository
+          -Dsigning.keyId=${GPG_KEY_ID} -Dsigning.password=${GPG_KEY_PASSWORD}
+          -DossrhUsername=${SONATYPE_USERNAME}
+          -DossrhPassword=${SONATYPE_PASSWORD}
+          -DsonatypeStagingProfileId=${SONATYPE_STAGING_PROFILE_ID}
+    only:
+        - tags
