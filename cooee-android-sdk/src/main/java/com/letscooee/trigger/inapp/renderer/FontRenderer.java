@@ -1,11 +1,9 @@
 package com.letscooee.trigger.inapp.renderer;
 
-import static com.letscooee.utils.Constants.TAG;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
@@ -99,16 +97,16 @@ public abstract class FontRenderer extends AbstractInAppRenderer {
 
         File defaultFont;
         if (regular != null && !TextUtils.isEmpty(regular.getUrl())) {
-            assert regular.getUrl() != null;
+            //noinspection ConstantConditions
             defaultFont = new File(fontDirectory, getFileName(regular.getUrl()));
         } else if (bold != null && !TextUtils.isEmpty(bold.getUrl())) {
-            assert bold.getUrl() != null;
+            //noinspection ConstantConditions
             defaultFont = new File(fontDirectory, getFileName(bold.getUrl()));
         } else if (italics != null && !TextUtils.isEmpty(italics.getUrl())) {
-            assert italics.getUrl() != null;
+            //noinspection ConstantConditions
             defaultFont = new File(fontDirectory, getFileName(italics.getUrl()));
         } else if (boldItalics != null && !TextUtils.isEmpty(boldItalics.getUrl())) {
-            assert boldItalics.getUrl() != null;
+            //noinspection ConstantConditions
             defaultFont = new File(fontDirectory, getFileName(boldItalics.getUrl()));
         } else {
             return ResourcesCompat.getFont(this.context, R.font.arial);

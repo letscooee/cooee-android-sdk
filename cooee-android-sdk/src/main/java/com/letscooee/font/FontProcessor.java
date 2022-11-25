@@ -44,6 +44,7 @@ public class FontProcessor {
             if (fontFile.exists()) {
                 continue;
             }
+
             downloadFontRuntime(font, fontFile);
         }
     }
@@ -74,6 +75,7 @@ public class FontProcessor {
             while ((read = inputStream.read(bytes)) != -1) {
                 fileOutputStream.write(bytes, 0, read);
             }
+
             fileOutputStream.flush();
             Log.d(TAG, "Font file downloaded at path: " + fontFile.getPath());
         } catch (HttpRequestFailedException | IOException e) {
@@ -138,4 +140,5 @@ public class FontProcessor {
         return ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 == PackageManager.PERMISSION_GRANTED;
     }
+
 }
