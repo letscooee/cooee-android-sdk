@@ -203,6 +203,9 @@ public class SessionManager {
         this.sendSessionStarted();
     }
 
+    /**
+     * Send a session start event
+     */
     private void sendSessionStarted() {
         CooeeFactory.getSafeHTTPService().sendEvent(new Event(Constants.EVENT_SESSION_STARTED));
     }
