@@ -125,10 +125,10 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         this.processTransformBlock();
         this.processClickBlock();
         this.processOpacity();
-        this.processZIIndex();
+        this.processZIndex();
     }
 
-    private void processZIIndex() {
+    private void processZIndex() {
         boolean shadowApplied = this.processShadowBlock();
         Integer zIndex = elementData.getZ();
         if (zIndex == null || shadowApplied) {
@@ -143,15 +143,21 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         Shadow shadow = this.elementData.getShadow();
         if (shadow == null) {
             materialCardView.setElevation(0);
+            /*
+                To make overlapping work we assigning z index to all elements
+                but card ads shadow to even if elevation is set to 0
+                to remove shadow se are setting OutlineProvider to null
+            */
             materialCardView.setOutlineProvider(null);
             return false;
         }
         materialCardView.setElevation(getScaledPixelAsInt(shadow.getElevation()));
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            materialCardView.setOutlineSpotShadowColor(shadow.getColor().getHexColor());
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
+            return true;
         }
 
+        materialCardView.setOutlineSpotShadowColor(shadow.getColor().getHexColor());
         return true;
     }
 
