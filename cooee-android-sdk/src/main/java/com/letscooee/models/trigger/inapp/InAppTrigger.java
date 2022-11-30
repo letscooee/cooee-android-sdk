@@ -4,23 +4,24 @@ import android.os.Parcel;
 import android.text.TextUtils;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import com.google.gson.JsonSyntaxException;
+import androidx.annotation.RestrictTo;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.letscooee.enums.trigger.Gravity;
 import com.letscooee.enums.trigger.InAppOrientation;
 import com.letscooee.exceptions.InvalidTriggerDataException;
 import com.letscooee.models.trigger.blocks.Animation;
+import com.letscooee.models.trigger.blocks.AutoClose;
 import com.letscooee.models.trigger.blocks.Background;
 import com.letscooee.models.trigger.blocks.ClickAction;
 import com.letscooee.models.trigger.elements.BaseElement;
 import com.letscooee.models.trigger.elements.BaseTextElement;
-import com.letscooee.trigger.TriggerDataHelper;
 import java.util.ArrayList;
 import java.util.List;
 import java9.util.stream.Collectors;
 import java9.util.stream.StreamSupport;
 
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class InAppTrigger extends BaseElement {
 
     public static final Creator<InAppTrigger> CREATOR = new Creator<InAppTrigger>() {
@@ -38,6 +39,10 @@ public class InAppTrigger extends BaseElement {
     @SerializedName("anim")
     @Expose
     private final Animation animation;
+
+    @SerializedName("atcl")
+    @Expose
+    private final AutoClose autoClose;
 
     @SerializedName("cont")
     @Expose
@@ -62,6 +67,7 @@ public class InAppTrigger extends BaseElement {
         gravity = in.readByte();
         animation = in.readParcelable(Animation.class.getClassLoader());
         inAppOrientation = (InAppOrientation) in.readSerializable();
+        autoClose = in.readParcelable(AutoClose.class.getClassLoader());
     }
 
     @Override
@@ -77,18 +83,7 @@ public class InAppTrigger extends BaseElement {
         dest.writeByte(gravity);
         dest.writeParcelable(animation, flags);
         dest.writeSerializable(inAppOrientation);
-    }
-
-    /**
-     * Checks and returns {@link ClickAction} for {@link InAppTrigger}. If <code>clickAction</code>
-     * is <code>null</code> then creates new {@link ClickAction} and assign it to variable
-     *
-     * @return Returns non-null {@link ClickAction}
-     */
-    @NonNull
-    @Override
-    public ClickAction getClickAction() {
-        return super.getClickAction() == null ? new ClickAction(true) : super.getClickAction();
+        dest.writeParcelable(autoClose, flags);
     }
 
     /**
@@ -110,6 +105,18 @@ public class InAppTrigger extends BaseElement {
     }
 
     /**
+     * Checks and returns {@link ClickAction} for {@link InAppTrigger}. If <code>clickAction</code>
+     * is <code>null</code> then creates new {@link ClickAction} and assign it to variable
+     *
+     * @return Returns non-null {@link ClickAction}
+     */
+    @NonNull
+    @Override
+    public ClickAction getClickAction() {
+        return super.getClickAction() == null ? new ClickAction(true) : super.getClickAction();
+    }
+
+    /**
      * Checks if InAppTrigger is valid container, elements and background image.
      *
      * @return True if InAppTrigger is valid
@@ -119,18 +126,6 @@ public class InAppTrigger extends BaseElement {
     public boolean hasValidResource() throws InvalidTriggerDataException {
         return super.hasValidResource() && container != null && container.hasValidResource()
                 && elements != null && !elements.isEmpty() && containsValidChildren();
-    }
-
-    /**
-     * Deserialize {@link InAppTrigger} from JSON
-     *
-     * @param jsonString JSON String
-     * @return NonNull instance of {@link InAppTrigger}
-     * @throws JsonSyntaxException If JSON is not valid
-     */
-    @NonNull
-    public static InAppTrigger fromJson(@NonNull String jsonString) throws JsonSyntaxException {
-        return TriggerDataHelper.getGson().fromJson(jsonString, InAppTrigger.class);
     }
 
     /**
@@ -208,7 +203,8 @@ public class InAppTrigger extends BaseElement {
     }
 
     public int getInAppOrientation() {
-        return inAppOrientation == null ? InAppOrientation.UNKNOWN.getScreenOrientation() : inAppOrientation.getScreenOrientation();
+        return inAppOrientation == null ? InAppOrientation.UNKNOWN.getScreenOrientation() :
+                inAppOrientation.getScreenOrientation();
     }
 
     /**
@@ -226,4 +222,9 @@ public class InAppTrigger extends BaseElement {
 
         return true;
     }
+
+    public AutoClose getAutoClose() {
+        return autoClose;
+    }
+
 }

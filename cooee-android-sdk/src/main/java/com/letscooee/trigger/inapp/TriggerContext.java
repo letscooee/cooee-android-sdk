@@ -1,14 +1,14 @@
 package com.letscooee.trigger.inapp;
 
 import android.graphics.Bitmap;
+import android.os.CountDownTimer;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
-
 import androidx.annotation.NonNull;
-
+import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import com.letscooee.models.trigger.TriggerData;
 import com.letscooee.utils.Closure;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,6 +18,7 @@ import java.util.Map;
  * @author Shashank Agrawal
  * @since 1.0.0
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class TriggerContext {
 
     private final Map<String, Object> closedEventProps = new HashMap<>();
@@ -29,6 +30,7 @@ public class TriggerContext {
     private RelativeLayout triggerParentLayout;
     private double scalingFactor;
     private boolean makeInAppFullScreen;
+    private CountDownTimer autoCloseInAppCountDown;
 
     public Map<String, Object> getClosedEventProps() {
         return closedEventProps;
@@ -93,4 +95,14 @@ public class TriggerContext {
     public void setMakeInAppFullScreen(boolean makeInAppFullScreen) {
         this.makeInAppFullScreen = makeInAppFullScreen;
     }
+
+    @Nullable
+    public CountDownTimer getAutoCloseInAppCountDown() {
+        return autoCloseInAppCountDown;
+    }
+
+    public void setAutoCloseInAppCountDown(@NonNull CountDownTimer autoCloseInAppCountDown) {
+        this.autoCloseInAppCountDown = autoCloseInAppCountDown;
+    }
+
 }

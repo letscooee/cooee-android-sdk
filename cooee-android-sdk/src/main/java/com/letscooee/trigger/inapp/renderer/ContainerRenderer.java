@@ -1,18 +1,32 @@
 package com.letscooee.trigger.inapp.renderer;
 
 import static com.letscooee.utils.Constants.TAG;
+import android.animation.Animator;
+import android.animation.ObjectAnimator;
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.Rect;
+import android.os.CountDownTimer;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Display;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+import androidx.annotation.RestrictTo;
 import com.letscooee.CooeeFactory;
+import com.letscooee.R;
 import com.letscooee.device.DeviceInfo;
+import com.letscooee.models.trigger.blocks.AutoClose;
 import com.letscooee.models.trigger.elements.BaseElement;
 import com.letscooee.models.trigger.elements.ButtonElement;
 import com.letscooee.models.trigger.elements.ImageElement;
@@ -29,6 +43,7 @@ import com.letscooee.utils.RuntimeData;
  * @author Shashank Agrawal
  * @since 1.0.0
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class ContainerRenderer extends AbstractInAppRenderer {
 
     private final InAppTrigger inAppTrigger;
@@ -66,7 +81,105 @@ public class ContainerRenderer extends AbstractInAppRenderer {
         globalData.getTriggerParentLayout().addView(materialCardView);
         materialCardView.setRadius(0);
 
+        processAutoClose();
+
         return newElement;
+    }
+
+    /**
+     * Process {@link InAppTrigger} autoClose properties.
+     *
+     * @since 1.4.2
+     */
+    @SuppressLint("SetTextI18n")
+    private void processAutoClose() {
+        AutoClose autoClose = inAppTrigger.getAutoClose();
+        if (autoClose == null) {
+            return;
+        }
+
+        int seconds = autoClose.getSeconds();
+        if (seconds <= 0) {
+            return;
+        }
+
+        String hex = autoClose.getProgressBarColour();
+        if (TextUtils.isEmpty(hex)) {
+            hex = "#000000";
+        }
+
+        int color = Color.parseColor(hex);
+
+        @SuppressLint("InflateParams") View progressView =
+                LayoutInflater.from(context).inflate(R.layout.view_horizontal_progress_countdown, null);
+        ProgressBar progressBar = progressView.findViewById(R.id.pbAutoCloseProgressBar);
+        TextView progressText = progressView.findViewById(R.id.tvAutoCloseCountDown);
+
+        progressBar.setProgressTintList(ColorStateList.valueOf(color));
+
+        progressText.setText("Closes in " + seconds + " second");
+        progressView.setVisibility(autoClose.isHideProgress() ? View.INVISIBLE : View.VISIBLE);
+
+        CountDownTimer autoCloseTimer = new CountDownTimer(((long) seconds * 1000), 1000) {
+
+            @Override
+            public void onTick(long millisUntilFinished) {
+                int timeRemaining = (int) (millisUntilFinished / 1000);
+                int progressPercent = (timeRemaining * 100) / seconds;
+
+                ObjectAnimator progressAnimator = ObjectAnimator.ofInt(progressBar, "progress",
+                        progressBar.getProgress(), progressPercent);
+                progressAnimator.setDuration(850);
+                progressAnimator.addListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+                        // Noting to do
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        progressText.setText("Closes in " + timeRemaining + " second");
+                        progressBar.setProgress(progressPercent);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+                        // Noting to do
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+                        // Noting to do
+                    }
+                });
+                progressAnimator.start();
+
+            }
+
+            @Override
+            public void onFinish() {
+                globalData.closeInApp("Auto");
+            }
+        };
+
+        addCountDownView(progressView);
+        globalData.setAutoCloseInAppCountDown(autoCloseTimer);
+    }
+
+    /**
+     * Add AutoClose UI to the Containers bottom
+     *
+     * @param progressView {@link View} to be added in container
+     * @since 1.4.2
+     */
+    private void addCountDownView(View progressView) {
+        RelativeLayout relativeLayout = new RelativeLayout(context);
+        relativeLayout.setLayoutParams(new FrameLayout.LayoutParams(MP, MP));
+        relativeLayout.addView(progressView);
+        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(MP, WC);
+        layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+        progressView.setLayoutParams(layoutParams);
+        materialCardView.addView(relativeLayout);
     }
 
     private int getElementElevation(BaseElement baseElement) {
@@ -111,7 +224,6 @@ public class ContainerRenderer extends AbstractInAppRenderer {
         layoutParams.height = AbstractInAppRenderer.MP;
         layoutParams.width = AbstractInAppRenderer.MP;
         parentElement.setLayoutParams(layoutParams);
-
     }
 
     /**

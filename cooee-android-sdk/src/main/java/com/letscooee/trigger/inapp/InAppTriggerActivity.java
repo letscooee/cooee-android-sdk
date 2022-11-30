@@ -161,7 +161,11 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
 
             @Override
             public void onAnimationEnd(android.view.animation.Animation animation) {
-                // Nothing to do in enter animation
+                // Start auto close timer as soon as Enter animation finishes.
+                // Added in 1.4.2
+                if (triggerContext.getAutoCloseInAppCountDown() != null) {
+                    triggerContext.getAutoCloseInAppCountDown().start();
+                }
             }
 
             @Override
@@ -203,7 +207,8 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
     }
 
     /**
-     * To make the Glassmorphosis effect working, we need to capture the {@link Window} from last active/visible {@link Activity}.
+     * To make the Glassmorphosis effect working, we need to capture the {@link Window} from last active/visible
+     * {@link Activity}.
      * This method returns the {@link ViewGroup} from the last activity.
      */
     public ViewGroup getDecorView() {
@@ -253,7 +258,8 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
         // TODO: 28/07/22 onRequestPermissionsResult is deprecated
         //  This as not Android API restrictions
         //  Solution: https://stackoverflow.com/questions/66551781/android-onrequestpermissionsresult-is-deprecated-are-there-any-alternatives
@@ -275,7 +281,8 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
         super.onConfigurationChanged(newConfig);
         /*
          * As we added orientation configuration (in AndroidManifest.xml) changes should be listened in the activity.
-         * As soon as orientation changes, Screen size changes, this method will be called. and we need to update the device resource.
+         * As soon as orientation changes, Screen size changes, this method will be called. and we need to update the
+         *  device resource.
          * To make UI compatible we will need to remove previous InApp (which is rendered with different screen size)
          * and render new InApp with new screen size.
          */
@@ -288,4 +295,5 @@ public class InAppTriggerActivity extends AppCompatActivity implements PreventBl
     public void finishAfterTransition() {
         rootViewElement.startAnimation(exitAnimation);
     }
+
 }
