@@ -36,7 +36,7 @@ public class AutoClose implements Parcelable {
     @Expose
     private final int seconds;
 
-    @SerializedName("h")
+    @SerializedName("v")
     @Expose
     private final boolean hideProgress;
 
