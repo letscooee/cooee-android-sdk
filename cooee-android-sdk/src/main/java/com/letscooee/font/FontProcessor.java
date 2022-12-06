@@ -1,11 +1,9 @@
 package com.letscooee.font;
 
-import static com.letscooee.utils.Constants.TAG;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Environment;
-import android.util.Log;
 import androidx.core.content.ContextCompat;
 import com.letscooee.CooeeFactory;
 import com.letscooee.exceptions.HttpRequestFailedException;
@@ -75,10 +73,10 @@ public class FontProcessor {
                 fileOutputStream.write(bytes, 0, read);
             }
             fileOutputStream.flush();
-            Log.d(TAG, "Font file downloaded at path: " + fontFile.getPath());
+            CooeeFactory.getLogger().debug("Font file downloaded at path: ", fontFile.getPath());
         } catch (HttpRequestFailedException | IOException e) {
             CooeeFactory.getSentryHelper().captureException(e);
-            Log.e(TAG, "Fail to download Font with URL: " + url, e);
+            CooeeFactory.getLogger().error("Fail to download Font with URL: " + url, e);
         }
     }
 
@@ -138,4 +136,5 @@ public class FontProcessor {
         return ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 == PackageManager.PERMISSION_GRANTED;
     }
+
 }

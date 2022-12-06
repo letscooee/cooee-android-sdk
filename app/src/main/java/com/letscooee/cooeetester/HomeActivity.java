@@ -28,7 +28,8 @@ public class HomeActivity extends AppCompatActivity implements CooeeCTAListener 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        com.letscooee.cooeetester.databinding.ActivityHomeBinding binding = ActivityHomeBinding.inflate(getLayoutInflater());
+        com.letscooee.cooeetester.databinding.ActivityHomeBinding binding =
+                ActivityHomeBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         context = this;
         cooeeSDK = CooeeSDK.getDefaultInstance(this);
@@ -121,7 +122,6 @@ public class HomeActivity extends AppCompatActivity implements CooeeCTAListener 
         new EngagementTriggerHelper(this).renderInAppTriggerFromJSONString(jsonString);
     }
 
-    @SuppressWarnings("ConstantConditions")
     @Override
     public void onResponse(HashMap<String, Object> hashMap) {
         for (String key : hashMap.keySet()) {

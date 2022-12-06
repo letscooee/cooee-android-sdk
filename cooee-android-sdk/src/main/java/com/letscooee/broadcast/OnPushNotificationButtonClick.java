@@ -10,7 +10,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.RemoteViews;
 import androidx.core.app.NotificationCompat;
@@ -19,7 +18,6 @@ import com.letscooee.R;
 import com.letscooee.models.Event;
 import com.letscooee.models.trigger.TriggerData;
 import com.letscooee.utils.Constants;
-
 import java.util.ArrayList;
 
 /**
@@ -77,14 +75,17 @@ public class OnPushNotificationButtonClick extends BroadcastReceiver {
                 Glide.with(context)
                         .asBitmap().load(carouselData[position].getImageUrl()).into(new CustomTarget<Bitmap>() {
                     @Override
-                    public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                    public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap>
+                    transition) {
                         bitmaps.add(resource);
-                        loadBitmapsForCarousel(triggerData.getCarouselData(), position + 1, triggerData, context, intent);
+                        loadBitmapsForCarousel(triggerData.getCarouselData(), position + 1, triggerData, context,
+                        intent);
                     }
 
                     @Override
                     public void onLoadCleared(@Nullable Drawable placeholder) {
-                        loadBitmapsForCarousel(triggerData.getCarouselData(), position + 1, triggerData, context, intent);
+                        loadBitmapsForCarousel(triggerData.getCarouselData(), position + 1, triggerData, context,
+                        intent);
                     }
                 });
             } catch (Exception e) {
@@ -113,7 +114,7 @@ public class OnPushNotificationButtonClick extends BroadcastReceiver {
         if (title == null) {
             return;
         }
-        Log.d(Constants.TAG, "showCarouselNotification: Position " + position);
+        CooeeFactory.getLogger().debug("showCarouselNotification: Position " + position);
         NotificationManager notificationManager = (NotificationManager) context
                 .getSystemService(Context.NOTIFICATION_SERVICE);
 
@@ -229,4 +230,5 @@ public class OnPushNotificationButtonClick extends BroadcastReceiver {
         Notification notification = notificationBuilder.build();
         notificationManager.notify(notificationId, notification);
     }
+
 }

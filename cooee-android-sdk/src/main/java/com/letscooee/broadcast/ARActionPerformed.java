@@ -4,19 +4,14 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.text.TextUtils;
-import android.util.Log;
-
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.letscooee.BuildConfig;
 import com.letscooee.CooeeFactory;
 import com.letscooee.CooeeSDK;
 import com.letscooee.models.Event;
 import com.letscooee.models.trigger.blocks.ClickAction;
 import com.letscooee.trigger.action.ClickActionExecutor;
-import com.letscooee.utils.Constants;
 import com.letscooee.utils.CooeeCTAListener;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -53,16 +48,16 @@ public class ARActionPerformed extends BroadcastReceiver {
     }
 
     /**
-     * Send event to the server received in <code>rawResponse</code>; Then will check for CTA in <code>rawResponse</code>,
-     * if found any will send {@link ClickAction#getUserPropertiesToUpdate()} to the {@link CooeeSDK#updateUserProfile(Map)}
+     * Send event to the server received in <code>rawResponse</code>; Then will check for CTA in
+     * <code>rawResponse</code>,
+     * if found any will send {@link ClickAction#getUserPropertiesToUpdate()} to the
+     * {@link CooeeSDK#updateUserProfile(Map)}
      *
      * @param context     application context
      * @param rawResponse json string sent via AR as event.
      */
     private void processAREvents(Context context, String rawResponse) {
-        if (BuildConfig.DEBUG) {
-            Log.d(Constants.TAG, "AR Event: " + rawResponse);
-        }
+        CooeeFactory.getLogger().sdkDebug("AR Event: ", rawResponse);
 
         Gson gson = new Gson();
         Map<String, Object> arResponse = gson.fromJson(rawResponse, new TypeToken<Map<String, Object>>() {
@@ -106,4 +101,5 @@ public class ARActionPerformed extends BroadcastReceiver {
 
         lastARResponse = null;
     }
+
 }

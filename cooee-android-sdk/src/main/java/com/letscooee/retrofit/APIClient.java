@@ -1,23 +1,19 @@
 package com.letscooee.retrofit;
 
 import android.text.TextUtils;
-import android.util.Log;
 import androidx.annotation.RestrictTo;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.letscooee.BuildConfig;
 import com.letscooee.CooeeFactory;
 import com.letscooee.utils.GsonDateAdapter;
+import java.net.URLEncoder;
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
-
-import java.net.URLEncoder;
-import java.util.Date;
-import java.util.concurrent.TimeUnit;
-
-import static com.letscooee.utils.Constants.TAG;
 
 /**
  * The APIClient class will help in sending request to server
@@ -77,7 +73,7 @@ public class APIClient {
                     requestBuilder.addHeader("app-version", appVersion);
 
                     Request request = requestBuilder.build();
-                    Log.d(TAG, "Request: " + request);
+                    CooeeFactory.getLogger().debug("Create Http Request: " + request);
                     return chain.proceed(request);
                 })
                 .build();
@@ -104,4 +100,5 @@ public class APIClient {
     public static void setAppVersion(String version) {
         appVersion = TextUtils.isEmpty(version) ? "" : version;
     }
+
 }

@@ -1,17 +1,14 @@
 package com.letscooee.trigger;
 
 import android.content.Context;
-import android.util.Log;
 import androidx.annotation.RestrictTo;
 import androidx.core.app.NotificationManagerCompat;
 import com.letscooee.CooeeFactory;
 import com.letscooee.models.trigger.TriggerData;
 import com.letscooee.room.trigger.PendingTrigger;
 import com.letscooee.trigger.cache.PendingTriggerService;
-
+import com.letscooee.utils.Logger;
 import java.util.Map;
-
-import static com.letscooee.utils.Constants.TAG;
 
 /**
  * A helper class to render or clear the push notification based triggers.
@@ -24,17 +21,19 @@ public class PushTriggerHelper {
     private final Context context;
     private final TriggerData triggerData;
     private final PendingTriggerService pendingTriggerService;
+    private final Logger logger;
 
     public PushTriggerHelper(Context context, TriggerData triggerData) {
         this.context = context;
         this.triggerData = triggerData;
         this.pendingTriggerService = CooeeFactory.getPendingTriggerService();
+        this.logger = CooeeFactory.getLogger();
     }
 
     public void removePushFromTray() {
         PendingTrigger pendingTrigger = this.pendingTriggerService.findForTrigger(triggerData);
         if (pendingTrigger == null) {
-            Log.d(TAG, "No pending trigger found for " + triggerData);
+            logger.debug("No pending trigger found for " + triggerData);
             return;
         }
 

@@ -3,10 +3,10 @@ package com.letscooee.utils;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
-import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import com.letscooee.CooeeFactory;
 import com.letscooee.enums.LaunchType;
 import com.letscooee.trigger.inapp.PreventBlurActivity;
 import java.util.Date;
@@ -30,6 +30,7 @@ public class RuntimeData {
     private String currentScreenName;
     private Activity currentActivity;
     private int currentActivityOrientation;
+    private final Logger logger;
 
     /**
      * Current app configuration, {@code null} if app configuration is not changed since app launch.
@@ -49,7 +50,7 @@ public class RuntimeData {
     }
 
     private RuntimeData(Context context) {
-
+        logger = CooeeFactory.getLogger();
     }
 
     @NonNull
@@ -58,14 +59,14 @@ public class RuntimeData {
     }
 
     public void setInBackground() {
-        Log.d(Constants.TAG, "App went to background");
+        logger.debug("App went to background");
         this.inBackground = true;
         this.lastEnterBackground = new Date();
         this.launchType = null;
     }
 
     public void setInForeground() {
-        Log.d(Constants.TAG, "App went to foreground");
+        logger.debug("App went to foreground");
         this.inBackground = false;
         this.lastEnterForeground = new Date();
     }
@@ -106,7 +107,7 @@ public class RuntimeData {
     }
 
     public void setCurrentScreenName(String name) {
-        Log.d(Constants.TAG, "Updated screen: " + name);
+        logger.debug("Updated screen: " + name);
         this.currentScreenName = name;
     }
 
@@ -169,4 +170,5 @@ public class RuntimeData {
     public void setAppCurrentConfiguration(Configuration appCurrentConfiguration) {
         this.appCurrentConfiguration = appCurrentConfiguration;
     }
+
 }

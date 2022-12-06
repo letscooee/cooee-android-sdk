@@ -1,7 +1,5 @@
 package com.letscooee.trigger;
 
-import static com.letscooee.utils.Constants.TAG;
-import android.util.Log;
 import androidx.annotation.RestrictTo;
 import com.google.gson.Gson;
 import com.letscooee.CooeeFactory;
@@ -11,10 +9,10 @@ import com.letscooee.models.trigger.TriggerData;
 import com.letscooee.room.trigger.PendingTrigger;
 import com.letscooee.task.CooeeExecutors;
 import com.letscooee.trigger.cache.PendingTriggerService;
-import java9.util.concurrent.CompletableFuture;
-
+import com.letscooee.utils.Logger;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java9.util.concurrent.CompletableFuture;
 
 /**
  * A small helper class for in-app trigger for fetching data from server.
@@ -28,10 +26,12 @@ public class LazyTriggerLoader {
     private final TriggerData triggerData;
     private final PendingTriggerService pendingTriggerService;
     private final CompletableFuture<Void> completableFuture = new CompletableFuture<>();
+    private final Logger logger;
 
     public LazyTriggerLoader(TriggerData triggerData) {
         this.triggerData = triggerData;
         this.pendingTriggerService = CooeeFactory.getPendingTriggerService();
+        this.logger = CooeeFactory.getLogger();
     }
 
     /**
@@ -43,7 +43,7 @@ public class LazyTriggerLoader {
     public void checkInPendingTriggerOrLoad() throws ExecutionException, InterruptedException {
         PendingTrigger pendingTrigger = this.pendingTriggerService.findForTrigger(triggerData);
         if (pendingTrigger == null) {
-            Log.v(TAG, "" + triggerData + " is not available in DB");
+            logger.verbose("" + triggerData + " is not available in DB");
             this.load();
             return;
         }
@@ -63,11 +63,11 @@ public class LazyTriggerLoader {
      */
     public void load() throws ExecutionException, InterruptedException {
         if (!this.triggerData.shouldLazyLoad()) {
-            Log.d(TAG, "Nothing to lazy load for " + triggerData);
+            logger.debug("Nothing to lazy load for " + triggerData);
             return;
         }
 
-        Log.d(TAG, "Lazy load " + triggerData);
+        logger.debug("Lazy load " + triggerData);
         CooeeExecutors.getInstance().singleThreadExecutor().execute(this::doHTTP);
 
         completableFuture.get();

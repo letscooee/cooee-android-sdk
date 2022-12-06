@@ -1,8 +1,6 @@
 package com.letscooee.trigger;
 
-import static com.letscooee.utils.Constants.TAG;
 import android.content.Context;
-import android.util.Log;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.letscooee.CooeeFactory;
@@ -15,6 +13,7 @@ import com.letscooee.models.trigger.elements.ImageElement;
 import com.letscooee.models.trigger.inapp.InAppTrigger;
 import com.letscooee.room.trigger.PendingTrigger;
 import com.letscooee.trigger.cache.PendingTriggerService;
+import com.letscooee.utils.Logger;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java9.util.concurrent.CompletableFuture;
@@ -31,11 +30,13 @@ public class InAppTriggerHelper {
     private final Context context;
     private final PendingTriggerService pendingTriggerService;
     private final TriggerData triggerData;
+    private final Logger logger;
 
     public InAppTriggerHelper(Context context, TriggerData triggerData) {
         this.context = context;
         this.triggerData = triggerData;
         this.pendingTriggerService = CooeeFactory.getPendingTriggerService();
+        this.logger = CooeeFactory.getLogger();
     }
 
     /**
@@ -45,7 +46,7 @@ public class InAppTriggerHelper {
     public void checkInPendingTriggerAndRender() throws InvalidTriggerDataException {
         PendingTrigger pendingTrigger = this.pendingTriggerService.findForTrigger(triggerData);
         if (pendingTrigger == null) {
-            Log.v(TAG, triggerData + " is already displayed");
+            logger.verbose(triggerData + " is already displayed");
             return;
         }
 
@@ -54,7 +55,7 @@ public class InAppTriggerHelper {
     }
 
     public void render() throws InvalidTriggerDataException {
-        Log.d(TAG, "Render " + triggerData);
+        logger.debug("Render " + triggerData);
 
         try {
             this.loadLazyData();

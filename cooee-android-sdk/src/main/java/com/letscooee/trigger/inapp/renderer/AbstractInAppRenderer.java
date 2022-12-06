@@ -1,13 +1,11 @@
 package com.letscooee.trigger.inapp.renderer;
 
-import static com.letscooee.utils.Constants.TAG;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -18,7 +16,7 @@ import android.widget.RelativeLayout;
 import androidx.annotation.RestrictTo;
 import com.bumptech.glide.Glide;
 import com.google.android.material.card.MaterialCardView;
-import com.letscooee.BuildConfig;
+import com.letscooee.CooeeFactory;
 import com.letscooee.models.trigger.blocks.Background;
 import com.letscooee.models.trigger.blocks.Border;
 import com.letscooee.models.trigger.blocks.ClickAction;
@@ -29,6 +27,7 @@ import com.letscooee.models.trigger.blocks.Transform;
 import com.letscooee.models.trigger.elements.BaseElement;
 import com.letscooee.trigger.action.ClickActionExecutor;
 import com.letscooee.trigger.inapp.TriggerContext;
+import com.letscooee.utils.Logger;
 import jp.wasabeef.blurry.Blurry;
 
 /**
@@ -50,6 +49,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
     protected final MaterialCardView materialCardView;
     protected final FrameLayout baseFrameLayout;
     protected final ImageView backgroundImage;
+    protected final Logger logger;
 
     /**
      * The newest element that will be rendered by the instance of this renderer.
@@ -59,6 +59,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
     protected AbstractInAppRenderer(Context context, ViewGroup parentElement, BaseElement element,
                                     TriggerContext globalData) {
         this.context = context;
+        this.logger = CooeeFactory.getLogger();
         this.parentElement = parentElement;
         this.elementData = element;
         this.globalData = globalData;
@@ -101,9 +102,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
 
         parentElement.addView(materialCardView);
 
-        if (BuildConfig.DEBUG) {
-            Log.d(TAG, "Parent " + parentElement.getClass().getSimpleName());
-        }
+        logger.sdkDebug("Parent " + parentElement.getClass().getSimpleName());
     }
 
     protected void setBackgroundDrawable() {
@@ -111,9 +110,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
     }
 
     protected void processCommonBlocks() {
-        if (BuildConfig.DEBUG) {
-            Log.d(TAG, "Process blocks for " + elementData.getClass().getSimpleName());
-        }
+        logger.sdkDebug("Process blocks for " + elementData.getClass().getSimpleName());
 
         this.newElement.setTag(this.getClass().getSimpleName());
         this.processSizeBlock();
@@ -162,7 +159,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         }
 
         if (alpha < 0 || alpha > 100) {
-            Log.e(TAG, "Received wrong alpha value: " + alpha);
+            logger.error("Received wrong alpha value: " + alpha);
             return;
         }
 
@@ -170,9 +167,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
     }
 
     protected void insertNewElementInHierarchy() {
-        if (BuildConfig.DEBUG) {
-            Log.d(TAG, "Inserting new element " + newElement.getClass().getSimpleName());
-        }
+        logger.sdkDebug("Inserting new element " + newElement.getClass().getSimpleName());
 
         this.baseFrameLayout.addView(newElement);
     }

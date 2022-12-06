@@ -1,17 +1,17 @@
 package com.letscooee.trigger.cache;
 
-import static com.letscooee.utils.Constants.TAG;
 import android.content.Context;
 import android.text.TextUtils;
-import android.util.Log;
 import androidx.annotation.RestrictTo;
 import com.letscooee.BuildConfig;
 import com.letscooee.ContextAware;
+import com.letscooee.CooeeFactory;
 import com.letscooee.enums.trigger.PendingTriggerAction;
 import com.letscooee.models.trigger.TriggerData;
 import com.letscooee.room.CooeeDatabase;
 import com.letscooee.room.trigger.PendingTrigger;
 import com.letscooee.trigger.LazyTriggerLoader;
+import com.letscooee.utils.Logger;
 import java.util.Date;
 import java.util.concurrent.ExecutionException;
 
@@ -25,10 +25,12 @@ import java.util.concurrent.ExecutionException;
 public class PendingTriggerService extends ContextAware {
 
     private final CooeeDatabase cooeeDatabase;
+    private final Logger logger;
 
     public PendingTriggerService(Context context) {
         super(context);
         cooeeDatabase = CooeeDatabase.getInstance(context);
+        logger = CooeeFactory.getLogger();
     }
 
     /**
@@ -47,7 +49,7 @@ public class PendingTriggerService extends ContextAware {
         pendingTrigger.data = triggerData;
 
         this.cooeeDatabase.pendingTriggerDAO().update(pendingTrigger);
-        Log.v(TAG, "Updated " + pendingTrigger);
+        logger.verbose("Updated " + pendingTrigger);
     }
 
     public PendingTrigger findForTrigger(TriggerData triggerData) {
@@ -77,7 +79,7 @@ public class PendingTriggerService extends ContextAware {
         pendingTrigger.notificationId = triggerData.getNotificationID();
         pendingTrigger.sdkCode = BuildConfig.VERSION_CODE;
         pendingTrigger.id = this.cooeeDatabase.pendingTriggerDAO().insert(pendingTrigger);
-        Log.v(TAG, "Created " + pendingTrigger);
+        logger.verbose("Created " + pendingTrigger);
 
         // After saving the main trigger, pull the lazy data from backend and update it
         // So that even OS allowed time to render push is finished, at least base trigger is stored
@@ -128,7 +130,7 @@ public class PendingTriggerService extends ContextAware {
      * Removes {@link PendingTrigger}.
      */
     public void delete(PendingTrigger pendingTrigger) {
-        Log.v(TAG, "Deleting PendingTrigger");
+        logger.verbose("Deleting PendingTrigger" + pendingTrigger);
         this.cooeeDatabase.pendingTriggerDAO().delete(pendingTrigger);
     }
 

@@ -1,21 +1,32 @@
 package com.letscooee.room.task;
 
 import android.content.Context;
-import android.util.Log;
 import androidx.annotation.RestrictTo;
 import com.google.gson.Gson;
 import com.letscooee.BuildConfig;
 import com.letscooee.ContextAware;
+import com.letscooee.CooeeFactory;
 import com.letscooee.models.Event;
 import com.letscooee.room.CooeeDatabase;
-import com.letscooee.room.task.processor.*;
+import com.letscooee.room.task.processor.DevicePropTaskProcessor;
+import com.letscooee.room.task.processor.EventTaskProcessor;
+import com.letscooee.room.task.processor.LogoutTaskProcessor;
+import com.letscooee.room.task.processor.PendingTaskProcessor;
+import com.letscooee.room.task.processor.ProfileTaskProcessor;
+import com.letscooee.room.task.processor.PushTokenTaskProcessor;
+import com.letscooee.room.task.processor.SessionConcludeTaskProcessor;
 import com.letscooee.schedular.CooeeJobUtils;
 import com.letscooee.schedular.job.PendingTaskJob;
-import com.letscooee.utils.Constants;
+import com.letscooee.utils.Logger;
 import com.letscooee.utils.SentryHelper;
 import com.letscooee.utils.Timer;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * A singleton service for utility over {@link PendingTask}.
@@ -32,11 +43,13 @@ public class PendingTaskService extends ContextAware {
     private final SentryHelper sentryHelper;
     private final CooeeDatabase database;
     private final Gson gson = new Gson();
+    private final Logger logger;
 
     public PendingTaskService(Context context, SentryHelper sentryHelper) {
         super(context);
         this.database = CooeeDatabase.getInstance(this.context);
         this.sentryHelper = sentryHelper;
+        this.logger = CooeeFactory.getLogger();
         this.instantiateProcessors(context);
     }
 
@@ -76,7 +89,7 @@ public class PendingTaskService extends ContextAware {
 
         task.id = this.database.pendingTaskDAO().insert(task);
 
-        Log.v(Constants.TAG, "Created " + task);
+        logger.verbose("Created " + task);
         return task;
     }
 
@@ -116,14 +129,14 @@ public class PendingTaskService extends ContextAware {
      * @param pendingTask The task to process.
      */
     public void processTask(PendingTask pendingTask) {
-        Log.d(Constants.TAG, "Attempt processing " + pendingTask);
+        logger.debug("Attempt processing " + pendingTask);
 
         if (pendingTask == null) {
             throw new IllegalArgumentException("pendingTask can't be null");
         }
 
         if (CURRENT_PROCESSING_TASKS.contains(pendingTask.id)) {
-            Log.d(Constants.TAG, "Already processing " + pendingTask);
+            logger.debug("Already processing " + pendingTask);
             return;
         }
 
@@ -143,4 +156,5 @@ public class PendingTaskService extends ContextAware {
             }
         }
     }
+
 }

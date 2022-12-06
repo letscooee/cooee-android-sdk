@@ -17,6 +17,7 @@ import com.letscooee.retrofit.internal.PublicApiClient;
 import com.letscooee.retrofit.internal.PublicApiService;
 import com.letscooee.trigger.EngagementTriggerHelper;
 import com.letscooee.utils.Constants;
+import com.letscooee.utils.Logger;
 import java.io.IOException;
 import java.util.Map;
 import okhttp3.MultipartBody;
@@ -28,7 +29,8 @@ import retrofit2.Response;
 
 /**
  * A base or lower level HTTP service which simply hits the backend for given request. It does not perform
- * any retries or it does not cache the request for future reattempts. This server should not contain any business logic.
+ * any retries or it does not cache the request for future reattempts. This server should not contain any business
+ * logic.
  * <p>
  * Make sure these methods are not called in the main-thread.
  *
@@ -41,9 +43,11 @@ public class BaseHTTPService extends ContextAware {
     private final ExternalApiService externalApiService = ExternalApiClient.getAPIService();
     private final PublicApiService publicApiService = PublicApiClient.getAPIService();
     private final Gson gson = new Gson();
+    private final Logger logger;
 
     public BaseHTTPService(Context context) {
         super(context);
+        logger = CooeeFactory.getLogger();
     }
 
     public Map<String, Object> sendEvent(Event event) throws HttpRequestFailedException {
@@ -91,7 +95,8 @@ public class BaseHTTPService extends ContextAware {
 
         /*
          * Close the response body if it is not null.
-         * Ref: https://square.github.io/okhttp/4.x/okhttp/okhttp3/-response-body/#the-response-body-can-be-consumed-only-once
+         * Ref: https://square.github.io/okhttp/4
+         * .x/okhttp/okhttp3/-response-body/#the-response-body-can-be-consumed-only-once
          */
         assert response.body() != null;
         ((ResponseBody) response.body()).close();
@@ -103,7 +108,8 @@ public class BaseHTTPService extends ContextAware {
 
         /*
          * Close the response body if it is not null.
-         * Ref: https://square.github.io/okhttp/4.x/okhttp/okhttp3/-response-body/#the-response-body-can-be-consumed-only-once
+         * Ref: https://square.github.io/okhttp/4
+         * .x/okhttp/okhttp3/-response-body/#the-response-body-can-be-consumed-only-once
          */
         assert response.body() != null;
         ((ResponseBody) response.body()).close();
@@ -113,12 +119,12 @@ public class BaseHTTPService extends ContextAware {
         apiService.keepAlive(data).enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
-                Log.i(Constants.TAG, "Session Alive Response Code: " + response.code());
+                logger.info("Session Alive Response Code: " + response.code());
             }
 
             @Override
             public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
-                Log.e(Constants.TAG, "Session Alive Response Error Message" + t);
+                logger.error("Session Alive Response Error Message", t);
             }
         });
     }
@@ -173,13 +179,13 @@ public class BaseHTTPService extends ContextAware {
                 return response;
             }
 
-            Log.d(Constants.TAG, "Server failure for " + message + ", resp code: " + response.code()
+            logger.debug("Server failure for " + message + ", resp code: " + response.code()
                     + ", resp: " + response.body());
 
             throw new HttpRequestFailedException("Error on " + message, response.code(), response.body());
 
         } catch (IOException e) {
-            Log.e(Constants.TAG, "Exception in HTTP: " + message, e);
+            logger.error("Exception in HTTP: " + message, e);
             throw new HttpRequestFailedException("Exception in HTTP: " + message, e);
         }
     }

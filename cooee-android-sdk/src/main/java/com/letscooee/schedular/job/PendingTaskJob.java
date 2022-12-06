@@ -3,14 +3,12 @@ package com.letscooee.schedular.job;
 import android.app.job.JobParameters;
 import android.app.job.JobService;
 import android.content.Context;
-import android.util.Log;
 import com.letscooee.CooeeFactory;
 import com.letscooee.retrofit.DeviceAuthService;
 import com.letscooee.room.CooeeDatabase;
 import com.letscooee.room.task.PendingTask;
 import com.letscooee.task.CooeeExecutors;
-import com.letscooee.utils.Constants;
-
+import com.letscooee.utils.Logger;
 import java.util.List;
 
 /**
@@ -22,16 +20,17 @@ import java.util.List;
 public class PendingTaskJob extends JobService {
 
     private JobParameters jobParameters;
+    private final Logger logger = CooeeFactory.getLogger();
 
     @Override
     public boolean onStartJob(JobParameters params) {
         jobParameters = params;
         Context context = getApplicationContext();
-        Log.v(Constants.TAG, "PendingTaskJob running");
+        logger.verbose("PendingTaskJob running");
 
         DeviceAuthService deviceAuthService = CooeeFactory.getDeviceAuthService();
         if (!deviceAuthService.hasToken()) {
-            Log.d(Constants.TAG, "Abort PendingTaskJob. Do not have the SDK token");
+            logger.debug("Abort PendingTaskJob. Do not have the SDK token");
             return false;       // Job is finished
         }
 
@@ -46,6 +45,7 @@ public class PendingTaskJob extends JobService {
 
         return true;
     }
+
     @Override
     public boolean onStopJob(JobParameters params) {
         // Returning false to let job get finish
@@ -55,4 +55,5 @@ public class PendingTaskJob extends JobService {
     public JobParameters getJobParameters() {
         return jobParameters;
     }
+
 }

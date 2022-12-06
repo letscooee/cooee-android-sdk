@@ -1,7 +1,6 @@
 package com.letscooee.services;
 
 import android.content.Context;
-import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import com.google.firebase.messaging.FirebaseMessagingService;
@@ -111,7 +110,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
      * @param token received from Firebase
      */
     private void sendTokenToServer(String token) {
-        Log.d(Constants.TAG, "FCM token received- " + token);
+        CooeeFactory.getLogger().debug("FCM token received- ", token);
         PushProviderUtils.pushTokenRefresh(token);
     }
 
@@ -142,7 +141,7 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
             try {
                 new InAppTriggerHelper(context, triggerData).render();
             } catch (InvalidTriggerDataException e) {
-                Log.e(Constants.TAG, e.getMessage(), e);
+                CooeeFactory.getLogger().error(e.getMessage() + "", e);
             }
         }
     }
@@ -179,4 +178,5 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
     public static void setMessageDelivered() {
         disableMessagingHandling = true;
     }
+
 }

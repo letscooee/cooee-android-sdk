@@ -3,7 +3,6 @@ package com.letscooee;
 import android.content.Context;
 import android.content.Intent;
 import android.text.TextUtils;
-import android.util.Log;
 import androidx.annotation.NonNull;
 import com.letscooee.device.DebugInfoActivity;
 import com.letscooee.models.Event;
@@ -12,6 +11,7 @@ import com.letscooee.retrofit.DeviceAuthService;
 import com.letscooee.task.CooeeExecutors;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.CooeeCTAListener;
+import com.letscooee.utils.Logger;
 import com.letscooee.utils.PropertyNameException;
 import com.letscooee.utils.RuntimeData;
 import com.letscooee.utils.SentryHelper;
@@ -24,7 +24,7 @@ import java.util.Map;
  *
  * @author Abhishek Taparia
  */
-public class CooeeSDK {
+public final class CooeeSDK {
 
     private static final String SYSTEM_DATA_PREFIX = "CE ";
     private final Context context;
@@ -34,6 +34,7 @@ public class CooeeSDK {
     private final RuntimeData runtimeData;
     private final SafeHTTPService safeHTTPService;
     private final SentryHelper sentryHelper;
+    private final Logger logger;
 
     /**
      * Private constructor for Singleton Class
@@ -46,6 +47,7 @@ public class CooeeSDK {
         this.sentryHelper = CooeeFactory.getSentryHelper();
         this.safeHTTPService = CooeeFactory.getSafeHTTPService();
         this.deviceAuthService = CooeeFactory.getDeviceAuthService();
+        this.logger = CooeeFactory.getLogger();
 
         CooeeExecutors.getInstance().singleThreadExecutor().execute(this.deviceAuthService::acquireSDKToken);
     }
@@ -162,11 +164,12 @@ public class CooeeSDK {
      */
     public void setCurrentScreen(String screenName) {
         if (TextUtils.isEmpty(screenName)) {
-            Log.v(Constants.TAG, "Trying to set empty screen name");
+            logger.verbose("Trying to set empty screen name");
             return;
         }
 
-        // Update screen name on main thread, because other threads may be in paused state till CPU gets free.(Edge case scenario)
+        // Update screen name on main thread, because other threads may be in paused state till CPU gets free.(Edge
+        // case scenario)
         String previousScreenName = this.runtimeData.getCurrentScreenName();
         this.runtimeData.setCurrentScreenName(screenName);
 

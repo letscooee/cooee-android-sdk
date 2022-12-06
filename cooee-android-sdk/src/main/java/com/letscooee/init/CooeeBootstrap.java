@@ -1,14 +1,11 @@
 package com.letscooee.init;
 
-import static com.letscooee.utils.Constants.TAG;
 import android.app.ActivityManager;
 import android.app.Application;
 import android.content.Context;
-import android.util.Log;
 import androidx.annotation.RestrictTo;
 import androidx.lifecycle.ProcessLifecycleOwner;
 import com.google.firebase.messaging.FirebaseMessaging;
-import com.letscooee.BuildConfig;
 import com.letscooee.CooeeFactory;
 import com.letscooee.pushnotification.PushProviderUtils;
 import com.letscooee.schedular.CooeeJobUtils;
@@ -89,15 +86,13 @@ public class CooeeBootstrap {
     private void getAndUpdateFirebaseToken() {
         try {
             FirebaseMessaging.getInstance().getToken().addOnSuccessListener(token -> {
-                if (BuildConfig.DEBUG) {
-                    Log.d(TAG, "FCM token fetched- " + token);
-                }
-
+                CooeeFactory.getLogger().sdkDebug("FCM token fetched- ", token);
                 PushProviderUtils.pushTokenRefresh(token);
             });
         } catch (IllegalStateException e) {
             // Thrown when the firebase file is missing
-            Log.e(TAG, "Fail to initialize FirebaseApp", e);
+            CooeeFactory.getLogger().error("Fail to initialize FirebaseApp", e);
         }
     }
+
 }

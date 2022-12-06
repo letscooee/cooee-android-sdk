@@ -13,11 +13,13 @@ import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import io.sentry.Breadcrumb;
 import io.sentry.CustomSamplingContext;
 import io.sentry.Sentry;
 import io.sentry.SentryEvent;
 import io.sentry.SentryOptions;
 import io.sentry.android.core.SentryAndroid;
+import io.sentry.protocol.Message;
 import io.sentry.protocol.SentryId;
 import io.sentry.protocol.User;
 
@@ -42,7 +44,7 @@ public class SentryHelper extends ContextAware {
         super(context);
         this.appInfo = appInfo;
         this.manifestReader = manifestReader;
-        this.enabled = !BuildConfig.DEBUG;
+        this.enabled = BuildConfig.DEBUG;
     }
 
     public void init() {
@@ -90,10 +92,12 @@ public class SentryHelper extends ContextAware {
     }
 
     /**
-     * Side effect of adding Sentry to an SDK is that the exceptions from the app is also gathered in our Sentry dashboard.
+     * Side effect of adding Sentry to an SDK is that the exceptions from the app is also gathered in our Sentry
+     * dashboard.
      *
      * @param options Sentry options
-     * @see <a href="https://forum.sentry.io/t/restrict-sentry-events-just-from-the-android-sdk-library/13977">Forum Post</a>
+     * @see
+     * <a href="https://forum.sentry.io/t/restrict-sentry-events-just-from-the-android-sdk-library/13977">Forum Post</a>
      */
     private void setupFilterToExcludeNonCooeeEvents(SentryOptions options) {
         options.setBeforeSend((event, hint) -> {
@@ -181,12 +185,16 @@ public class SentryHelper extends ContextAware {
         if (!enabled) {
             return;
         }
-
+        SentryEvent sentryEvent = new SentryEvent();
+        sentryEvent.setThrowable(throwable);
+        Message m = new Message();
+        m.setMessage(message);
+        sentryEvent.setMessage(m);
         SentryId id = Sentry.captureException(throwable);
         Log.d(Constants.TAG, "Sentry id of the exception: " + id);
     }
 
-    public void addBreadcrumb(String message) {
+    public void addBreadcrumb(Breadcrumb message) {
         Sentry.addBreadcrumb(message);
     }
 
@@ -198,13 +206,15 @@ public class SentryHelper extends ContextAware {
      */
     public void setUserId(String id) {
         sentryUser.setId(id);
+        Sentry.setUser(sentryUser);
     }
 
     /**
      * Set additional Cooee's User information to Sentry's {@link User} so that this information can be shown in
      * the Sentry dashboard as well. Sentry is already GDPR compliant.
      *
-     * @param userData Additional user data which may contain <code>mobile</code>, <code>name</code> or <code>mobile</code>.
+     * @param userData Additional user data which may contain <code>mobile</code>, <code>name</code> or
+     *                 <code>mobile</code>.
      */
     public void setUserInfo(Map<String, Object> userData) {
         if (userData == null) {
@@ -225,7 +235,8 @@ public class SentryHelper extends ContextAware {
         if (mobile != null && !TextUtils.isEmpty(mobile.toString())) {
             Map<String, String> userDataExtra = new HashMap<>();
             userDataExtra.put("mobile", mobile.toString());
-            sentryUser.setOthers(userDataExtra);
+            sentryUser.setData(userDataExtra);
         }
     }
+
 }

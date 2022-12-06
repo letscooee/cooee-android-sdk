@@ -13,6 +13,7 @@ import com.letscooee.schedular.CooeeJobUtils;
 import com.letscooee.user.NewSessionExecutor;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.LocalStorageHelper;
+import com.letscooee.utils.Logger;
 import com.letscooee.utils.ManifestReader;
 import com.letscooee.utils.SentryHelper;
 import org.bson.types.ObjectId;
@@ -37,6 +38,7 @@ public class DeviceAuthService {
     private final APIService apiService;
     private final NewSessionExecutor sessionExecutor;
     private final ManifestReader manifestReader;
+    private final Logger logger;
 
     private String sdkToken;
     private String userID;
@@ -50,6 +52,7 @@ public class DeviceAuthService {
         this.sentryHelper = sentryHelper;
         this.manifestReader = manifestReader;
         this.sessionExecutor = new NewSessionExecutor(this.context);
+        this.logger = CooeeFactory.getLogger();
     }
 
     public boolean hasToken() {
@@ -68,12 +71,12 @@ public class DeviceAuthService {
     public void populateUserDataFromStorage() {
         sdkToken = LocalStorageHelper.getString(context, Constants.STORAGE_SDK_TOKEN, null);
         if (TextUtils.isEmpty(sdkToken)) {
-            Log.d(Constants.TAG, "No SDK token found in preference");
+            logger.debug("No SDK token found in preference");
         }
 
         userID = LocalStorageHelper.getString(context, Constants.STORAGE_USER_ID, null);
         if (TextUtils.isEmpty(userID)) {
-            Log.d(Constants.TAG, "No user ID found in preference");
+            logger.debug("No user ID found in preference");
         }
 
         this.updateAPIClient();
@@ -88,7 +91,7 @@ public class DeviceAuthService {
             return;
         }
 
-        Log.d(Constants.TAG, "Attempt to acquire SDK token");
+        logger.debug("Attempt to acquire SDK token");
         long lastCheckTime = LocalStorageHelper.getLong(context, Constants.STORAGE_LAST_TOKEN_ATTEMPT, 0);
 
         // We are attempting first time
@@ -107,12 +110,13 @@ public class DeviceAuthService {
     }
 
     /**
-     * Make user registration with server (if not already) and acquire a SDK token which will be later used to authenticate
+     * Make user registration with server (if not already) and acquire a SDK token which will be later used to
+     * authenticate
      * other endpoints.
      */
     private void getSDKTokenFromServer() {
         if (TextUtils.isEmpty(manifestReader.getAppID())) {
-            Log.w(Constants.TAG, "Missing App credentials in AndroidManifest.xml",
+            logger.warn("Missing App credentials in AndroidManifest.xml",
                     new Exception("Check Integration https://docs.letscooee.com/developers/android/quickstart"));
             return;
         }
@@ -121,20 +125,22 @@ public class DeviceAuthService {
         AuthenticationRequestBody requestBody = getAuthenticationRequestBody();
         apiService.registerDevice(requestBody).enqueue(new Callback<DeviceAuthResponse>() {
             @Override
-            public void onResponse(@NonNull Call<DeviceAuthResponse> call, @NonNull Response<DeviceAuthResponse> response) {
+            public void onResponse(@NonNull Call<DeviceAuthResponse> call,
+                                   @NonNull Response<DeviceAuthResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     DeviceAuthService.this.saveDeviceDataInStorage(response.body());
 
                     // Start the job immediately to make sure the pending tasks can be sent
                     CooeeJobUtils.triggerPendingTaskJobImmediately(DeviceAuthService.this.context);
                 } else {
+                    logger.error("Unable to acquire token- " + response.code());
                     DeviceAuthService.this.sentryHelper.captureMessage("Unable to acquire token- " + response.code());
                 }
             }
 
             @Override
             public void onFailure(@NonNull Call<DeviceAuthResponse> call, @NonNull Throwable t) {
-                Log.e(Constants.TAG, "Unable to acquire token", t);
+                logger.error("Unable to acquire token", t);
             }
         });
 
@@ -182,10 +188,8 @@ public class DeviceAuthService {
     }
 
     private void updateAPIClient() {
-        if (BuildConfig.DEBUG) {
-            Log.i(Constants.TAG, "SDK Token: " + sdkToken);
-            Log.i(Constants.TAG, "User ID: " + userID);
-        }
+        logger.sdkDebug("Found SDK Token: ", sdkToken);
+        logger.sdkDebug("Found User ID: ", userID);
 
         APIClient.setAPIToken(sdkToken);
         APIClient.setUserId(userID);
@@ -240,4 +244,5 @@ public class DeviceAuthService {
         // Populate updated details with APIClient
         this.updateAPIClient();
     }
+
 }

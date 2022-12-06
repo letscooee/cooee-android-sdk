@@ -1,6 +1,5 @@
 package com.letscooee.trigger.inapp.renderer;
 
-import static com.letscooee.utils.Constants.TAG;
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
@@ -12,7 +11,6 @@ import android.graphics.Point;
 import android.graphics.Rect;
 import android.os.CountDownTimer;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -239,7 +237,7 @@ public class ContainerRenderer extends AbstractInAppRenderer {
      */
     private void updateScalingFactor() {
         getDisplayHeightAndWidth();
-        Log.d(TAG, "Display width: " + displayWidth + ", height: " + displayHeight);
+        logger.debug("Display width: " + displayWidth + ", height: " + displayHeight);
 
         double containerWidth = elementData.getWidth();
         double containerHeight = elementData.getHeight();

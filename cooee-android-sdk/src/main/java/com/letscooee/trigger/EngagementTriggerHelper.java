@@ -6,12 +6,10 @@ import android.content.Intent;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Window;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import com.google.gson.Gson;
-import com.letscooee.BuildConfig;
 import com.letscooee.CooeeFactory;
 import com.letscooee.exceptions.InvalidTriggerDataException;
 import com.letscooee.models.Event;
@@ -27,6 +25,7 @@ import com.letscooee.trigger.inapp.PreventBlurActivity;
 import com.letscooee.trigger.inapp.TriggerContext;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.LocalStorageHelper;
+import com.letscooee.utils.Logger;
 import com.letscooee.utils.RuntimeData;
 import com.letscooee.utils.Timer;
 import java.util.ArrayList;
@@ -50,12 +49,14 @@ public class EngagementTriggerHelper {
     private final Context context;
     private final RuntimeData runtimeData;
     private final PendingTriggerService pendingTriggerService;
+    private static Logger logger;
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public EngagementTriggerHelper(Context context) {
         this.context = context;
         this.runtimeData = CooeeFactory.getRuntimeData();
         this.pendingTriggerService = CooeeFactory.getPendingTriggerService();
+        logger = CooeeFactory.getLogger();
     }
 
     /**
@@ -88,7 +89,8 @@ public class EngagementTriggerHelper {
             activeTriggers.add(embeddedTrigger);
         }
 
-        LocalStorageHelper.putEmbeddedTriggersImmediately(context, Constants.STORAGE_ACTIVATED_TRIGGERS, activeTriggers);
+        LocalStorageHelper.putEmbeddedTriggersImmediately(context, Constants.STORAGE_ACTIVATED_TRIGGERS,
+                activeTriggers);
     }
 
     /**
@@ -109,12 +111,10 @@ public class EngagementTriggerHelper {
             activeTriggers.add(embeddedTrigger);
         }
 
-        if (BuildConfig.DEBUG) {
-            Log.d(Constants.TAG, "Current active triggers: " + activeTriggers);
-        }
-
+        logger.sdkDebug("Current active triggers: " + activeTriggers);
         setActiveTrigger(context, triggerData);
-        LocalStorageHelper.putEmbeddedTriggersImmediately(context, Constants.STORAGE_ACTIVATED_TRIGGERS, activeTriggers);
+        LocalStorageHelper.putEmbeddedTriggersImmediately(context, Constants.STORAGE_ACTIVATED_TRIGGERS,
+                activeTriggers);
     }
 
     /**
@@ -164,7 +164,7 @@ public class EngagementTriggerHelper {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public void renderInAppTriggerFromJSONString(String rawTriggerData) {
         if (TextUtils.isEmpty(rawTriggerData)) {
-            Log.i(Constants.TAG, "Empty/null trigger data received");
+            logger.info("Empty/null trigger data received");
             return;
         }
 
@@ -174,7 +174,7 @@ public class EngagementTriggerHelper {
             storeActiveTriggerDetails(context, triggerData);
             render(triggerData);
         } catch (InvalidTriggerDataException e) {
-            Log.e(Constants.TAG, e.getMessage(), e);
+            logger.error(e.getMessage() + "", e);
         }
     }
 
@@ -185,7 +185,7 @@ public class EngagementTriggerHelper {
      */
     public void renderInAppTrigger(TriggerData triggerData) throws InvalidTriggerDataException {
         if (runtimeData.isInBackground()) {
-            Log.i(Constants.TAG, "Won't render in-app. App is in background");
+            logger.info("Won't render in-app. App is in background");
             return;
         }
 
@@ -294,7 +294,7 @@ public class EngagementTriggerHelper {
             try {
                 new InAppTriggerHelper(context, triggerData).render();
             } catch (InvalidTriggerDataException e) {
-                Log.d(Constants.TAG, e.getMessage(), e);
+                logger.error(e.getMessage() + "", e);
             }
         });
     }
@@ -325,7 +325,7 @@ public class EngagementTriggerHelper {
             try {
                 renderInAppFromPushNotification(triggerData, sdkVersionCode);
             } catch (InvalidTriggerDataException e) {
-                Log.e(Constants.TAG, e.getMessage());
+                logger.error(e.getMessage() + "", e);
             }
         }, timeToWaitMillis);
     }

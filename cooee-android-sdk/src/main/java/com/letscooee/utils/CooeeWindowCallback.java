@@ -105,7 +105,6 @@ public class CooeeWindowCallback implements Window.Callback {
 
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
-        Log.d("", "ttest onfocus changed called");
         localCallback.onWindowFocusChanged(hasFocus);
     }
 

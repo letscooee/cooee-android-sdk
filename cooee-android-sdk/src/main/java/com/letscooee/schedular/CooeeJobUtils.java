@@ -5,10 +5,8 @@ import android.app.job.JobScheduler;
 import android.app.job.JobService;
 import android.content.ComponentName;
 import android.content.Context;
-import android.util.Log;
-
 import androidx.annotation.RestrictTo;
-
+import com.letscooee.CooeeFactory;
 import com.letscooee.schedular.job.PendingTaskJob;
 import com.letscooee.utils.Constants;
 
@@ -89,7 +87,7 @@ public class CooeeJobUtils {
      * @param context the application context.
      */
     public static void triggerPendingTaskJobImmediately(Context context) {
-        Log.v(Constants.TAG, "Run PendingTaskJob immediately");
+        CooeeFactory.getLogger().verbose("Run PendingTaskJob immediately");
         scheduleJob(context, PendingTaskJob.class, Constants.PENDING_TASK_JOB_ID, 1L);
     }
 
@@ -101,4 +99,5 @@ public class CooeeJobUtils {
         scheduleJob(context, PendingTaskJob.class, Constants.PENDING_TASK_JOB_ID,
                 PENDING_JOB_INTERVAL_MILLIS);
     }
+
 }

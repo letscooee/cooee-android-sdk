@@ -152,6 +152,10 @@ public class InAppTrigger extends BaseElement {
      * @return {@link List} of {@link String} font URLs.
      */
     public List<String> getFontURLs() {
+        if (elements == null || elements.size() <= 0) {
+            return new ArrayList<>();
+        }
+
         // Collect and filter null/empty font URL from all Text/Button element
         return StreamSupport.stream(elements)
                 .filter(e -> e instanceof BaseTextElement)
@@ -183,6 +187,10 @@ public class InAppTrigger extends BaseElement {
     }
 
     public List<String> getImageURLs() {
+        if (elements == null || elements.size() <= 0) {
+            return new ArrayList<>();
+        }
+
         // Collect and filter null/empty image URL from all elements
         List<String> imageList = StreamSupport.stream(elements)
                 .map(BaseElement::getImageURL)

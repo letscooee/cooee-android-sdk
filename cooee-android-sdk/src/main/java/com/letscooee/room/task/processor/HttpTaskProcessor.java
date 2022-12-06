@@ -1,17 +1,13 @@
 package com.letscooee.room.task.processor;
 
 import android.content.Context;
-import android.util.Log;
-
 import androidx.annotation.NonNull;
-
 import com.letscooee.CooeeFactory;
 import com.letscooee.exceptions.HttpRequestFailedException;
 import com.letscooee.network.BaseHTTPService;
 import com.letscooee.network.ConnectionManager;
 import com.letscooee.retrofit.DeviceAuthService;
 import com.letscooee.room.task.PendingTask;
-import com.letscooee.utils.Constants;
 
 /**
  * An abstract layer to process all {@link PendingTask} which is related to
@@ -24,6 +20,7 @@ public abstract class HttpTaskProcessor<T> extends AbstractPendingTaskProcessor<
 
     protected final BaseHTTPService baseHTTPService;
     protected final DeviceAuthService deviceAuthService;
+
 
     protected HttpTaskProcessor(Context context) {
         super(context);
@@ -47,16 +44,16 @@ public abstract class HttpTaskProcessor<T> extends AbstractPendingTaskProcessor<
      * @param task Task to process.
      */
     public void process(@NonNull PendingTask task) {
-        Log.d(Constants.TAG, "Processing " + task);
+        logger.debug("Processing " + task);
         T data = deserialize(task);
 
         if (!ConnectionManager.isNetworkAvailable(context)) {
-            Log.i(Constants.TAG, "Device does not have internet");
+            logger.info("Device does not have internet");
             return;
         }
 
         if (!this.deviceAuthService.hasToken()) {
-            Log.i(Constants.TAG, "Don't have SDK token. Abort processing " + task);
+            logger.info("Don't have SDK token. Abort processing " + task);
             return;
         }
 
@@ -68,4 +65,5 @@ public abstract class HttpTaskProcessor<T> extends AbstractPendingTaskProcessor<
             this.updateAttempted(task);
         }
     }
+
 }

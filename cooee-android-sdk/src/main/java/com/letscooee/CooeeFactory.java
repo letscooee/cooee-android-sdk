@@ -10,6 +10,7 @@ import com.letscooee.retrofit.DeviceAuthService;
 import com.letscooee.room.task.PendingTaskService;
 import com.letscooee.trigger.cache.PendingTriggerService;
 import com.letscooee.user.SessionManager;
+import com.letscooee.utils.Logger;
 import com.letscooee.utils.ManifestReader;
 import com.letscooee.utils.RuntimeData;
 import com.letscooee.utils.SentryHelper;
@@ -38,6 +39,7 @@ public class CooeeFactory {
     private static DeviceAuthService deviceAuthService;
     private static PendingTaskService pendingTaskService;
     private static PendingTriggerService pendingTriggerService;
+    private static Logger logger;
 
     private CooeeFactory() {
     }
@@ -53,6 +55,7 @@ public class CooeeFactory {
         manifestReader = ManifestReader.getInstance(context);
         sentryHelper = new SentryHelper(context, appInfo, manifestReader);
         sentryHelper.init();
+        logger = new Logger(sentryHelper);
 
         // Sentry should be initialized first
         ITransaction transaction = Sentry.startTransaction("CooeeFactory.init()", "task");
@@ -120,6 +123,10 @@ public class CooeeFactory {
 
     public static PendingTriggerService getPendingTriggerService() {
         return pendingTriggerService;
+    }
+
+    public static Logger getLogger() {
+        return logger;
     }
 
 }
