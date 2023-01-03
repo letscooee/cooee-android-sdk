@@ -27,16 +27,13 @@ import java.util.Map;
 public class CooeeSDK {
 
     private static final String SYSTEM_DATA_PREFIX = "CE ";
-
-    private static CooeeSDK cooeeSDK;
-
     private final Context context;
-    private final RuntimeData runtimeData;
-    private final SentryHelper sentryHelper;
-    private final DeviceAuthService deviceAuthService;
-    private final SafeHTTPService safeHTTPService;
-
+    private static CooeeSDK cooeeSDK;
     private WeakReference<CooeeCTAListener> ctaListener;
+    private final DeviceAuthService deviceAuthService;
+    private final RuntimeData runtimeData;
+    private final SafeHTTPService safeHTTPService;
+    private final SentryHelper sentryHelper;
 
     /**
      * Private constructor for Singleton Class
@@ -53,11 +50,30 @@ public class CooeeSDK {
         CooeeExecutors.getInstance().singleThreadExecutor().execute(this.deviceAuthService::acquireSDKToken);
     }
 
+    public CooeeCTAListener getCTAListener() {
+        return ctaListener == null ? null : ctaListener.get();
+    }
+
+    /**
+     * Set call back listener to the Cooee SDK.
+     * This call back listener will be fired when the user performs any action on the
+     * InApp/Notification sent via Cooee.
+     *
+     * @param listener instance of the {@link CooeeCTAListener}
+     * @see <a href="https://docs.letscooee.com/developers/android/cta-callback">CTA Callback</a>
+     * for more details.
+     */
+    public void setCTAListener(CooeeCTAListener listener) {
+        ctaListener = new WeakReference<>(listener);
+    }
+
     /**
      * Create and return default instance for CooeeSDK (Singleton Class)
      *
      * @param context application context
-     * @return CooeeSDK
+     * @return {@link CooeeSDK} instance.
+     * @see <a href="https://docs.letscooee.com/developers/android/get-started#OSeGV">
+     * Get Started</a> for more details.
      */
     public static CooeeSDK getDefaultInstance(Context context) {
         if (cooeeSDK == null) {
@@ -65,6 +81,25 @@ public class CooeeSDK {
         }
 
         return cooeeSDK;
+    }
+
+    /**
+     * Provides <code>userId</code> assigned by Cooee to the user.
+     *
+     * @return userID in {@link String} format
+     */
+    public String getUserID() {
+        return this.deviceAuthService.getUserID();
+    }
+
+    /**
+     * Logout user from the Cooee SDK.
+     * This method must be called with apps logout functionality.
+     *
+     * @since 1.4.2
+     */
+    public void logout() {
+        CooeeExecutors.getInstance().singleThreadExecutor().execute(this.safeHTTPService::logout);
     }
 
     /**
@@ -87,7 +122,7 @@ public class CooeeSDK {
      * @param eventProperties Properties associated with the event
      * @throws PropertyNameException if property name starts with "CE "
      * @throws NullPointerException  if eventName is null
-     * @see <a href="https://docs.letscooee.com/developers/android/track-events">Track Events</a> for
+     * @see <a href="https://docs.letscooee.com/developers/android/tracking-events">Track Events</a> for
      * more details.
      */
     public void sendEvent(String eventName, Map<String, Object> eventProperties)
@@ -104,75 +139,11 @@ public class CooeeSDK {
     }
 
     /**
-     * Send given user data to the server
-     *
-     * @param userData The common user data like name, email.
-     * @throws PropertyNameException if property name starts with "CE "
-     * @deprecated use {@link CooeeSDK#updateUserProfile(Map)} instead
-     */
-    @Deprecated
-    public void updateUserData(Map<String, Object> userData) throws PropertyNameException {
-        updateUserProfile(userData, null);
-    }
-
-    /**
-     * Send given user properties to the server
-     *
-     * @param userProperties The additional user properties.
-     * @throws PropertyNameException if property name starts with "CE "
-     * @deprecated use {@link CooeeSDK#updateUserProfile(Map)} instead
-     */
-    @Deprecated
-    public void updateUserProperties(Map<String, Object> userProperties) throws PropertyNameException {
-        updateUserProfile(null, userProperties);
-    }
-
-    /**
-     * Send the given user data and user properties to the server.
-     *
-     * @param userData       The common user data like name, email.
-     * @param userProperties The additional user properties.
-     * @throws PropertyNameException if property name starts with "CE "
-     * @deprecated use {@link CooeeSDK#updateUserProfile(Map)} instead
-     */
-    @Deprecated
-    public void updateUserProfile(Map<String, Object> userData, Map<String, Object> userProperties) throws PropertyNameException {
-        Map<String, Object> userMap = new HashMap<>();
-        if (userData != null) {
-            userMap.putAll(userData);
-        }
-
-        if (userProperties != null) {
-            userMap.putAll(userProperties);
-        }
-
-        updateUserProfile(userMap);
-    }
-
-    /**
-     * Send the given user data and user properties to the server.
-     *
-     * @param userData The common user data like name, email, etc.
-     * @throws PropertyNameException if property name starts with "CE "
-     * @throws NullPointerException  if userData is null
-     * @see <a href="https://docs.letscooee.com/developers/android/track-props">Tracking User Properties</a>
-     */
-    public void updateUserProfile(Map<String, Object> userData) throws PropertyNameException, NullPointerException {
-        if (userData == null) {
-            throw new NullPointerException("userData cannot be null");
-        }
-
-        containsSystemDataPrefix(userData);
-        CooeeExecutors.getInstance().singleThreadExecutor().execute(() -> {
-            this.sentryHelper.setUserInfo(userData);
-            this.safeHTTPService.updateUserProfile(userData);
-        });
-    }
-
-    /**
      * Set current screen name where user navigated.
      *
-     * @param screenName Name of the screen. Like Login, Cart, Wishlist etc.
+     * @param screenName Name of the screen. Like Login, Cart, Wishlist, etc.
+     * @see <a href="https://docs.letscooee.com/developers/android/tracking-screen">Tracking Screens</a>
+     * for more details
      */
     public void setCurrentScreen(String screenName) {
         if (TextUtils.isEmpty(screenName)) {
@@ -199,33 +170,6 @@ public class CooeeSDK {
     }
 
     /**
-     * Get manually updated screen name
-     *
-     * @return current screen name
-     */
-    @Deprecated
-    public String getCurrentScreenName() {
-        return this.runtimeData.getCurrentScreenName();
-    }
-
-    @Deprecated
-    public String getUUID() {
-        return this.getUserID();
-    }
-
-    public String getUserID() {
-        return this.deviceAuthService.getUserID();
-    }
-
-    public void setCTAListener(CooeeCTAListener listener) {
-        ctaListener = new WeakReference<>(listener);
-    }
-
-    public CooeeCTAListener getCTAListener() {
-        return ctaListener == null ? null : ctaListener.get();
-    }
-
-    /**
      * Launch {@link DebugInfoActivity} activity which holds debug information.
      * This information is useful to debug problem with the SDK.
      */
@@ -233,6 +177,27 @@ public class CooeeSDK {
         Intent intent = new Intent(context, DebugInfoActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         context.startActivity(intent);
+    }
+
+    /**
+     * Send the given user data and user properties to the server.
+     *
+     * @param userData The common user data like name, email, etc.
+     * @throws PropertyNameException if property name starts with "CE "
+     * @throws NullPointerException  if userData is null
+     * @see <a href="https://docs.letscooee.com/developers/android/tracking-properties">Tracking User Properties</a>
+     * for more details.
+     */
+    public void updateUserProfile(Map<String, Object> userData) throws PropertyNameException, NullPointerException {
+        if (userData == null) {
+            throw new NullPointerException("userData cannot be null");
+        }
+
+        containsSystemDataPrefix(userData);
+        CooeeExecutors.getInstance().singleThreadExecutor().execute(() -> {
+            this.sentryHelper.setUserInfo(userData);
+            this.safeHTTPService.updateUserProfile(userData);
+        });
     }
 
     /**
@@ -252,4 +217,5 @@ public class CooeeSDK {
             }
         }
     }
+
 }

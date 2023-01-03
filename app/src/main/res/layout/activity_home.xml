@@ -56,56 +56,69 @@
         app:layout_constraintTop_toBottomOf="@+id/btnProfile" />
 
     <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/btnTopLeft"
-            style="@style/PrimaryButton"
-            android:layout_width="@dimen/length_200"
-            android:layout_height="@dimen/length_30"
-            android:layout_marginTop="20dp"
-            android:gravity="center"
-            android:text="Open from Top Left"
-            android:visibility="visible"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tvUid"/>
+        android:id="@+id/btnTopLeft"
+        style="@style/PrimaryButton"
+        android:layout_width="@dimen/length_200"
+        android:layout_height="@dimen/length_30"
+        android:layout_marginTop="20dp"
+        android:gravity="center"
+        android:text="Open from Top Left"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvUid" />
 
     <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/btnTopRight"
-            style="@style/PrimaryButton"
-            android:layout_width="@dimen/length_200"
-            android:layout_height="@dimen/length_30"
-            android:layout_marginTop="20dp"
-            android:gravity="center"
-            android:text="Open from Top Right"
-            android:visibility="visible"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/btnTopLeft"/>
+        android:id="@+id/btnTopRight"
+        style="@style/PrimaryButton"
+        android:layout_width="@dimen/length_200"
+        android:layout_height="@dimen/length_30"
+        android:layout_marginTop="20dp"
+        android:gravity="center"
+        android:text="Open from Top Right"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btnTopLeft" />
 
     <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/btnBottomLeft"
-            style="@style/PrimaryButton"
-            android:layout_width="@dimen/length_200"
-            android:layout_height="@dimen/length_30"
-            android:layout_marginTop="20dp"
-            android:gravity="center"
-            android:text="Open from Bottom Left"
-            android:visibility="visible"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/btnTopRight"/>
+        android:id="@+id/btnBottomLeft"
+        style="@style/PrimaryButton"
+        android:layout_width="@dimen/length_200"
+        android:layout_height="@dimen/length_30"
+        android:layout_marginTop="20dp"
+        android:gravity="center"
+        android:text="Open from Bottom Left"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btnTopRight" />
 
     <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/btnBottomRight"
-            style="@style/PrimaryButton"
-            android:layout_width="@dimen/length_200"
-            android:layout_height="@dimen/length_30"
-            android:layout_marginTop="20dp"
-            android:gravity="center"
-            android:text="Open from Bottom Right"
-            android:visibility="visible"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/btnBottomLeft"/>
+        android:id="@+id/btnBottomRight"
+        style="@style/PrimaryButton"
+        android:layout_width="@dimen/length_200"
+        android:layout_height="@dimen/length_30"
+        android:layout_marginTop="20dp"
+        android:gravity="center"
+        android:text="Open from Bottom Right"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btnBottomLeft" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btnLogOut"
+        style="@style/PrimaryButton"
+        android:layout_width="@dimen/length_200"
+        android:layout_height="@dimen/length_30"
+        android:layout_marginTop="20dp"
+        android:gravity="center"
+        android:text="Log out"
+        android:visibility="visible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btnBottomRight" />
 
     <ImageView
         android:id="@+id/ivDebugInfo"

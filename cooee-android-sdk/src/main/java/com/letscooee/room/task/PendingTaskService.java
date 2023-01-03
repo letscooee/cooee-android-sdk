@@ -46,6 +46,7 @@ public class PendingTaskService extends ContextAware {
         PROCESSORS.add(new PushTokenTaskProcessor(context));
         PROCESSORS.add(new SessionConcludeTaskProcessor(context));
         PROCESSORS.add(new DevicePropTaskProcessor(context));
+        PROCESSORS.add(new LogoutTaskProcessor(context));
     }
 
     public PendingTask newTask(Event event) {

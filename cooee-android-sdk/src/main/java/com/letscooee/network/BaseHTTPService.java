@@ -3,6 +3,7 @@ package com.letscooee.network;
 import android.content.Context;
 import android.util.Log;
 import androidx.annotation.NonNull;
+import com.google.gson.Gson;
 import com.letscooee.ContextAware;
 import com.letscooee.CooeeFactory;
 import com.letscooee.exceptions.HttpRequestFailedException;
@@ -39,6 +40,7 @@ public class BaseHTTPService extends ContextAware {
     private final APIService apiService = APIClient.getAPIService();
     private final ExternalApiService externalApiService = ExternalApiClient.getAPIService();
     private final PublicApiService publicApiService = PublicApiClient.getAPIService();
+    private final Gson gson = new Gson();
 
     public BaseHTTPService(Context context) {
         super(context);
@@ -47,6 +49,8 @@ public class BaseHTTPService extends ContextAware {
     public Map<String, Object> sendEvent(Event event) throws HttpRequestFailedException {
         Call<Map<String, Object>> call = apiService.sendEvent(event);
         Response<?> response = this.executeHTTPCall(call, "Send " + event);
+
+        this.updateUserAuthDetails(response);
 
         //noinspection unchecked
         Map<String, Object> responseData = (Map<String, Object>) response.body();
@@ -69,11 +73,7 @@ public class BaseHTTPService extends ContextAware {
         Call<DeviceAuthResponse> call = apiService.updateProfile(data);
         Response<?> response = this.executeHTTPCall(call, "Update user profile");
 
-        // Update device auth details in the device auth service
-        DeviceAuthResponse responseBody = (DeviceAuthResponse) response.body();
-        CooeeFactory.getDeviceAuthService().checkAndUpdate(responseBody);
-
-        return responseBody;
+        return this.updateUserAuthDetails(response);
     }
 
     @SuppressWarnings("UnusedReturnValue")
@@ -144,6 +144,27 @@ public class BaseHTTPService extends ContextAware {
         return (Map<String, Object>) response.body();
     }
 
+    @SuppressWarnings("UnusedReturnValue")
+    public DeviceAuthResponse logout() throws HttpRequestFailedException {
+        Call<DeviceAuthResponse> call = apiService.logout();
+        Response<?> response = this.executeHTTPCall(call, "Logout User");
+
+        return this.updateUserAuthDetails(response);
+    }
+
+    /**
+     * Deserialize response body to the {@link DeviceAuthResponse} to let update device auth details
+     * like userID, sdkToken and deviceID
+     *
+     * @param response {@link Response} received via retrofit which may contain {@link DeviceAuthResponse}
+     * @return {@link DeviceAuthResponse} retrieved from {@code response}
+     */
+    private DeviceAuthResponse updateUserAuthDetails(Response<?> response) {
+        DeviceAuthResponse deviceAuthResponse = gson.fromJson(gson.toJson(response.body()), DeviceAuthResponse.class);
+        CooeeFactory.getDeviceAuthService().checkAndUpdate(deviceAuthResponse);
+        return deviceAuthResponse;
+    }
+
     private Response<?> executeHTTPCall(Call<?> call, String message) throws HttpRequestFailedException {
         try {
             Response<?> response = call.execute();
@@ -162,4 +183,5 @@ public class BaseHTTPService extends ContextAware {
             throw new HttpRequestFailedException("Exception in HTTP: " + message, e);
         }
     }
+
 }
