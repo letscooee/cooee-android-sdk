@@ -1,28 +1,34 @@
 package com.letscooee.trigger.inapp.renderer;
 
 import static com.letscooee.utils.Constants.TAG;
-
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.GradientDrawable;
+import android.os.Build;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.widget.*;
-
+import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import androidx.annotation.RestrictTo;
-
 import com.bumptech.glide.Glide;
 import com.google.android.material.card.MaterialCardView;
 import com.letscooee.BuildConfig;
-import com.letscooee.models.trigger.blocks.*;
+import com.letscooee.models.trigger.blocks.Background;
+import com.letscooee.models.trigger.blocks.Border;
+import com.letscooee.models.trigger.blocks.ClickAction;
+import com.letscooee.models.trigger.blocks.Glassmorphism;
+import com.letscooee.models.trigger.blocks.Shadow;
+import com.letscooee.models.trigger.blocks.Spacing;
+import com.letscooee.models.trigger.blocks.Transform;
 import com.letscooee.models.trigger.elements.BaseElement;
 import com.letscooee.trigger.action.ClickActionExecutor;
 import com.letscooee.trigger.inapp.TriggerContext;
-
 import jp.wasabeef.blurry.Blurry;
 
 /**
@@ -116,9 +122,57 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         this.processBackground();
         this.setBackgroundDrawable();
         this.processBorderBlock();
-        this.processShadowBlock();
         this.processTransformBlock();
         this.processClickBlock();
+        this.processOpacity();
+        this.processZIndex();
+    }
+
+    private void processZIndex() {
+        boolean shadowApplied = this.processShadowBlock();
+        Integer zIndex = elementData.getZ();
+        if (zIndex == null || shadowApplied) {
+            materialCardView.setTranslationZ(0f);
+            return;
+        }
+
+        materialCardView.animate().z(zIndex.floatValue());
+    }
+
+    protected boolean processShadowBlock() {
+        Shadow shadow = this.elementData.getShadow();
+        if (shadow == null) {
+            materialCardView.setElevation(0);
+            /*
+                To make overlapping work we assigning z index to all elements
+                but card ads shadow to even if elevation is set to 0
+                to remove shadow se are setting OutlineProvider to null
+            */
+            materialCardView.setOutlineProvider(null);
+            return false;
+        }
+        materialCardView.setElevation(getScaledPixelAsInt(shadow.getElevation()));
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
+            return true;
+        }
+
+        materialCardView.setOutlineSpotShadowColor(shadow.getColor().getHexColor());
+        return true;
+    }
+
+    protected void processOpacity() {
+        Integer alpha = this.elementData.getAlpha();
+        if (alpha == null) {
+            return;
+        }
+
+        if (alpha < 0 || alpha > 100) {
+            Log.e(TAG, "Received wrong alpha value: " + alpha);
+            return;
+        }
+
+        this.materialCardView.setAlpha((((float) alpha) / 100));
     }
 
     protected void insertNewElementInHierarchy() {
@@ -129,15 +183,6 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
         this.baseFrameLayout.addView(newElement);
     }
 
-    protected void processShadowBlock() {
-        Shadow shadow = this.elementData.getShadow();
-        if (shadow == null) {
-            materialCardView.setCardElevation(0);
-            return;
-        }
-
-        materialCardView.setCardElevation(shadow.getElevation());
-    }
 
     protected void processClickBlock() {
         ClickAction clickAction = elementData.getClickAction();
@@ -192,15 +237,6 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
 
         materialCardView.setX(left);
         materialCardView.setY(top);
-
-        Integer zIndex = elementData.getZ();
-
-        if (zIndex == null) {
-            materialCardView.setTranslationZ(0);
-            return;
-        }
-
-        materialCardView.setTranslationZ(zIndex);
     }
 
     /**
@@ -208,6 +244,7 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
      *
      * @return <code>int</code> height of the TitleBar
      */
+    @SuppressWarnings("unused")
     private float getTitleBarHeight() {
         Rect rectangle = new Rect();
         Window window = ((Activity) context).getWindow();
@@ -327,4 +364,5 @@ public abstract class AbstractInAppRenderer implements InAppRenderer {
     protected int getScaledPixelAsInt(double value) {
         return (int) Math.round(getScaledPixel(value));
     }
+
 }

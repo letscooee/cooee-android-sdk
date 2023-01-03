@@ -15,38 +15,34 @@ import com.letscooee.models.trigger.blocks.Transform;
 
 public abstract class BaseElement implements Parcelable {
 
+    @SerializedName("a")
+    @Expose
+    protected final Integer alpha;
     protected Background bg;
-
     @SerializedName("br")
     @Expose
     protected Border border;
-
     @SerializedName("clc")
     @Expose
     protected ClickAction click;
-
-    @SerializedName("shd")
-    @Expose
-    protected Shadow shadow;
-
-    @SerializedName("spc")
-    @Expose
-    protected Spacing spacing;
-
-    @SerializedName("trf")
-    @Expose
-    protected Transform transform;
-
-    @SerializedName("w")
-    @Expose
-    protected final float width;
-
     @SerializedName("h")
     @Expose
     protected final float height;
+    @SerializedName("shd")
+    @Expose
+    protected Shadow shadow;
+    @SerializedName("spc")
+    @Expose
+    protected Spacing spacing;
+    @SerializedName("trf")
+    @Expose
+    protected Transform transform;
+    @SerializedName("w")
+    @Expose
+    protected final float width;
     private final float x;
     private final float y;
-    private final Integer z;
+    private Integer z;
 
     protected BaseElement(Parcel in) {
         bg = in.readParcelable(Background.class.getClassLoader());
@@ -61,6 +57,7 @@ public abstract class BaseElement implements Parcelable {
         x = in.readFloat();
         y = in.readFloat();
         z = (Integer) in.readSerializable();
+        alpha = (Integer) in.readSerializable();
     }
 
     @Override
@@ -82,18 +79,39 @@ public abstract class BaseElement implements Parcelable {
         dest.writeFloat(x);
         dest.writeFloat(y);
         dest.writeSerializable(z);
-    }
-
-    public ClickAction getClickAction() {
-        return click;
+        dest.writeSerializable(alpha);
     }
 
     public Background getBg() {
         return bg;
     }
 
+    public void setBg(Background bg) {
+        this.bg = bg;
+    }
+
+    public String getBgImage() {
+        if (this.bg == null || this.bg.getImage() == null || TextUtils.isEmpty(this.bg.getImage().getSrc())) {
+            return null;
+        }
+
+        return this.bg.getImage().getSrc();
+    }
+
     public Border getBorder() {
         return border;
+    }
+
+    public ClickAction getClickAction() {
+        return click;
+    }
+
+    public double getHeight() {
+        return height;
+    }
+
+    public String getImageURL() {
+        return this.getBgImage();
     }
 
     public Shadow getShadow() {
@@ -108,40 +126,28 @@ public abstract class BaseElement implements Parcelable {
         return transform;
     }
 
-    public float getY() {
-        return y;
+    public double getWidth() {
+        return width;
     }
 
     public float getX() {
         return x;
     }
 
+    public float getY() {
+        return y;
+    }
+
     public Integer getZ() {
         return z;
     }
 
-    public void setBg(Background bg) {
-        this.bg = bg;
+    public void setZ(Integer z) {
+        this.z = z;
     }
 
-    public double getWidth() {
-        return width;
-    }
-
-    public double getHeight() {
-        return height;
-    }
-
-    public String getBgImage() {
-        if (this.bg == null || this.bg.getImage() == null || TextUtils.isEmpty(this.bg.getImage().getSrc())) {
-            return null;
-        }
-
-        return this.bg.getImage().getSrc();
-    }
-
-    public String getImageURL() {
-        return this.getBgImage();
+    public Integer getAlpha() {
+        return alpha;
     }
 
     /**

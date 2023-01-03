@@ -8,13 +8,13 @@ import com.google.gson.annotations.SerializedName;
 
 public class Shadow implements Parcelable {
 
-    @SerializedName("e")
+    @SerializedName("spr") // Spread from composer
     @Expose
-    private int elevation;
+    private final int elevation;
 
     @SerializedName("clr")
     @Expose
-    private Colour colour;
+    private final Colour colour;
 
     protected Shadow(Parcel in) {
         elevation = in.readInt();
@@ -38,6 +38,10 @@ public class Shadow implements Parcelable {
     }
 
     public Colour getColor() {
+        if (colour == null) {
+            return new Colour();
+        }
+
         return colour;
     }
 
@@ -51,4 +55,5 @@ public class Shadow implements Parcelable {
         dest.writeInt(elevation);
         dest.writeParcelable(colour, flags);
     }
+
 }
