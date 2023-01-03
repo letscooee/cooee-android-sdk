@@ -6,26 +6,24 @@ import android.graphics.Typeface;
 import android.text.TextUtils;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.content.res.ResourcesCompat;
-
-import com.letscooee.CooeeFactory;
 import com.letscooee.R;
+import com.letscooee.enums.trigger.FontStyle;
 import com.letscooee.font.FontProcessor;
 import com.letscooee.models.trigger.blocks.Font;
+import com.letscooee.models.trigger.blocks.FontFamily;
+import com.letscooee.models.trigger.blocks.SDKFont;
 import com.letscooee.models.trigger.elements.BaseElement;
 import com.letscooee.models.trigger.elements.PartElement;
 import com.letscooee.models.trigger.elements.TextElement;
 import com.letscooee.trigger.inapp.TriggerContext;
-
 import java.io.File;
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java9.util.stream.StreamSupport;
 
 /**
- * Chek for thee font availability on device
+ * Check for thee font availability on device
  *
  * @author Ashish Gaikwad 30/07/21
  * @since 1.0.0
@@ -68,19 +66,7 @@ public abstract class FontRenderer extends AbstractInAppRenderer {
 
     @SuppressLint("WrongConstant")
     private void applyFont() {
-        Typeface typeface = getTypeFaceFromBrandFont();
-
-        if (typeface == null) {
-            typeface = this.getSystemTypeface();
-        }
-
-        if (typeface == null) {
-            typeface = this.getFontWRToStyle();
-        }
-
-        if (typeface == null) {
-            typeface = ResourcesCompat.getFont(context, R.font.arial);
-        }
+        Typeface typeface = getFontWRToStyle();
 
         if (typeface != null) {
             ((TextView) newElement).setTypeface(typeface);
@@ -92,66 +78,73 @@ public abstract class FontRenderer extends AbstractInAppRenderer {
     }
 
     /**
-     * Process font name and <code>Bold</code>, <code>Italic</code> property to the name of font to
-     * verify specific font file in local storage
+     * Checks if pre cached font or returns default ARIAL font as a {@link Typeface}
      *
-     * @return {@link Typeface} if file is present at local storage. Otherwise <code>null</code>
+     * @return {@link Typeface} if file is present at local storage. Otherwise default Arial is returned
      */
     private Typeface getFontWRToStyle() {
-        if (partElement == null || TextUtils.isEmpty(font.getName())) {
-            return null;
+        FontFamily fontFamily = this.font.getFontFamily();
+        if (fontFamily == null || fontFamily.getFonts() == null) {
+            return ResourcesCompat.getFont(this.context, R.font.arial);
         }
 
-        List<String> fontNameArray = new ArrayList<>();
-        String fontFileName = font.getName().toLowerCase().trim();
+        File fontDirectory = FontProcessor.getFontsStorageDirectory(this.context);
 
-        fontNameArray.add(fontFileName);
+        SDKFont regular = getSDKFont(FontStyle.REGULAR, fontFamily);
+        SDKFont bold = getSDKFont(FontStyle.BOLD, fontFamily);
+        SDKFont italics = getSDKFont(FontStyle.ITALICS, fontFamily);
+        SDKFont boldItalics = getSDKFont(FontStyle.BOLD_ITALICS, fontFamily);
 
-        if (partElement.isBold()) {
-            fontNameArray.add("bold");
+        File defaultFont;
+        if (regular != null && !TextUtils.isEmpty(regular.getUrl())) {
+            //noinspection ConstantConditions
+            defaultFont = new File(fontDirectory, getFileName(regular.getUrl()));
+        } else if (bold != null && !TextUtils.isEmpty(bold.getUrl())) {
+            //noinspection ConstantConditions
+            defaultFont = new File(fontDirectory, getFileName(bold.getUrl()));
+        } else if (italics != null && !TextUtils.isEmpty(italics.getUrl())) {
+            //noinspection ConstantConditions
+            defaultFont = new File(fontDirectory, getFileName(italics.getUrl()));
+        } else if (boldItalics != null && !TextUtils.isEmpty(boldItalics.getUrl())) {
+            //noinspection ConstantConditions
+            defaultFont = new File(fontDirectory, getFileName(boldItalics.getUrl()));
+        } else {
+            return ResourcesCompat.getFont(this.context, R.font.arial);
         }
 
-        if (partElement.isItalic()) {
-            fontNameArray.add("italic");
+        /*
+         * Check if file exist or not
+         */
+        if (!defaultFont.exists()) {
+            return ResourcesCompat.getFont(this.context, R.font.arial);
         }
 
-        fontFileName = TextUtils.join("-", fontNameArray);
 
-        File fontFile = FontProcessor.getFontFile(this.fontsDirectory, fontFileName);
-
-        if (!fontFile.exists()) {
-            return null;
-        }
-
-        return Typeface.createFromFile(fontFile);
+        return Typeface.createFromFile(defaultFont);
     }
 
-    private Typeface getSystemTypeface() {
-        Typeface typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL);
-        try {
-            Field field = Typeface.class.getDeclaredField("sSystemFontMap");
-            field.setAccessible(true);
-
-            Map<String, Typeface> map = (Map<String, Typeface>) field.get(typeface);
-            if (map == null) {
-                return null;
-            }
-
-            return map.get(font.getName());
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            CooeeFactory.getSentryHelper().captureException(e);
-            return null;
-        }
+    /**
+     * Gets the file name from the URL.
+     *
+     * @param fileURL URL from which file name need to to extracted.
+     * @return Name of the file with extension
+     */
+    private String getFileName(@NonNull String fileURL) {
+        return fileURL.substring(fileURL.lastIndexOf('/') + 1, fileURL.length());
     }
 
-    private Typeface getTypeFaceFromBrandFont() {
-
-        File fontFile = FontProcessor.getFontFile(this.fontsDirectory, this.font.getName());
-
-        if (!fontFile.exists()) {
-            return null;
-        }
-
-        return Typeface.createFromFile(fontFile);
+    /**
+     * Get the {@link SDKFont} of the given style
+     *
+     * @param style      {@link FontStyle} which want to be get
+     * @param fontFamily {@link FontFamily} from which given style to be taken out.
+     * @return {@link SDKFont} if exist.
+     */
+    @Nullable
+    private SDKFont getSDKFont(@NonNull FontStyle style, @NonNull FontFamily fontFamily) {
+        return StreamSupport.stream(fontFamily.getFonts())
+                .filter(sdkFont -> sdkFont.getStyle() != style)
+                .findAny()
+                .orElse(null);
     }
 }

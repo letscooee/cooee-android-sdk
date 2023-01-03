@@ -1,11 +1,9 @@
 package com.letscooee.models.trigger.blocks;
 
 import static com.letscooee.utils.Constants.UNIT_PIXEL;
-
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
-
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.letscooee.enums.trigger.Style;
@@ -23,9 +21,9 @@ public class Font implements Parcelable {
     @Expose
     private final String name;
 
-    @SerializedName("ff")
+    @SerializedName("fmly")
     @Expose
-    private final String fontFamily;
+    private final FontFamily fontFamily;
 
     @SerializedName("lh")
     @Expose
@@ -36,7 +34,7 @@ public class Font implements Parcelable {
         style = (Style) in.readSerializable();
         name = in.readString();
         lineHeight = in.readString();
-        fontFamily = in.readString();
+        fontFamily = in.readParcelable(FontFamily.class.getClassLoader());
     }
 
     public static final Creator<Font> CREATOR = new Creator<Font>() {
@@ -50,10 +48,6 @@ public class Font implements Parcelable {
             return new Font[size];
         }
     };
-
-    public int getTypefaceStyle() {
-        return (style == null ? Style.NORMAL : style).typeface;
-    }
 
     /**
      * Get the font family name i.e. Typeface file name.
@@ -85,14 +79,14 @@ public class Font implements Parcelable {
         dest.writeSerializable(style);
         dest.writeString(name);
         dest.writeString(lineHeight);
-        dest.writeString(fontFamily);
+        dest.writeParcelable(fontFamily, flags);
     }
 
     public float getSize() {
         return size == null ? DEFAULT_SIZE : size;
     }
 
-    public String getFontFamily() {
+    public FontFamily getFontFamily() {
         return fontFamily;
     }
 }

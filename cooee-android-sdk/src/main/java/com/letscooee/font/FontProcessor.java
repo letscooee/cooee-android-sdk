@@ -1,31 +1,21 @@
 package com.letscooee.font;
 
+import static com.letscooee.utils.Constants.TAG;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Environment;
-import android.text.TextUtils;
 import android.util.Log;
-
 import androidx.core.content.ContextCompat;
-
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.letscooee.CooeeFactory;
 import com.letscooee.exceptions.HttpRequestFailedException;
-import com.letscooee.models.AppFont;
 import com.letscooee.utils.Constants;
-import com.letscooee.utils.LocalStorageHelper;
-
-import okhttp3.ResponseBody;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
-
-import static android.text.TextUtils.isEmpty;
+import java.util.List;
+import okhttp3.ResponseBody;
 
 /**
  * Check for fonts and if those are not available it will download that font.
@@ -35,113 +25,74 @@ import static android.text.TextUtils.isEmpty;
  */
 public class FontProcessor {
 
-    private static final Gson gson = new Gson();
-
-    public static void checkAndUpdateBrandFonts(Context context) {
-        confirmFontsFromPreference(context);
-        cacheBrandFonts(context);
-    }
-
     /**
-     * Fetch App config from server and cache the fonts.
+     * Check the font is already present or not from the list and download if needed.
      *
-     * @param context current instance of {@link Context}
+     * @param context  {@link Context} of the app
+     * @param fontList {@link List} of the {@link String} URLs
      */
-    private static void cacheBrandFonts(Context context) {
-        if (!isItTimeToRefreshFontsFromServer(context)) {
-            Log.d(Constants.TAG, "Skipping font check as its before " + Constants.FONT_REFRESH_INTERVAL_DAYS + " days");
-            return;
-        }
-
-        String appID = CooeeFactory.getManifestReader().getAppID();
-
-        if (TextUtils.isEmpty(appID)) {
-            Log.d(Constants.TAG, "Skipping font caching as appID is missing");
-            return;
-        }
-
-        try {
-            Map<String, Object> config = CooeeFactory.getBaseHTTPService().getAppConfig(appID);
-
-            if (config == null) {
-                return;
-            }
-
-            downloadFonts(context, config.get("fonts"));
-            LocalStorageHelper.putLong(context, Constants.STORAGE_LAST_FONT_ATTEMPT, new Date().getTime());
-        } catch (HttpRequestFailedException e) {
-            CooeeFactory.getSentryHelper().captureException(e);
-        }
-    }
-
-    private static void confirmFontsFromPreference(Context context) {
-        String stringArray = LocalStorageHelper.getString(context, Constants.STORAGE_CACHED_FONTS, null);
-
-        downloadFonts(context, stringArray);
-    }
-
-    /**
-     * Check when was the last time the server was hit to check for updated fonts.
-     *
-     * @param context current instance of {@link Context}
-     * @return returns true if this is the first attempt from the server or if it's been {@link Constants#FONT_REFRESH_INTERVAL_DAYS}
-     * days we last hit the server.
-     */
-    private static boolean isItTimeToRefreshFontsFromServer(Context context) {
-        Date today = new Date();
-        Calendar calendar = Calendar.getInstance();
-        long lastCheckDate = LocalStorageHelper.getLong(context, Constants.STORAGE_LAST_FONT_ATTEMPT, 0);
-
-        if (lastCheckDate == 0) {
-            return true;
-        }
-
-        calendar.setTimeInMillis(lastCheckDate);
-        calendar.add(Calendar.DAY_OF_MONTH, Constants.FONT_REFRESH_INTERVAL_DAYS);
-        return today.after(calendar.getTime());
-    }
-
-    public static void downloadFonts(Context context, Object fontList) {
-        downloadFonts(context, gson.toJson(fontList));
-    }
-
-    public static void downloadFonts(Context context, String rawFontList) {
-        if (isEmpty(rawFontList)) {
-            return;
-        }
-        ArrayList<AppFont> outputList = gson.fromJson(rawFontList, new TypeToken<ArrayList<AppFont>>() {
-        }.getType());
-
-        downloadFonts(context, outputList);
-    }
-
-    /**
-     * Check if font is present at file system or not. Otherwise proceed to download font
-     *
-     * @param context  current instance of {@link Context}
-     * @param fontList {@link ArrayList} of {@link AppFont}
-     */
-    public static void downloadFonts(Context context, List<AppFont> fontList) {
+    public static void downloadFontFromURLs(Context context, List<String> fontList) {
         if (fontList == null || fontList.isEmpty()) {
-            Log.d(Constants.TAG, "Received empty font list");
             return;
         }
 
         File fontDirectory = getFontsStorageDirectory(context);
 
-        for (AppFont font : fontList) {
-            File fontFile = getFontFile(fontDirectory, font.getName());
+        for (String font : fontList) {
+            String fileName = font.substring(font.lastIndexOf('/') + 1, font.length());
+            File fontFile = getFontFile(fontDirectory, fileName);
             if (fontFile.exists()) {
                 continue;
             }
-            downloadFont(font, fontFile);
-        }
 
-        LocalStorageHelper.putString(context, Constants.STORAGE_CACHED_FONTS, gson.toJson(fontList));
+            downloadFontRuntime(font, fontFile);
+        }
     }
 
+    /**
+     * Download a file via HTTP request and saves at given file path.
+     *
+     * @param url      URL of the file from which font should be downloaded.
+     * @param fontFile {@link File} path where we want to store the file.
+     */
+    private static void downloadFontRuntime(String url, File fontFile) {
+        try {
+            ResponseBody responseBody = CooeeFactory.getBaseHTTPService().downloadFont(url);
+            if (responseBody == null) {
+                return;
+            }
+
+            if (!fontFile.exists()) {
+                //noinspection ResultOfMethodCallIgnored
+                fontFile.createNewFile();
+            }
+
+            InputStream inputStream = responseBody.byteStream();
+            FileOutputStream fileOutputStream = new FileOutputStream(fontFile);
+            int read;
+            byte[] bytes = new byte[1024 * 1024];
+
+            while ((read = inputStream.read(bytes)) != -1) {
+                fileOutputStream.write(bytes, 0, read);
+            }
+
+            fileOutputStream.flush();
+            Log.d(TAG, "Font file downloaded at path: " + fontFile.getPath());
+        } catch (HttpRequestFailedException | IOException e) {
+            CooeeFactory.getSentryHelper().captureException(e);
+            Log.e(TAG, "Fail to download Font with URL: " + url, e);
+        }
+    }
+
+    /**
+     * Generates final file path from the file name and and directory path
+     *
+     * @param parentDirectory path to the directory to store the file as instance of {@link File}
+     * @param name            name oth the file with extension.
+     * @return {@link File} instance pointing to the given file path.
+     */
     public static File getFontFile(File parentDirectory, String name) {
-        return new File(parentDirectory, name + ".ttf");
+        return new File(parentDirectory, name);
     }
 
     /**
@@ -190,40 +141,4 @@ public class FontProcessor {
                 == PackageManager.PERMISSION_GRANTED;
     }
 
-    /**
-     * Download file from web and store at given {@link File}
-     *
-     * @param fontData will instance of {@link AppFont}
-     * @param fontFile will be instance of {@link File} to write new downloaded file
-     */
-    @SuppressWarnings("ResultOfMethodCallIgnored")
-    private static void downloadFont(AppFont fontData, File fontFile) {
-        if (fontData == null || isEmpty(fontData.getUrl())) {
-            return;
-        }
-
-        try {
-            ResponseBody responseBody = CooeeFactory.getBaseHTTPService().downloadFont(fontData.getUrl());
-            if (responseBody == null) {
-                Log.i(Constants.TAG, fontData.getName() + " font download failed");
-                return;
-            }
-
-            if (fontFile.exists()) {
-                fontFile.createNewFile();
-            }
-
-            InputStream inputStream = responseBody.byteStream();
-            FileOutputStream fileOutputStream = new FileOutputStream(fontFile);
-            int read;
-            byte[] bytes = new byte[1024 * 1024];
-
-            while ((read = inputStream.read(bytes)) != -1) {
-                fileOutputStream.write(bytes, 0, read);
-            }
-            fileOutputStream.flush();
-        } catch (HttpRequestFailedException | IOException e) {
-            CooeeFactory.getSentryHelper().captureException(e);
-        }
-    }
 }
