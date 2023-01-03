@@ -4,12 +4,12 @@ import android.content.Context;
 import android.text.TextUtils;
 import androidx.annotation.RestrictTo;
 import com.letscooee.CooeeFactory;
+import com.letscooee.models.Event;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.LocalStorageHelper;
 import com.letscooee.utils.RuntimeData;
 import com.letscooee.utils.Timer;
 import org.bson.types.ObjectId;
-
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,33 +23,61 @@ import java.util.Map;
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class SessionManager {
 
-    private static SessionManager instance;
-
     private final Context context;
-    private final RuntimeData runtimeData;
-
     private String currentSessionID;
     private Integer currentSessionNumber;
+    @SuppressWarnings("unused")
     private Date currentSessionStartTime;
-
-    private Timer timer = new Timer();
+    private static SessionManager instance;
     private Runnable runnable;
+    @SuppressWarnings({"FieldCanBeLocal", "unused"})
+    private final RuntimeData runtimeData;
+    private Timer timer = new Timer();
 
     private SessionManager(Context context) {
         this.context = context.getApplicationContext();
         this.runtimeData = RuntimeData.getInstance(this.context);
     }
 
-    public static SessionManager getInstance(Context context) {
-        if (instance == null) {
-            synchronized (SessionManager.class) {
-                if (instance == null) {
-                    instance = new SessionManager(context);
-                }
-            }
+    /**
+     * Checks if stored session is expired (idle time already passed) or not.
+     * if stored session is expired then conclude that session and return true.
+     *
+     * @return {@code true} if stored session is expired, Otherwise {@code false}.
+     */
+    public boolean checkSessionExpiry() {
+        if (getSessionIdleTimeInSeconds() > Constants.IDLE_TIME_IN_SECONDS) {
+            conclude();
+            return true;
         }
+        return false;
+    }
 
-        return instance;
+    /**
+     * Conclude the current session by sending an event to the server followed by
+     * destroying it.
+     */
+    public void conclude() {
+        Map<String, Object> requestData = new HashMap<>();
+        requestData.put("sessionID", this.getCurrentSessionID());
+        requestData.put("occurred", new Date());
+
+        // Remove active trigger after session is concluded
+        LocalStorageHelper.remove(context, Constants.STORAGE_ACTIVE_TRIGGER);
+        LocalStorageHelper.remove(context, Constants.STORAGE_ACTIVE_SESSION);
+        LocalStorageHelper.remove(context, Constants.STORAGE_LAST_SESSION_USE_TIME);
+
+        this.destroySession();
+        CooeeFactory.getSafeHTTPService().sendSessionConcludedEvent(requestData);
+    }
+
+    /**
+     * Destroy the current session.
+     */
+    public void destroySession() {
+        this.currentSessionID = null;
+        this.currentSessionNumber = null;
+        this.currentSessionStartTime = null;
     }
 
     /**
@@ -82,39 +110,6 @@ public class SessionManager {
     }
 
     /**
-     * Start a new session only if {@code currentSessionID} is empty.
-     */
-    public void startNewSession() {
-        if (!TextUtils.isEmpty(currentSessionID)) {
-            return;
-        }
-
-        currentSessionStartTime = new Date();
-        currentSessionID = new ObjectId().toHexString();
-        LocalStorageHelper.putString(context, Constants.STORAGE_ACTIVE_SESSION, currentSessionID);
-
-        bumpSessionNumber();
-    }
-
-    /**
-     * Conclude the current session by sending an event to the server followed by
-     * destroying it.
-     */
-    public void conclude() {
-        Map<String, Object> requestData = new HashMap<>();
-        requestData.put("sessionID", this.getCurrentSessionID());
-        requestData.put("occurred", new Date());
-
-        // Remove active trigger after session is concluded
-        LocalStorageHelper.remove(context, Constants.STORAGE_ACTIVE_TRIGGER);
-        LocalStorageHelper.remove(context, Constants.STORAGE_ACTIVE_SESSION);
-        LocalStorageHelper.remove(context, Constants.STORAGE_LAST_SESSION_USE_TIME);
-
-        this.destroySession();
-        CooeeFactory.getSafeHTTPService().sendSessionConcludedEvent(requestData);
-    }
-
-    /**
      * Return the current session number.
      *
      * @return The current session number.
@@ -123,33 +118,17 @@ public class SessionManager {
         return this.currentSessionNumber;
     }
 
-    /**
-     * Bump the session number by 1.
-     */
-    private void bumpSessionNumber() {
-        currentSessionNumber = LocalStorageHelper.getInt(context, Constants.STORAGE_SESSION_NUMBER, 0);
-        currentSessionNumber += 1;
+    public static SessionManager getInstance(Context context) {
+        //noinspection DoubleCheckedLocking
+        if (instance == null) {
+            synchronized (SessionManager.class) {
+                if (instance == null) {
+                    instance = new SessionManager(context);
+                }
+            }
+        }
 
-        LocalStorageHelper.putInt(context, Constants.STORAGE_SESSION_NUMBER, currentSessionNumber);
-    }
-
-    /**
-     * Destroy the current session.
-     */
-    public void destroySession() {
-        this.currentSessionID = null;
-        this.currentSessionNumber = null;
-        this.currentSessionStartTime = null;
-    }
-
-    /**
-     * Send a beacon to backend server for keeping the session alive.
-     */
-    public void pingServerToKeepAlive() {
-        Map<String, Object> requestData = new HashMap<>();
-        requestData.put("sessionID", this.getCurrentSessionID());
-
-        CooeeFactory.getBaseHTTPService().keepAliveSession(requestData);
+        return instance;
     }
 
     /**
@@ -168,20 +147,6 @@ public class SessionManager {
     }
 
     /**
-     * Checks if stored session is expired (idle time already passed) or not.
-     * if stored session is expired then conclude that session and return true.
-     *
-     * @return {@code true} if stored session is expired, Otherwise {@code false}.
-     */
-    public boolean checkSessionExpiry() {
-        if (getSessionIdleTimeInSeconds() > Constants.IDLE_TIME_IN_SECONDS) {
-            conclude();
-            return true;
-        }
-        return false;
-    }
-
-    /**
      * Check if  {@code timer} was stopped previously and start keep alive loop.
      */
     public void keepSessionAlive() {
@@ -196,9 +161,53 @@ public class SessionManager {
     }
 
     /**
+     * Send a beacon to backend server for keeping the session alive.
+     */
+    public void pingServerToKeepAlive() {
+        Map<String, Object> requestData = new HashMap<>();
+        requestData.put("sessionID", this.getCurrentSessionID());
+
+        CooeeFactory.getBaseHTTPService().keepAliveSession(requestData);
+    }
+
+    /**
+     * Start a new session only if {@code currentSessionID} is empty.
+     */
+    public void startNewSession() {
+        if (!TextUtils.isEmpty(currentSessionID)) {
+            return;
+        }
+
+        currentSessionStartTime = new Date();
+        currentSessionID = new ObjectId().toHexString();
+        LocalStorageHelper.putString(context, Constants.STORAGE_ACTIVE_SESSION, currentSessionID);
+
+        bumpSessionNumber();
+    }
+
+    /**
      * Stop the timer.
      */
     public void stopSessionAlive() {
         timer.stop();
     }
+
+    /**
+     * Bump the session number by 1.
+     */
+    private void bumpSessionNumber() {
+        currentSessionNumber = LocalStorageHelper.getInt(context, Constants.STORAGE_SESSION_NUMBER, 0);
+        currentSessionNumber += 1;
+
+        LocalStorageHelper.putInt(context, Constants.STORAGE_SESSION_NUMBER, currentSessionNumber);
+        this.sendSessionStarted();
+    }
+
+    /**
+     * Send a session start event
+     */
+    private void sendSessionStarted() {
+        CooeeFactory.getSafeHTTPService().sendEvent(new Event(Constants.EVENT_SESSION_STARTED));
+    }
+
 }

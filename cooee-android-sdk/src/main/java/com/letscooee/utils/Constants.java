@@ -109,5 +109,6 @@ public class Constants {
     public static final String EVENT_NOTIFICATION_CLICKED = "CE Notification Clicked";
     public static final String EVENT_NOTIFICATION_CANCELLED = "CE Notification Cancelled";
     public static final String EVENT_CAROUSEL_MOVED = "CE PN Carousel Move";
+    public static final String EVENT_SESSION_STARTED = "CE Session Started";
     // endregion
 }
