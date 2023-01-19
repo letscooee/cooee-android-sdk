@@ -8,26 +8,60 @@ import com.google.gson.annotations.SerializedName;
 public class Animation implements Parcelable {
 
     public enum EntranceAnimation {
-        SLIDE_IN_TOP, SLIDE_IN_DOWN, SLIDE_IN_LEFT, SLIDE_IN_RIGHT,
-        SLIDE_IN_TOP_LEFT, SLIDE_IN_TOP_RIGHT, SLIDE_IN_BOTTOM_LEFT, SLIDE_IN_BOTTOM_RIGHT
+        NONE(1),
+        SLIDE_IN_TOP(2),
+        SLIDE_IN_DOWN(3),
+        SLIDE_IN_LEFT(4),
+        SLIDE_IN_RIGHT(5),
+        SLIDE_IN_TOP_LEFT(6),
+        SLIDE_IN_TOP_RIGHT(7),
+        SLIDE_IN_BOTTOM_LEFT(8),
+        SLIDE_IN_BOTTOM_RIGHT(9);
+
+        private final int id;
+
+        EntranceAnimation(int id) {
+            this.id = id;
+        }
+
+        public int getId() {
+            return id;
+        }
     }
 
     public enum ExitAnimation {
-        SLIDE_OUT_TOP, SLIDE_OUT_DOWN, SLIDE_OUT_LEFT, SLIDE_OUT_RIGHT,
-        SLIDE_OUT_TOP_LEFT, SLIDE_OUT_TOP_RIGHT, SLIDE_OUT_BOTTOM_LEFT, SLIDE_OUT_BOTTOM_RIGHT
+        NONE(1),
+        SLIDE_OUT_TOP(2),
+        SLIDE_OUT_DOWN(3),
+        SLIDE_OUT_LEFT(4),
+        SLIDE_OUT_RIGHT(5),
+        SLIDE_OUT_TOP_LEFT(6),
+        SLIDE_OUT_TOP_RIGHT(7),
+        SLIDE_OUT_BOTTOM_LEFT(8),
+        SLIDE_OUT_BOTTOM_RIGHT(9);
+
+        private final int id;
+
+        ExitAnimation(int id) {
+            this.id = id;
+        }
+
+        public int getId() {
+            return id;
+        }
     }
 
     @SerializedName("en")
     @Expose
-    private EntranceAnimation enter;
+    private final EntranceAnimation enter;
 
     @SerializedName("ex")
     @Expose
-    private ExitAnimation exit;
+    private final ExitAnimation exit;
 
     protected Animation(Parcel in) {
-        enter = EntranceAnimation.valueOf(in.readString());
-        exit = ExitAnimation.valueOf(in.readString());
+        enter = (EntranceAnimation) in.readSerializable();
+        exit = (ExitAnimation) in.readSerializable();
     }
 
     public static final Creator<Animation> CREATOR = new Creator<Animation>() {
@@ -49,8 +83,8 @@ public class Animation implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(enter.name());
-        dest.writeString(exit.name());
+        dest.writeSerializable(enter);
+        dest.writeSerializable(exit);
     }
 
     public EntranceAnimation getEnter() {

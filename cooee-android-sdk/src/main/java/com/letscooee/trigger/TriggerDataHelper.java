@@ -13,8 +13,11 @@ import com.letscooee.enums.trigger.PushType;
 import com.letscooee.exceptions.InvalidTriggerDataException;
 import com.letscooee.exceptions.TriggerDataParseException;
 import com.letscooee.models.trigger.TriggerData;
+import com.letscooee.models.trigger.blocks.Animation;
 import com.letscooee.models.trigger.elements.BaseElement;
 import com.letscooee.trigger.adapters.ChildElementDeserializer;
+import com.letscooee.trigger.adapters.EntranceAnimationParser;
+import com.letscooee.trigger.adapters.ExitAnimationParser;
 import com.letscooee.trigger.adapters.FontStyleParser;
 import com.letscooee.trigger.adapters.InAppTriggerOrientationParser;
 import com.letscooee.trigger.adapters.PermissionTypeDeserializer;
@@ -44,6 +47,8 @@ public class TriggerDataHelper {
                     .registerTypeAdapter(PushType.class, new PushTypeDeserializer())
                     .registerTypeAdapter(InAppOrientation.class, new InAppTriggerOrientationParser())
                     .registerTypeAdapter(FontStyle.class, new FontStyleParser())
+                    .registerTypeAdapter(Animation.EntranceAnimation.class, new EntranceAnimationParser())
+                    .registerTypeAdapter(Animation.ExitAnimation.class, new ExitAnimationParser())
                     .create();
         }
         return gson;
@@ -128,4 +133,5 @@ public class TriggerDataHelper {
             return null;
         }
     }
+
 }
