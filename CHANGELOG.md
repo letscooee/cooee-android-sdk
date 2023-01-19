@@ -1,5 +1,11 @@
 # Change Log
 
+## 1.4.2 (2023-01-19)
+
+### Fixes
+
+1. Fix InApp animation.
+
 ## 1.4.1 (2022-10-07)
 
 ### Fixes
@@ -104,7 +110,7 @@
 
 ## v1.3.3
 
-### Improvement 
+### Improvement
 
 1. AR SDK is now optional.
 
@@ -126,7 +132,8 @@
 
 ### Deprecated
 
-1. Deprecated `CooeeSDK.updateUserData(Map)`, `CooeeSDK.updateUserProperties(Map)`, `CooeeSDK.updateUserProfile(Map, Map)`.
+1. Deprecated `CooeeSDK.updateUserData(Map)`, `CooeeSDK.updateUserProperties(Map)`
+   , `CooeeSDK.updateUserProfile(Map, Map)`.
 
 ## v1.1.1
 
@@ -179,6 +186,7 @@
 ## v1.0.0
 
 ### Required Changes
+
 1. Rename `InAppNotificationClickListener` to `CooeeCTAListener`
 
 ```diff
@@ -203,14 +211,13 @@
 ### New Feature
 
 1. Added Shake detection  
-Add SHAKE_TO_DEBUG_COUNT meta in your AndroidManifest.xml to manual configuration of shake detector
+   Add SHAKE_TO_DEBUG_COUNT meta in your AndroidManifest.xml to manual configuration of shake detector
 
 ```xml
 <!-- Change value to 0 if you don't want to open debug information when device shake-->
-<meta-data
-    android:name="SHAKE_TO_DEBUG_COUNT"
-    android:value="ANY_NUMBER" />
+<meta-data android:name="SHAKE_TO_DEBUG_COUNT" android:value="ANY_NUMBER" />
 ```
+
 2. Added Augmented Reality for better user experience
 
 ### Improvements
@@ -219,7 +226,7 @@ Add SHAKE_TO_DEBUG_COUNT meta in your AndroidManifest.xml to manual configuratio
 2. Both in-app and external browser support on CTA.
 3. Multiple permission request prompts on CTA.
 4. Share content support on CTA
-5. Augmented Reality support on CTA  
+5. Augmented Reality support on CTA
 4. Device and User info screen with shake detector for debugging.
 
 ## v0.3.2
@@ -243,6 +250,7 @@ Add SHAKE_TO_DEBUG_COUNT meta in your AndroidManifest.xml to manual configuratio
 ## v0.3.0
 
 ### Internal Features
+
 1. Added offline compatibility to handle outgoing events.
 2. Add payload v2 check.
 3. Configurable importance, lights, sound & vibration in push triggers.
@@ -294,17 +302,20 @@ Add SHAKE_TO_DEBUG_COUNT meta in your AndroidManifest.xml to manual configuratio
 4. Prevent push notification to restart the app.
 5. Initialize Sentry early with global tags to get tags as early as possible.
 6. Create Sentry filter to segregate exception from app and SDK.
-7. Handle `JsonSyntaxException` for activeTrigger. 
+7. Handle `JsonSyntaxException` for activeTrigger.
 
 ## v0.2.9
 
-1. Fix exception in Android 11 because [new restricted permission](https://developer.android.com/about/versions/11/behavior-changes-11#apn-database-restrictions)
-of Telephony manager APN database #COOEE-127
+1. Fix exception in Android 11
+   because [new restricted permission](https://developer.android.com/about/versions/11/behavior-changes-11#apn-database-restrictions)
+   of Telephony manager APN database #COOEE-127
 
 ## v0.2.8
 
-This release does not bring any code changes. It only changes the artifactory/maven location of publishing. We have now moved from
- Bintray to JFrog because Bintray has been shutdown. Read more https://jfrog.com/blog/into-the-sunset-bintray-jcenter-gocenter-and-chartcenter/.
+This release does not bring any code changes. It only changes the artifactory/maven location of publishing. We have now
+moved from
+Bintray to JFrog because Bintray has been shutdown. Read
+more https://jfrog.com/blog/into-the-sunset-bintray-jcenter-gocenter-and-chartcenter/.
 
 ### Required Changes
 
@@ -338,12 +349,13 @@ allprojects {
 ## v0.2.3
 
 1. Glassmorphism effect on orientation changes
-2. Added GIF layer on triggers  
+2. Added GIF layer on triggers
 3. Active triggers tracking
 
 ## v0.2.2
 
-1. Testing application has been changed to include the functionality of our SDK for demo purposes. Now has multiple screens.
+1. Testing application has been changed to include the functionality of our SDK for demo purposes. Now has multiple
+   screens.
 2. Client's Application icon instead of our default icon in Push Notification.
 3. Updated UI/UX for Action Button.
 4. Mute button position updated (moved more towards corner) and clickable area of the button is also increased.
