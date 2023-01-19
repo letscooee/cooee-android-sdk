@@ -13,6 +13,7 @@ import com.letscooee.enums.trigger.PushType;
 import com.letscooee.exceptions.InvalidTriggerDataException;
 import com.letscooee.exceptions.TriggerDataParseException;
 import com.letscooee.models.trigger.TriggerData;
+import com.letscooee.models.trigger.blocks.Animation;
 import com.letscooee.models.trigger.elements.BaseElement;
 import com.letscooee.trigger.adapters.ChildElementDeserializer;
 import com.letscooee.trigger.adapters.EntranceAnimationParser;
