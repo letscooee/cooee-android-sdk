@@ -1,6 +1,8 @@
 package com.letscooee.services;
 
+import android.Manifest;
 import android.content.Context;
+import android.os.Build;
 import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
@@ -18,6 +20,7 @@ import com.letscooee.trigger.TriggerDataHelper;
 import com.letscooee.trigger.cache.PendingTriggerService;
 import com.letscooee.trigger.pushnotification.SimpleNotificationRenderer;
 import com.letscooee.utils.Constants;
+import com.letscooee.utils.PermissionUtils;
 import java.util.Map;
 
 /**
@@ -157,6 +160,12 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
     }
 
     private void showNotification(TriggerData triggerData) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !PermissionUtils.hasPermission(context,
+                Manifest.permission.POST_NOTIFICATIONS)) {
+            Log.e(Constants.TAG, "Do not have permission to display notification");
+            return;
+        }
+
         SimpleNotificationRenderer renderer = new SimpleNotificationRenderer(context, triggerData);
         try {
             renderer.render();
@@ -179,4 +188,5 @@ public class CooeeFirebaseMessagingService extends FirebaseMessagingService {
     public static void setMessageDelivered() {
         disableMessagingHandling = true;
     }
+
 }

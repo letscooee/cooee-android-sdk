@@ -27,14 +27,15 @@ public class HomeActivity extends AppCompatActivity implements CooeeCTAListener 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        com.letscooee.cooeetester.databinding.ActivityHomeBinding binding = ActivityHomeBinding.inflate(getLayoutInflater());
+        com.letscooee.cooeetester.databinding.ActivityHomeBinding binding =
+                ActivityHomeBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         context = this;
         cooeeSDK = CooeeSDK.getDefaultInstance(this);
         cooeeSDK.setCTAListener(this);
         String TAG = "HomeActivity";
         cooeeSDK.setCurrentScreen(TAG);
+        cooeeSDK.requestNotificationPermission(this);
 
         Log.d(TAG, "User ID " + cooeeSDK.getUserID());
 

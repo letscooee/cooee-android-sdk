@@ -100,10 +100,10 @@ android {
         pickFirst 'lib/**/*.so'
     }
 
-    compileSdkVersion 32
+    compileSdkVersion 33
     defaultConfig {
         minSdkVersion 21
-        targetSdkVersion 32
+        targetSdkVersion 33
         renderscriptTargetApi 29
         renderscriptSupportModeEnabled true
         versionCode project.version.toString()
