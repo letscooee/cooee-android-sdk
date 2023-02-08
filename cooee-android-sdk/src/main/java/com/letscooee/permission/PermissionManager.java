@@ -1,14 +1,10 @@
 package com.letscooee.permission;
 
 import android.content.Context;
-import android.content.pm.PackageManager;
-
 import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
-
 import com.letscooee.init.DefaultUserPropertiesCollector;
 import com.letscooee.utils.PermissionType;
-
+import com.letscooee.utils.PermissionUtils;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -41,9 +37,7 @@ public class PermissionManager {
         Map<String, Object> deviceProps = new HashMap<>();
 
         for (PermissionType permissionType : permissions) {
-
-            boolean permissionStatus = ContextCompat.checkSelfPermission(context,
-                    permissionType.toString()) == PackageManager.PERMISSION_GRANTED;
+            boolean permissionStatus = PermissionUtils.hasPermission(context, permissionType.toString());
 
             permissionMap.put(permissionType.name(), permissionStatus ? "GRANTED" : "DENIED");
 
@@ -63,4 +57,5 @@ public class PermissionManager {
 
         return deviceProps;
     }
+
 }
