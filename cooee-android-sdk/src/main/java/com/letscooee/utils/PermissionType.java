@@ -18,7 +18,8 @@ public enum PermissionType {
     LOCATION(Manifest.permission.ACCESS_FINE_LOCATION),
     CAMERA(Manifest.permission.CAMERA),
     PHONE_DETAILS(Manifest.permission.READ_PHONE_STATE),
-    STORAGE(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+    STORAGE(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+    NOTIFICATION(Manifest.permission.POST_NOTIFICATIONS);
 
     private final String text;
     private static final Map<String, PermissionType> VALUES = new HashMap<>();

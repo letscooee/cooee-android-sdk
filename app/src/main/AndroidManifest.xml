@@ -1,22 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
-        package="com.letscooee.cooeetester">
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.letscooee.cooeetester">
 
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <application
-            android:allowBackup="false"
-            android:icon="@mipmap/ic_launcher"
-            android:label="@string/app_name"
-            android:roundIcon="@mipmap/ic_launcher_round"
-            android:supportsRtl="true"
-            android:theme="@style/Theme.Letscooee"
-            android:usesCleartextTraffic="true"
-            tools:targetApi="n">
+        android:allowBackup="false"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Letscooee"
+        android:usesCleartextTraffic="true"
+        tools:targetApi="n">
 
         <activity android:name=".SignUpActivity" />
         <activity android:name=".ProfileActivity" />
         <activity android:name=".SplashActivity" />
-        <activity android:name=".HomeActivity" android:exported="true">
+        <activity
+            android:name=".HomeActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -24,8 +27,8 @@
         </activity>
 
         <meta-data
-                android:name="COOEE_APP_ID"
-                android:value="5f9136107d618d7d123cc118" />
+            android:name="COOEE_APP_ID"
+            android:value="5f9136107d618d7d123cc118" />
 
         <meta-data
             android:name="SHAKE_TO_DEBUG_COUNT"
