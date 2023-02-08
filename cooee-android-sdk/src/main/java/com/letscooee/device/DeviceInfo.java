@@ -6,10 +6,8 @@ import android.os.Build;
 import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
-
 import com.letscooee.ContextAware;
 
 /**
@@ -47,18 +45,23 @@ public class DeviceInfo extends ContextAware {
         }
 
         private void cacheName() {
-            String deviceName = Settings.Secure.getString(context.getContentResolver(), "bluetooth_name");
+            String deviceName = null;
+
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+                deviceName = Settings.Secure.getString(context.getContentResolver(), "bluetooth_name");
+            }
 
             if (TextUtils.isEmpty(deviceName) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 deviceName = Settings.Global.getString(context.getContentResolver(), "device_name");
             }
 
-            if (deviceName == null) {
+            if (TextUtils.isEmpty(deviceName)) {
                 deviceName = Build.MODEL;
             }
 
             this.name = deviceName;
         }
+
     }
 
     public static DeviceInfo getInstance(Context context) {
@@ -129,4 +132,5 @@ public class DeviceInfo extends ContextAware {
     public int getDpi() {
         return displayMetrics.densityDpi;
     }
+
 }
