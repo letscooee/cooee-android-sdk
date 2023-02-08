@@ -1,7 +1,10 @@
 package com.letscooee;
 
+import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.text.TextUtils;
 import android.util.Log;
 import androidx.annotation.NonNull;
@@ -12,6 +15,7 @@ import com.letscooee.retrofit.DeviceAuthService;
 import com.letscooee.task.CooeeExecutors;
 import com.letscooee.utils.Constants;
 import com.letscooee.utils.CooeeCTAListener;
+import com.letscooee.utils.PermissionUtils;
 import com.letscooee.utils.PropertyNameException;
 import com.letscooee.utils.RuntimeData;
 import com.letscooee.utils.SentryHelper;
@@ -151,7 +155,8 @@ public class CooeeSDK {
             return;
         }
 
-        // Update screen name on main thread, because other threads may be in paused state till CPU gets free.(Edge case scenario)
+        // Update screen name on main thread, because other threads may be in paused state till CPU gets free.(Edge
+        // case scenario)
         String previousScreenName = this.runtimeData.getCurrentScreenName();
         this.runtimeData.setCurrentScreenName(screenName);
 
@@ -198,6 +203,31 @@ public class CooeeSDK {
             this.sentryHelper.setUserInfo(userData);
             this.safeHTTPService.updateUserProfile(userData);
         });
+    }
+
+    /**
+     * Request an Notification Permission to the user
+     * <br/><br/>
+     * <b>Note:</b> This should be called on Android API 33 and above i.e
+     * {@link android.os.Build.VERSION_CODES#TIRAMISU} and above.
+     *
+     * @param activity reference of the {@link Activity} on which permission should be requested
+     * @since 1.4.3
+     */
+    public void requestNotificationPermission(Activity activity) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+            Log.e(Constants.TAG, "Trying request Notification permission below Android API 33");
+            return;
+        }
+
+        String permission = Manifest.permission.POST_NOTIFICATIONS;
+
+        if (PermissionUtils.hasPermission(activity, permission)) {
+            return;
+        }
+
+        activity.requestPermissions(new String[]{permission},
+                Constants.PERMISSION_REQUEST_CODE);
     }
 
     /**
