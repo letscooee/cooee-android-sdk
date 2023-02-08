@@ -22,7 +22,7 @@ allprojects {
         maven { url "https://letscooee.jfrog.io/artifactory/default-maven-local" }
     }
 
-    version "1.4.2"
+    version "1.4.3"
     group "com.letscooee"
 
     if (project.gradle.startParameter.taskNames[0]?.contains("publishToMavenLocal")) {

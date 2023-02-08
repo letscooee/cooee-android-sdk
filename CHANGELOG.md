@@ -1,5 +1,18 @@
 # Change Log
 
+## 1.4.3 (2023-02-08)
+
+### Features
+
+1. Expose `CooeeSDK.requestNotificationPermission` method for Android 13.
+2. Add support for Android 13
+
+### Improvement
+
+1. Check notification permission in Android 13 before displaying notification.
+2. Collect Notification permission status.
+3. Do not check `bluetooth_name` on Android 12 and above.
+
 ## 1.4.2 (2023-01-19)
 
 ### Fixes
